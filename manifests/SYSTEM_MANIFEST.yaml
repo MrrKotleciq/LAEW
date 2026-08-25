@@ -1,0 +1,132 @@
+# ==============================================================================
+# LAEW — Local AI Engineering Workspace System Manifest
+# Specification: LAEW v1.0
+# ==============================================================================
+
+version: "1.0"
+system_name: "LAEW"
+stage: "foundation"
+
+# ------------------------------------------------------------------------------
+# 1. Workspace Boundaries & Configuration
+# ------------------------------------------------------------------------------
+workspace:
+  root: "."
+  allowed_paths:
+    - "configs"
+    - "docs"
+    - "manifests"
+    - "prompts"
+    - "scripts"
+    - "tests"
+    - "tools"
+  restricted_paths:
+    - ".git"
+    - "secrets"
+  ignored_patterns:
+    - "**/.env*"
+    - "**/node_modules/**"
+    - "**/__pycache__/**"
+    - "**/*.gguf"
+    - "**/*.safetensors"
+
+# ------------------------------------------------------------------------------
+# 2. Abstract Model Roles (Principle P1: Model is replaceable)
+# Models are interchangeable components; assign abstract roles, not hardcoded LLM names.
+# ------------------------------------------------------------------------------
+models:
+  roles:
+    primary:
+      description: "Primary model for reasoning, planning, and orchestration (Chief Agent)"
+      # Baseline estimates (scalable according to target model context window)
+      context_budget:
+        system: 2000
+        conversation: 4000
+        rag: 8000
+        tools: 4000
+        total: 18000
+    embedding:
+      description: "Embedding model for knowledge base vectorization and RAG retrieval"
+      target_dimensions: 768
+    reviewer:
+      description: "Specialist model for architecture audit and code review"
+
+# ------------------------------------------------------------------------------
+# 3. Tool Registry & Security Policies (Principle P8: Security below model layer)
+# Security boundaries and permissions enforced programmatically below the model layer.
+# ------------------------------------------------------------------------------
+tools:
+  categories:
+    filesystem:
+      policy: "read_only_by_default"
+      allowed_operations:
+        - "view_file"
+        - "list_dir"
+        - "find_by_name"
+        - "grep_search"
+      require_user_approval:
+        - "write_file"
+        - "replace_file_content"
+        - "delete_file"
+    git:
+      policy: "inspection_first"
+      allowed_operations:
+        - "status"
+        - "diff"
+        - "log"
+      require_user_approval:
+        - "commit"
+        - "checkout"
+        - "branch"
+      forbidden_operations:
+        - "reset_hard"
+        - "push_force"
+        - "clean_f"
+    terminal:
+      policy: "safe_command_allowlist"
+      allowlist:
+        - "ls"
+        - "git status"
+        - "git diff"
+        - "git log"
+        - "find"
+        - "cat"
+      require_user_approval:
+        - "run_tests"
+        - "build"
+      forbidden_patterns:
+        - "rm -rf"
+        - "sudo"
+        - "chmod"
+        - "> /dev/*"
+    web:
+      policy: "read_only"
+      allowed_operations:
+        - "search_web"
+        - "read_url_content"
+
+# ------------------------------------------------------------------------------
+# 4. Memory Layers & Knowledge Base (Principle P2: Knowledge remains outside model)
+# ------------------------------------------------------------------------------
+memory:
+  session:
+    type: "ephemeral"
+    storage: "runtime/sessions"
+  second_brain:
+    type: "obsidian_vault"
+    path: "knowledge"
+    structure:
+      - "Knowledge"
+      - "Decisions"
+      - "Research"
+      - "Templates"
+
+# ------------------------------------------------------------------------------
+# 5. RAG Subsystem (Retrieval-Augmented Generation)
+# ------------------------------------------------------------------------------
+rag:
+  pipeline:
+    retrieval: "vector_search"
+    reranking: true
+    top_k: 5
+    max_context_tokens: 8000
