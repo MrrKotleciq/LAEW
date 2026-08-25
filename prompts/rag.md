@@ -21,3 +21,15 @@ Guide knowledge base query generation, vector retrieval filtering, context reran
 2. **Retrieve & Filter**: Fetch top candidates from vector storage and apply similarity thresholds.
 3. **Rerank & Prune**: Select the top-k highest scoring chunks fitting within the token budget.
 4. **Synthesize**: Answer the query relying strictly on the retrieved context combined with ground truth repository state.
+
+---
+
+## 4. Retrieval Scoping (ADR-011)
+
+RAG must not treat the entire workspace as one undifferentiated knowledge base. Queries must be explicitly scoped:
+
+1. **`project_scoped`**: Search within the current project repository (`@project`). Use for implementation tasks, debugging, architecture review, and project-specific questions.
+2. **`global_scoped`**: Search within the global Obsidian knowledge vault (`@knowledge`). Use for cross-project domain knowledge, research notes, hardware specifications, and general engineering concepts.
+3. **`hybrid_scoped`**: Combine results from both project memory and global knowledge. Use when a task requires domain patterns applied to local project state.
+
+All synthesized claims must cite their provenance (`Project Memory` or `Global Knowledge`).

@@ -10,7 +10,7 @@ Each significant architectural decision is recorded in its own dedicated documen
 | ID | Title | Status | Date |
 | :--- | :--- | :--- | :--- |
 | [ADR-001](ADR-001-model-abstraction.md) | Model Abstraction and Roles | `Accepted` | 2026-08-25 |
-| [ADR-002](ADR-002-obsidian-second-brain.md) | Obsidian Vault for Knowledge Storage | `Accepted` | 2026-08-25 |
+| [ADR-002](ADR-002-obsidian-second-brain.md) | Obsidian Vault for Global Knowledge Storage | `Accepted` | 2026-08-25 |
 | [ADR-003](ADR-003-rag-pipeline-reranking.md) | RAG Retrieval and Reranking Pipeline | `Accepted` | 2026-08-25 |
 | [ADR-004](ADR-004-explicit-context-budgeting.md) | Explicit Context Budgeting | `Accepted` | 2026-08-25 |
 | [ADR-005](ADR-005-layered-prompt-architecture.md) | Layered Modular Prompt Instructions | `Accepted` | 2026-08-25 |
@@ -18,6 +18,8 @@ Each significant architectural decision is recorded in its own dedicated documen
 | [ADR-007](ADR-007-documentation-language-convention.md) | English Language for Repository Artifacts | `Accepted` | 2026-08-25 |
 | [ADR-008](ADR-008-modular-tool-contracts.md) | Modular Tool Contracts Structure | `Accepted` | 2026-08-25 |
 | [ADR-009](ADR-009-documentation-as-long-term-memory.md) | Repository Documentation as Long-Term Memory and Project Sync | `Accepted` | 2026-08-25 |
+| [ADR-010](ADR-010-multi-root-workspace-and-path-aliasing.md) | Multi-Root Workspace Boundaries and Logical Path Aliasing | `Accepted` | 2026-08-25 |
+| [ADR-011](ADR-011-project-memory-vs-global-knowledge-separation.md) | Separation of Project Memory and Global Knowledge | `Accepted` | 2026-08-25 |
 
 ---
 

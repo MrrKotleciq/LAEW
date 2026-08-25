@@ -74,7 +74,10 @@ The architecture should allow local and cloud models.
 ## 4. Second Brain
 
 The knowledge system is intended to work together with
-a Second Brain / Obsidian knowledge base.
+a single global Obsidian knowledge vault (ADR-002).
+
+The vault resides outside individual project repositories
+and is shared across all current and future projects.
 
 The knowledge base should contain structured knowledge
 rather than becoming a dumping ground.
@@ -105,6 +108,11 @@ Knowledge should be connected through links rather than
 only through folders.
 
 The purpose is a network of relationships between knowledge.
+
+Global knowledge must not be duplicated into each project
+repository. Project-specific documentation belongs in the
+project repository; cross-project domain knowledge belongs
+in the global vault.
 
 ---
 
@@ -287,8 +295,9 @@ RAG
   └── Vector DB
 
 MEMORY
+  ├── Project Memory (in-repository docs, ADRs, status)
   ├── Session
-  └── Obsidian
+  └── Global Knowledge (single Obsidian vault)
 
 These produce:
 

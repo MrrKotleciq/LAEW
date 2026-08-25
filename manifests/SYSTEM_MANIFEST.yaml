@@ -8,10 +8,25 @@ system_name: "LAEW"
 stage: "foundation"
 
 # ------------------------------------------------------------------------------
-# 1. Workspace Boundaries & Configuration
+# 1. Multi-Root Workspace Boundaries & Logical Path Aliasing (ADR-010)
 # ------------------------------------------------------------------------------
 workspace:
-  root: "."
+  logical_roots:
+    project: "."                            # PROJECT_ROOT (@project)
+    projects_parent: "../"                  # PROJECTS_ROOT (@projects)
+    global_knowledge: "../../knowledge"     # GLOBAL_KNOWLEDGE_ROOT (@knowledge)
+
+  path_aliases:
+    "@project": "project"
+    "@projects": "projects_parent"
+    "@knowledge": "global_knowledge"
+
+  access_policies:
+    "@project": "workspace_read_write_with_approval"
+    "@knowledge": "read_only"
+    "@projects": "controlled_inspection"
+    "unmapped_paths": "DENY_BY_DEFAULT"
+
   allowed_paths:
     - "configs"
     - "docs"
@@ -20,9 +35,14 @@ workspace:
     - "scripts"
     - "tests"
     - "tools"
+
   restricted_paths:
     - ".git"
     - "secrets"
+    - "~/.ssh"
+    - "~/.config"
+    - "/etc"
+
   ignored_patterns:
     - "**/.env*"
     - "**/node_modules/**"
@@ -31,7 +51,7 @@ workspace:
     - "**/*.safetensors"
 
 # ------------------------------------------------------------------------------
-# 2. Abstract Model Roles (Principle P1: Model is replaceable)
+# 2. Abstract Model Roles (Principle P1 / ADR-001)
 # Models are interchangeable components; assign abstract roles, not hardcoded LLM names.
 # ------------------------------------------------------------------------------
 models:
@@ -52,7 +72,7 @@ models:
       description: "Specialist model for architecture audit and code review"
 
 # ------------------------------------------------------------------------------
-# 3. Tool Registry & Security Policies (Principle P8: Security below model layer)
+# 3. Tool Registry & Security Policies (Principle P8 / ADR-006 / ADR-008)
 # Security boundaries and permissions enforced programmatically below the model layer.
 # ------------------------------------------------------------------------------
 tools:
@@ -106,15 +126,20 @@ tools:
         - "read_url_content"
 
 # ------------------------------------------------------------------------------
-# 4. Memory Layers & Knowledge Base (Principle P2: Knowledge remains outside model)
+# 4. Memory Layers & Global Knowledge Base (ADR-002 / ADR-011)
 # ------------------------------------------------------------------------------
 memory:
+  project_memory:
+    type: "git_repository"
+    path: "@project"
+    scope: "project_ground_truth"
   session:
     type: "ephemeral"
     storage: "runtime/sessions"
-  second_brain:
-    type: "obsidian_vault"
-    path: "knowledge"
+  global_knowledge:
+    type: "single_global_obsidian_vault"
+    path: "@knowledge"
+    scope: "cross_project_knowledge"
     structure:
       - "Knowledge"
       - "Decisions"
@@ -122,7 +147,7 @@ memory:
       - "Templates"
 
 # ------------------------------------------------------------------------------
-# 5. RAG Subsystem (Retrieval-Augmented Generation)
+# 5. RAG Subsystem & Scoping (ADR-003 / ADR-011)
 # ------------------------------------------------------------------------------
 rag:
   pipeline:
@@ -130,3 +155,7 @@ rag:
     reranking: true
     top_k: 5
     max_context_tokens: 8000
+  scopes:
+    - "project_scoped"
+    - "global_scoped"
+    - "hybrid_scoped"
