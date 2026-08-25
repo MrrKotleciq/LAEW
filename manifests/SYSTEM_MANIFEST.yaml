@@ -1,161 +1,131 @@
-# ==============================================================================
-# LAEW — Local AI Engineering Workspace System Manifest
-# Specification: LAEW v1.0
-# ==============================================================================
-
-version: "1.0"
-system_name: "LAEW"
-stage: "foundation"
-
-# ------------------------------------------------------------------------------
-# 1. Multi-Root Workspace Boundaries & Logical Path Aliasing (ADR-010)
-# ------------------------------------------------------------------------------
-workspace:
-  logical_roots:
-    project: "."                            # PROJECT_ROOT (@project)
-    projects_parent: "../"                  # PROJECTS_ROOT (@projects)
-    global_knowledge: "../../knowledge"     # GLOBAL_KNOWLEDGE_ROOT (@knowledge)
-
-  path_aliases:
-    "@project": "project"
-    "@projects": "projects_parent"
-    "@knowledge": "global_knowledge"
-
-  access_policies:
-    "@project": "workspace_read_write_with_approval"
-    "@knowledge": "read_only"
-    "@projects": "controlled_inspection"
-    "unmapped_paths": "DENY_BY_DEFAULT"
-
-  allowed_paths:
-    - "configs"
-    - "docs"
-    - "manifests"
-    - "prompts"
-    - "scripts"
-    - "tests"
-    - "tools"
-
-  restricted_paths:
-    - ".git"
-    - "secrets"
-    - "~/.ssh"
-    - "~/.config"
-    - "/etc"
-
-  ignored_patterns:
-    - "**/.env*"
-    - "**/node_modules/**"
-    - "**/__pycache__/**"
-    - "**/*.gguf"
-    - "**/*.safetensors"
-
-# ------------------------------------------------------------------------------
-# 2. Abstract Model Roles (Principle P1 / ADR-001)
-# Models are interchangeable components; assign abstract roles, not hardcoded LLM names.
-# ------------------------------------------------------------------------------
-models:
-  roles:
-    primary:
-      description: "Primary model for reasoning, planning, and orchestration (Chief Agent)"
-      # Baseline estimates (scalable according to target model context window)
-      context_budget:
-        system: 2000
-        conversation: 4000
-        rag: 8000
-        tools: 4000
-        total: 18000
-    embedding:
-      description: "Embedding model for knowledge base vectorization and RAG retrieval"
-      target_dimensions: 768
-    reviewer:
-      description: "Specialist model for architecture audit and code review"
-
-# ------------------------------------------------------------------------------
-# 3. Tool Registry & Security Policies (Principle P8 / ADR-006 / ADR-008)
-# Security boundaries and permissions enforced programmatically below the model layer.
-# ------------------------------------------------------------------------------
-tools:
-  categories:
-    filesystem:
-      policy: "read_only_by_default"
-      allowed_operations:
-        - "view_file"
-        - "list_dir"
-        - "find_by_name"
-        - "grep_search"
-      require_user_approval:
-        - "write_file"
-        - "replace_file_content"
-        - "delete_file"
-    git:
-      policy: "inspection_first"
-      allowed_operations:
-        - "status"
-        - "diff"
-        - "log"
-      require_user_approval:
-        - "commit"
-        - "checkout"
-        - "branch"
-      forbidden_operations:
-        - "reset_hard"
-        - "push_force"
-        - "clean_f"
-    terminal:
-      policy: "safe_command_allowlist"
-      allowlist:
-        - "ls"
-        - "git status"
-        - "git diff"
-        - "git log"
-        - "find"
-        - "cat"
-      require_user_approval:
-        - "run_tests"
-        - "build"
-      forbidden_patterns:
-        - "rm -rf"
-        - "sudo"
-        - "chmod"
-        - "> /dev/*"
-    web:
-      policy: "read_only"
-      allowed_operations:
-        - "search_web"
-        - "read_url_content"
-
-# ------------------------------------------------------------------------------
-# 4. Memory Layers & Global Knowledge Base (ADR-002 / ADR-011)
-# ------------------------------------------------------------------------------
-memory:
-  project_memory:
-    type: "git_repository"
-    path: "@project"
-    scope: "project_ground_truth"
-  session:
-    type: "ephemeral"
-    storage: "runtime/sessions"
-  global_knowledge:
-    type: "single_global_obsidian_vault"
-    path: "@knowledge"
-    scope: "cross_project_knowledge"
-    structure:
-      - "Knowledge"
-      - "Decisions"
-      - "Research"
-      - "Templates"
-
-# ------------------------------------------------------------------------------
-# 5. RAG Subsystem & Scoping (ADR-003 / ADR-011)
-# ------------------------------------------------------------------------------
-rag:
-  pipeline:
-    retrieval: "vector_search"
-    reranking: true
-    top_k: 5
-    max_context_tokens: 8000
-  scopes:
-    - "project_scoped"
-    - "global_scoped"
-    - "hybrid_scoped"
+# ==============================================================================       
+    # LAEW — Local AI Engineering Workspace System Manifest                                
+    # Specification: LAEW v1.0                                                             
+    # ==============================================================================       
+                                                                                           
+    version: "1.0"                                                                         
+    system_name: "LAEW"                                                                    
+    stage: "foundation"                                                                    
+                                                                                           
+    # ------------------------------------------------------------------------------       
+    # 1. Granice i Konfiguracja Obszaru Roboczego (Workspace)                              
+    # ------------------------------------------------------------------------------       
+    workspace:                                                                             
+      root: "."                                                                            
+      allowed_paths:                                                                       
+        - "configs"                                                                        
+        - "docs"                                                                           
+        - "manifests"                                                                      
+        - "prompts"                                                                        
+        - "scripts"                                                                        
+        - "tests"                                                                          
+        - "tools"                                                                          
+      restricted_paths:                                                                    
+        - ".git"                                                                           
+        - "secrets"                                                                        
+      ignored_patterns:                                                                    
+        - "**/.env*"                                                                       
+        - "**/node_modules/**"                                                             
+        - "**/__pycache__/**"                                                              
+        - "**/*.gguf"                                                                      
+        - "**/*.safetensors"                                                               
+                                                                                           
+    # ------------------------------------------------------------------------------       
+    # 2. Abstrakcyjne Role Modeli (Model Roles - P1)                                       
+    # Modele są komponentami wymiennymi; przypisujemy role, nie sztywne nazwy LLM.         
+    # ------------------------------------------------------------------------------       
+    models:                                                                                
+      roles:                                                                               
+        primary:                                                                           
+          description: "Główny model do rozumowania, planowania i orkiestracji (Chief Agent)"                                                                                  
+          context_budget:                                                                  
+            system: 2000                                                                   
+            conversation: 4000                                                             
+            rag: 8000                                                                      
+            tools: 4000                                                                    
+            total: 18000                                                                   
+        embedding:                                                                         
+          description: "Model do generowania wektorów na potrzeby bazy wiedzy i RAG"       
+          target_dimensions: 768                                                           
+        reviewer:                                                                          
+          description: "Model specjalistyczny do audytu architektury i przeglądu kodu"     
+                                                                                           
+    # ------------------------------------------------------------------------------       
+    # 3. Rejestr Narzędzi i Polityki Uprawnień (Tool Registry & Security - P8)             
+    # Ograniczenia bezpieczeństwa wymuszane poniżej warstwy modelu.                        
+    # ------------------------------------------------------------------------------       
+    tools:                                                                                 
+      categories:                                                                          
+        filesystem:                                                                        
+          policy: "read_only_by_default"                                                   
+          allowed_operations:                                                              
+            - "view_file"                                                                  
+            - "list_dir"                                                                   
+            - "find_by_name"                                                               
+            - "grep_search"                                                                
+          require_user_approval:                                                           
+            - "write_file"                                                                 
+            - "replace_file_content"                                                       
+            - "delete_file"                                                                
+        git:                                                                               
+          policy: "inspection_first"                                                       
+          allowed_operations:                                                              
+            - "status"                                                                     
+            - "diff"                                                                       
+            - "log"                                                                        
+          require_user_approval:                                                           
+            - "commit"                                                                     
+            - "checkout"                                                                   
+            - "branch"                                                                     
+          forbidden_operations:                                                            
+            - "reset_hard"                                                                 
+            - "push_force"                                                                 
+            - "clean_f"                                                                    
+        terminal:                                                                          
+          policy: "safe_command_allowlist"                                                 
+          allowlist:                                                                       
+            - "ls"                                                                         
+            - "git status"                                                                 
+            - "git diff"                                                                   
+            - "git log"                                                                    
+            - "find"                                                                       
+            - "cat"                                                                        
+          require_user_approval:                                                           
+            - "run_tests"                                                                  
+            - "build"                                                                      
+          forbidden_patterns:                                                              
+            - "rm -rf"                                                                     
+            - "sudo"                                                                       
+            - "chmod"                                                                      
+            - "> /dev/*"                                                                   
+        web:                                                                               
+          policy: "read_only"
+          allowed_operations:
+            - "search_web"
+            - "read_url_content"
+  
+    # ------------------------------------------------------------------------------       
+    # 4. Warstwy Pamięci i Baza Wiedzy (Memory & Second Brain - P2)
+    # ------------------------------------------------------------------------------       
+    memory:
+      session:
+        type: "ephemeral"
+        storage: "runtime/sessions"
+      second_brain:
+        type: "obsidian_vault"
+        path: "knowledge"
+        structure:
+          - "Knowledge"
+          - "Decisions"
+          - "Research"
+          - "Templates"
+  
+    # ------------------------------------------------------------------------------       
+    # 5. Podsystem RAG (Retrieval-Augmented Generation)
+    # ------------------------------------------------------------------------------       
+    rag:
+      pipeline:
+        retrieval: "vector_search"
+        reranking: true
+        top_k: 5
+        max_context_tokens: 8000
