@@ -1,0 +1,16 @@
+Metadata-Version: 2.4
+Name: laew
+Version: 0.1.0
+Summary: Local AI Engineering Workspace
+Author: LAEW Contributors
+Requires-Python: >=3.10
+Requires-Dist: pyyaml>=6.0
+Requires-Dist: requests>=2.31.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.4.0; extra == "dev"
+Requires-Dist: html2text>=2020.1.16; extra == "dev"
+Dynamic: author
+Dynamic: provides-extra
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary

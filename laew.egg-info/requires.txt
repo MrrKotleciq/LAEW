@@ -1,0 +1,6 @@
+pyyaml>=6.0
+requests>=2.31.0
+
+[dev]
+pytest>=7.4.0
+html2text>=2020.1.16

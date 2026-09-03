@@ -1,0 +1,2 @@
+[console_scripts]
+laew = laew.cli:main
