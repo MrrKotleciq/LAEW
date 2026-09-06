@@ -45,7 +45,8 @@
             tools: 4000                                                                    
             total: 18000                                                                   
         embedding:                                                                         
-          description: "Model do generowania wektorów na potrzeby bazy wiedzy i RAG"       
+          description: "Model do generowania wektorów na potrzeby bazy wiedzy i RAG"
+          model_name: "nomic-embed-text:latest"       
           target_dimensions: 768                                                           
         reviewer:                                                                          
           description: "Model specjalistyczny do audytu architektury i przeglądu kodu"     

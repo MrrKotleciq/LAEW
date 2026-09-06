@@ -3,7 +3,7 @@
 ## Status
 
 Architecture: LAEW v1.0 documented
-Implementation: Milestone 1 (Declarative Foundation) completed (commit `653b28d`)
+Implementation: Milestone 4 (Knowledge System & RAG Pipeline) completed
 
 ## Currently present in repository
 
@@ -16,6 +16,8 @@ Implementation: Milestone 1 (Declarative Foundation) completed (commit `653b28d`
 - .agents/ (Antigravity rules, chief agent, skills including project-sync)
 - package-lock.json
 - .gitignore
+- laew/ (Python package with tool runtime wrappers, CLI, LLM provider, prompt management, agent loop)
+- setup.py (Package installation configuration)
 
 ## Milestone 1 Implementation (Completed)
 
@@ -24,14 +26,43 @@ Implementation: Milestone 1 (Declarative Foundation) completed (commit `653b28d`
 - prompts/: 8 layered prompt templates (`core.md`, `chief-agent.md`, `architecture.md`, `research.md`, `code-review.md`, `debugging.md`, `documentation.md`, `rag.md`).
 - tests/: 16 formal test specifications across `security/`, `agent/`, `rag/`, and `workflow/`.
 
+## Milestone 2 Implementation (Completed)
+
+- laew/manifest.py: YAML manifest loader and schema validation engine (20 unit tests)
+- laew/security/path_resolver.py: Multi-root workspace resolver with ADR-010 path aliasing, traversal prevention, and sensitive file blacklisting (18 unit tests)
+- laew/tools/base.py: Abstract Tool class, standardized ToolResult, ErrorCode enum, and ADR-016 structured invocation logging (28 unit tests for filesystem, 24 for git, 19 for terminal, 15 for web, 4 for logging)
+- laew/tools/filesystem.py: Filesystem operations with read-only defaults, mutation approval gates, and @project-only write constraints
+- laew/tools/git.py: Git operations with inspect-first policy, mutation approval gates, blocked destructive subcommands, and LC_ALL=C locale enforcement
+- laew/tools/terminal.py: Subprocess execution engine with command allowlists, dangerous pattern blacklists, and workspace boundary confinement
+- laew/tools/web.py: HTTP reader with markdown conversion, protocol restriction (http/https), and web search interface
+- laew/cli.py: Command-line interface with `laew check` (manifest validation) and `laew tool` (tool execution) commands (16 unit tests)
+
+## Milestone 3 Implementation (Completed)
+
+- laew/llm/base.py: LLM provider abstract interface with MessageRole, LLMMessage, LLMResponse, and LLMProvider per ADR-001 (10 unit tests)
+- laew/llm/ollama.py: Ollama local LLM provider with chat generation, model listing, health checks, and model pulling
+- laew/prompts/context_budget.py: Context budgeting per ADR-004 and TokenEstimator heuristic (~4 chars/token)
+- laew/prompts/loader.py: Layered prompt loader supporting single-file and directory-based section composition (45 unit tests for prompts module)
+- laew/prompts/templates.py: Prompt template registry with {{variable}} substitution and validation
+- laew/agent/base.py: Agent base class, AgentConfig, AgentRole enum, and history management
+- laew/agent/executor.py: AgentExecutor orchestration loop (Thought -> Action -> Observation -> Response) with tool calling via JSON blocks (26 unit tests)
+- laew/rag/embedding.py: EmbeddingService abstract interface and OllamaEmbedding implementation (20 unit tests)
+- laew/rag/vector_store.py: In-memory vector store with cosine similarity search (8 unit tests)
+- laew/rag/knowledge_base.py: Knowledge loading from project memory and global knowledge sources (4 unit tests)
+- laew/rag/pipeline.py: RAG pipeline orchestrating retrieval, reranking, and context injection (4 unit tests)
+- laew/rag/rag_tool.py: Tool wrapper for agent RAG queries (3 unit tests)
+- laew/rag/__init__.py: Module exports
+
+Total: 244 unit tests passing across 11 test suites
+
 ## Important distinction
 
 The architecture documentation describes the intended
 LAEW v1.0 system.
 
-The current repository represents the declarative foundation;
-runtime code and active execution engines are being developed incrementally.
+The current repository represents the declarative foundation, tool runtime layer, CLI, LLM provider, prompt management, and chief agent orchestration loop;
+knowledge retrieval (RAG) and workflow automation are being developed incrementally.
 
 ## Immediate objective
 
-Plan and implement Milestone 2 (Manifest validator and baseline tool runtime wrappers / execution engines).
+Plan and implement Milestone 4 (Knowledge System & RAG Pipeline).

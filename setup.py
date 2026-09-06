@@ -12,6 +12,7 @@ setup(
     install_requires=[
         "pyyaml>=6.0",
         "requests>=2.31.0",
+        "numpy>=1.24.0",
     ],
     extras_require={
         "dev": [

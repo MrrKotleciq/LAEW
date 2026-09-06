@@ -20,6 +20,12 @@ Each significant architectural decision is recorded in its own dedicated documen
 | [ADR-009](ADR-009-documentation-as-long-term-memory.md) | Repository Documentation as Long-Term Memory and Project Sync | `Accepted` | 2026-08-25 |
 | [ADR-010](ADR-010-multi-root-workspace-and-path-aliasing.md) | Multi-Root Workspace Boundaries and Logical Path Aliasing | `Accepted` | 2026-08-25 |
 | [ADR-011](ADR-011-project-memory-vs-global-knowledge-separation.md) | Separation of Project Memory and Global Knowledge | `Accepted` | 2026-08-25 |
+| [ADR-012](ADR-012-agent-memory-vs-current-state-separation.md) | Agent Memory vs Current State Separation | `Accepted` | 2026-09-03 |
+| [ADR-013](ADR-013-sequential-deployment-stages.md) | Sequential Deployment Stages with Independent Verification | `Accepted` | 2026-09-03 |
+| [ADR-014](ADR-014-infrastructure-stability-over-feature-breadth.md) | Infrastructure Stability Over Feature Breadth | `Accepted` | 2026-09-03 |
+| [ADR-015](ADR-015-automation-with-manual-disabled-modes.md) | Automation with Manual and Disabled Modes | `Accepted` | 2026-09-03 |
+| [ADR-016](ADR-016-structured-tool-invocation-logging.md) | Structured Tool Invocation Logging | `Accepted` | 2026-09-03 |
+| [ADR-017](ADR-017-single-agent-stability-before-multi-agent.md) | Single-Agent Stability Before Multi-Agent | `Accepted` | 2026-09-03 |
 
 ---
 
