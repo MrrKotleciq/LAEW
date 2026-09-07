@@ -13,7 +13,7 @@ Implementation: Milestone 4 (Knowledge System & RAG Pipeline) completed
 - prompts/ (Layered prompt templates)
 - tests/ (Test specifications for security, agent, rag, workflow)
 - docs/ (Architecture, principles, decisions, context, status)
-- .agents/ (Antigravity rules, chief agent, skills including project-sync)
+- .claude/ (Agent SDK configuration, settings, prompts)
 - package-lock.json
 - .gitignore
 - laew/ (Python package with tool runtime wrappers, CLI, LLM provider, prompt management, agent loop)
@@ -24,7 +24,6 @@ Implementation: Milestone 4 (Knowledge System & RAG Pipeline) completed
 - manifests/SYSTEM_MANIFEST.yaml: Declarative specification of workspace boundaries, model roles, tool policies, memory layers, and RAG configuration.
 - tools/: 4 modular tool contracts (`filesystem/CONTRACT.md`, `git/CONTRACT.md`, `terminal/CONTRACT.md`, `web/CONTRACT.md`).
 - prompts/: 8 layered prompt templates (`core.md`, `chief-agent.md`, `architecture.md`, `research.md`, `code-review.md`, `debugging.md`, `documentation.md`, `rag.md`).
-- tests/: 16 formal test specifications across `security/`, `agent/`, `rag/`, and `workflow/`.
 
 ## Milestone 2 Implementation (Completed)
 
@@ -53,16 +52,18 @@ Implementation: Milestone 4 (Knowledge System & RAG Pipeline) completed
 - laew/rag/rag_tool.py: Tool wrapper for agent RAG queries (3 unit tests)
 - laew/rag/__init__.py: Module exports
 
-Total: 244 unit tests passing across 11 test suites
+Total: 245 unit tests passing across 12 test suites
 
 ## Important distinction
 
 The architecture documentation describes the intended
 LAEW v1.0 system.
 
-The current repository represents the declarative foundation, tool runtime layer, CLI, LLM provider, prompt management, and chief agent orchestration loop;
-knowledge retrieval (RAG) and workflow automation are being developed incrementally.
+The current repository represents the declarative foundation, tool runtime layer, CLI, LLM provider, prompt management, chief agent orchestration loop, and knowledge retrieval (RAG) system;
+workflow automation capabilities are planned for future milestones.
 
-## Immediate objective
+## Current Focus
 
-Plan and implement Milestone 4 (Knowledge System & RAG Pipeline).
+Having completed Milestones 1-4, the project is ready to begin Milestone 5:
+Documentation & Health Consolidation, focusing on resolving documentation inconsistencies,
+establishing CI baselines, and addressing technical debt.

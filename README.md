@@ -41,14 +41,13 @@ The Chief Agent coordinates the task, selects the required context and tools, ev
 ```
 
 LAEW/
-├── configs/        # System configuration
-├── docker/         # Infrastructure and container configuration
+├── laew/           # Python package (core implementation)
 ├── docs/           # Project documentation
 ├── manifests/      # System manifests
 ├── prompts/        # Version-controlled prompts
-├── scripts/        # Automation and validation scripts
-├── tests/          # Agent, RAG, security and workflow tests
-├── tools/          # Tool contracts and implementations
+├── tests/          # Unit and specification tests
+├── tools/          # Tool contracts
+├── setup.py        # Package installation configuration
 └── README.md
 ```
 
@@ -64,6 +63,13 @@ Every major component should be testable independently.
 ```
 ## Project Status
 
-Current stage: Foundation / Architecture
+Current stage: Milestone 4 Complete (Foundation + Agent Runtime + RAG)
 
-The repository currently contains the initial project structure and architecture specification. Implementation is being developed incrementally.
+The repository implements:
+- Declarative foundation with system manifest and tool contracts
+- Tool runtime wrappers with programmatic security
+- CLI, LLM provider abstraction, context budgeting, and agent orchestration
+- RAG system with embeddings, vector store, knowledge base, and retrieval pipeline
+- 245 unit tests across 12 test suites
+
+See `docs/ROADMAP.md` for the development roadmap and future milestones.

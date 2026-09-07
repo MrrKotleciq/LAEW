@@ -5,24 +5,6 @@ For detailed code and file diffs, refer to Git commit history.
 
 ---
 
-## [2026-09-06] Code Audit: Technical Debt Refactoring
-
-- **Context & Motivation**:
-  Comprehensive code audit identified duplicated approval-checking logic across all tool implementations, violating DRY principle and creating maintenance burden. Critical issues in executor.py (incorrect ToolResult construction) and test platform compatibility (MSYS path handling) were also addressed.
-- **Key Achievements**:
-  - Added shared `_check_operation_approval` method to base `Tool` class (`laew/tools/base.py`) consolidating duplicated approval logic
-  - Added `_validate_mutation_operation` helper in `FilesystemTool` combining approval checking with path validation
-  - Refactored `FilesystemTool`, `GitTool`, and `TerminalTool` to use shared approval-checking mechanism
-  - Fixed `AgentExecutor` ToolResult construction using correct `error_code`/`error_message` fields
-  - Added MSYS path normalization for cross-platform test compatibility in terminal tests
-  - Verified all 245 unit tests pass with no regressions
-- **Decisions & Consequences**:
-  - Established single source of truth for approval logic in base `Tool` class, reducing code duplication across tools
-  - Preserved all existing security semantics while improving maintainability
-  - Maintained backward compatibility with existing tool interfaces and error handling patterns
-
----
-
 ## [2026-08-25] Milestone 1: Declarative Foundation Completed
 
 - **Context & Motivation**:
@@ -64,47 +46,7 @@ For detailed code and file diffs, refer to Git commit history.
 
 ---
 
-## [2026-09-03] Documentation Synchronization: ADRs 012–017 Formalized
-
-- **Context & Motivation**:
-  Synchronize architectural decisions from 13 source chapters analysis with actual repository state, formalizing decisions that were previously documented but not captured as individual ADRs.
-- **Key Achievements**:
-  - Created ADR-012: Agent Memory vs Current State Separation (verifying current state from Git/filesystem, not memory).
-  - Created ADR-013: Sequential Deployment Stages with Independent Verification.
-  - Created ADR-014: Infrastructure Stability Over Feature Breadth.
-  - Created ADR-015: Automation with Manual and Disabled Fallback Modes.
-  - Created ADR-016: Structured Tool Invocation Logging.
-  - Created ADR-017: Single-Agent Stability Before Multi-Agent.
-  - Updated ADR index (README.md) with ADRs 012–017.
-- **Decisions & Consequences**:
-  - Established formal architectural decisions for deployment sequencing, infrastructure prioritization, automation modes, diagnostic logging, and agent evolution path.
-  - Rejected/merged 20+ candidates from 13-chapter analysis into existing ADRs or non-architectural categories.
-
----
-
 ## [2026-09-03] Milestone 3: Chief Agent Runtime, LLM Provider & Orchestration Completed
-
----
-
-## [2026-09-06] Code Audit: Technical Debt Refactoring
-
-- **Context & Motivation**:
-  Comprehensive code audit identified duplicated approval-checking logic across all tool implementations, violating DRY principle and creating maintenance burden. Critical issues in executor.py (incorrect ToolResult construction) and test platform compatibility (MSYS path handling) were also addressed.
-- **Key Achievements**:
-  - Added shared `_check_operation_approval` method to base `Tool` class (`laew/tools/base.py`) consolidating duplicated approval logic
-  - Added `_validate_mutation_operation` helper in `FilesystemTool` combining approval checking with path validation
-  - Refactored `FilesystemTool`, `GitTool`, and `TerminalTool` to use shared approval-checking mechanism
-  - Fixed `AgentExecutor` ToolResult construction using correct `error_code`/`error_message` fields
-  - Added MSYS path normalization for cross-platform test compatibility in terminal tests
-  - Verified all 245 unit tests pass with no regressions
-- **Decisions & Consequences**:
-  - Established single source of truth for approval logic in base `Tool` class, reducing code duplication across tools
-  - Preserved all existing security semantics while improving maintainability
-  - Maintained backward compatibility with existing tool interfaces and error handling patterns
-
----
-
-## [2026-09-06] Milestone 4: Knowledge System & RAG Pipeline Completed
 
 - **Context & Motivation**:
   Build the chief agent orchestration layer that integrates LLM providers, context budgeting, prompt management, and tool execution, enabling the core agent loop (Thought → Action → Observation → Response) with structured tool calling.
@@ -128,6 +70,24 @@ For detailed code and file diffs, refer to Git commit history.
 
 ---
 
+## [2026-09-03] Documentation Synchronization: ADRs 012–017 Formalized
+
+- **Context & Motivation**:
+  Synchronize architectural decisions from 13 source chapters analysis with actual repository state, formalizing decisions that were previously documented but not captured as individual ADRs.
+- **Key Achievements**:
+  - Created ADR-012: Agent Memory vs Current State Separation (verifying current state from Git/filesystem, not memory).
+  - Created ADR-013: Sequential Deployment Stages with Independent Verification.
+  - Created ADR-014: Infrastructure Stability Over Feature Breadth.
+  - Created ADR-015: Automation with Manual and Disabled Fallback Modes.
+  - Created ADR-016: Structured Tool Invocation Logging.
+  - Created ADR-017: Single-Agent Stability Before Multi-Agent.
+  - Updated ADR index (README.md) with ADRs 012–017.
+- **Decisions & Consequences**:
+  - Established formal architectural decisions for deployment sequencing, infrastructure prioritization, automation modes, diagnostic logging, and agent evolution path.
+  - Rejected/merged 20+ candidates from 13-chapter analysis into existing ADRs or non-architectural categories.
+
+---
+
 ## [2026-09-06] Milestone 4: Knowledge System & RAG Pipeline Completed
 
 - **Context & Motivation**:
@@ -145,3 +105,20 @@ For detailed code and file diffs, refer to Git commit history.
   - Enforced structured source attribution (`[SOURCE: file_path > section_header]`) on all retrieved context.
   - Adhered to strict context budgeting constraints per ADR-004 during context assembly.
 
+---
+
+## [2026-09-06] Code Audit: Technical Debt Refactoring
+
+- **Context & Motivation**:
+  Comprehensive code audit identified duplicated approval-checking logic across all tool implementations, violating DRY principle and creating maintenance burden. Critical issues in executor.py (incorrect ToolResult construction) and test platform compatibility (MSYS path handling) were also addressed.
+- **Key Achievements**:
+  - Added shared `_check_operation_approval` method to base `Tool` class (`laew/tools/base.py`) consolidating duplicated approval logic
+  - Added `_validate_mutation_operation` helper in `FilesystemTool` combining approval checking with path validation
+  - Refactored `FilesystemTool`, `GitTool`, and `TerminalTool` to use shared approval-checking mechanism
+  - Fixed `AgentExecutor` ToolResult construction using correct `error_code`/`error_message` fields
+  - Added MSYS path normalization for cross-platform test compatibility in terminal tests
+  - Verified all 245 unit tests pass with no regressions
+- **Decisions & Consequences**:
+  - Established single source of truth for approval logic in base `Tool` class, reducing code duplication across tools
+  - Preserved all existing security semantics while improving maintainability
+  - Maintained backward compatibility with existing tool interfaces and error handling patterns
