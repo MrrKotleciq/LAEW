@@ -114,11 +114,9 @@ class TerminalTool(Tool):
 
         # 2. Allowlist checks vs Approval requirement
         if not self._is_allowlisted(command):
-            if not self.is_approved():
-                return ToolResult.error(
-                    ErrorCode.ERR_UNAUTHORIZED,
-                    f"Command requires explicit user approval: {command}"
-                )
+            approval_error = self._check_operation_approval("run_command", True)
+            if approval_error:
+                return approval_error
 
         # Execute command
         try:

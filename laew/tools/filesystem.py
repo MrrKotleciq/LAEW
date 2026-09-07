@@ -46,6 +46,36 @@ class FilesystemTool(Tool):
         """Check if mutating operations are approved."""
         return self._mutation_approved
 
+    def _validate_mutation_operation(self, operation: str, file_path: str) -> tuple[Optional[ToolResult], Optional[Path]]:
+        """
+        Validate mutation operation: check approval and path constraints.
+
+        Args:
+            operation: Operation name (for error messages)
+            file_path: File path to validate
+
+        Returns:
+            Tuple of (error_result, resolved_path) where error_result is None if valid
+        """
+        # Check user approval first (P7)
+        approval_error = self._check_operation_approval(operation, True)
+        if approval_error:
+            return approval_error, None
+
+        # Check if path is within @project
+        try:
+            resolved = self._resolve_path(file_path)
+        except PathResolverError:
+            error_msg = f"{operation.replace('_', ' ').title()} operations only allowed within @project"
+            return ToolResult.error(ErrorCode.ERR_MUTATION_FORBIDDEN, error_msg), None
+
+        alias = self.resolver.get_alias_for_path(resolved)
+        if alias != "@project":
+            error_msg = f"{operation.replace('_', ' ').title()} operations only allowed within @project, got {alias}"
+            return ToolResult.error(ErrorCode.ERR_MUTATION_FORBIDDEN, error_msg), None
+
+        return None, resolved
+
     def validate(self, operation: str, **kwargs) -> tuple[bool, Optional[str]]:
         """Validate filesystem operation."""
 
@@ -306,19 +336,10 @@ class FilesystemTool(Tool):
     ) -> ToolResult:
         """Create or overwrite file."""
 
-        # Check user approval first (P7)
-        if not self.is_approved():
-            return ToolResult.error(ErrorCode.ERR_UNAUTHORIZED, "Write operation requires user approval")
-
-        # Check if path is within @project (mutating operations restricted to @project)
-        try:
-            resolved = self._resolve_path(file_path)
-        except PathResolverError:
-            return ToolResult.error(ErrorCode.ERR_MUTATION_FORBIDDEN, "Write operations only allowed within @project")
-
-        alias = self.resolver.get_alias_for_path(resolved)
-        if alias != "@project":
-            return ToolResult.error(ErrorCode.ERR_MUTATION_FORBIDDEN, f"Write operations only allowed within @project, got {alias}")
+        # Validate mutation operation
+        validation_error, resolved = self._validate_mutation_operation("write_file", file_path)
+        if validation_error:
+            return validation_error
 
         # Check if file exists BEFORE writing
         file_existed = resolved.exists()
@@ -367,19 +388,10 @@ class FilesystemTool(Tool):
     ) -> ToolResult:
         """Replace content in file."""
 
-        # Check user approval first (P7)
-        if not self.is_approved():
-            return ToolResult.error(ErrorCode.ERR_UNAUTHORIZED, "Replace operation requires user approval")
-
-        # Check if path is within @project
-        try:
-            resolved = self._resolve_path(file_path)
-        except PathResolverError:
-            return ToolResult.error(ErrorCode.ERR_MUTATION_FORBIDDEN, "Write operations only allowed within @project")
-
-        alias = self.resolver.get_alias_for_path(resolved)
-        if alias != "@project":
-            return ToolResult.error(ErrorCode.ERR_MUTATION_FORBIDDEN, f"Write operations only allowed within @project, got {alias}")
+        # Validate mutation operation
+        validation_error, resolved = self._validate_mutation_operation("replace_file_content", file_path)
+        if validation_error:
+            return validation_error
 
         if not resolved.exists():
             return ToolResult.error(ErrorCode.ERR_FILE_NOT_FOUND, f"File not found: {file_path}")
@@ -419,19 +431,10 @@ class FilesystemTool(Tool):
     def _delete_file(self, file_path: str) -> ToolResult:
         """Delete file."""
 
-        # Check user approval first (P7)
-        if not self.is_approved():
-            return ToolResult.error(ErrorCode.ERR_UNAUTHORIZED, "Delete operation requires user approval")
-
-        # Check if path is within @project
-        try:
-            resolved = self._resolve_path(file_path)
-        except PathResolverError:
-            return ToolResult.error(ErrorCode.ERR_MUTATION_FORBIDDEN, "Delete operations only allowed within @project")
-
-        alias = self.resolver.get_alias_for_path(resolved)
-        if alias != "@project":
-            return ToolResult.error(ErrorCode.ERR_MUTATION_FORBIDDEN, f"Delete operations only allowed within @project, got {alias}")
+        # Validate mutation operation
+        validation_error, resolved = self._validate_mutation_operation("delete_file", file_path)
+        if validation_error:
+            return validation_error
 
         if not resolved.exists():
             return ToolResult.error(ErrorCode.ERR_FILE_NOT_FOUND, f"File not found: {file_path}")

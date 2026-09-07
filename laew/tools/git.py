@@ -223,8 +223,9 @@ class GitTool(Tool):
 
     def _git_commit(self, message: str, files: Optional[List[str]] = None) -> ToolResult:
         """Record changes via commit (requires approval)."""
-        if not self.is_approved():
-            return ToolResult.error(ErrorCode.ERR_UNAUTHORIZED, "Git commit requires user approval")
+        approval_error = self._check_operation_approval("git_commit", True)
+        if approval_error:
+            return approval_error
 
         try:
             # Stage files
@@ -257,8 +258,9 @@ class GitTool(Tool):
 
     def _git_checkout(self, branch_name: str, create_new: bool = False) -> ToolResult:
         """Switch branches or create new (requires approval)."""
-        if not self.is_approved():
-            return ToolResult.error(ErrorCode.ERR_UNAUTHORIZED, "Git checkout/branch manipulation requires user approval")
+        approval_error = self._check_operation_approval("git_checkout", True)
+        if approval_error:
+            return approval_error
 
         args = ["checkout"]
         if create_new:
@@ -281,8 +283,9 @@ class GitTool(Tool):
 
     def _git_branch(self, branch_name: str, delete: bool = False) -> ToolResult:
         """Git branch creation or manipulation (requires approval)."""
-        if not self.is_approved():
-            return ToolResult.error(ErrorCode.ERR_UNAUTHORIZED, "Git branch operations require user approval")
+        approval_error = self._check_operation_approval("git_branch", True)
+        if approval_error:
+            return approval_error
 
         args = ["branch"]
         if delete:

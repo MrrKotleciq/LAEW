@@ -264,6 +264,24 @@ class Tool(ABC):
         """Check if operation is approved."""
         return self._approved or not self._requires_approval
 
+    def _check_operation_approval(self, operation: str, operation_requires_approval: bool) -> Optional[ToolResult]:
+        """
+        Check if the operation is approved given whether it requires approval.
+
+        Args:
+            operation: Operation name
+            operation_requires_approval: Whether this specific operation requires approval
+
+        Returns:
+            None if approved, ToolResult with ERR_UNAUTHORIZED if not
+        """
+        if operation_requires_approval and not self.is_approved():
+            return ToolResult.error(
+                ErrorCode.ERR_UNAUTHORIZED,
+                f"Operation '{operation}' requires user approval"
+            )
+        return None
+
     @abstractmethod
     def validate(self, operation: str, **kwargs) -> tuple[bool, Optional[str]]:
         """

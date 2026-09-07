@@ -164,7 +164,7 @@ class AgentExecutor:
                 try:
                     tool_res = tool.call(operation, **args)
                 except Exception as e:
-                    tool_res = ToolResult(success=False, error=str(e))
+                    tool_res = ToolResult(success=False, error_code="ERR_AGENT_EXECUTION", error_message=str(e))
 
             step.tool_result = tool_res
             result.steps.append(step)
@@ -178,8 +178,8 @@ class AgentExecutor:
                 f"Success: {tool_res.success}\n"
                 f"Data: {json.dumps(tool_res.data) if tool_res.data is not None else 'None'}\n"
             )
-            if tool_res.error:
-                obs_content += f"Error: {tool_res.error}\n"
+            if tool_res.error_code:
+                obs_content += f"Error: {tool_res.error_message}\n"
 
             messages.append(LLMMessage(role=MessageRole.USER, content=obs_content))
             self.agent.add_message(MessageRole.USER, obs_content)

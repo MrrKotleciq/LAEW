@@ -1,5 +1,7 @@
 """Tests for LAEW TerminalTool (CONTRACT.md)."""
 
+import os
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -168,13 +170,28 @@ def test_timeout(tool):
 
 # === Working directory confinement ===
 
+def _normalize_pwd_output(stdout: str) -> str:
+    """
+    Normalize pwd output for cross-platform comparison.
+
+    Git Bash / MSYS reports paths with a '/tmp/...' prefix on Windows,
+    while the native filesystem uses 'C:\\...'. Translate the MSYS prefix
+    to the OS temp directory so both forms compare equal.
+    """
+    path_str = stdout.strip()
+    if path_str.startswith("/tmp/"):
+        path_str = os.path.join(tempfile.gettempdir(), path_str[len("/tmp/"):])
+    return os.path.normcase(os.path.normpath(path_str))
+
+
 def test_execution_respects_cwd(tool, tmp_project):
     """Test that command executes in specified cwd."""
     result = tool.run_command("pwd", cwd=".")
 
     assert result.success
     # PWD should contain tmp_project path
-    assert str(tmp_project) in result.data["stdout"]
+    expected = os.path.normcase(os.path.normpath(str(tmp_project.resolve())))
+    assert _normalize_pwd_output(result.data["stdout"]) == expected
 
 
 # === Exit codes ===
