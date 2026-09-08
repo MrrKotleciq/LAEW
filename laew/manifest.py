@@ -240,3 +240,16 @@ def validate_manifest(manifest: dict[str, Any]) -> None:
         raise ManifestError(
             "Manifest key 'tools.categories.terminal.allowlist' must be a list."
         )
+
+    if "agent" in manifest:
+        agent = manifest["agent"]
+        if not isinstance(agent, dict):
+            raise ManifestError("Manifest key 'agent' must be a YAML mapping.")
+        if "llm" not in agent or not isinstance(agent["llm"], dict):
+            raise ManifestError("Manifest key 'agent.llm' must be a YAML mapping.")
+        if "providers" not in agent["llm"] or not isinstance(
+            agent["llm"]["providers"], list
+        ):
+            raise ManifestError("Manifest key 'agent.llm.providers' must be a list.")
+        if "retry" not in agent["llm"] or not isinstance(agent["llm"]["retry"], dict):
+            raise ManifestError("Manifest key 'agent.llm.retry' must be a YAML mapping.")

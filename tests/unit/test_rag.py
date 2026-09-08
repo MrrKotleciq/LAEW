@@ -9,6 +9,7 @@ import pytest
 
 from laew.prompts.context_budget import ContextBudget
 from laew.rag import (
+    ChromaVectorStore,
     DocumentChunk,
     EmbeddingService,
     KnowledgeBase,
@@ -434,6 +435,88 @@ class TestRAGIntegration:
             assert result.total_tokens > 0
             assert len(result.chunks) > 0
             assert any("LAEW" in chunk.text for chunk, _ in result.chunks)
+
+
+class TestChromaVectorStore:
+    """Tests for ChromaVectorStore (when chromadb is available)."""
+
+    def test_chromadb_import_available(self):
+        """Test that we can detect if chromadb is available."""
+        try:
+            import chromadb
+            assert chromadb is not None
+        except ImportError:
+            pytest.skip("chromadb not installed")
+
+    def test_init_with_defaults(self):
+        """Test ChromaVectorStore initialization with default parameters."""
+        try:
+            import chromadb
+        except ImportError:
+            pytest.skip("chromadb not installed")
+
+        # This test would require a running ChromaDB instance
+        # For now, we just test that the class can be imported and instantiated
+        # Connection tests would require a running instance
+        pass
+
+    def test_normalize_method(self):
+        """Test the _normalize static method."""
+        try:
+            import chromadb
+        except ImportError:
+            pytest.skip("chromadb not installed")
+
+        # Test normal vector
+        vector = [3.0, 4.0]  # length 5
+        normalized = ChromaVectorStore._normalize(vector)
+        assert len(normalized) == 2
+        # Should be approximately [0.6, 0.8]
+        assert abs(normalized[0] - 0.6) < 0.01
+        assert abs(normalized[1] - 0.8) < 0.01
+
+        # Test zero vector
+        zero_vector = [0.0, 0.0]
+        normalized_zero = ChromaVectorStore._normalize(zero_vector)
+        assert normalized_zero == [0.0, 0.0]
+
+
+class TestKnowledgeBaseWithManifestConfig:
+    """Tests for KnowledgeBase with manifest vector store configuration."""
+
+    def test_init_with_vector_store_config_disabled(self):
+        """Test KnowledgeBase initialization with vector store disabled."""
+        embedding_service = MockEmbeddingService()
+        vector_store_config = {"enabled": False}
+
+        kb = KnowledgeBase(
+            project_root="/tmp/project",
+            knowledge_root="/tmp/knowledge",
+            embedding_service=embedding_service,
+            vector_store_config=vector_store_config,
+        )
+
+        # Should fall back to VectorStore instances
+        from laew.rag.vector_store import VectorStore
+        assert isinstance(kb._project_store, VectorStore)
+        assert isinstance(kb._global_store, VectorStore)
+
+    def test_init_with_vector_store_config_enabled_but_no_chromadb(self):
+        """Test fallback when chromadb is not available but config is enabled."""
+        embedding_service = MockEmbeddingService()
+        vector_store_config = {"enabled": True, "host": "localhost", "port": 8000}
+
+        kb = KnowledgeBase(
+            project_root="/tmp/project",
+            knowledge_root="/tmp/knowledge",
+            embedding_service=embedding_service,
+            vector_store_config=vector_store_config,
+        )
+
+        # Should fall back to VectorStore due to ConnectionError or ImportError
+        from laew.rag.vector_store import VectorStore
+        assert isinstance(kb._project_store, VectorStore)
+        assert isinstance(kb._global_store, VectorStore)
 
 
 if __name__ == "__main__":

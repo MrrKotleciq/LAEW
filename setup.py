@@ -18,6 +18,7 @@ setup(
         "dev": [
             "pytest>=7.4.0",
             "html2text>=2020.1.16",
+            "chromadb>=0.4.0",
         ],
     },
     entry_points={

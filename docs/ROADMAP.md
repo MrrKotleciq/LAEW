@@ -2,7 +2,7 @@
 
 ## Current State (Audit Summary)
 - Project stage: Foundation + Agent Runtime + RAG (all Milestones 1-4 complete)
-- Test health: 245 unit tests passing
+- Test health: 266 unit tests passing
 - Known gaps: documentation drift, no persistence, no evaluation, no multi-agent
 
 ## Roadmap Principles
@@ -21,7 +21,7 @@ Definition of Done: All docs match implementation; CI runs green; no stale claim
 
 ## Milestone 6: Persistent Knowledge Store
 Goal: Persist RAG embeddings across restarts; add incremental indexing.
-Scope: Vector store persistence (SQLite + numpy), knowledge base incremental load, manifest config for persistence path.
+Scope: Vector store persistence via Docker-hosted ChromaDB, knowledge base incremental load, manifest config for persistence path.
 Dependencies: Milestone 4 (RAG pipeline) — already complete.
 Tests: Unit tests for persistence layer; integration tests for incremental load.
 Definition of Done: Embeddings survive restart; knowledge base updates without full rebuild.

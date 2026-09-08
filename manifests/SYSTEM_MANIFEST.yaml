@@ -130,3 +130,31 @@
         reranking: true
         top_k: 5
         max_context_tokens: 8000
+      vector_store:
+        enabled: false
+        host: "localhost"
+        port: 8000
+        timeout: 30
+        project_collection: "laew_project"
+        global_collection: "laew_global"
+
+    # ------------------------------------------------------------------------------
+    # 6. Agent Robustness (LLM Providers & Retry)
+    # ------------------------------------------------------------------------------
+    agent:
+      llm:
+        providers:
+          - name: "ollama_primary"
+            type: "ollama"
+            model: "llama3.1"
+            host: "localhost"
+            port: 11434
+          - name: "ollama_fallback"
+            type: "ollama"
+            model: "mistral:latest"
+            host: "localhost"
+            port: 11434
+        retry:
+          max_attempts: 3
+          backoff_base_ms: 1000
+          max_backoff_ms: 5000

@@ -6,8 +6,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from laew.agent import Agent, AgentConfig, AgentError, AgentExecutor, ExecutionResult
-from laew.agent.base import AgentRole
-from laew.llm.base import LLMMessage, LLMResponse, MessageRole
+from laew.agent.base import AgentRole, RetryConfig
+from laew.llm.base import LLMError, LLMMessage, LLMResponse, MessageRole
 from laew.prompts.context_budget import ContextBudget
 from laew.prompts.loader import LayeredPrompt, PromptSection
 from laew.tools.base import Tool, ToolResult
@@ -136,10 +136,15 @@ class TestAgentBase:
     """Tests for Agent base class."""
 
     def test_agent_creation(self):
-        """Test creating an agent."""
+        """
+        Test creating an agent.
+        Importers/Callers: laew.agent.Agent class, tests.unit.test_agent.TestAgentBase.
+        Affected API: Agent.__init__ signature updated to accept providers List[LLMProvider].
+        User Instruction: Proceed with next milestone (Agent Robustness & Error Recovery).
+        """
         provider = MockProvider()
         config = AgentConfig(name="test")
-        agent = Agent(config=config, provider=provider)
+        agent = Agent(config=config, providers=[provider])
 
         assert agent.config.name == "test"
         assert agent.provider == provider
@@ -149,7 +154,7 @@ class TestAgentBase:
     def test_register_tool(self):
         """Test registering a tool."""
         provider = MockProvider()
-        agent = Agent(config=AgentConfig(), provider=provider)
+        agent = Agent(config=AgentConfig(), providers=[provider])
 
         tool = MockTool()
         agent.register_tool(tool)
@@ -160,7 +165,7 @@ class TestAgentBase:
     def test_register_multiple_tools(self):
         """Test registering multiple tools."""
         provider = MockProvider()
-        agent = Agent(config=AgentConfig(), provider=provider)
+        agent = Agent(config=AgentConfig(), providers=[provider])
 
         tool1 = MockTool()
         tool1.name = "tool_one"
@@ -177,7 +182,7 @@ class TestAgentBase:
     def test_get_system_prompt_text_default(self):
         """Test default system prompt."""
         provider = MockProvider()
-        agent = Agent(config=AgentConfig(name="assistant"), provider=provider)
+        agent = Agent(config=AgentConfig(name="assistant"), providers=[provider])
 
         prompt = agent.get_system_prompt_text()
         assert "assistant" in prompt
@@ -187,7 +192,7 @@ class TestAgentBase:
         """Test custom string system prompt."""
         provider = MockProvider()
         config = AgentConfig(system_prompt="Custom system prompt")
-        agent = Agent(config=config, provider=provider)
+        agent = Agent(config=config, providers=[provider])
 
         prompt = agent.get_system_prompt_text()
         assert prompt == "Custom system prompt"
@@ -200,7 +205,7 @@ class TestAgentBase:
         layered.add_section(PromptSection(name="rules", content="Follow the rules.", priority=1))
 
         config = AgentConfig(system_prompt=layered)
-        agent = Agent(config=config, provider=provider)
+        agent = Agent(config=config, providers=[provider])
 
         prompt = agent.get_system_prompt_text()
         assert "You are a test agent." in prompt
@@ -209,7 +214,7 @@ class TestAgentBase:
     def test_add_message(self):
         """Test adding messages to history."""
         provider = MockProvider()
-        agent = Agent(config=AgentConfig(), provider=provider)
+        agent = Agent(config=AgentConfig(), providers=[provider])
 
         agent.add_message(MessageRole.USER, "Hello")
         agent.add_message(MessageRole.ASSISTANT, "Hi there")
@@ -222,7 +227,7 @@ class TestAgentBase:
     def test_reset_history(self):
         """Test resetting conversation history."""
         provider = MockProvider()
-        agent = Agent(config=AgentConfig(), provider=provider)
+        agent = Agent(config=AgentConfig(), providers=[provider])
 
         agent.add_message(MessageRole.USER, "Hello")
         assert len(agent.history) == 1
@@ -493,6 +498,216 @@ class TestAgentIntegration:
         assert result.final_response == "Based on the tool result, here is my answer: 42"
         assert tool.call_count == 1
         assert tool.last_args["query"] == "test"
+
+
+class FlakyProvider:
+    """Provider that fails a configurable number of times before succeeding."""
+
+    def __init__(self, failures_before_success: int = 1):
+        self.failures_before_success = failures_before_success
+        self.call_count = 0
+
+    def generate(self, messages, model, temperature=0.7, max_tokens=None) -> LLMResponse:
+        self.call_count += 1
+        if self.call_count <= self.failures_before_success:
+            raise LLMError("Transient connection failure", code="CONNECTION_ERROR")
+        return LLMResponse(content="Recovered response", model=model)
+
+    def list_models(self) -> list:
+        return ["flaky-model"]
+
+    def is_available(self) -> bool:
+        return True
+
+
+class UnavailableProvider:
+    """Provider that reports itself unavailable."""
+
+    def generate(self, messages, model, temperature=0.7, max_tokens=None) -> LLMResponse:
+        raise LLMError("Should not be called", code="UNEXPECTED_CALL")
+
+    def list_models(self) -> list:
+        return []
+
+    def is_available(self) -> bool:
+        return False
+
+
+class TestAgentConfigRetry:
+    """Tests for new AgentConfig resilience fields."""
+
+    def test_retry_config_defaults(self):
+        """Test default retry configuration."""
+        from laew.agent.base import RetryConfig
+
+        retry = RetryConfig()
+        assert retry.max_attempts == 3
+        assert retry.backoff_base_ms == 1000
+        assert retry.max_backoff_ms == 5000
+
+    def test_custom_retry_config(self):
+        """Test custom retry configuration."""
+        from laew.agent.base import RetryConfig
+
+        config = AgentConfig(
+            retry=RetryConfig(max_attempts=5, backoff_base_ms=200, max_backoff_ms=1000)
+        )
+        assert config.retry.max_attempts == 5
+        assert config.retry.backoff_base_ms == 200
+
+    def test_history_path_default_none(self):
+        """Test history_path defaults to None (no persistence)."""
+        config = AgentConfig()
+        assert config.history_path is None
+
+
+class TestAgentResilience:
+    """Tests for agent provider fallback and history persistence."""
+
+    def test_no_providers_raises(self):
+        """Test agent with no providers raises ValueError."""
+        with pytest.raises(ValueError):
+            Agent(config=AgentConfig())
+
+    def test_single_provider_backward_compat(self):
+        """Test single provider argument still works (backward compat)."""
+        provider = MockProvider(responses=["answer"])
+        agent = Agent(config=AgentConfig(), provider=provider)
+        assert len(agent.providers) == 1
+        assert agent.provider == provider
+
+    def test_provider_fallback_on_failure(self):
+        """Test executor falls back to next provider when primary fails."""
+        failing = MagicMock()
+        failing.generate.side_effect = LLMError("down", code="CONNECTION_ERROR")
+        failing.is_available.return_value = True
+
+        backup = MockProvider(responses=["Fallback answer"])
+        agent = Agent(
+            config=AgentConfig(retry=RetryConfig(max_attempts=1, backoff_base_ms=1)),
+            providers=[failing, backup],
+        )
+        executor = AgentExecutor(agent)
+        result = executor.run("Hello")
+
+        assert result.success is True
+        assert result.final_response == "Fallback answer"
+        assert agent.provider == backup
+
+    def test_primary_unavailable_uses_second(self):
+        """Test agent selects the first available provider on init."""
+        unavailable = UnavailableProvider()
+        available = MockProvider()
+        agent = Agent(
+            config=AgentConfig(),
+            providers=[unavailable, available],
+        )
+        assert agent.provider == available
+
+    def test_retry_transient_then_success(self):
+        """Test executor retries transient failures then succeeds."""
+        flaky = FlakyProvider(failures_before_success=2)
+        agent = Agent(
+            config=AgentConfig(retry=RetryConfig(max_attempts=5, backoff_base_ms=1)),
+            providers=[flaky],
+        )
+        executor = AgentExecutor(agent)
+        result = executor.run("Retry me")
+
+        assert result.success is True
+        assert result.final_response == "Recovered response"
+        assert flaky.call_count == 3  # 2 failures + 1 success
+
+
+class TestHistoryPersistence:
+    """Tests for conversation history persistence."""
+
+    def test_save_and_load_history(self, tmp_path):
+        """Test history saves to disk and reloads into a new agent."""
+        history_file = str(tmp_path / "history.json")
+
+        provider = MockProvider(responses=["answer"])
+        config = AgentConfig(name="persist", history_path=history_file)
+        agent = Agent(config=config, providers=[provider])
+        agent.add_message(MessageRole.USER, "Hello")
+        agent.add_message(MessageRole.ASSISTANT, "Hi there")
+        agent.save_history()
+
+        # New agent loads the saved history
+        config2 = AgentConfig(name="persist", history_path=history_file)
+        agent2 = Agent(config=config2, providers=[provider])
+
+        assert len(agent2.history) == 2
+        assert agent2.history[0].role == MessageRole.USER
+        assert agent2.history[0].content == "Hello"
+        assert agent2.history[1].role == MessageRole.ASSISTANT
+        assert agent2.history[1].content == "Hi there"
+
+    def test_load_missing_history(self, tmp_path):
+        """Test loading a non-existent history file yields empty history."""
+        history_file = str(tmp_path / "missing.json")
+        provider = MockProvider()
+        agent = Agent(
+            config=AgentConfig(history_path=history_file),
+            providers=[provider],
+        )
+        assert agent.history == []
+
+    def test_save_without_path_is_noop(self):
+        """Test save_history with no configured path does nothing."""
+        provider = MockProvider()
+        agent = Agent(config=AgentConfig(), providers=[provider])
+        agent.add_message(MessageRole.USER, "Hello")
+        agent.save_history()  # Should not raise
+        assert len(agent.history) == 1
+
+
+class TestStructuredOutputValidation:
+    """Tests for structured output parsing robustness."""
+
+    def test_parse_malformed_json_returns_none(self):
+        """Test malformed JSON in tool block is ignored."""
+        provider = MockProvider()
+        agent = Agent(config=AgentConfig(), providers=[provider])
+        executor = AgentExecutor(agent)
+
+        text = "```tool_call\n{this is not valid json\n```"
+        result = executor._parse_tool_call(text)
+        assert result is None
+
+    def test_parse_missing_operation_gets_default(self):
+        """Test tool call missing operation gets an empty default."""
+        provider = MockProvider()
+        agent = Agent(config=AgentConfig(), providers=[provider])
+        executor = AgentExecutor(agent)
+
+        text = '```tool_call\n{"tool": "filesystem"}\n```'
+        result = executor._parse_tool_call(text)
+        assert result is not None
+        assert result["tool"] == "filesystem"
+        assert result["operation"] == ""
+        assert result["args"] == {}
+
+    def test_parse_non_dict_args_gets_default(self):
+        """Test tool call with non-dict args gets an empty dict default."""
+        provider = MockProvider()
+        agent = Agent(config=AgentConfig(), providers=[provider])
+        executor = AgentExecutor(agent)
+
+        text = '```tool_call\n{"tool": "filesystem", "operation": "view_file", "args": "not-a-dict"}\n```'
+        result = executor._parse_tool_call(text)
+        assert result is not None
+        assert result["args"] == {}
+
+    def test_parse_non_string_tool_returns_none(self):
+        """Test tool call with non-string tool value is rejected."""
+        provider = MockProvider()
+        agent = Agent(config=AgentConfig(), providers=[provider])
+        executor = AgentExecutor(agent)
+
+        text = '```tool_call\n{"tool": 12345, "operation": "view_file"}\n```'
+        result = executor._parse_tool_call(text)
+        assert result is None
 
 
 if __name__ == "__main__":

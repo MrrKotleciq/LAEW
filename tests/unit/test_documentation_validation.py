@@ -77,25 +77,25 @@ class TestProjectStatusAccuracy:
     """Test that PROJECT_STATUS.md reflects current state accurately."""
 
     def test_project_status_mentions_correct_test_count(self):
-        """PROJECT_STATUS should mention the current test count (245)."""
+        """PROJECT_STATUS should mention the current test count (266)."""
         status_path = Path("docs/PROJECT_STATUS.md")
         assert status_path.exists(), "docs/PROJECT_STATUS.md should exist"
 
         content = status_path.read_text(encoding="utf-8")
 
-        # Should mention 245 tests (current count after our fixes)
-        assert "245" in content, "PROJECT_STATUS should mention 245 unit tests"
-        assert "244" not in content or content.count("244") < content.count("245"), \
-            "PROJECT_STATUS should primarily reference 245 tests, not outdated 244"
+        # Should mention 266 tests (current count after our fixes)
+        assert "266" in content, "PROJECT_STATUS should mention 266 unit tests"
+        assert "264" not in content or content.count("264") < content.count("266"), \
+            "PROJECT_STATUS should primarily reference 266 tests, not outdated 264"
 
     def test_project_status_mentions_correct_test_suites(self):
-        """PROJECT_STATUS should mention current test suite count (12)."""
+        """PROJECT_STATUS should mention current test suite count (14)."""
         status_path = Path("docs/PROJECT_STATUS.md")
         content = status_path.read_text(encoding="utf-8")
 
-        # Should mention 12 test suites (current count)
-        assert "12 test suites" in content or "12 test files" in content, \
-            "PROJECT_STATUS should mention 12 test suites/files"
+        # Should mention 14 test suites (current count)
+        assert "14 test suites" in content or "14 test files" in content, \
+            "PROJECT_STATUS should mention 14 test suites/files"
 
     def test_project_status_shows_correct_current_focus(self):
         """PROJECT_STATUS should show current focus is Milestone 5, not planning M4."""

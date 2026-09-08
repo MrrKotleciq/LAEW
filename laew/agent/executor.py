@@ -2,11 +2,12 @@
 
 import json
 import re
+import time
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
 from laew.agent.base import Agent, AgentError
-from laew.llm.base import LLMMessage, MessageRole
+from laew.llm.base import LLMError, LLMMessage, MessageRole
 from laew.tools.base import ToolResult
 
 
@@ -58,9 +59,17 @@ class AgentExecutor:
         for match in matches:
             try:
                 data = json.loads(match)
-                if isinstance(data, dict) and "tool" in data:
+                # Validate required structure
+                if isinstance(data, dict) and "tool" in data and isinstance(data["tool"], str):
+                    # Ensure operation and args exist with defaults
+                    if "operation" not in data:
+                        data["operation"] = ""
+                    if "args" not in data:
+                        data["args"] = {}
+                    elif not isinstance(data["args"], dict):
+                        data["args"] = {}
                     return data
-            except json.JSONDecodeError:
+            except (json.JSONDecodeError, TypeError):
                 continue
         return None
 
@@ -119,16 +128,44 @@ class AgentExecutor:
             iteration += 1
             step = ExecutionStep(step_number=iteration)
 
-            try:
-                llm_response = self.agent.provider.generate(
-                    messages=messages,
-                    model=self.agent.config.model,
-                    temperature=self.agent.config.temperature,
-                    max_tokens=self.agent.config.max_tokens,
-                )
-            except Exception as e:
+            # Attempt LLM generation with retry + provider fallback.
+            llm_response = None
+            last_error = None
+            retry_config = self.agent.config.retry
+            attempt = 0
+
+            while attempt < retry_config.max_attempts:
+                try:
+                    llm_response = self.agent.provider.generate(
+                        messages=messages,
+                        model=self.agent.config.model,
+                        temperature=self.agent.config.temperature,
+                        max_tokens=self.agent.config.max_tokens,
+                    )
+                    break  # Success, exit retry loop
+                except Exception as e:
+                    last_error = e
+                    attempt += 1
+
+                    if attempt >= retry_config.max_attempts:
+                        # Exhausted retries for current provider; try fallback.
+                        try:
+                            self.agent._current_provider_index += 1
+                            self.agent._ensure_available_provider()
+                            attempt = 0
+                        except RuntimeError:
+                            pass  # No more providers; will fail after loop
+                    else:
+                        # Exponential backoff between retries.
+                        backoff_ms = min(
+                            retry_config.backoff_base_ms * (2 ** (attempt - 1)),
+                            retry_config.max_backoff_ms
+                        )
+                        time.sleep(backoff_ms / 1000.0)  # Convert to seconds
+
+            if llm_response is None:
                 result.success = False
-                result.error = f"LLM generation failed at step {iteration}: {str(e)}"
+                result.error = f"LLM generation failed at step {iteration} after {retry_config.max_attempts} attempts: {str(last_error)}"
                 result.steps.append(step)
                 return result
 

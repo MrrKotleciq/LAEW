@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import List, Optional
 
 from laew.rag.embedding import EmbeddingService
-from laew.rag.vector_store import DocumentChunk, VectorStore
+from laew.rag.vector_store import ChromaVectorStore, DocumentChunk, VectorStore
 
 
 class KnowledgeScope(str, Enum):
@@ -44,6 +44,7 @@ class KnowledgeBase:
         embedding_service: EmbeddingService,
         chunk_size: int = 1000,
         chunk_overlap: int = 200,
+        vector_store_config: Optional[dict] = None,
     ):
         """
         Initialize knowledge base.
@@ -54,16 +55,51 @@ class KnowledgeBase:
             embedding_service: Service for generating embeddings
             chunk_size: Target chunk size in characters
             chunk_overlap: Overlap between chunks in characters
+            vector_store_config: Optional configuration for persistent vector store.
+                If provided and enabled, uses ChromaVectorStore; otherwise falls back
+                to in-memory VectorStore.
         """
         self.project_root = Path(project_root)
         self.knowledge_root = Path(knowledge_root)
         self.embedding_service = embedding_service
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
+        self._vector_store_config = vector_store_config
 
-        self._project_store = VectorStore()
-        self._global_store = VectorStore()
+        self._project_store = self._create_store("project")
+        self._global_store = self._create_store("global")
         self._loaded = False
+
+    def _create_store(self, scope: str) -> VectorStore:
+        """
+        Create a vector store based on the configured backend.
+
+        Args:
+            scope: Scope name ("project" or "global")
+
+        Returns:
+            A ChromaVectorStore when a persistent store is enabled and reachable,
+            otherwise an in-memory VectorStore.
+        """
+        config = self._vector_store_config or {}
+
+        if config.get("enabled"):
+            try:
+                return ChromaVectorStore(
+                    host=config.get("host", "localhost"),
+                    port=int(config.get("port", 8000)),
+                    collection_name=config.get(
+                        f"{scope}_collection", f"laew_{scope}"
+                    ),
+                    source=scope,
+                    timeout=int(config.get("timeout", 30)),
+                )
+            except Exception:
+                # Graceful fallback to in-memory store when ChromaDB is unavailable
+                # (includes import errors, connection errors, version mismatches, etc.).
+                return VectorStore()
+
+        return VectorStore()
 
     def load(self, force: bool = False) -> None:
         """

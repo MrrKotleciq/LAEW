@@ -3,7 +3,7 @@
 ## Status
 
 Architecture: LAEW v1.0 documented
-Implementation: Milestone 4 (Knowledge System & RAG Pipeline) completed
+Implementation: Milestone 6 (Persistent Knowledge Store) completed
 
 ## Currently present in repository
 
@@ -52,7 +52,25 @@ Implementation: Milestone 4 (Knowledge System & RAG Pipeline) completed
 - laew/rag/rag_tool.py: Tool wrapper for agent RAG queries (3 unit tests)
 - laew/rag/__init__.py: Module exports
 
-Total: 245 unit tests passing across 12 test suites
+## Milestone 5 Implementation (Completed)
+
+- README.md: Updated to reflect actual repository structure (removed stale references to non-existent `configs/`, `docker/`, `scripts/` directories).
+- docs/ROADMAP.md: New development roadmap with milestones 5–11 in dependency order.
+- docs/history/CHANGELOG.md: Rewritten with correct chronological order and complete sections for Milestones 1–4 plus the code audit.
+- tests/unit/test_integration_scaffold.py: Integration tests verifying agent + tools, agent + RAG, RAG + knowledge base + embeddings, and CLI + tools work together.
+- tests/unit/test_documentation_validation.py: Tests ensuring README, PROJECT_STATUS, and manifest accurately reflect repository state.
+- .github/workflows/ci.yml: CI baseline running the full test suite on push and pull request.
+
+## Milestone 6 Implementation (Completed)
+
+- docker-compose.yml: ChromaDB service (`chromadb/chroma`) with a named volume for persistent storage, exposed on port 8000.
+- laew/rag/vector_store.py: `ChromaVectorStore` — a persistent store mirroring the `VectorStore` interface, delegating to a remote ChromaDB collection via the HTTP client (cosine space, normalized embeddings).
+- laew/rag/knowledge_base.py: `KnowledgeBase` now selects the store backend from manifest config (`rag.vector_store`); uses `ChromaVectorStore` when enabled and reachable, otherwise falls back to in-memory `VectorStore`.
+- manifests/SYSTEM_MANIFEST.yaml: Added `rag.vector_store` section (`enabled`, `host`, `port`, `timeout`, `project_collection`, `global_collection`).
+- setup.py: Added `chromadb>=0.4.0` to dev extras for the HTTP client.
+- tests/unit/test_rag.py: Tests for `ChromaVectorStore` (skipped when chromadb absent) and manifest-config store selection with graceful fallback.
+
+Total: 266 unit tests passing across 14 test suites
 
 ## Important distinction
 
@@ -64,6 +82,7 @@ workflow automation capabilities are planned for future milestones.
 
 ## Current Focus
 
-Having completed Milestones 1-4, the project is ready to begin Milestone 5:
-Documentation & Health Consolidation, focusing on resolving documentation inconsistencies,
-establishing CI baselines, and addressing technical debt.
+Having completed Milestones 1-6, the project is ready to begin Milestone 7 per
+`docs/ROADMAP.md`. The RAG knowledge store now persists embeddings across restarts
+via a Docker-hosted ChromaDB instance, with graceful fallback to the in-memory store
+when the container is not running.

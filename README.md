@@ -63,13 +63,14 @@ Every major component should be testable independently.
 ```
 ## Project Status
 
-Current stage: Milestone 4 Complete (Foundation + Agent Runtime + RAG)
+Current stage: Milestone 6 Complete (Foundation + Agent Runtime + RAG + Persistent Knowledge Store)
 
 The repository implements:
 - Declarative foundation with system manifest and tool contracts
 - Tool runtime wrappers with programmatic security
 - CLI, LLM provider abstraction, context budgeting, and agent orchestration
 - RAG system with embeddings, vector store, knowledge base, and retrieval pipeline
-- 245 unit tests across 12 test suites
+- Persistent knowledge store backed by ChromaDB in Docker (falls back to in-memory store when unavailable)
+- 266 unit tests across 14 test suites
 
 See `docs/ROADMAP.md` for the development roadmap and future milestones.
