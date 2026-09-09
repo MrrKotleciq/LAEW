@@ -1,0 +1,19 @@
+name: test_rollback_workflow
+description: "Workflow testing rollback capabilities"
+mode: automatic
+steps:
+  - id: step_create
+    name: "Create file"
+    type: tool
+    tool: filesystem
+    operation: write_file
+    arguments:
+      path: "@project/rollback_test.txt"
+      content: "created"
+    approval_required: false
+    rollback:
+      type: tool
+      tool: filesystem
+      operation: delete_file
+      arguments:
+        path: "@project/rollback_test.txt"

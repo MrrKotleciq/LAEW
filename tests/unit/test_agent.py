@@ -11,6 +11,10 @@ from laew.llm.base import LLMError, LLMMessage, LLMResponse, MessageRole
 from laew.prompts.context_budget import ContextBudget
 from laew.prompts.loader import LayeredPrompt, PromptSection
 from laew.tools.base import Tool, ToolResult
+from laew.tools.filesystem import FilesystemTool
+from laew.tools.git import GitTool
+from laew.tools.terminal import TerminalTool
+from laew.tools.web import WebTool
 
 
 class ExecutionStep:
@@ -353,6 +357,22 @@ Let me check the file.'''
 
         assert "mock_tool" in desc
         assert "A mock tool for testing" in desc
+
+    def test_format_tools_description_with_real_tools(self):
+        """Real tool wrappers must expose the description the executor expects."""
+        provider = MockProvider()
+        agent = Agent(config=AgentConfig(), provider=provider)
+        for tool in (FilesystemTool(), GitTool(), TerminalTool(), WebTool()):
+            agent.register_tool(tool)
+
+        executor = AgentExecutor(agent)
+        desc = executor._format_tools_description()
+
+        assert "Available tools:" in desc
+        assert "FilesystemTool" in desc
+        assert "GitTool" in desc
+        assert "TerminalTool" in desc
+        assert "WebTool" in desc
 
     def test_run_simple_response(self):
         """Test execution with simple response (no tool call)."""

@@ -14,7 +14,12 @@ from laew.tools import (
     WebTool,
     configure_tool_logger,
 )
+from laew.workflow.yaml_loader import load_workflow_from_yaml
+from laew.workflow.engine import WorkflowEngine
 from laew.security.path_resolver import PathResolver
+from laew.agent.base import Agent, AgentConfig
+from laew.agent.executor import AgentExecutor
+from laew.llm.ollama import OllamaProvider
 
 
 def cmd_check(args) -> int:
@@ -195,6 +200,143 @@ def cmd_tool(args) -> int:
             log_file_handle.close()
 
 
+def cmd_workflow_run(args) -> int:
+    """
+    Execute a workflow.
+
+    Returns:
+        0 if workflow succeeded, 1 if failed
+    """
+    workflow_path = Path(args.name)
+
+    print(f"Running workflow: {workflow_path}")
+    print("-" * 60)
+
+    try:
+        # Load workflow definition
+        definition = load_workflow_from_yaml(workflow_path)
+
+        # Create and run workflow engine
+        engine = WorkflowEngine(definition)
+        engine.run()
+
+        print("[OK] Workflow executed successfully")
+        return 0
+    except Exception as e:
+        print(f"[FAIL] Workflow execution failed: {e}")
+        return 1
+
+
+def _resolve_model_name(
+    cli_model: Optional[str],
+    manifest_model: Optional[str],
+    provider: OllamaProvider,
+) -> str:
+    """
+    Resolve the model to use for a chat session.
+
+    An explicit CLI --model always wins. Otherwise the requested model comes
+    from the manifest primary provider; if that model is not installed, fall
+    back to a close match from the same family. If nothing matches, use a
+    sensible default with a notice.
+    """
+    requested = cli_model or manifest_model
+
+    # Explicit CLI choice: trust it and let Ollama report a missing model.
+    if cli_model:
+        return requested
+
+    try:
+        installed = provider.list_models()
+    except Exception:
+        installed = []
+    if not installed:
+        return requested or "llama3.1"
+
+    # Manifest-specified model is installed: use it as-is.
+    if requested in installed:
+        return requested
+
+    # Otherwise pick a close family match (e.g. request llama3.1, have llama3.2).
+    family = requested.split(":")[0].split(".")
+    family_prefix = family[0] if family else requested
+    for candidate in installed:
+        if candidate.split(":")[0].startswith(family_prefix):
+            print(f"[!] '{requested}' not installed; using '{candidate}' instead.")
+            return candidate
+
+    # No close match: use the first installed model with a notice.
+    print(f"[!] '{requested}' not installed; using '{installed[0]}' instead.")
+    return installed[0]
+
+
+def cmd_chat(args) -> int:
+    """
+    Start an interactive chat session with a local LLM.
+
+    Returns:
+        0 if session ended normally, 1 if setup failed
+    """
+    try:
+        manifest = load_manifest(Path(args.manifest))
+    except (FileNotFoundError, ManifestError) as e:
+        print(f"[FAIL] Could not load manifest: {e}")
+        return 1
+
+    # Default model requested by the manifest primary provider, if any.
+    manifest_model = None
+    providers_cfg = (
+        manifest.get("agent", {})
+        .get("llm", {})
+        .get("providers", [])
+    )
+    if providers_cfg:
+        manifest_model = providers_cfg[0].get("model")
+
+    provider = OllamaProvider(base_url=args.base_url)
+    model_name = _resolve_model_name(args.model, manifest_model, provider)
+
+    config = AgentConfig(name="laew-cli", model=model_name)
+    try:
+        agent = Agent(config=config, provider=provider, tools=[
+            FilesystemTool(),
+            GitTool(),
+            TerminalTool(),
+            WebTool(),
+        ])
+    except RuntimeError as e:
+        print(f"[FAIL] Could not connect to a local LLM: {e}")
+        return 1
+    executor = AgentExecutor(agent)
+
+    print(f"Starting chat with {model_name} (Ollama at {provider.base_url})")
+    print("Type 'exit' or 'quit' to end the session.")
+    print("-" * 60)
+
+    try:
+        while True:
+            try:
+                user_input = input("\nYou: ").strip()
+            except EOFError:
+                break
+            if not user_input:
+                continue
+            if user_input.lower() in ("exit", "quit"):
+                break
+
+            result = executor.run(user_input)
+            if result.success:
+                print(f"\nAgent: {result.final_response}")
+            else:
+                print(f"\n[FAIL] {result.error}")
+    except KeyboardInterrupt:
+        print("\n\nSession interrupted.")
+        return 1
+
+    print("\nSession ended.")
+    return 0
+
+
 def main() -> int:
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
@@ -221,6 +363,39 @@ def main() -> int:
         help="Path to system manifest (default: manifests/SYSTEM_MANIFEST.yaml)",
     )
     check_parser.set_defaults(func=cmd_check)
+
+    # workflow command
+    workflow_parser = subparsers.add_parser(
+        "workflow",
+        help="Execute or manage workflows",
+    )
+    workflow_subparsers = workflow_parser.add_subparsers(dest="subcommand", help="Available workflow actions")
+
+    # workflow run command
+    run_parser = workflow_subparsers.add_parser("run", help="Execute a workflow")
+    run_parser.add_argument("name", help="Name/path of the workflow file")
+    run_parser.set_defaults(func=cmd_workflow_run)
+
+    # chat command
+    chat_parser = subparsers.add_parser(
+        "chat",
+        help="Start an interactive chat session with a local model",
+    )
+    chat_parser.add_argument(
+        "--model",
+        help="Ollama model name (overrides the manifest model role)",
+    )
+    chat_parser.add_argument(
+        "--base-url",
+        default="http://localhost:11434",
+        help="Ollama API base URL (default: http://localhost:11434)",
+    )
+    chat_parser.add_argument(
+        "--manifest",
+        default="manifests/SYSTEM_MANIFEST.yaml",
+        help="Path to system manifest (default: manifests/SYSTEM_MANIFEST.yaml)",
+    )
+    chat_parser.set_defaults(func=cmd_chat)
 
     # tool command
     tool_parser = subparsers.add_parser(

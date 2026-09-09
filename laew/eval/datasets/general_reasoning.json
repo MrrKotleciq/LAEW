@@ -1,0 +1,151 @@
+{
+  "tasks": [
+    {
+      "task_id": "general-file-exists",
+      "description": "Check if a specific file exists in the workspace",
+      "input_prompt": "Does the file setup.py exist in the current directory?",
+      "expected_tool_calls": [
+        {
+          "tool": "filesystem",
+          "operation": "list_dir",
+          "args": {
+            "path": "."
+          }
+        }
+      ],
+      "expected_outcome_contains": [
+        "setup.py",
+        "exists"
+      ],
+      "expected_outcome_not_contains": [
+        "error",
+        "failed"
+      ],
+      "evaluation_criteria": {
+        "relevance_threshold": 0.8
+      },
+      "metadata": {
+        "category": "filesystem",
+        "difficulty": "easy"
+      }
+    },
+    {
+      "task_id": "general-git-log",
+      "description": "View recent git commit history",
+      "input_prompt": "Show me the last 3 commits in the repository.",
+      "expected_tool_calls": [
+        {
+          "tool": "git",
+          "operation": "log",
+          "args": {
+            "max_count": 3
+          }
+        }
+      ],
+      "expected_outcome_contains": [
+        "commit",
+        "author",
+        "message"
+      ],
+      "expected_outcome_not_contains": [
+        "error",
+        "failed"
+      ],
+      "evaluation_criteria": {
+        "relevance_threshold": 0.8
+      },
+      "metadata": {
+        "category": "git",
+        "difficulty": "easy"
+      }
+    },
+    {
+      "task_id": "general-directory-structure",
+      "description": "Understand the project directory structure",
+      "input_prompt": "What are the main directories in this project? List the top-level folders.",
+      "expected_tool_calls": [
+        {
+          "tool": "filesystem",
+          "operation": "list_dir",
+          "args": {
+            "path": "."
+          }
+        }
+      ],
+      "expected_outcome_contains": [
+        "laew",
+        "tests",
+        "docs"
+      ],
+      "expected_outcome_not_contains": [
+        "error",
+        "failed"
+      ],
+      "evaluation_criteria": {
+        "relevance_threshold": 0.8
+      },
+      "metadata": {
+        "category": "filesystem",
+        "difficulty": "medium"
+      }
+    },
+    {
+      "task_id": "general-file-content-search",
+      "description": "Search for content within project files",
+      "input_prompt": "Find all Python files that contain the string 'class Agent'.",
+      "expected_tool_calls": [
+        {
+          "tool": "terminal",
+          "operation": "run",
+          "args": {
+            "command": "grep -r 'class Agent' --include='*.py' ."
+          }
+        }
+      ],
+      "expected_outcome_contains": [
+        "class Agent",
+        ".py"
+      ],
+      "expected_outcome_not_contains": [
+        "error",
+        "failed"
+      ],
+      "evaluation_criteria": {
+        "relevance_threshold": 0.8
+      },
+      "metadata": {
+        "category": "terminal",
+        "difficulty": "medium"
+      }
+    },
+    {
+      "task_id": "general-web-read-url",
+      "description": "Read content from a specific URL",
+      "input_prompt": "Please fetch and summarize the content from https://example.com.",
+      "expected_tool_calls": [
+        {
+          "tool": "web",
+          "operation": "read_url",
+          "args": {
+            "url": "https://example.com"
+          }
+        }
+      ],
+      "expected_outcome_contains": [
+        "Example Domain",
+        "domain for use in illustrative"
+      ],
+      "expected_outcome_not_contains": [
+        "error",
+        "failed"
+      ],
+      "evaluation_criteria": {
+        "relevance_threshold": 0.8
+      },
+      "metadata": {
+        "category": "web",
+        "difficulty": "easy"
+      }
+    }
+  ]
+}

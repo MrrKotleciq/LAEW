@@ -1,5 +1,6 @@
 """Agent execution loop coordinating LLM generation and tool calling."""
 
+import inspect
 import json
 import re
 import time
@@ -8,7 +9,7 @@ from typing import Any, Dict, List, Optional
 
 from laew.agent.base import Agent, AgentError
 from laew.llm.base import LLMError, LLMMessage, MessageRole
-from laew.tools.base import ToolResult
+from laew.tools.base import Tool, ToolResult
 
 
 @dataclass
@@ -49,6 +50,7 @@ class AgentExecutor:
     TOOL_CALL_PATTERN = re.compile(
         r"```(?:tool_call|json)?\s*(\{.*?\})\s*```", re.DOTALL
     )
+    _FENCE = chr(96) * 3  # ```
 
     def __init__(self, agent: Agent):
         self.agent = agent
@@ -73,6 +75,61 @@ class AgentExecutor:
                 continue
         return None
 
+    @staticmethod
+    def _looks_like_tool_call_attempt(text: str) -> bool:
+        """
+        Heuristically detect a malformed tool-call attempt.
+
+        Returns True when the text contains the characteristic markers
+        of a tool-call attempt ('\"tool\":' + '\"operation\":' + opening brace
+        or opening fence) even though the JSON never parsed correctly.
+        """
+        if not text:
+            return False
+        has_fence = '```' in text
+        has_tool = '"tool"' in text
+        has_op = '"operation"' in text
+        has_open_brace = '{' in text
+        # Match the exact pattern the prompt asks for (code fence + the two
+        # required JSON keys), or the two keys plus an unclosed brace that
+        # looks like truncated JSON.
+        return has_tool and has_op and (has_fence or has_open_brace)
+
+    def _valid_operations_for(self, tool: Tool) -> list[str]:
+        """
+        Derive the valid operation names for a tool from its method surface.
+
+        Underlying wrappers are prefixed with `_` (e.g. `_view_file` -> `view_file`);
+        the public `execute(operation, ...)` dispatches on those names.
+        """
+        names = []
+        for attr in dir(tool):
+            if attr.startswith("_") and not attr.startswith("__"):
+                names.append(attr[1:])
+        return sorted(names)
+
+    def _operation_hints(self, tool: Tool) -> str:
+        """Format valid operations for a tool with their required parameter names."""
+        hints = []
+        for method_name in self._valid_operations_for(tool):
+            method = getattr(tool, method_name, None)
+            if not callable(method):
+                continue
+            try:
+                params = inspect.signature(method).parameters.values()
+            except (TypeError, ValueError):
+                continue
+            param_names = [
+                p.name
+                for p in params
+                if p.name not in ("self", "kwargs", "args")
+            ]
+            if param_names:
+                hints.append(f"{method_name}({', '.join(param_names)})")
+            else:
+                hints.append(method_name)
+        return ", ".join(hints) if hints else "no documented operations"
+
     def _format_tools_description(self) -> str:
         """Format descriptions of available tools for inclusion in prompt."""
         if not self.agent.tools:
@@ -81,8 +138,7 @@ class AgentExecutor:
         lines = ["Available tools:"]
         for name, tool in self.agent.tools.items():
             lines.append(f"- {name}: {tool.description}")
-            if hasattr(tool, "operations") and tool.operations:
-                lines.append(f"  Operations: {', '.join(tool.operations.keys())}")
+            lines.append(f"  Operations: {self._operation_hints(tool)}")
         return "\n".join(lines)
 
     def run(self, user_prompt: str) -> ExecutionResult:
@@ -104,11 +160,22 @@ class AgentExecutor:
         full_system_prompt = (
             f"{system_text}\n\n"
             f"{tools_desc}\n\n"
-            "To use a tool, respond with a JSON block in the format:\n"
+            "To use a tool, respond with EXACTLY one JSON block wrapped in a "
+            "```tool_call fenced code block (if your tools describe operations "
+            "with parameters, use those exact parameter names as keys in \"args\"):\n"
             "```tool_call\n"
             '{"tool": "<tool_name>", "operation": "<operation_name>", "args": {<arguments>}}\n'
             "```\n"
-            "If you do not need any more tools, provide your final answer directly without tool blocks."
+            "\n"
+            "Example:\n"
+            "```tool_call\n"
+            '{"tool": "filesystem", "operation": "list_dir", "args": {"directory_path": "."}}\n'
+            "```\n"
+            "\n"
+            "Never abbreviate or rename \"tool\"/\"operation\"/\"args\". "
+            "If the tool or operation you want is not listed above, you may not "
+            "call it. If you do not need any tools, provide your final answer "
+            "directly without a tool block."
         )
 
         # Prepare messages
@@ -176,7 +243,41 @@ class AgentExecutor:
             tool_call = self._parse_tool_call(response_content)
 
             if not tool_call:
-                # No tool call, treat as final answer
+                # No valid tool call found.  Check whether the model
+                # *looked like* it was trying to call a tool so we
+                # can give a corrective observation instead of
+                # silently swallowing the attempt as a final answer.
+                if self._looks_like_tool_call_attempt(response_content):
+                    step.thought = (
+                        "Model attempted a tool call but the "
+                        "JSON could not be parsed.  Correcting format."
+                    )
+                    correction = (
+                        "Your tool call could not be parsed as valid "
+                        "JSON.  Please respond with a properly fenced "
+                        "```tool_call block:\n"
+                        "```tool_call\n"
+                        '{"tool": "<name>", "operation": "<op>", "args": {}}\n'
+                        "```\n"
+                        "\n"
+                        "Use exact key names \"tool\", \"operation\", "
+                        "\"args\" and valid JSON inside the fence."
+                    )
+                    messages.append(
+                        LLMMessage(
+                            role=MessageRole.ASSISTANT,
+                            content=response_content,
+                        )
+                    )
+                    self.agent.add_message(MessageRole.ASSISTANT, response_content)
+                    messages.append(
+                        LLMMessage(role=MessageRole.USER, content=correction)
+                    )
+                    self.agent.add_message(MessageRole.USER, correction)
+                    result.steps.append(step)
+                    continue  # Retry the loop with corrective feedback
+
+                # No tool call at all — treat as final answer
                 step.response = response_content
                 result.steps.append(step)
                 result.final_response = response_content

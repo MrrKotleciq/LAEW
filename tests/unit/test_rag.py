@@ -504,7 +504,7 @@ class TestKnowledgeBaseWithManifestConfig:
     def test_init_with_vector_store_config_enabled_but_no_chromadb(self):
         """Test fallback when chromadb is not available but config is enabled."""
         embedding_service = MockEmbeddingService()
-        vector_store_config = {"enabled": True, "host": "localhost", "port": 8000}
+        vector_store_config = {"enabled": True, "host": "localhost", "port": 9999}
 
         kb = KnowledgeBase(
             project_root="/tmp/project",

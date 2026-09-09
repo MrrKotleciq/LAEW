@@ -2,6 +2,7 @@
 
 import json
 import tempfile
+import types
 from io import StringIO
 from pathlib import Path
 from unittest.mock import patch, MagicMock
@@ -9,7 +10,7 @@ from unittest.mock import patch, MagicMock
 import pytest
 import yaml
 
-from laew.cli import main, cmd_check, cmd_tool
+from laew.cli import main, cmd_check, cmd_tool, cmd_chat, _resolve_model_name
 from laew.tools import ToolResult, ErrorCode
 from laew.manifest import ManifestError
 
@@ -263,6 +264,196 @@ class TestMainFunction:
 
             # argparse exits with code 2 for invalid command
             assert exc_info.value.code == 2
+
+
+class TestChatCommand:
+    """Tests for 'laew chat' command."""
+
+    @pytest.fixture
+    def chat_manifest(self):
+        """A manifest with applicable model provider config."""
+        manifest_data = {
+            "version": "1.0",
+            "system_name": "LAEW-TEST",
+            "stage": "test",
+            "workspace": {
+                "root": ".",
+                "allowed_paths": ["docs", "tests"],
+                "restricted_paths": [".git", "secrets"],
+                "ignored_patterns": ["**/.env*", "**/__pycache__/**"],
+            },
+            "models": {
+                "roles": {
+                    "primary": {"description": "primary"},
+                    "embedding": {"description": "embedding"},
+                    "reviewer": {"description": "reviewer"},
+                },
+            },
+            "tools": {
+                "categories": {
+                    "filesystem": {
+                        "policy": "read_only_by_default",
+                        "allowed_operations": ["view_file"],
+                    },
+                    "git": {
+                        "policy": "inspection_first",
+                        "allowed_operations": ["status"],
+                    },
+                    "terminal": {
+                        "policy": "safe_command_allowlist",
+                        "allowlist": ["ls"],
+                    },
+                    "web": {
+                        "policy": "read_only",
+                        "allowed_operations": ["read_url_content"],
+                    },
+                },
+            },
+            "memory": {
+                "session": {"type": "ephemeral", "storage": "runtime/sessions"},
+                "second_brain": {"type": "obsidian_vault", "path": "knowledge"},
+            },
+            "rag": {"pipeline": {"retrieval": "vector_search", "top_k": 5}},
+            "agent": {
+                "llm": {
+                    "providers": [
+                        {"name": "ollama_primary", "type": "ollama", "model": "llama3.1"},
+                    ],
+                    "retry": {
+                        "max_attempts": 1,
+                        "backoff_base_ms": 100,
+                        "max_backoff_ms": 200,
+                    },
+                },
+            },
+        }
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            yaml.dump(manifest_data, f)
+            yield Path(f.name)
+
+        Path(f.name).unlink(missing_ok=True)
+
+    def test_chat_runs_and_exits(self, chat_manifest, capsys):
+        """Test chat session runs a turn and exits cleanly."""
+        # Build a fake Agent configured to return a successful result.
+        agent_instance = MagicMock()
+        agent_instance.tools = {}
+        agent_instance.providers = []
+        agent_instance.history = []
+
+        run_result = MagicMock()
+        run_result.success = True
+        run_result.final_response = "Hello from the agent"
+        run_result.error = None
+
+        # Fake the Agent class so cmd_chat's construction returns our instance,
+        # and make the executor's run() return the prepared result.
+        with (
+            patch.dict("laew.cli.__dict__", {
+                "FilesystemTool": MagicMock,
+                "GitTool": MagicMock,
+                "TerminalTool": MagicMock,
+                "WebTool": MagicMock,
+            }),
+            patch("laew.cli.Agent"),
+            patch("laew.cli.AgentConfig"),
+            patch("laew.cli.AgentExecutor") as mock_executor,
+            patch("builtins.input", side_effect=["hello", "exit"]),
+        ):
+            mock_executor.return_value.run.return_value = run_result
+            exit_code = cmd_chat(chats_args(chat_manifest))
+
+        assert exit_code == 0
+        captured = capsys.readouterr()
+        assert "Hello from the agent" in captured.out
+
+    def test_chat_missing_manifest(self, capsys):
+        """Test chat with a nonexistent manifest fails gracefully."""
+        with patch("builtins.input", side_effect=["hello", "exit"]):
+            exit_code = cmd_chat(chats_args(Path("nonexistent.yaml")))
+
+        assert exit_code == 1
+        captured = capsys.readouterr()
+        assert "Could not load manifest" in captured.out
+
+    def test_chat_no_llm_available(self, chat_manifest, capsys):
+        """Test chat when the agent cannot reach an LLM provider."""
+        with (
+            patch("laew.cli.Agent", side_effect=RuntimeError("No LLM providers are available")),
+            patch("builtins.input", side_effect=["hello", "exit"]),
+        ):
+            exit_code = cmd_chat(chats_args(chat_manifest))
+
+        assert exit_code == 1
+        captured = capsys.readouterr()
+        assert "Could not connect to a local LLM" in captured.out
+
+
+def chats_args(manifest_path):
+    """Create argument-like object for cmd_chat."""
+    return types.SimpleNamespace(
+        model=None,
+        base_url="http://localhost:11434",
+        manifest=str(manifest_path),
+    )
+
+
+class TestModelResolution:
+    """Tests for chat model fallback when the requested model is not installed."""
+
+    def test_explicit_cli_model_wins(self):
+        """An explicit --model is used verbatim, no fallback."""
+        provider = MagicMock()
+        result = _resolve_model_name(
+            cli_model="qwen2.5",
+            manifest_model="llama3.1",
+            provider=provider,
+        )
+        assert result == "qwen2.5"
+        provider.list_models.assert_not_called()
+
+    def test_installed_model_used_as_is(self):
+        """Manifest model that is installed is used unchanged (exact tag match)."""
+        provider = MagicMock()
+        provider.list_models.return_value = ["llama3.1:latest", "nomic-embed-text"]
+        result = _resolve_model_name(None, "llama3.1:latest", provider)
+        assert result == "llama3.1:latest"
+
+    def test_installed_model_without_tag_resolves_via_family(self):
+        """Untagged request matches an installed tagged model of the same family."""
+        provider = MagicMock()
+        provider.list_models.return_value = ["llama3.1:latest"]
+        result = _resolve_model_name(None, "llama3.1", provider)
+        assert result == "llama3.1:latest"
+
+    def test_family_fallback_to_installed(self):
+        """Missing llama3.1 falls back to installed llama3.2 with a notice."""
+        provider = MagicMock()
+        provider.list_models.return_value = ["llama3.2:latest"]
+        result = _resolve_model_name(None, "llama3.1", provider)
+        assert result == "llama3.2:latest"
+
+    def test_first_installed_model_fallback(self):
+        """No family match falls back to the first installed model."""
+        provider = MagicMock()
+        provider.list_models.return_value = ["mistral:latest"]
+        result = _resolve_model_name(None, "llama3.1", provider)
+        assert result == "mistral:latest"
+
+    def test_no_installed_models_uses_requested(self):
+        """If Ollama has no models, keep the requested model name."""
+        provider = MagicMock()
+        provider.list_models.return_value = []
+        result = _resolve_model_name(None, "llama3.1", provider)
+        assert result == "llama3.1"
+
+    def test_provider_error_uses_requested(self):
+        """If listing models fails, keep the requested model name."""
+        provider = MagicMock()
+        provider.list_models.side_effect = RuntimeError("Ollama down")
+        result = _resolve_model_name(None, "llama3.1", provider)
+        assert result == "llama3.1"
 
 
 class TestCLIIntegration:

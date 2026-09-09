@@ -18,6 +18,8 @@ class TerminalTool(Tool):
         - run_command: Executes shell commands (allowlisted or approved).
     """
 
+    description = "Run allowlisted shell commands in a confined workspace"
+
     # Strictly forbidden patterns
     BLACKLIST = {
         "sudo", "su", "doas",

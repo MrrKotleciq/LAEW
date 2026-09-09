@@ -122,3 +122,45 @@ For detailed code and file diffs, refer to Git commit history.
   - Established single source of truth for approval logic in base `Tool` class, reducing code duplication across tools
   - Preserved all existing security semantics while improving maintainability
   - Maintained backward compatibility with existing tool interfaces and error handling patterns
+
+---
+
+## [2026-09-09] Milestone 8: Evaluation Harness Completed
+
+- **Context & Motivation**:
+  Establish systematic, quantitative evaluation of agent and RAG quality to enable regression detection ahead of workflow automation work.
+- **Key Achievements**:
+  - Implemented evaluation framework (`laew/eval/`) with evaluation metrics (`metrics.py`), task definitions and registry (`tasks.py`), and an agent/RAG evaluation runner (`runner.py`).
+  - Added benchmark datasets for LAEW-specific and general tasks (`laew/eval/datasets/`).
+  - Added evaluation test suites (`tests/evaluation/test_evaluation_framework.py`, `tests/evaluation/test_benchmark_datasets.py`).
+- **Decisions & Consequences**:
+  - Evaluation produces quantifiable scores, enabling regression detection that protects agent and RAG quality during future development.
+
+---
+
+## [2026-09-09] Milestone 9: Automation & Workflow Runtime Completed
+
+- **Context & Motivation**:
+  Execute multi-step engineering workflows with human oversight, per ADR-015 (automation with manual and disabled fallback modes), building on the robust single-agent runtime (ADR-017).
+- **Key Achievements**:
+  - Implemented workflow runtime (`laew/workflow/`) with workflow definitions and step types (`definition.py`), execution engine (`engine.py`), approval gates (`approval.py`), compensating rollback actions (`rollback.py`), error types (`exceptions.py`), and YAML workflow loading (`yaml_loader.py`).
+  - Added CLI entry point `laew workflow run` for executing YAML-defined workflows.
+  - Added workflow test suite (`tests/workflow/test_workflow_engine.py`) and YAML workflow fixtures covering simple, approval-gated, agent, and rollback workflows.
+- **Decisions & Consequences**:
+  - Simple sequential script selected as the workflow engine design for Milestone 9; DAG/state-machine orchestration deferred to future milestones.
+  - Human-in-the-loop approval gates and compensating rollback enable manual fallback modes per ADR-015.
+
+---
+
+## [2026-09-09] Feature: Interactive Chat CLI (`laew chat`)
+
+- **Context & Motivation**:
+  Provide an interactive, conversational entry point to the local-model-powered chief agent runtime, complementing the single-shot `laew tool` command.
+- **Key Achievements**:
+  - Added `laew chat` subcommand to `laew/cli.py`, wiring `OllamaProvider`, `Agent`, and `AgentExecutor` into a persistent multi-turn chat loop.
+  - Model selection via `--model`, the manifest primary provider (`agent.llm.providers[0].model`), or a `llama3.1` default; configurable Ollama base URL (`--base-url`) and manifest (`--manifest`).
+  - Graceful handling of unavailable Ollama instances and clean session exit (`exit`/`quit`/EOF/`Ctrl+C`).
+  - Added `TestChatCommand` unit coverage (happy-path loop, missing manifest, no-LLM-available), bringing the unit suite to 287 tests.
+- **Decisions & Consequences**:
+  - Reuses the existing provider abstraction (ADR-001) and single-agent executor (ADR-017); no new architectural decision introduced.
+  - Exposes the agent loop to interactive terminal use for the first time.

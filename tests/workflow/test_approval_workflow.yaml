@@ -1,0 +1,13 @@
+name: test_approval_workflow
+description: "Workflow testing approval gates"
+mode: automatic
+steps:
+  - id: step_approval
+    name: "Approval required step"
+    type: tool
+    tool: filesystem
+    operation: write_file
+    arguments:
+      path: "@project/test.txt"
+      content: "test"
+    approval_required: true

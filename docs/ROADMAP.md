@@ -33,14 +33,14 @@ Dependencies: Milestone 5 (docs/CI) for validation tests.
 Tests: Fault injection tests; provider fallback tests; output validation tests.
 Definition of Done: Agent recovers from transient failures; LLM provider can be swapped at runtime; output parsing failures are handled gracefully.
 
-## Milestone 8: Evaluation Harness
+## Milestone 8: Evaluation Harness (Completed)
 Goal: Systematic evaluation of agent and RAG quality.
 Scope: Evaluation framework (task definitions, metrics, scoring), benchmark datasets (LAEW-specific and general), regression test suite.
-Dependencies: Milestone 7 (robust agent) for stable evaluation target.
-Tests: Evaluation tests themselves; regression detection.
-Definition of Done: Can run evaluation suite; produces quantifiable scores; regression detection catches quality drops.
+Dependencies: Milestone 7 (robust agent) — satisfied.
+Tests: Evaluation tests; regression detection.
+Definition of Done: Evaluation suite runs; quantifiable scores produced; regression detection catches quality drops.
 
-## Milestone 9: Automation & Workflow Runtime
+## Milestone 9: Automation & Workflow Runtime (Completed)
 Goal: Execute multi-step engineering workflows with human oversight.
 Scope: Workflow engine (ADR-015 modes), step definitions, approval gates, rollback capabilities.
 Dependencies: Milestone 8 (evaluation) to measure workflow quality; Milestone 7 (robust agent) for reliable execution.
@@ -64,5 +64,5 @@ Definition of Done: Can install via pip; documented configuration; security revi
 ## Architectural Decisions Requiring Approval
 1. **Persistence backend**: SQLite+numpy vs other (e.g., Chroma, FAISS) — affects Milestone 6.
 2. **Evaluation metrics**: What dimensions to measure (accuracy, latency, cost) — affects Milestone 8.
-3. **Workflow engine design**: State machine vs DAG vs simple script — affects Milestone 9.
+3. **Workflow engine design**: Simple sequential script — chosen for Milestone 9 (implemented). DAG/state machine deferred to future milestones.
 4. **Multi-agent communication**: Shared memory vs message passing — affects Milestone 10.

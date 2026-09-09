@@ -3,7 +3,7 @@
 ## Status
 
 Architecture: LAEW v1.0 documented
-Implementation: Milestone 6 (Persistent Knowledge Store) completed
+Implementation: Milestone 9 (Automation & Workflow Runtime) completed
 
 ## Currently present in repository
 
@@ -17,6 +17,8 @@ Implementation: Milestone 6 (Persistent Knowledge Store) completed
 - package-lock.json
 - .gitignore
 - laew/ (Python package with tool runtime wrappers, CLI, LLM provider, prompt management, agent loop)
+- laew/eval/ (Evaluation harness with metrics, tasks, runner, and benchmark datasets)
+- laew/workflow/ (Workflow runtime with definitions, execution engine, approval gates, and rollback)
 - setup.py (Package installation configuration)
 
 ## Milestone 1 Implementation (Completed)
@@ -34,7 +36,7 @@ Implementation: Milestone 6 (Persistent Knowledge Store) completed
 - laew/tools/git.py: Git operations with inspect-first policy, mutation approval gates, blocked destructive subcommands, and LC_ALL=C locale enforcement
 - laew/tools/terminal.py: Subprocess execution engine with command allowlists, dangerous pattern blacklists, and workspace boundary confinement
 - laew/tools/web.py: HTTP reader with markdown conversion, protocol restriction (http/https), and web search interface
-- laew/cli.py: Command-line interface with `laew check` (manifest validation) and `laew tool` (tool execution) commands (16 unit tests)
+- laew/cli.py: Command-line interface with `laew check` (manifest validation), `laew tool` (tool execution), `laew workflow run` (workflow execution), and `laew chat` (interactive local LLM chat) commands
 
 ## Milestone 3 Implementation (Completed)
 
@@ -44,7 +46,7 @@ Implementation: Milestone 6 (Persistent Knowledge Store) completed
 - laew/prompts/loader.py: Layered prompt loader supporting single-file and directory-based section composition (45 unit tests for prompts module)
 - laew/prompts/templates.py: Prompt template registry with {{variable}} substitution and validation
 - laew/agent/base.py: Agent base class, AgentConfig, AgentRole enum, and history management
-- laew/agent/executor.py: AgentExecutor orchestration loop (Thought -> Action -> Observation -> Response) with tool calling via JSON blocks (26 unit tests)
+- laew/agent/executor.py: AgentExecutor orchestration loop (Thought -> Action -> Observation -> Response) with tool calling via JSON blocks, dynamic operation hints in prompts, and a safety net that feeds malformed tool-call attempts back to the model for correction (26 unit tests)
 - laew/rag/embedding.py: EmbeddingService abstract interface and OllamaEmbedding implementation (20 unit tests)
 - laew/rag/vector_store.py: In-memory vector store with cosine similarity search (8 unit tests)
 - laew/rag/knowledge_base.py: Knowledge loading from project memory and global knowledge sources (4 unit tests)
@@ -70,19 +72,17 @@ Implementation: Milestone 6 (Persistent Knowledge Store) completed
 - setup.py: Added `chromadb>=0.4.0` to dev extras for the HTTP client.
 - tests/unit/test_rag.py: Tests for `ChromaVectorStore` (skipped when chromadb absent) and manifest-config store selection with graceful fallback.
 
-Total: 266 unit tests passing across 14 test suites
+Total: 300 unit tests passing across 15 test suites
 
 ## Important distinction
 
 The architecture documentation describes the intended
 LAEW v1.0 system.
 
-The current repository represents the declarative foundation, tool runtime layer, CLI, LLM provider, prompt management, chief agent orchestration loop, and knowledge retrieval (RAG) system;
-workflow automation capabilities are planned for future milestones.
+The current repository represents the declarative foundation, tool runtime layer, CLI, LLM provider, prompt management, chief agent orchestration loop, knowledge retrieval (RAG) system, systematic evaluation harness, and workflow automation runtime with approval gates and rollback.
 
 ## Current Focus
 
-Having completed Milestones 1-6, the project is ready to begin Milestone 7 per
-`docs/ROADMAP.md`. The RAG knowledge store now persists embeddings across restarts
-via a Docker-hosted ChromaDB instance, with graceful fallback to the in-memory store
-when the container is not running.
+Having completed Milestones 1-9 (including the Automation & Workflow Runtime), the project is ready to begin Milestone 10 (Multi-Agent Architecture) per
+`docs/ROADMAP.md`. The evaluation harness provides systematic testing of agent and RAG quality,
+enabling regression detection for future development.

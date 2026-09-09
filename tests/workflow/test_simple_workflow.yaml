@@ -1,0 +1,12 @@
+name: test_simple_workflow
+description: "Simple workflow with filesystem operations"
+mode: automatic
+steps:
+  - id: step_read
+    name: "Read test file"
+    type: tool
+    tool: filesystem
+    operation: view_file
+    arguments:
+      path: "@project/README.md"
+    approval_required: false

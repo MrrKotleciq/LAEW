@@ -23,6 +23,8 @@ class FilesystemTool(Tool):
         - replace_file_content: Modify file in place (requires approval)
     """
 
+    description = "Read and write project files (list, view, find, grep, write)"
+
     READ_OPS = {"view_file", "list_dir", "find_by_name", "grep_search"}
     WRITE_OPS = {"write_file", "replace_file_content", "delete_file"}
 

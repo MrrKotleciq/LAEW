@@ -17,6 +17,8 @@ class WebTool(Tool):
         - read_url_content: Fetch and convert URL to Markdown (read-only)
     """
 
+    description = "Read web content and search technical documentation (read-only)"
+
     def __init__(self):
         """Initialize web tool."""
         super().__init__(requires_approval=False)

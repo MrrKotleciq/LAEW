@@ -1,0 +1,10 @@
+name: test_agent_workflow
+description: "Workflow with agent execution"
+mode: manual
+steps:
+  - id: step_agent
+    name: "Agent analysis"
+    type: agent
+    agent_role: chief
+    prompt: "Analyze the project structure"
+    approval_required: true

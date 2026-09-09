@@ -22,6 +22,8 @@ class GitTool(Tool):
         - git_branch: Create branch (requires approval)
     """
 
+    description = "Inspect and manage a Git repository (status, diff, log, commit)"
+
     # Strictly forbidden Git commands
     FORBIDDEN_COMMANDS = {
         "reset --hard",
