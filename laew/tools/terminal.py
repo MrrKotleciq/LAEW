@@ -1,5 +1,6 @@
 """Terminal command execution tool wrapper (tools/terminal/CONTRACT.md)."""
 
+import shlex
 import subprocess
 import time
 from pathlib import Path
@@ -42,6 +43,11 @@ class TerminalTool(Tool):
         "true", "false", "echo"
     }
 
+    # Shell operators that chain, redirect, or substitute commands.
+    # Allowing any of these defeats the allowlist boundary, so any command
+    # containing one is never treated as an allowlisted inspector.
+    SHELL_METACHARACTERS = (";", "|", "&", "`", ">", "<", "\n", "\r")
+
     def __init__(self, workspace_root: Optional[Path | str] = None):
         """
         Initialize terminal tool.
@@ -83,16 +89,45 @@ class TerminalTool(Tool):
                 return True
         return False
 
+    def _contains_shell_metacharacters(self, command: str) -> bool:
+        """
+        Check if a command uses shell chaining, redirection, or substitution.
+
+        These operators (";", "|", "&&", "(`", ">", "<", "$(") could let a
+        command escape its intended execution, so presence of any of them
+        disqualifies the command from allowlist treatment.
+        """
+        for meta in self.SHELL_METACHARACTERS:
+            if meta in command:
+                return True
+        # Command substitution ($( ... ) or ${ ... })
+        return "$(" in command or "${" in command
+
     def _is_allowlisted(self, command: str) -> bool:
         """
         Check if command matches a safe inspector command.
 
-        The command is allowlisted if it starts with one of the allowed
-        inspection tools (e.g. "ls -la" matches "ls").
+        Matching is token-based on the whole command line (after shell-style
+        splitting), not a raw string prefix.  This prevents prefix-injection
+        bypasses such as "ls; rm -rf /" and "echo > /etc/passwd" from being
+        treated as the allowlisted inspector while still allowing safe
+        argument forms like "ls -la" or "git status --porcelain".
         """
-        cmd_strip = command.strip()
+        if self._contains_shell_metacharacters(command):
+            return False
+
+        try:
+            argv = shlex.split(command)
+        except ValueError:
+            # Unbalanced quotes -> not a well-formed command we can vet.
+            return False
+
+        if not argv:
+            return False
+
         for safe_cmd in self.ALLOWLIST:
-            if cmd_strip == safe_cmd or cmd_strip.startswith(safe_cmd + " "):
+            safe_tokens = shlex.split(safe_cmd)
+            if len(argv) >= len(safe_tokens) and argv[: len(safe_tokens)] == safe_tokens:
                 return True
         return False
 
@@ -144,10 +179,21 @@ class TerminalTool(Tool):
             # Convert working directory to string
             cwd_str = str(actual_cwd)
 
+            # Split the command into an argument vector and execute without a
+            # shell (shell=False).  Even if a metacharacter slips through, it
+            # becomes an ordinary argument instead of shell syntax.
+            try:
+                argv = shlex.split(command)
+            except ValueError as e:
+                return ToolResult.error(
+                    ErrorCode.ERR_INVALID_INPUT,
+                    f"Invalid command syntax: {e}"
+                )
+
             # Subprocess execution
             process = subprocess.run(
-                command,
-                shell=True,
+                argv,
+                shell=False,
                 cwd=cwd_str,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,

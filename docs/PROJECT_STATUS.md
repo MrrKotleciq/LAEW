@@ -50,8 +50,8 @@ Implementation: Milestone 9 (Automation & Workflow Runtime) completed
 - laew/rag/embedding.py: EmbeddingService abstract interface and OllamaEmbedding implementation (20 unit tests)
 - laew/rag/vector_store.py: In-memory vector store with cosine similarity search (8 unit tests)
 - laew/rag/knowledge_base.py: Knowledge loading from project memory and global knowledge sources (4 unit tests)
-- laew/rag/pipeline.py: RAG pipeline orchestrating retrieval, reranking, and context injection (4 unit tests)
-- laew/rag/rag_tool.py: Tool wrapper for agent RAG queries (3 unit tests)
+- laew/rag/pipeline.py: RAG pipeline orchestrating retrieval, reranking, and context injection (5 unit tests)
+- laew/rag/rag_tool.py: Tool wrapper for agent RAG queries (4 unit tests)
 - laew/rag/__init__.py: Module exports
 
 ## Milestone 5 Implementation (Completed)
@@ -72,7 +72,10 @@ Implementation: Milestone 9 (Automation & Workflow Runtime) completed
 - setup.py: Added `chromadb>=0.4.0` to dev extras for the HTTP client.
 - tests/unit/test_rag.py: Tests for `ChromaVectorStore` (skipped when chromadb absent) and manifest-config store selection with graceful fallback.
 
-Total: 300 unit tests passing across 15 test suites
+Audit remediation: all Critical (C1-C4) and High (H1-H5) findings fixed with regression tests.
+Full test suite: 338 passed, 1 skipped.
+
+Total: 318 unit tests collected across 15 test suites
 
 ## Important distinction
 
@@ -83,6 +86,6 @@ The current repository represents the declarative foundation, tool runtime layer
 
 ## Current Focus
 
-Having completed Milestones 1-9 (including the Automation & Workflow Runtime), the project is ready to begin Milestone 10 (Multi-Agent Architecture) per
+Having completed Milestones 1-9 (including the Automation & Workflow Runtime) and remediated all Critical/High findings from the full technical audit, the project is ready to begin Milestone 10 (Multi-Agent Architecture) per
 `docs/ROADMAP.md`. The evaluation harness provides systematic testing of agent and RAG quality,
 enabling regression detection for future development.

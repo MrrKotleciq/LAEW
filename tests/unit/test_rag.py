@@ -326,6 +326,33 @@ class TestRAGPipeline:
             # Should search both stores
             assert len(result.chunks) > 0
 
+    def test_retrieve_records_embedding_error(self):
+        """
+        When embedding fails, retrieve() must record the error on the result
+        instead of silently returning an empty context (H5).
+        """
+        embedding_service = MockEmbeddingService()
+        with tempfile.TemporaryDirectory() as tmpdir:
+            kb = KnowledgeBase(
+                project_root=tmpdir,
+                knowledge_root=tmpdir,
+                embedding_service=embedding_service,
+            )
+            pipeline = RAGPipeline(
+                knowledge_base=kb,
+                embedding_service=embedding_service,
+            )
+            with patch.object(
+                embedding_service,
+                "embed",
+                side_effect=RuntimeError("embedding service down"),
+            ):
+                result = pipeline.retrieve("test query", scope=KnowledgeScope.PROJECT)
+
+            assert result.error is not None
+            assert "embedding service down" in result.error
+            assert result.context == ""
+
 
 class TestRagTool:
     """Tests for RagTool."""
@@ -391,6 +418,33 @@ class TestRagTool:
             assert result.success is True
             assert "context" in result.data
             assert "sources" in result.data
+
+    def test_execute_query_surfaces_embedding_error(self):
+        """
+        When the pipeline records an embedding error, RagTool must surface it
+        as a failure instead of reporting "no relevant information found" (H5).
+        """
+        embedding_service = MockEmbeddingService()
+        with tempfile.TemporaryDirectory() as tmpdir:
+            kb = KnowledgeBase(
+                project_root=tmpdir,
+                knowledge_root=tmpdir,
+                embedding_service=embedding_service,
+            )
+            pipeline = RAGPipeline(knowledge_base=kb, embedding_service=embedding_service)
+            budget = ContextBudget()
+            tool = RagTool(pipeline=pipeline, context_budget=budget)
+
+            with patch.object(
+                embedding_service,
+                "embed",
+                side_effect=RuntimeError("embedding service down"),
+            ):
+                result = tool.call("query", query="test", scope="project")
+
+            assert result.success is False
+            assert result.error_code == "ERR_RAG_FAILURE"
+            assert "embedding service down" in result.error_message
 
 
 class TestRAGIntegration:
@@ -479,6 +533,72 @@ class TestChromaVectorStore:
         zero_vector = [0.0, 0.0]
         normalized_zero = ChromaVectorStore._normalize(zero_vector)
         assert normalized_zero == [0.0, 0.0]
+
+    def test_search_converts_cosine_distance_correctly(self):
+        """
+        ChromaDB cosine distance spans [0, 2]; the score returned to callers
+        must be 1.0 - distance (cosine similarity), not 1.0 - distance/2.0.
+
+        Regression test for H4: the old formula compressed the similarity
+        range, so exact matches scored 0.5 instead of 1.0 and unrelated
+        chunks never went negative.
+        """
+        try:
+            import chromadb  # noqa: F401
+        except ImportError:
+            pytest.skip("chromadb not installed")
+
+        # Build the store without a live server: bypass __init__ and inject
+        # a fake collection whose query() returns a known distance.
+        store = object.__new__(ChromaVectorStore)
+        store.source = "project"
+
+        collection = MagicMock()
+        collection.query.return_value = {
+            "ids": [["chunk-1"]],
+            "metadatas": [[{"text": "Golden retriever", "source": "project", "file_path": "doc.md"}]],
+            "distances": [[0.0]],  # identical vector -> cosine distance 0
+        }
+        store._collection = collection
+
+        results = store.search([1.0, 0.0], top_k=1)
+
+        assert len(results) == 1
+        chunk, similarity = results[0]
+        assert chunk.chunk_id == "chunk-1"
+        # distance 0.0 must map to similarity 1.0, not 0.5
+        assert similarity == pytest.approx(1.0)
+        assert collection.query.call_count == 1
+
+    def test_search_uses_linear_distance_to_similarity(self):
+        """
+        Verify linear conversion across ChromaDB's full cosine distance range.
+
+        A distance of 1.0 corresponds to orthogonal vectors (cosine
+        similarity 0.0).  The old 1.0 - d/2.0 gave 0.5 for these, which is
+        wrong — orthogonal content is unrelated, not half-similar.
+        """
+        try:
+            import chromadb  # noqa: F401
+        except ImportError:
+            pytest.skip("chromadb not installed")
+
+        store = object.__new__(ChromaVectorStore)
+        store.source = "project"
+
+        collection = MagicMock()
+        collection.query.return_value = {
+            "ids": [["chunk-orth"]],
+            "metadatas": [[{"text": "Orthogonal content", "source": "project", "file_path": "doc.md"}]],
+            "distances": [[1.0]],  # perpendicular vectors
+        }
+        store._collection = collection
+
+        results = store.search([1.0, 0.0], top_k=1)
+
+        assert len(results) == 1
+        _, similarity = results[0]
+        assert similarity == pytest.approx(0.0)
 
 
 class TestKnowledgeBaseWithManifestConfig:

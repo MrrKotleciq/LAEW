@@ -332,3 +332,70 @@ def test_delete_file_not_found(tool, tmp_project):
 
     assert not result.success
     assert result.error_code == ErrorCode.ERR_FILE_NOT_FOUND
+
+
+# === Write operation parameter validation (H2) ===
+
+def test_validate_write_file_missing_content():
+    """validate() must reject write_file without content."""
+    # NOTE: default PathResolver points at the repo root; this validation is
+    # parameter-only and never resolves a path, so no fixture is required.
+    tool = FilesystemTool()
+    is_valid, error = tool.validate("write_file", file_path="@project/file.txt")
+    assert is_valid is False
+    assert "content" in error
+
+
+def test_validate_write_file_missing_file_path():
+    """validate() must reject write_file without file_path."""
+    tool = FilesystemTool()
+    is_valid, error = tool.validate("write_file", content="data")
+    assert is_valid is False
+    assert "path" in error
+
+
+def test_validate_replace_missing_replacement_content():
+    """validate() must reject replace_file_content without all params."""
+    tool = FilesystemTool()
+    is_valid, error = tool.validate(
+        "replace_file_content",
+        file_path="@project/README.md",
+        start_line=1,
+        end_line=1,
+        target_content="old",
+    )
+    assert is_valid is False
+    assert "replacement_content" in error
+
+
+def test_validate_replace_non_integer_lines():
+    """validate() must reject non-integer line ranges for replace."""
+    tool = FilesystemTool()
+    is_valid, error = tool.validate(
+        "replace_file_content",
+        file_path="@project/README.md",
+        start_line="1",
+        end_line=1,
+        target_content="old",
+        replacement_content="new",
+    )
+    assert is_valid is False
+    assert "integers" in error
+
+
+def test_validate_delete_file_missing_path():
+    """validate() must reject delete_file without file_path."""
+    tool = FilesystemTool()
+    is_valid, error = tool.validate("delete_file")
+    assert is_valid is False
+    assert "path" in error
+
+
+def test_validate_write_file_valid():
+    """validate() passes a fully-specified write_file call."""
+    tool = FilesystemTool()
+    is_valid, error = tool.validate(
+        "write_file", file_path="@project/file.txt", content="data"
+    )
+    assert is_valid is True
+    assert error is None

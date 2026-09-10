@@ -179,7 +179,31 @@ For detailed code and file diffs, refer to Git commit history.
   - Added a forced final-answer fallback at `max_iterations`: prompts the model one last time to write a plain-text answer from accumulated context, converting over-researching failures into usable responses (while rejecting outputs that still look like tool calls).
   - Hardened the malformed-call safety net: `_looks_like_tool_call_attempt()` now also flags raw shell commands in fenced code blocks (e.g. ```ls -l```), feeding a corrective user message back to the model instead of treating them as a final answer.
   - Added `dir` to the `TerminalTool.ALLOWLIST` for Windows compatibility (safe read-only directory listing).
-  - Verified: 312 unit tests pass; a live `laew chat` session now issues valid `FilesystemTool list_dir` and `GitTool git_status` calls, stops appropriately, and breaks out of failing repeated tool loops to produce a plain-text answer.
+  - Verified: 321 unit tests collected (320 passing, 1 skipped); a live `laew chat` session now issues valid `FilesystemTool list_dir` and `GitTool git_status` calls, stops appropriately, and breaks out of failing repeated tool loops to produce a plain-text answer.
+- Fixed evaluation datasets to use correct PascalCase tool names (`FilesystemTool`, `GitTool`, `TerminalTool`, `WebTool`) and correct operations, resolving tool-call mismatches that prevented proper evaluation.
+- Added `tests/evaluation/test_evaluation_runner.py` with 8 comprehensive tests for the evaluation harness, including dataset loading and task execution verification.
 - **Decisions & Consequences**:
   - Kept the structured-JSON `tool_call` protocol rather than switching to native Ollama JSON-mode tool calling, preserving model/provider independence (ADR-001).
   - Corrective feedback loop remains in-band (messages), so multi-turn history stays coherent for the model.
+
+---
+
+## [2026-09-10] Fix: Technical Audit Remediation (Critical C1–C4 & High H1–H5)
+
+- **Context & Motivation**:
+  A full technical audit of the repository surfaced four Critical and five High-severity findings spanning manifest validation, the workflow runtime, tool-call security, provider resilience, and the RAG pipeline. All nine were remediated with regression tests.
+- **Critical fixes**:
+  - **C1** — `laew/manifest.py` `validate_manifest()` had a `policies` mapping dedented to column 0 inside the function body (broken indentation in the validation loop). Normalized to proper 4-space indentation; behavior unchanged and covered by `tests/unit/test_manifest.py` policy/allowlist validation tests.
+  - **C2** — `laew/workflow/engine.py` `_execute_step()` was a stub that only printed. Now dispatches TOOL steps through a `tool_registry` (exact, case-insensitive, and class-name-suffix resolution via `_resolve_tool`) and AGENT steps through an optional `agent_executor`, recording results in the execution context and raising `WorkflowExecutionError` on failure. Verified by `tests/workflow/test_workflow_engine.py`.
+  - **C3** — `laew/tools/terminal.py` allowed listener bypass via prefix injection and ran with `shell=True`. Now rejects shell metacharacters (`;`, `|`, `&`, `` ` ``, `>`, `<`, newline, `$(`/`${`), matches the allowlist token-wise instead of by string prefix, and executes with `shell=False` on a `shlex`-split argument vector. Covered by `tests/unit/test_terminal_tool.py` allowlist-injection tests.
+  - **C4** — `laew/tools/git.py` passed `files` straight to `git add`, allowing `../` traversal. Every path is now resolved through `PathResolver` before staging, rejecting out-of-bound and restricted (`.git`/secrets) paths. Covered by `tests/unit/test_git_tool.py` path-traversal and restricted-path tests.
+- **High fixes**:
+  - **H1** — `laew/agent/executor.py` provider-fallback retry loop could cycle infinitely across provider switches; now bounded by a total `generate()` budget.
+  - **H2** — `laew/tools/filesystem.py` write operations lacked parameter validation; added explicit validation and immutable list reconstruction.
+  - **H3** — duplicate `WorkflowValidationError` in `laew/workflow/yaml_loader.py`; replaced with the canonical class from `exceptions.py`.
+  - **H4** — ChromaDB cosine-distance→similarity conversion in `laew/rag/vector_store.py` divided by 2, compressing the [0,2] distance range into [0,1]; now uses the linear `1.0 - distance`.
+  - **H5** — `laew/rag/pipeline.py` swallowed embedding failures (returned empty context); now logs and records the error on `RAGResult`, and `laew/rag/rag_tool.py` surfaces it as `ERR_RAG_FAILURE`.
+- **Verified**: full suite — 338 passed, 1 skipped (27 new regression tests across the affected modules).
+- **Decisions & Consequences**:
+  - Security enforcement stays below the model layer (P8): allowlist matching is token-based and execution is shell-free so injected operators become ordinary arguments.
+  - Workflow TOOL steps now require an explicit tool registry, keeping the engine model-agnostic (ADR-001) and honest about unavailable tools rather than silently printing.

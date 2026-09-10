@@ -157,3 +157,30 @@ def test_executor_feeds_correction_back_to_model():
         m.role == MessageRole.USER and "could not be parsed" in m.content
         for m in second_call_messages
     )
+
+
+def test_executor_retry_loop_is_bounded_when_all_providers_fail():
+    """
+    The per-step retry loop must terminate when every provider advertises
+    availability but keeps failing on generate().
+
+    Regression test for H1: without an outer bound, the fallback switch
+    resets the attempt counter and cycles through providers forever.
+    """
+    agent = make_agent(max_iterations=3)
+
+    # The provider claims to be available (so _ensure_available_provider
+    # succeeds and the attempt counter keeps resetting) but every generate
+    # call fails.  If the retry loop is unbounded this runs forever; with
+    # the fix it must stop after max_attempts * num_providers calls.
+    agent.provider.is_available.return_value = True
+    agent.provider.generate.side_effect = Exception("LLM unavailable")
+
+    executor = AgentExecutor(agent)
+
+    result = executor.run("Test prompt")
+
+    assert result.success is False
+    assert "LLM generation failed" in (result.error or "")
+    # max_attempts (default 3) * 1 provider = 3 total generate calls.
+    assert agent.provider.generate.call_count == 3

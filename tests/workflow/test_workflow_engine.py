@@ -18,6 +18,17 @@ from laew.workflow.engine import WorkflowEngine
 from laew.workflow.approval import ApprovalGate
 from laew.workflow.rollback import RollbackEngine
 from laew.workflow.yaml_loader import load_workflow_from_yaml, WorkflowValidationError
+from laew.tools.base import Tool, ToolResult
+
+
+class _FakeTool(Tool):
+    """Minimal Tool that reports success for any operation."""
+
+    def validate(self, operation, **kwargs):
+        return True, None
+
+    def execute(self, operation, **kwargs):
+        return ToolResult.ok({"executed": operation})
 
 
 def test_workflow_definition_creation():
@@ -69,6 +80,7 @@ def test_workflow_engine_automatic_mode():
         type=StepType.TOOL,
         tool="filesystem",
         operation="view_file",
+        arguments={"path": "README.md"},
     )
     definition = WorkflowDefinition(
         name="auto_workflow",
@@ -76,9 +88,15 @@ def test_workflow_engine_automatic_mode():
         mode=WorkflowMode.AUTOMATIC,
         steps=[step],
     )
-    engine = WorkflowEngine(definition)
-    engine.run()  # Executes step
-    assert engine.execution_context == {}
+    engine = WorkflowEngine(
+        definition, tool_registry={"filesystem": _FakeTool()}
+    )
+    engine.run()  # Executes step via the tool registry
+
+    # The step result is recorded in the execution context.
+    assert "step_1" in engine.execution_context
+    assert engine.execution_context["step_1"]["result"].success is True
+    assert engine.execution_context["step_1"]["operation"] == "view_file"
 
 
 def test_workflow_engine_manual_mode_requires_approval():
@@ -177,9 +195,11 @@ def test_rollback_executes_on_failure():
         mode=WorkflowMode.AUTOMATIC,
         steps=[failing_step],
     )
-    engine = WorkflowEngine(definition)
+    engine = WorkflowEngine(
+        definition, tool_registry={"filesystem": _FakeTool()}
+    )
 
-    # Step execution in engine uses _execute_step which currently doesn't
-    # fail, so this tests the rollback stack is pushed on success.
+    # The fake tool always succeeds, so the step completes and its
+    # compensating rollback action is registered on the stack.
     engine.run()
     assert len(engine.rollback_engine._rollback_stack) == 1

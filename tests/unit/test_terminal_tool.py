@@ -129,6 +129,47 @@ def test_non_allowlisted_requires_approval(tool):
     assert result.error_code == ErrorCode.ERR_UNAUTHORIZED
 
 
+# === Shell metacharacter rejection ===
+
+def test_allowlist_prefix_injection_blocked(tool):
+    """Prefix injection ('ls; python non_existent.py') must not pass the allowlist."""
+    result = tool.run_command("ls; python non_existent.py")
+
+    assert not result.success
+    assert result.error_code == ErrorCode.ERR_UNAUTHORIZED
+
+
+def test_allowlist_redirection_blocked(tool):
+    """Command with output redirection must not pass the allowlist."""
+    result = tool.run_command("echo pwn > /tmp/owned")
+
+    assert not result.success
+    assert result.error_code == ErrorCode.ERR_UNAUTHORIZED
+
+
+def test_allowlist_pipe_blocked(tool):
+    """Command with a pipe must not pass the allowlist."""
+    result = tool.run_command("cat test.txt | head")
+
+    assert not result.success
+    assert result.error_code == ErrorCode.ERR_UNAUTHORIZED
+
+
+def test_allowlist_command_substitution_blocked(tool):
+    """Command substitution must not pass the allowlist."""
+    result = tool.run_command("echo $(whoami)")
+
+    assert not result.success
+    assert result.error_code == ErrorCode.ERR_UNAUTHORIZED
+
+
+def test_allowlisted_command_tokens_still_pass(tool):
+    """A genuinely safe inspect command with arguments still needs no approval."""
+    result = tool.run_command("git status --porcelain")
+
+    assert result.error_code != ErrorCode.ERR_UNAUTHORIZED
+
+
 def test_non_allowlisted_with_approval(tool):
     """Test that non-allowlisted command succeeds with approval."""
     tool.approve()

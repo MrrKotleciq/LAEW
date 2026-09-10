@@ -7,12 +7,30 @@ These tests ensure that documentation accurately reflects the repository state:
 """
 
 import os
+import re
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
 import yaml
 
 from laew.manifest import load_manifest, ManifestError
+
+
+def _count_unit_tests() -> int:
+    """Return the number of test functions pytest collects under tests/unit.
+
+    Used to validate that PROJECT_STATUS states the *current* count instead of
+    a stale magic number (which drifted 287 -> 300 -> 321 over time).
+    """
+    proc = subprocess.run(
+        [sys.executable, "-m", "pytest", "tests/unit", "--collect-only", "-q"],
+        capture_output=True,
+        text=True,
+    )
+    match = re.search(r"(\d+) tests? collected", proc.stdout or "")
+    return int(match.group(1)) if match else 0
 
 
 class TestReadmeStructure:
@@ -77,16 +95,22 @@ class TestProjectStatusAccuracy:
     """Test that PROJECT_STATUS.md reflects current state accurately."""
 
     def test_project_status_mentions_correct_test_count(self):
-        """PROJECT_STATUS should mention the current test count (300)."""
+        """PROJECT_STATUS should mention the current unit test count."""
         status_path = Path("docs/PROJECT_STATUS.md")
         assert status_path.exists(), "docs/PROJECT_STATUS.md should exist"
 
         content = status_path.read_text(encoding="utf-8")
 
-        # Should mention 300 tests (current count after our fixes)
-        assert "300" in content, "PROJECT_STATUS should mention 300 unit tests"
-        assert "287" not in content or content.count("287") < content.count("300"), \
-            "PROJECT_STATUS should primarily reference 300 tests, not outdated 287"
+        # Verify the stated count matches what pytest actually collects instead
+        # of a hard-coded figure that goes stale (287 -> 300 -> 321 drift).
+        expected = _count_unit_tests()
+        assert expected > 0, "should be able to determine the collected test count"
+        expected_phrase = f"{expected} unit tests"
+        assert expected_phrase in content, \
+            f"PROJECT_STATUS should mention '{expected_phrase}'"
+        # Outdated historical counts should not be presented as the current total.
+        assert "287 unit tests" not in content, \
+            "PROJECT_STATUS should not reference the outdated 287-test count"
 
     def test_project_status_mentions_correct_test_suites(self):
         """PROJECT_STATUS should mention current test suite count (15)."""

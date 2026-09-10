@@ -292,6 +292,24 @@ def test_git_commit_with_file_list(tool, tmp_repo):
     assert "commit_hash" in result.data
 
 
+def test_git_commit_rejects_path_traversal(tool, tmp_repo):
+    """git commit must refuse to stage a path that escapes the repository."""
+    tool.approve()
+    result = tool.git_commit("bad commit", files=["../../outside.txt"])
+
+    assert not result.success
+    assert result.error_code == ErrorCode.ERR_PATH_DENIED
+
+
+def test_git_commit_rejects_restricted_path(tool, tmp_repo):
+    """git commit must refuse to stage restricted paths (e.g. .git internals)."""
+    tool.approve()
+    result = tool.git_commit("bad commit", files=[".git/config"])
+
+    assert not result.success
+    assert result.error_code == ErrorCode.ERR_PATH_DENIED
+
+
 # === Checkout operations ===
 
 def test_git_checkout_requires_approval(tool, tmp_repo):

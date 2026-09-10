@@ -158,15 +158,8 @@ def cmd_tool(args) -> int:
             print(f"  Available tools: {', '.join(tools_map.keys())}")
             return 1
 
-        # Instantiate tool (different constructors for different tools)
-        if tool_name == "filesystem":
-            tool = FilesystemTool()
-        elif tool_name == "git":
-            tool = GitTool()
-        elif tool_name == "terminal":
-            tool = TerminalTool()
-        elif tool_name == "web":
-            tool = WebTool()
+        # Instantiate tool via the same map used for name validation.
+        tool = tools_map[tool_name]()
 
         # Auto-approve if not requiring approval
         if not args.require_approval:
@@ -216,8 +209,19 @@ def cmd_workflow_run(args) -> int:
         # Load workflow definition
         definition = load_workflow_from_yaml(workflow_path)
 
+        # Build the tool registry used to dispatch TOOL steps. The registry is
+        # keyed by class name (FilesystemTool, ...) which the engine resolves
+        # case-insensitively and by short name ('filesystem').
+        tools = [
+            FilesystemTool(),
+            GitTool(),
+            TerminalTool(),
+            WebTool(),
+        ]
+        tool_registry = {tool.name: tool for tool in tools}
+
         # Create and run workflow engine
-        engine = WorkflowEngine(definition)
+        engine = WorkflowEngine(definition, tool_registry=tool_registry)
         engine.run()
 
         print("[OK] Workflow executed successfully")

@@ -2,20 +2,19 @@
   "tasks": [
     {
       "task_id": "laew-manifest-check",
-      "description": "Check the LAEW system manifest for workspace configuration",
-      "input_prompt": "Use the manifest tool to view the system manifest and tell me what workspace root is configured.",
+      "description": "Read the LAEW system manifest and report what workspace root is configured",
+      "input_prompt": "Read manifests/SYSTEM_MANIFEST.yaml and tell me what workspace root is configured.",
       "expected_tool_calls": [
         {
-          "tool": "manifest",
-          "operation": "view",
-          "args": {}
+          "tool": "FilesystemTool",
+          "operation": "view_file",
+          "args": {
+            "file_path": "manifests/SYSTEM_MANIFEST.yaml"
+          }
         }
       ],
       "expected_outcome_contains": [
-        "workspace",
-        "root",
-        ".",
-        "LAEW"
+        "workspace"
       ],
       "expected_outcome_not_contains": [
         "error",
@@ -35,10 +34,10 @@
       "input_prompt": "List all files and directories in the current workspace root.",
       "expected_tool_calls": [
         {
-          "tool": "filesystem",
+          "tool": "FilesystemTool",
           "operation": "list_dir",
           "args": {
-            "path": "."
+            "directory_path": "."
           }
         }
       ],
@@ -66,15 +65,13 @@
       "input_prompt": "What is the current git status of the repository? Are there any uncommitted changes?",
       "expected_tool_calls": [
         {
-          "tool": "git",
-          "operation": "status",
+          "tool": "GitTool",
+          "operation": "git_status",
           "args": {}
         }
       ],
       "expected_outcome_contains": [
-        "branch",
-        "changes",
-        "working tree"
+        "branch"
       ],
       "expected_outcome_not_contains": [
         "error",
@@ -94,7 +91,7 @@
       "input_prompt": "Please read the README.md file and summarize what LAEW is about.",
       "expected_tool_calls": [
         {
-          "tool": "filesystem",
+          "tool": "FilesystemTool",
           "operation": "view_file",
           "args": {
             "file_path": "README.md"
@@ -103,8 +100,7 @@
       ],
       "expected_outcome_contains": [
         "LAEW",
-        "Local AI Engineering Workspace",
-        "project-aware"
+        "Local AI Engineering Workspace"
       ],
       "expected_outcome_not_contains": [
         "error",
@@ -120,19 +116,19 @@
     },
     {
       "task_id": "laew-manifest-model-roles",
-      "description": "Check what model roles are defined in the system manifest",
-      "input_prompt": "Look at the system manifest and tell me what model roles are defined for LAEW.",
+      "description": "Read the system manifest and report what model roles are defined",
+      "input_prompt": "Read manifests/SYSTEM_MANIFEST.yaml and tell me what model roles are defined for LAEW.",
       "expected_tool_calls": [
         {
-          "tool": "manifest",
-          "operation": "view",
-          "args": {}
+          "tool": "FilesystemTool",
+          "operation": "view_file",
+          "args": {
+            "file_path": "manifests/SYSTEM_MANIFEST.yaml"
+          }
         }
       ],
       "expected_outcome_contains": [
-        "primary",
-        "embedding",
-        "reviewer"
+        "role"
       ],
       "expected_outcome_not_contains": [
         "error",

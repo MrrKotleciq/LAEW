@@ -6,7 +6,7 @@
       "input_prompt": "Does the file setup.py exist in the current directory?",
       "expected_tool_calls": [
         {
-          "tool": "filesystem",
+          "tool": "FilesystemTool",
           "operation": "list_dir",
           "args": {
             "path": "."
@@ -35,8 +35,8 @@
       "input_prompt": "Show me the last 3 commits in the repository.",
       "expected_tool_calls": [
         {
-          "tool": "git",
-          "operation": "log",
+          "tool": "GitTool",
+          "operation": "git_log",
           "args": {
             "max_count": 3
           }
@@ -65,7 +65,7 @@
       "input_prompt": "What are the main directories in this project? List the top-level folders.",
       "expected_tool_calls": [
         {
-          "tool": "filesystem",
+          "tool": "FilesystemTool",
           "operation": "list_dir",
           "args": {
             "path": "."
@@ -95,8 +95,8 @@
       "input_prompt": "Find all Python files that contain the string 'class Agent'.",
       "expected_tool_calls": [
         {
-          "tool": "terminal",
-          "operation": "run",
+          "tool": "TerminalTool",
+          "operation": "run_command",
           "args": {
             "command": "grep -r 'class Agent' --include='*.py' ."
           }
@@ -124,8 +124,8 @@
       "input_prompt": "Please fetch and summarize the content from https://example.com.",
       "expected_tool_calls": [
         {
-          "tool": "web",
-          "operation": "read_url",
+          "tool": "WebTool",
+          "operation": "read_url_content",
           "args": {
             "url": "https://example.com"
           }

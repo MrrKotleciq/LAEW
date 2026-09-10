@@ -101,6 +101,15 @@ class RagTool(Tool):
                 top_k=max_results,
             )
 
+            # A recorded pipeline error means retrieval itself failed (e.g.
+            # embedding service down) — surface it instead of pretending there
+            # is simply no relevant information (H5).
+            if result.error:
+                return ToolResult.error(
+                    code="ERR_RAG_FAILURE",
+                    message=f"RAG query failed: {result.error}",
+                )
+
             # Format result for agent consumption
             if not result.context:
                 data = {

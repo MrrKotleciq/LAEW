@@ -279,13 +279,25 @@ class AgentExecutor:
             iteration += 1
             step = ExecutionStep(step_number=iteration)
 
-            # Attempt LLM generation with retry + provider fallback.
+            # Attempt LLM generation with retry + bounded provider fallback.
+            #
+            # The per-provider retry loop below can switch to a fallback
+            # provider when the current one fails.  Each switch resets
+            # `attempt` to 0, so without an outer bound a set of providers
+            # that advertise availability but keep failing would loop
+            # forever.  `remaining_tries` bounds the total number of
+            # generate() calls issued for this single step.
             llm_response = None
             last_error = None
             retry_config = self.agent.config.retry
             attempt = 0
+            remaining_tries = max(
+                retry_config.max_attempts * len(self.agent.providers),
+                retry_config.max_attempts,
+            )
 
-            while attempt < retry_config.max_attempts:
+            while attempt < retry_config.max_attempts and remaining_tries > 0:
+                remaining_tries -= 1
                 try:
                     llm_response = self.agent.provider.generate(
                         messages=messages,
@@ -300,19 +312,24 @@ class AgentExecutor:
 
                     if attempt >= retry_config.max_attempts:
                         # Exhausted retries for current provider; try fallback.
+                        if remaining_tries <= 0:
+                            break  # No budget left; will fail after loop
                         try:
                             self.agent._current_provider_index += 1
                             self.agent._ensure_available_provider()
                             attempt = 0
                         except RuntimeError:
-                            pass  # No more providers; will fail after loop
+                            break  # No more providers; will fail after loop
                     else:
-                        # Exponential backoff between retries.
-                        backoff_ms = min(
-                            retry_config.backoff_base_ms * (2 ** (attempt - 1)),
-                            retry_config.max_backoff_ms
-                        )
-                        time.sleep(backoff_ms / 1000.0)  # Convert to seconds
+                        # Exponential backoff between retries (only while we
+                        # still have budget, so we never sleep into a loop we
+                        # cannot finish).
+                        if remaining_tries > 0:
+                            backoff_ms = min(
+                                retry_config.backoff_base_ms * (2 ** (attempt - 1)),
+                                retry_config.max_backoff_ms
+                            )
+                            time.sleep(backoff_ms / 1000.0)  # Convert to seconds
 
             if llm_response is None:
                 result.success = False

@@ -4,6 +4,7 @@ import subprocess
 from pathlib import Path
 from typing import List, Optional
 
+from laew.security import PathResolver, PathResolverError
 from laew.tools.base import ErrorCode, Tool, ToolResult
 
 
@@ -46,6 +47,8 @@ class GitTool(Tool):
             self.repo_root = Path(repo_root).resolve()
 
         self._git_approved = False
+        # Path resolver gates which files may be staged (P8 / ADR-010).
+        self.resolver = PathResolver(project_root=self.repo_root)
 
     def approve(self):
         """Approve git state change."""
@@ -232,6 +235,16 @@ class GitTool(Tool):
         try:
             # Stage files
             if files:
+                # Validate every path stays inside the repository boundary and
+                # is not a restricted path before passing it to `git add`.
+                for path in files:
+                    try:
+                        self.resolver.resolve(path)
+                    except PathResolverError as e:
+                        return ToolResult.error(
+                            ErrorCode.ERR_PATH_DENIED,
+                            f"Refusing to stage '{path}': {e}"
+                        )
                 proc_add = self._run_git(["add"] + files)
                 if proc_add.returncode != 0:
                     return ToolResult.error(ErrorCode.ERR_INVALID_INPUT, proc_add.stderr)

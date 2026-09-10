@@ -89,6 +89,25 @@ class FilesystemTool(Tool):
         if path_key not in kwargs and operation not in {"grep_search", "find_by_name"}:
             return False, f"Missing required parameter: path"
 
+        # Validate write operation parameters
+        if operation in self.WRITE_OPS:
+            if operation == "write_file":
+                if "file_path" not in kwargs:
+                    return False, "Missing required parameter: file_path"
+                if "content" not in kwargs:
+                    return False, "Missing required parameter: content"
+            elif operation == "replace_file_content":
+                required = ["file_path", "start_line", "end_line", "target_content", "replacement_content"]
+                for param in required:
+                    if param not in kwargs:
+                        return False, f"Missing required parameter: {param}"
+                # Type checks for line numbers
+                if not isinstance(kwargs.get("start_line"), int) or not isinstance(kwargs.get("end_line"), int):
+                    return False, "start_line and end_line must be integers"
+            elif operation == "delete_file":
+                if "file_path" not in kwargs:
+                    return False, "Missing required parameter: file_path"
+
         return True, None
 
     def execute(self, operation: str, **kwargs) -> ToolResult:
@@ -416,11 +435,11 @@ class FilesystemTool(Tool):
         if actual_content != target_content:
             return ToolResult.error(ErrorCode.ERR_TARGET_NOT_FOUND, "Target content does not match")
 
-        # Perform replacement
-        lines[start_idx:end_idx] = [replacement_content]
+        # Perform replacement without mutating the read list (immutability rule)
+        new_lines = lines[:start_idx] + [replacement_content] + lines[end_idx:]
 
         try:
-            resolved.write_text("".join(lines), encoding="utf-8")
+            resolved.write_text("".join(new_lines), encoding="utf-8")
         except PermissionError as e:
             return ToolResult.error(ErrorCode.ERR_PATH_DENIED, str(e))
 

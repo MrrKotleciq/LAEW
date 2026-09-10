@@ -351,7 +351,7 @@ class ChromaVectorStore:
         for chunk_id, metadata, distance in zip(stored_ids, metadatas, distances):
             if metadata is None:
                 continue
-            similarity = 1.0 - float(distance) / 2.0
+            similarity = 1.0 - float(distance)
             chunk = DocumentChunk(
                 chunk_id=chunk_id,
                 text=metadata.get("text", ""),

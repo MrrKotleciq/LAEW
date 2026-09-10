@@ -3,11 +3,7 @@ from pathlib import Path
 from typing import Dict, Any
 
 from laew.workflow.definition import WorkflowDefinition, WorkflowStep, RollbackConfig, WorkflowMode, StepType
-
-
-class WorkflowValidationError(Exception):
-    """Raised when workflow YAML is invalid."""
-    pass
+from laew.workflow.exceptions import WorkflowValidationError
 
 
 def load_workflow_from_yaml(yaml_path: Path) -> WorkflowDefinition:

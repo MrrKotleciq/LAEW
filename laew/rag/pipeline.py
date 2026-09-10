@@ -1,5 +1,6 @@
 """Main RAG pipeline orchestrating retrieval, reranking, and context injection."""
 
+import logging
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
@@ -7,6 +8,9 @@ from typing import Any, Dict, List, Optional, Tuple
 from laew.rag.embedding import EmbeddingService
 from laew.rag.knowledge_base import KnowledgeBase, KnowledgeScope
 from laew.rag.vector_store import DocumentChunk, VectorStore
+
+
+logger = logging.getLogger("laew.rag.pipeline")
 
 
 @dataclass
@@ -21,6 +25,7 @@ class RAGResult:
         sources: List of source file paths
         scope: Knowledge scope used
         query: Original query
+        error: Optional error message if pipeline failed (e.g., embedding error)
     """
 
     chunks: List[Tuple[DocumentChunk, float]] = field(default_factory=list)
@@ -29,16 +34,20 @@ class RAGResult:
     sources: List[str] = field(default_factory=list)
     scope: KnowledgeScope = KnowledgeScope.PROJECT
     query: str = ""
+    error: Optional[str] = None
 
     def to_dict(self) -> dict:
         """Convert to dictionary for serialization."""
-        return {
+        result = {
             "context": self.context,
             "total_tokens": self.total_tokens,
             "sources": self.sources,
             "scope": self.scope.value,
             "chunk_count": len(self.chunks),
         }
+        if self.error:
+            result["error"] = self.error
+        return result
 
 
 class RAGPipeline:
@@ -101,12 +110,17 @@ class RAGPipeline:
         try:
             query_embedding = self.embedding_service.embed(query)
         except Exception as e:
+            # Fail visibly instead of silently returning empty context: log the
+            # failure and record it on the result so callers can distinguish
+            # "no relevant information" from "retrieval is broken" (H5).
+            logger.error("Query embedding failed: %s", e, exc_info=True)
             return RAGResult(
                 context="",
                 total_tokens=0,
                 sources=[],
                 scope=scope,
                 query=query,
+                error=str(e),
             )
 
         # Retrieve candidates based on scope

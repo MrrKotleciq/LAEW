@@ -103,7 +103,7 @@ def validate_manifest(manifest: dict[str, Any]) -> None:
                 f"Manifest key 'workspace.{key}' must be a list."
             )
 
-        models = manifest["models"]
+    models = manifest["models"]
 
     if "roles" not in models:
         raise ManifestError(
@@ -137,9 +137,7 @@ def validate_manifest(manifest: dict[str, Any]) -> None:
                 f"Manifest key 'models.roles.{role}' must be a YAML mapping."
             )
 
-        tools = manifest["tools"]
-
-    
+    tools = manifest["tools"]
 
     if "categories" not in tools:
         raise ManifestError(
@@ -175,7 +173,7 @@ def validate_manifest(manifest: dict[str, Any]) -> None:
                 "must be a YAML mapping."
             )
 
-        memory = manifest["memory"]
+    memory = manifest["memory"]
 
     for key in ("session", "second_brain"):
         if key not in memory:
@@ -201,10 +199,10 @@ def validate_manifest(manifest: dict[str, Any]) -> None:
         )
 
     policies = {
-    "filesystem": "read_only_by_default",
-    "git": "inspection_first",
-    "terminal": "safe_command_allowlist",
-    "web": "read_only",
+        "filesystem": "read_only_by_default",
+        "git": "inspection_first",
+        "terminal": "safe_command_allowlist",
+        "web": "read_only",
     }
 
     for category, expected_policy in policies.items():
