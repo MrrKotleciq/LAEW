@@ -164,3 +164,22 @@ For detailed code and file diffs, refer to Git commit history.
 - **Decisions & Consequences**:
   - Reuses the existing provider abstraction (ADR-001) and single-agent executor (ADR-017); no new architectural decision introduced.
   - Exposes the agent loop to interactive terminal use for the first time.
+
+---
+
+## [2026-09-10] Fix: Tool-Calling Reliability in Agent Executor
+
+- **Context & Motivation**:
+  `laew chat` sessions with `llama3.2:latest` produced malformed tool calls and mid-conversation give-ups. Two distinct defects surfaced: (1) the model emitted raw shell commands (`ls -l`, `dir`) in the tool `operation` field because the executor's introspection never advertised the terminal tool's valid operation, and (2) after the operations were advertised, the model would call `{"tool": "terminal", ...}` only to have it rejected — the tool registry keys are PascalCase class names (`TerminalTool`), while the executor's example tool calls taught the model lowercase names (`terminal`), so valid-looking calls hit "Tool 'terminal' not found" and the model concluded "none of the tools are available."
+- **Key Achievements**:
+  - TerminalTool gained an explicit `operations` dict (`run_command(command, cwd, timeout_ms)`), and the executor's `_operation_hints()` now prefers it over method-surface introspection, so the real operation contract is advertised to the model.
+  - Fixed the tool-name mismatch: system-prompt examples now show the exact registry keys (`FilesystemTool`, `TerminalTool`, `GitTool`), and the executor resolves case variants of tool names so `"terminal"` still maps to `TerminalTool` — eliminating the spurious "Tool not found" give-up.
+  - Expanded the executor system prompt with concrete `tool_call` examples and explicit instructions forbidding raw shell commands, plus guidance to stop and answer once a tool call succeeds instead of repeating calls until `max_iterations`.
+  - Added a repetition guard (`_is_repeating`, default limit 3) that detects when the model calls the identical tool+operation consecutively, injecting a corrective instruction to stop calling tools and synthesize an answer from gathered data.
+  - Added a forced final-answer fallback at `max_iterations`: prompts the model one last time to write a plain-text answer from accumulated context, converting over-researching failures into usable responses (while rejecting outputs that still look like tool calls).
+  - Hardened the malformed-call safety net: `_looks_like_tool_call_attempt()` now also flags raw shell commands in fenced code blocks (e.g. ```ls -l```), feeding a corrective user message back to the model instead of treating them as a final answer.
+  - Added `dir` to the `TerminalTool.ALLOWLIST` for Windows compatibility (safe read-only directory listing).
+  - Verified: 312 unit tests pass; a live `laew chat` session now issues valid `FilesystemTool list_dir` and `GitTool git_status` calls, stops appropriately, and breaks out of failing repeated tool loops to produce a plain-text answer.
+- **Decisions & Consequences**:
+  - Kept the structured-JSON `tool_call` protocol rather than switching to native Ollama JSON-mode tool calling, preserving model/provider independence (ADR-001).
+  - Corrective feedback loop remains in-band (messages), so multi-turn history stays coherent for the model.

@@ -130,7 +130,7 @@ def test_executor_gives_up_after_max_iterations_on_continued_malformed():
     assert result.success is False
     assert "maximum iterations" in result.error
     assert result.total_steps == 2
-    assert agent.provider.generate.call_count == 2
+    assert agent.provider.generate.call_count == 3  # 2 loop + 1 forced attempt
 
 
 def test_executor_feeds_correction_back_to_model():

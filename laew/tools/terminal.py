@@ -20,6 +20,13 @@ class TerminalTool(Tool):
 
     description = "Run allowlisted shell commands in a confined workspace"
 
+    operations = {
+        "run_command": {
+            "params": ["command", "cwd", "timeout_ms"],
+            "description": "Execute a shell command with optional working directory and timeout."
+        }
+    }
+
     # Strictly forbidden patterns
     BLACKLIST = {
         "sudo", "su", "doas",
@@ -30,7 +37,7 @@ class TerminalTool(Tool):
 
     # Safe read-only inspection commands that bypass approval
     ALLOWLIST = {
-        "ls", "cat", "head", "tail", "grep", "find", "pwd",
+        "ls", "dir", "cat", "head", "tail", "grep", "find", "pwd",
         "git status", "git diff", "git log",
         "true", "false", "echo"
     }

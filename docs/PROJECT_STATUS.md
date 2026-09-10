@@ -46,7 +46,7 @@ Implementation: Milestone 9 (Automation & Workflow Runtime) completed
 - laew/prompts/loader.py: Layered prompt loader supporting single-file and directory-based section composition (45 unit tests for prompts module)
 - laew/prompts/templates.py: Prompt template registry with {{variable}} substitution and validation
 - laew/agent/base.py: Agent base class, AgentConfig, AgentRole enum, and history management
-- laew/agent/executor.py: AgentExecutor orchestration loop (Thought -> Action -> Observation -> Response) with tool calling via JSON blocks, dynamic operation hints in prompts, and a safety net that feeds malformed tool-call attempts back to the model for correction (26 unit tests)
+- laew/agent/executor.py: AgentExecutor orchestration loop (Thought -> Action -> Observation -> Response) with tool calling via JSON blocks, dynamic operation hints in prompts, and a safety net that feeds malformed tool-call attempts back to the model for correction — including detection of raw shell commands in fenced code blocks. Added repetition guard to break out of repeated tool calls and forced final-answer fallback at max_iterations (34 unit tests)
 - laew/rag/embedding.py: EmbeddingService abstract interface and OllamaEmbedding implementation (20 unit tests)
 - laew/rag/vector_store.py: In-memory vector store with cosine similarity search (8 unit tests)
 - laew/rag/knowledge_base.py: Knowledge loading from project memory and global knowledge sources (4 unit tests)

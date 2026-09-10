@@ -78,11 +78,14 @@ class AgentExecutor:
     @staticmethod
     def _looks_like_tool_call_attempt(text: str) -> bool:
         """
-        Heuristically detect a malformed tool-call attempt.
+        Heuristically detect a malformed tool-call attempt or raw command.
 
-        Returns True when the text contains the characteristic markers
-        of a tool-call attempt ('\"tool\":' + '\"operation\":' + opening brace
-        or opening fence) even though the JSON never parsed correctly.
+        Returns True when the text contains:
+        1. The characteristic markers of a malformed JSON tool-call attempt
+           ('\"tool\":' + '\"operation\":' + opening brace or fence), OR
+        2. A raw shell command in a fenced code block (e.g. ```ls -l```),
+           which indicates the model is trying to execute a command directly
+           instead of using the tool_call format.
         """
         if not text:
             return False
@@ -93,7 +96,59 @@ class AgentExecutor:
         # Match the exact pattern the prompt asks for (code fence + the two
         # required JSON keys), or the two keys plus an unclosed brace that
         # looks like truncated JSON.
-        return has_tool and has_op and (has_fence or has_open_brace)
+        if has_tool and has_op and (has_fence or has_open_brace):
+            return True
+        # Detect raw shell commands in fenced code blocks (e.g. ```ls -l```).
+        # Common indicators: the text is mostly a single command, no JSON structure.
+        if has_fence:
+            # Match ```<command>``` where command is a short shell-like string
+            raw_cmd_pattern = re.compile(
+                r'```\s*(ls|dir|cat|git\s+\w+|cd|pwd|echo|grep|find|mkdir|rm|cp|mv|touch|chmod|chown|sudo|apt|pip|npm|yarn|docker|kubectl|curl|wget)\b[^`]*\s*```',
+                re.IGNORECASE
+            )
+            if raw_cmd_pattern.search(text):
+                return True
+        return False
+
+    def _resolve_tool_name(self, requested: str) -> str:
+        """
+        Resolve a model-supplied tool name against the registered registry.
+
+        Accepts an exact registry key first; otherwise compares a normalized
+        (lowercase) form so "TerminalTool" and "terminal" both resolve to the
+        TerminalTool entry.  Returns the canonical registry key when found,
+        otherwise passes the requested name through unchanged.
+        """
+        if requested in self.agent.tools:
+            return requested
+        requested_lower = requested.lower()
+        for registered in self.agent.tools:
+            if registered.lower() == requested_lower:
+                return registered
+        return requested
+
+    # Maximum times the model may repeat the *identical* tool+operation
+    # before we inject a corrective stop instruction.
+    _REPEAT_LIMIT: int = 3
+
+    @staticmethod
+    def _is_repeating(
+        steps: list["ExecutionStep"],
+        current_tool: str,
+        current_operation: str,
+        repeat_limit: int,
+    ) -> bool:
+        """Return True if the model has called the same tool+operation too many times consecutively."""
+        recent = [
+            s for s in steps[-(repeat_limit):]
+            if s.tool_name and s.operation
+        ]
+        if len(recent) < repeat_limit:
+            return False
+        return all(
+            (s.tool_name == current_tool and s.operation == current_operation)
+            for s in recent
+        )
 
     def _valid_operations_for(self, tool: Tool) -> list[str]:
         """
@@ -110,6 +165,18 @@ class AgentExecutor:
 
     def _operation_hints(self, tool: Tool) -> str:
         """Format valid operations for a tool with their required parameter names."""
+        # First check if tool has explicit operations dictionary
+        if hasattr(tool, 'operations') and tool.operations:
+            hints = []
+            for op_name, op_info in tool.operations.items():
+                params = op_info.get('params', [])
+                if params:
+                    hints.append(f"{op_name}({', '.join(params)})")
+                else:
+                    hints.append(op_name)
+            return ", ".join(hints) if hints else "no documented operations"
+
+        # Fall back to introspection of methods starting with underscore
         hints = []
         for method_name in self._valid_operations_for(tool):
             method = getattr(tool, method_name, None)
@@ -160,6 +227,9 @@ class AgentExecutor:
         full_system_prompt = (
             f"{system_text}\n\n"
             f"{tools_desc}\n\n"
+            "IMPORTANT: You MUST always use the structured tool_call format to "
+            "invoke tools. NEVER output raw shell commands, never write bare "
+            "commands inside ``` blocks, and never try to run commands directly.\n"
             "To use a tool, respond with EXACTLY one JSON block wrapped in a "
             "```tool_call fenced code block (if your tools describe operations "
             "with parameters, use those exact parameter names as keys in \"args\"):\n"
@@ -167,15 +237,29 @@ class AgentExecutor:
             '{"tool": "<tool_name>", "operation": "<operation_name>", "args": {<arguments>}}\n'
             "```\n"
             "\n"
-            "Example:\n"
+            "Examples — the \"tool\" value MUST be the exact name listed above "
+            "(e.g. FilesystemTool, GitTool, TerminalTool, WebTool):\n"
             "```tool_call\n"
-            '{"tool": "filesystem", "operation": "list_dir", "args": {"directory_path": "."}}\n'
+            '{"tool": "FilesystemTool", "operation": "list_dir", "args": {"directory_path": "."}}\n'
+            "```\n"
+            "```tool_call\n"
+            '{"tool": "TerminalTool", "operation": "run_command", "args": {"command": "ls -la"}}\n'
+            "```\n"
+            "```tool_call\n"
+            '{"tool": "GitTool", "operation": "git_status", "args": {}}\n'
             "```\n"
             "\n"
+            "NEVER write raw shell commands like ```ls -l``` or ```dir``` outside of "
+            "a proper tool_call block. ALWAYS use the JSON tool_call format shown above.\n"
             "Never abbreviate or rename \"tool\"/\"operation\"/\"args\". "
             "If the tool or operation you want is not listed above, you may not "
             "call it. If you do not need any tools, provide your final answer "
-            "directly without a tool block."
+            "directly without a tool block.\n"
+            "\n"
+            "After a tool completes successfully and you have the information "
+            "you need, STOP calling tools and give your final answer in plain "
+            "text. Do not repeat the same tool call unless you actually need "
+            "different data."
         )
 
         # Prepare messages
@@ -261,7 +345,11 @@ class AgentExecutor:
                         "```\n"
                         "\n"
                         "Use exact key names \"tool\", \"operation\", "
-                        "\"args\" and valid JSON inside the fence."
+                        "\"args\" and valid JSON inside the fence.\n"
+                        "\n"
+                        "NEVER output raw shell commands or bare commands "
+                        "in fenced code blocks. ALWAYS use the JSON "
+                        "tool_call format above."
                     )
                     messages.append(
                         LLMMessage(
@@ -294,11 +382,15 @@ class AgentExecutor:
             step.operation = operation
             step.args = args
 
-            if tool_name not in self.agent.tools:
+            # Resolve the tool name, tolerating a case variant (e.g. "terminal"
+            # instead of "TerminalTool").  The prompt teaches the exact registry
+            # keys, but a lowercased form is a cheap safety net.
+            resolved_name = self._resolve_tool_name(tool_name)
+            tool = self.agent.tools.get(resolved_name)
+            if tool is None:
                 tool_output = f"Error: Tool '{tool_name}' not found."
                 tool_res = ToolResult(success=False, error_code="ERR_TOOL_NOT_FOUND", error_message=tool_output)
             else:
-                tool = self.agent.tools[tool_name]
                 try:
                     tool_res = tool.call(operation, **args)
                 except Exception as e:
@@ -322,8 +414,72 @@ class AgentExecutor:
             messages.append(LLMMessage(role=MessageRole.USER, content=obs_content))
             self.agent.add_message(MessageRole.USER, obs_content)
 
-        # Reached max iterations
-        result.success = False
-        result.error = f"Reached maximum iterations ({self.agent.config.max_iterations}) without completion."
-        result.total_steps = iteration
+            # Repetition guard: if the model keeps issuing the *identical*
+            # tool+operation call, stop feeding it eager observations and
+            # force it to synthesize an answer from what it already has.
+            if self._is_repeating(
+                result.steps, tool_name, operation, self._REPEAT_LIMIT
+            ):
+                stop_msg = (
+                    "You have called the same tool with the same operation "
+                    "several times in a row without producing an answer. Stop "
+                    "calling tools now. Using the information already collected, "
+                    "write your final answer to the user's original question in "
+                    "plain text. Do NOT output another tool_call block."
+                )
+                messages.append(
+                    LLMMessage(role=MessageRole.USER, content=stop_msg)
+                )
+                self.agent.add_message(MessageRole.USER, stop_msg)
+
+        # Reached max iterations without a final answer.  Before failing,
+        # give the model one last chance to synthesize an answer from the
+        # tool results it already collected.  This converts a hard failure
+        # (e.g. the model over-researching) into a usable response.
+        forced_prompt = (
+            "You have reached the tool-call limit. Do NOT call any tools again. "
+            "Using the tool results already collected, write your final answer "
+            "to the user's original question in plain text now."
+        )
+        messages.append(LLMMessage(role=MessageRole.USER, content=forced_prompt))
+        try:
+            llm_response = self.agent.provider.generate(
+                messages=messages,
+                model=self.agent.config.model,
+                temperature=self.agent.config.temperature,
+                max_tokens=self.agent.config.max_tokens,
+            )
+        except Exception as e:
+            result.success = False
+            result.error = (
+                f"Reached maximum iterations ({self.agent.config.max_iterations}) "
+                f"without completion, and final answer attempt failed: {str(e)}"
+            )
+            result.total_steps = iteration
+            return result
+
+        # Return whatever the forced generation produced as the final answer —
+        # but only if it is genuinely an answer.  If the model still emits a
+        # tool-call block (or empty output), treat the run as failed rather
+        # than surfacing a raw tool_call as a "final answer".
+        final_answer = llm_response.content
+        still_tool_calling = (
+            self._parse_tool_call(final_answer) is not None
+            or self._looks_like_tool_call_attempt(final_answer)
+        )
+        if not final_answer.strip() or still_tool_calling:
+            result.success = False
+            result.error = (
+                f"Reached maximum iterations ({self.agent.config.max_iterations}) "
+                f"without a valid final answer."
+            )
+            result.total_steps = iteration
+            return result
+
+        step = ExecutionStep(step_number=iteration + 1)
+        step.response = final_answer
+        result.steps.append(step)
+        result.final_response = final_answer
+        result.total_steps = iteration + 1
+        result.success = True
         return result
