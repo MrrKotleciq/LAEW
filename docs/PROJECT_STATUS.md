@@ -72,10 +72,10 @@ Implementation: Milestone 9 (Automation & Workflow Runtime) completed
 - setup.py: Added `chromadb>=0.4.0` to dev extras for the HTTP client.
 - tests/unit/test_rag.py: Tests for `ChromaVectorStore` (skipped when chromadb absent) and manifest-config store selection with graceful fallback.
 
-Audit remediation: all Critical (C1-C4) and High (H1-H5) findings fixed with regression tests.
-Full test suite: 338 passed, 1 skipped.
+Audit remediation: all Critical (C1-C4), High (H1-H5), and Medium/Low (M1-M11, L1-L10) findings fixed with regression tests.
+Full test suite: 341 passed, 1 skipped.
 
-Total: 318 unit tests collected across 15 test suites
+Total: 321 unit tests collected across 15 test suites
 
 ## Important distinction
 

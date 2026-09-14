@@ -246,8 +246,10 @@ def get_prompt_loader() -> PromptLoader:
     """Get the default prompt loader instance."""
     global _default_loader
     if _default_loader is None:
-        # Default to LAEW prompts directory
-        _default_loader = PromptLoader([Path("prompts")])
+        # Default to the prompts/ directory next to this package so the
+        # loader works regardless of the caller's current working directory.
+        prompts_dir = Path(__file__).resolve().parents[2] / "prompts"
+        _default_loader = PromptLoader([prompts_dir])
     return _default_loader
 
 

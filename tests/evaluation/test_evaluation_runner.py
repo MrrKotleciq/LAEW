@@ -323,8 +323,7 @@ def test_evaluate_task_result_matches_pascal_case():
         {"tool": "FilesystemTool", "operation": "list_dir", "args": {"path": "."}}
     ]
 
-    agent = make_agent_with_tools()
-    result = evaluate_task_result(task, actual_tool_calls, "Done", agent)
+    result = evaluate_task_result(task, actual_tool_calls, "Done")
 
     assert result["tool_call_match"] is True
     assert result["useful_tool_calls"] == 1
@@ -347,8 +346,7 @@ def test_evaluate_task_result_case_sensitive():
         {"tool": "filesystem", "operation": "list_dir", "args": {"path": "."}}
     ]
 
-    agent = make_agent_with_tools()
-    result = evaluate_task_result(task, actual_tool_calls, "Done", agent)
+    result = evaluate_task_result(task, actual_tool_calls, "Done")
 
     assert result["tool_call_match"] is False
     assert result["useful_tool_calls"] == 0

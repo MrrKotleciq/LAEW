@@ -17,7 +17,6 @@ class RagTool(Tool):
     and global knowledge sources using semantic search.
     """
 
-    name = "rag"
     description = (
         "Query the knowledge base using semantic search. "
         "Supports project-scoped, global-scoped, and hybrid-scoped retrieval. "

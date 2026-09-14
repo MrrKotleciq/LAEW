@@ -22,6 +22,18 @@ from laew.agent.executor import AgentExecutor
 from laew.llm.ollama import OllamaProvider
 
 
+def _terminal_allowlist_from_manifest(manifest: dict) -> Optional[list]:
+    """
+    Extract the terminal command allowlist declared in a manifest.
+
+    Returns None when the manifest declares no terminal allowlist, in which
+    case callers keep ``TerminalTool``'s built-in default allowlist.
+    """
+    categories = manifest.get("tools", {}).get("categories", {})
+    allowlist = categories.get("terminal", {}).get("allowlist")
+    return list(allowlist) if allowlist else None
+
+
 def cmd_check(args) -> int:
     """
     Validate system manifest and verify workspace configuration.
@@ -144,6 +156,16 @@ def cmd_tool(args) -> int:
         log_file_handle = open(args.log, "a", encoding="utf-8")
         configure_tool_logger(output=log_file_handle)
 
+    # Load the manifest's terminal allowlist so `laew tool terminal` enforces
+    # the same security boundary as the rest of the runtime (M8). Falls back
+    # to the built-in default allowlist when no manifest is available.
+    terminal_allowlist = None
+    try:
+        manifest = load_manifest(Path(args.manifest))
+        terminal_allowlist = _terminal_allowlist_from_manifest(manifest)
+    except (FileNotFoundError, ManifestError):
+        terminal_allowlist = None
+
     try:
         # Instantiate appropriate tool
         tools_map = {
@@ -159,7 +181,10 @@ def cmd_tool(args) -> int:
             return 1
 
         # Instantiate tool via the same map used for name validation.
-        tool = tools_map[tool_name]()
+        if tool_name == "terminal":
+            tool = TerminalTool(allowlist=terminal_allowlist)
+        else:
+            tool = tools_map[tool_name]()
 
         # Auto-approve if not requiring approval
         if not args.require_approval:
@@ -205,6 +230,15 @@ def cmd_workflow_run(args) -> int:
     print(f"Running workflow: {workflow_path}")
     print("-" * 60)
 
+    # Load the manifest's terminal allowlist so workflow TOOL steps that
+    # dispatch to the terminal tool honor the workspace security contract (M8).
+    terminal_allowlist = None
+    try:
+        manifest = load_manifest(Path(args.manifest))
+        terminal_allowlist = _terminal_allowlist_from_manifest(manifest)
+    except (FileNotFoundError, ManifestError):
+        terminal_allowlist = None
+
     try:
         # Load workflow definition
         definition = load_workflow_from_yaml(workflow_path)
@@ -215,7 +249,7 @@ def cmd_workflow_run(args) -> int:
         tools = [
             FilesystemTool(),
             GitTool(),
-            TerminalTool(),
+            TerminalTool(allowlist=terminal_allowlist),
             WebTool(),
         ]
         tool_registry = {tool.name: tool for tool in tools}
@@ -305,7 +339,7 @@ def cmd_chat(args) -> int:
         agent = Agent(config=config, provider=provider, tools=[
             FilesystemTool(),
             GitTool(),
-            TerminalTool(),
+            TerminalTool(allowlist=_terminal_allowlist_from_manifest(manifest)),
             WebTool(),
         ])
     except RuntimeError as e:
@@ -378,6 +412,11 @@ def main() -> int:
     # workflow run command
     run_parser = workflow_subparsers.add_parser("run", help="Execute a workflow")
     run_parser.add_argument("name", help="Name/path of the workflow file")
+    run_parser.add_argument(
+        "--manifest",
+        default="manifests/SYSTEM_MANIFEST.yaml",
+        help="Path to system manifest (default: manifests/SYSTEM_MANIFEST.yaml)",
+    )
     run_parser.set_defaults(func=cmd_workflow_run)
 
     # chat command
@@ -424,6 +463,11 @@ def main() -> int:
         "--require-approval",
         action="store_true",
         help="Require user approval for mutations",
+    )
+    tool_parser.add_argument(
+        "--manifest",
+        default="manifests/SYSTEM_MANIFEST.yaml",
+        help="Path to system manifest (default: manifests/SYSTEM_MANIFEST.yaml)",
     )
     tool_parser.add_argument(
         "--log",

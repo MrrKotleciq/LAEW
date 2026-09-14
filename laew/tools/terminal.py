@@ -48,18 +48,28 @@ class TerminalTool(Tool):
     # containing one is never treated as an allowlisted inspector.
     SHELL_METACHARACTERS = (";", "|", "&", "`", ">", "<", "\n", "\r")
 
-    def __init__(self, workspace_root: Optional[Path | str] = None):
+    def __init__(
+        self,
+        workspace_root: Optional[Path | str] = None,
+        allowlist: Optional[set | list] = None,
+    ):
         """
         Initialize terminal tool.
 
         Args:
             workspace_root: Workspace confinement path (defaults to current directory)
+            allowlist: Optional command allowlist (overrides the class default).
+                Used to honor the manifest's ``tools.categories.terminal.allowlist``
+                so the runtime enforces the security contract declared in the
+                workspace manifest (P8) instead of only a hardcoded default.
         """
         super().__init__(requires_approval=False)
         if workspace_root is None:
             self.workspace_root = Path.cwd().resolve()
         else:
             self.workspace_root = Path(workspace_root).resolve()
+
+        self._allowlist = set(allowlist) if allowlist is not None else set(self.ALLOWLIST)
 
         self._command_approved = False
 
@@ -125,7 +135,7 @@ class TerminalTool(Tool):
         if not argv:
             return False
 
-        for safe_cmd in self.ALLOWLIST:
+        for safe_cmd in self._allowlist:
             safe_tokens = shlex.split(safe_cmd)
             if len(argv) >= len(safe_tokens) and argv[: len(safe_tokens)] == safe_tokens:
                 return True

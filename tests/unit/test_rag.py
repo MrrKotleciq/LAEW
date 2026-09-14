@@ -369,7 +369,7 @@ class TestRagTool:
             pipeline = RAGPipeline(knowledge_base=kb, embedding_service=embedding_service)
             budget = ContextBudget()
             tool = RagTool(pipeline=pipeline, context_budget=budget)
-            assert tool.name == "rag"
+            assert tool.name == "RagTool"
 
     def test_validate_query_operation(self):
         """Test validation of query operation."""

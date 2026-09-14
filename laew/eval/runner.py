@@ -133,7 +133,7 @@ class EvaluationRunner:
 
         # Evaluate the result
         evaluation_result = evaluate_task_result(
-            task, actual_tool_calls, execution_result.final_response, self.agent
+            task, actual_tool_calls, execution_result.final_response
         )
 
         # Combine results

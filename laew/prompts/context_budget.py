@@ -123,8 +123,8 @@ class TokenEstimator:
         Returns:
             Estimated token count
         """
-        total_chars = sum(len(msg.get("content", "")) for msg in messages)
-        return TokenEstimator.estimate(" ".join(msg.get("content", "") for msg in messages))
+        combined = " ".join(msg.get("content", "") for msg in messages)
+        return TokenEstimator.estimate(combined)
 
     @staticmethod
     def estimate_prompt_sections(sections: list[str]) -> int:

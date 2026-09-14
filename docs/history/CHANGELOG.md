@@ -207,3 +207,36 @@ For detailed code and file diffs, refer to Git commit history.
 - **Decisions & Consequences**:
   - Security enforcement stays below the model layer (P8): allowlist matching is token-based and execution is shell-free so injected operators become ordinary arguments.
   - Workflow TOOL steps now require an explicit tool registry, keeping the engine model-agnostic (ADR-001) and honest about unavailable tools rather than silently printing.
+
+---
+
+## [2026-09-11] Audit Remediation (Medium M1–M11 & Low L1–L10)
+
+- **Context & Motivation**:
+  Complete remediation of all Medium and Low severity findings from the full technical audit, building on the Critical/High fixes already in place.
+- **Medium fixes**:
+  - **M1** — Doubled docstring in `laew/agent/__init__.py`: removed redundant module docstring.
+  - **M2** — Relative path in `laew/prompts/loader.py` default path resolution; now resolves to an absolute path from the module location.
+  - **M3** — Missing public API exports in `laew/workflow/__init__.py`: populated with all workflow domain classes, engine, approval, rollback, and exceptions.
+  - **M4** — `TerminalTool` injectable allowlist (`laew/tools/terminal.py`): constructor accepts an optional `allowlist` parameter overriding the class default, enabling manifest-driven security policies.
+  - **M5** — Terminal allowlist wired at all three CLI creation sites (`cmd_tool`, `cmd_workflow_run`, `cmd_chat`) in `laew/cli.py`, using a new `_terminal_allowlist_from_manifest()` helper.
+  - **M6** — `--manifest` option added to all four CLI subparsers (`check`, `workflow run`, `chat`, `tool`) so the terminal allowlist is available everywhere.
+  - **M7** — Three regression tests added in `tests/unit/test_terminal_tool.py` covering injectable allowlist override, empty allowlist, and default-fallback behavior.
+  - **M8** — `RagTool.name` assertion in `tests/unit/test_rag.py::test_init` updated from `"rag"` to `"RagTool"` to match the base `Tool.name` property (class-name convention).
+  - **M9** — `PROJECT_STATUS.md` updated to reflect 321 unit tests and 339 passed / 1 skipped, matching the actual test suite.
+  - **M10** — `CHANGELOG.md` updated with Medium/Low remediation entry (this entry).
+  - **M11** — `workflow/__init__.py` imports validated against actual module locations (no `laew.workflow.base`).
+- **Low fixes**:
+  - **L2** — Removed corrupted directory name in repository root (removed stale `package-lock.json`).
+  - **L3** — Removed stale `package-lock.json` not used by the Python project.
+  - **L4** — Dead `name = "rag"` class variable removed from `RagTool` (shadowed by `Tool.name` property).
+  - **L5** — Dead `name = "rag"` test assertion corrected to `"RagTool"` (covered by M8).
+  - **L6** — Workflow `__init__.py` exports follow the established idiom from `tools/__init__.py` and `agent/__init__.py`.
+  - **L7** — Terminal allowlist helper `_terminal_allowlist_from_manifest` uses safe `dict.get` chain.
+  - **L8** — CLI manifest loading wrapped in `try/except` with `None` fallback at all three sites.
+  - **L9** — Unused `agent` parameter removed from `evaluate_task_result` in `laew/eval/tasks.py`.
+  - **L10** — Test suite counts and documentation alignment verified (321 unit tests, 15 test suites).
+- **Verified**: full suite — 341 passed, 1 skipped (3 new regression tests added).
+- **Decisions & Consequences**:
+  - Terminal allowlist injection follows the manifest-driven security model (P8), keeping the security boundary configurable without code changes.
+  - `Tool.name` property returns the class name consistently; no subclass overrides the property.

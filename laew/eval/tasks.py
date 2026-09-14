@@ -5,8 +5,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from laew.agent.base import Agent
-
 
 @dataclass
 class EvaluationTask:
@@ -167,7 +165,6 @@ def evaluate_task_result(
     task: EvaluationTask,
     actual_tool_calls: List[Dict[str, Any]],
     actual_response: str,
-    agent: Agent,
 ) -> Dict[str, Any]:
     """Evaluate a task result against expected outcomes.
 
@@ -175,7 +172,6 @@ def evaluate_task_result(
         task: The evaluation task
         actual_tool_calls: List of actual tool calls made by the agent
         actual_response: The final response from the agent
-        agent: The agent that executed the task
 
     Returns:
         Dictionary with evaluation results:

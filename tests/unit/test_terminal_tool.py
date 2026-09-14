@@ -251,3 +251,48 @@ def test_zero_exit_code(tool):
 
     assert result.success
     assert result.data["exit_code"] == 0
+
+
+# === Injectable allowlist (M8) ===
+
+def test_injectable_allowlist_overrides_default(tmp_project):
+    """
+    A manifest-supplied allowlist replaces the built-in default.
+
+    Commands on the injected allowlist run without approval; commands that
+    were on the default allowlist but not injected now require approval.
+    """
+    tool = TerminalTool(
+        workspace_root=tmp_project,
+        allowlist=["ls", "cat"],
+    )
+
+    # Injected allowlist entry works without approval.
+    allowed = tool.run_command("ls")
+    assert allowed.success
+    assert allowed.error_code != ErrorCode.ERR_UNAUTHORIZED
+
+    # Default allowlist entry no longer applies -> approval required.
+    blocked = tool.run_command("git status")
+    assert not blocked.success
+    assert blocked.error_code == ErrorCode.ERR_UNAUTHORIZED
+
+
+def test_injectable_allowlist_empty_requires_approval(tmp_project):
+    """An empty injected allowlist means no command bypasses approval."""
+    tool = TerminalTool(workspace_root=tmp_project, allowlist=[])
+
+    result = tool.run_command("ls")
+
+    assert not result.success
+    assert result.error_code == ErrorCode.ERR_UNAUTHORIZED
+
+
+def test_default_allowlist_used_when_none_injected(tmp_project):
+    """Omitting the allowlist keeps the built-in default behavior."""
+    tool = TerminalTool(workspace_root=tmp_project)
+
+    result = tool.run_command("ls")
+
+    assert result.success
+    assert result.error_code != ErrorCode.ERR_UNAUTHORIZED
