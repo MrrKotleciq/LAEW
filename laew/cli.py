@@ -17,9 +17,16 @@ from laew.tools import (
 from laew.workflow.yaml_loader import load_workflow_from_yaml
 from laew.workflow.engine import WorkflowEngine
 from laew.security.path_resolver import PathResolver
-from laew.agent.base import Agent, AgentConfig
+from laew.agent.base import Agent, AgentConfig, AgentRole
 from laew.agent.executor import AgentExecutor
 from laew.llm.ollama import OllamaProvider
+from laew.multiagent import (
+    MultiAgentCoordinator,
+    SpecialistRole,
+    build_specialist_system_prompt,
+    load_multiagent_plan_from_yaml,
+)
+from laew.multiagent.plan import MultiAgentPlanError
 
 
 def _terminal_allowlist_from_manifest(manifest: dict) -> Optional[list]:
@@ -265,6 +272,123 @@ def cmd_workflow_run(args) -> int:
         return 1
 
 
+def cmd_multiagent_run(args) -> int:
+    """
+    Execute a multi-agent delegation plan.
+
+    Launches a chief agent plus one specialist agent per role used in the
+    plan, delegates the plan's subtasks, detects conflicts, and reports the
+    chief's final synthesis.
+
+    Returns:
+        0 if the run completed, 1 if setup or execution failed
+    """
+    plan_path = Path(args.plan)
+
+    print(f"Running multi-agent plan: {plan_path}")
+    print("-" * 60)
+
+    try:
+        plan = load_multiagent_plan_from_yaml(plan_path)
+    except MultiAgentPlanError as e:
+        print(f"[FAIL] Could not load plan: {e}")
+        return 1
+
+    # Resolve the model and terminal allowlist from the manifest, mirroring
+    # the chat command's provider wiring.
+    try:
+        manifest = load_manifest(Path(args.manifest))
+    except (FileNotFoundError, ManifestError) as e:
+        print(f"[FAIL] Could not load manifest: {e}")
+        return 1
+
+    manifest_model = None
+    providers_cfg = (
+        manifest.get("agent", {})
+        .get("llm", {})
+        .get("providers", [])
+    )
+    if providers_cfg:
+        manifest_model = providers_cfg[0].get("model")
+
+    terminal_allowlist = _terminal_allowlist_from_manifest(manifest)
+    provider = OllamaProvider(base_url=args.base_url)
+    model_name = _resolve_model_name(args.model, manifest_model, provider)
+
+    # One shared tool set for every agent (chief + specialists), honouring the
+    # workspace's terminal allowlist. Mutation approval gates remain active, so
+    # read/inspect operations work and mutating tools stay protected (P8).
+    shared_tools = [
+        FilesystemTool(),
+        GitTool(),
+        TerminalTool(allowlist=terminal_allowlist),
+        WebTool(),
+    ]
+
+    def build_agent(name: str, system_prompt: str) -> Agent:
+        """Build an agent on the resolved model + provider."""
+        config = AgentConfig(
+            name=name,
+            model=model_name,
+            role=AgentRole.CHIEF if name == "chief" else AgentRole.SPECIALIST,
+            system_prompt=system_prompt,
+        )
+        return Agent(config=config, provider=provider, tools=shared_tools)
+
+    chief = None
+    specialists = {}
+    try:
+        if plan.synthesize:
+            chief = build_agent(
+                "chief",
+                "You are the chief agent. Synthesize delegated results.",
+            )
+        for subtask in plan.subtasks:
+            if subtask.role in specialists:
+                continue
+            agent_name = subtask.role.value
+            specialists[subtask.role] = build_agent(
+                agent_name,
+                build_specialist_system_prompt(subtask.role),
+            )
+    except Exception as e:
+        print(f"[FAIL] Could not build agents: {e}")
+        return 1
+
+    coordinator = MultiAgentCoordinator(
+        chief=chief,
+        agents={r: a for r, a in specialists.items()},
+    )
+
+    try:
+        result = coordinator.run(plan)
+    except Exception as e:
+        print(f"[FAIL] Multi-agent run failed: {e}")
+        return 1
+
+    # Report the outcome.
+    for delegation in result.delegations:
+        status = "OK" if delegation.success else f"FAILED ({delegation.error})"
+        print(f"[{delegation.role.value}] {delegation.subtask_id}: {status}")
+
+    for conflict in result.conflicts:
+        print(
+            f"[!] Conflict on '{conflict.deliverable}' between "
+            f"{', '.join(conflict.agents)}"
+        )
+
+    if not result.success:
+        print(f"[FAIL] {result.error}")
+        return 1
+
+    if result.final_response:
+        print("\nFinal synthesis:")
+        print(result.final_response)
+
+    print("\n[OK] Multi-agent run completed")
+    return 0
+
+
 def _resolve_model_name(
     cli_model: Optional[str],
     manifest_model: Optional[str],
@@ -418,6 +542,36 @@ def main() -> int:
         help="Path to system manifest (default: manifests/SYSTEM_MANIFEST.yaml)",
     )
     run_parser.set_defaults(func=cmd_workflow_run)
+
+    # multiagent command
+    multiagent_parser = subparsers.add_parser(
+        "multiagent",
+        help="Run multi-agent delegation plans",
+    )
+    multiagent_subparsers = multiagent_parser.add_subparsers(
+        dest="subcommand", help="Available multi-agent actions"
+    )
+
+    # multiagent run command
+    ma_run_parser = multiagent_subparsers.add_parser(
+        "run", help="Execute a multi-agent plan"
+    )
+    ma_run_parser.add_argument("plan", help="Path to the multi-agent plan YAML file")
+    ma_run_parser.add_argument(
+        "--model",
+        help="Ollama model name (overrides the manifest model role)",
+    )
+    ma_run_parser.add_argument(
+        "--base-url",
+        default="http://localhost:11434",
+        help="Ollama API base URL (default: http://localhost:11434)",
+    )
+    ma_run_parser.add_argument(
+        "--manifest",
+        default="manifests/SYSTEM_MANIFEST.yaml",
+        help="Path to system manifest (default: manifests/SYSTEM_MANIFEST.yaml)",
+    )
+    ma_run_parser.set_defaults(func=cmd_multiagent_run)
 
     # chat command
     chat_parser = subparsers.add_parser(

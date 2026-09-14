@@ -47,12 +47,13 @@ Dependencies: Milestone 8 (evaluation) to measure workflow quality; Milestone 7 
 Tests: Workflow execution tests; approval gate tests; rollback tests.
 Definition of Done: Can define and execute simple workflows; manual approval works; rollback possible.
 
-## Milestone 10: Multi-Agent Architecture (Future)
+## Milestone 10: Multi-Agent Architecture (Completed)
 Goal: Enable specialized agents (researcher, coder, reviewer) under chief agent coordination.
 Scope: Agent communication protocol, task delegation, shared context, conflict resolution.
 Dependencies: Milestone 9 (automation) for orchestration patterns; ADR-017 satisfied (single-agent stable).
 Tests: Multi-agent coordination tests; delegation tests; conflict resolution tests.
 Definition of Done: Two specialized agents can collaborate on a task; chief agent coordinates without single points of failure.
+Status: COMPLETE (tests pass, ADR-018 accepted, documentation updated)
 
 ## Milestone 11: Production Hardening (Future)
 Goal: Prepare for real-world usage beyond development.
@@ -65,4 +66,4 @@ Definition of Done: Can install via pip; documented configuration; security revi
 1. **Persistence backend**: SQLite+numpy vs other (e.g., Chroma, FAISS) — affects Milestone 6.
 2. **Evaluation metrics**: What dimensions to measure (accuracy, latency, cost) — affects Milestone 8.
 3. **Workflow engine design**: Simple sequential script — chosen for Milestone 9 (implemented). DAG/state machine deferred to future milestones.
-4. **Multi-agent communication**: Shared memory vs message passing — affects Milestone 10.
+4. **Multi-agent communication**: Shared memory vs message passing — RESOLVED per ADR-018 (message passing + shared context).

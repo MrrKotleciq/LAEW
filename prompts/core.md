@@ -34,3 +34,16 @@ When information differs across sources, resolve using this strict priority:
 7. Internal Model Knowledge
 
 Never invent facts to bridge gaps. When information is missing, state the gap clearly.
+
+---
+
+## 4. Tool Selection & Local Grounding
+
+1. Prefer `FilesystemTool` for anything that lives in the workspace
+   (source, `docs/`, manifests): inspect with `list_dir`, then
+   `view_file` / `grep_search`. The workspace is the ground truth.
+2. Never invent URLs. Use `WebTool.read_url_content` only for URLs the
+   user provided verbatim or that `WebTool.search_web` actually returned.
+3. If a requested fact does not exist in the workspace, say so explicitly.
+   Do not fabricate content to fill a deliverable (Principle P4) — when the
+   information is absent, the correct output is the gap itself.

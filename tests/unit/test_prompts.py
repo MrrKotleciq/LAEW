@@ -390,11 +390,15 @@ class TestPromptLoader:
         loader2 = get_prompt_loader()
         assert loader1 is loader2  # Same instance
 
-        # Set custom loader
+        # Set custom loader and verify singleton returns it
         custom_loader = PromptLoader([Path("/custom")])
         set_prompt_loader(custom_loader)
-        loader3 = get_prompt_loader()
-        assert loader3 is custom_loader
+        try:
+            loader3 = get_prompt_loader()
+            assert loader3 is custom_loader
+        finally:
+            # Restore the original singleton so later tests are not poisoned.
+            set_prompt_loader(loader1)
 
 
 class TestPromptTemplate:

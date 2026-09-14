@@ -210,6 +210,54 @@ For detailed code and file diffs, refer to Git commit history.
 
 ---
 
+## [2026-09-14] Milestone 10: Multi-Agent Architecture Completed
+
+- **Context & Motivation**:
+  Enable specialized agents (researcher, architect, reviewer, debugger, documenter, coder) to collaborate under chief-agent coordination — completing the multi-agent delegation pattern with failure isolation and conflict detection (ADR-018). ADR-017 established single-agent stability as a prerequisite; that condition was met in Milestones 7–9.
+- **Key Achievements**:
+  - Implemented agent communication protocol (`laew/multiagent/message.py`): immutable `AgentMessage` with typed kinds (TASK, RESULT, CONTEXT, ERROR, SYNTHESIS, QUERY), JSON serialization, broadcast recipient, and correlation IDs.
+  - Built shared context journal (`laew/multiagent/context.py`): append-only, timestamped, source-attributed findings store read by specialists before delegation and by the chief during synthesis.
+  - Defined specialist role system (`laew/multiagent/roles.py`): 6 roles with role-requirement mapping and layered prompt building composed from existing prompt templates (`core` + role requirement + role template).
+  - Created YAML plan schema (`laew/multiagent/plan.py`): declarative `MultiAgentPlan` with subtasks bound to a `SpecialistRole` and a `deliverable` key, plus validation and file loading.
+  - Implemented chief agent coordinator (`laew/multiagent/coordinator.py`): delegates subtasks through isolated `AgentExecutor` instances, posts results/failures to shared context, detects conflicts via normalized-text comparison, and synthesizes a final answer through the chief agent.
+  - Wired the `laew multiagent run` CLI command with manifest-based model resolution and Ollama provider support.
+  - Authored 66 unit tests across 5 test modules (`tests/multiagent/`) covering messages, context, roles, plan loading, and coordinator orchestration.
+- **Decisions & Consequences**:
+  - Adopted hybrid message-passing + shared-context communication protocol (ADR-018, Accepted 2026-09-14), completing the multi-agent prerequisite established in ADR-017.
+  - Plans are evaluated sequentially; parallel execution of independent subtasks is deferred to a later iteration.
+  - Conflict detection is text-similarity–based; semantic divergence detection is deferred.
+
+---
+
+## [2026-09-14] Fix: Prompt-Grounding for Local Tool Selection
+
+- **Context & Motivation**:
+  End-to-end multi-agent runs against a real local LLM (llama3.2 via Ollama) showed the researcher fabricating URLs
+  (e.g. `https://example.com/repository/docs/`) and reaching for `WebTool` instead of reading local documentation,
+  producing hallucinated responses. The executor's tool-name resolution, JSON correction, and repeat guard were already
+  sound; the failure was at the prompt layer — nothing bound local artifacts to `FilesystemTool` or forbade inventing URLs.
+- **Key Achievements**:
+  - Added a "Tool Selection & Local Grounding" section to `prompts/core.md`: prefer `FilesystemTool` for workspace
+    content (`list_dir` → `view_file`/`grep_search`); never invent URLs — `WebTool.read_url_content` only for URLs the
+    user provided verbatim or that `search_web` returned; report gaps instead of fabricating (Principle P4).
+  - Rewrote `tests/multiagent/test_plan.yaml` subtask prompts to name the exact `FilesystemTool` operations
+    (`list_dir(directory_path="docs")` → `view_file`) and explicitly forbid `WebTool`/URL guessing; subtask ids and
+    deliverables unchanged.
+  - Fixed a test-isolation bug in `tests/unit/test_prompts.py` (`test_get_prompt_loader_singleton` left the global
+    prompt loader pointed at `[Path("/custom")]`, failing `tests/multiagent/test_roles.py` whenever `tests/unit` ran
+    before `tests/multiagent`); the test now restores the original singleton in a `finally` block.
+  - Grounded the chief-synthesis prompt in `laew/multiagent/coordinator.py`: report specialist failures exactly as
+    described, do not invent causes, and label interpretations as INFERENCE (Principle P4).
+  - Verified against a live Ollama run (Qwen3-14B): the researcher issued only local `FilesystemTool` calls on real
+    `docs/` paths — no `WebTool`, no invented URLs.
+- **Decisions & Consequences**:
+  - Local-first grounding lives in the prompt layer (model-agnostic, per P9) rather than restricting `WebTool`, which
+    remains available for genuinely remote content.
+  - Full suite remains **407 passed, 1 skipped**; green under both `pytest -q` and `pytest tests/unit tests/multiagent`
+    orderings.
+
+---
+
 ## [2026-09-11] Audit Remediation (Medium M1–M11 & Low L1–L10)
 
 - **Context & Motivation**:

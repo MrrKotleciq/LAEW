@@ -3,7 +3,7 @@
 ## Status
 
 Architecture: LAEW v1.0 documented
-Implementation: Milestone 9 (Automation & Workflow Runtime) completed
+Implementation: Milestone 10 (Multi-Agent Architecture) completed
 
 ## Currently present in repository
 
@@ -17,6 +17,7 @@ Implementation: Milestone 9 (Automation & Workflow Runtime) completed
 - package-lock.json
 - .gitignore
 - laew/ (Python package with tool runtime wrappers, CLI, LLM provider, prompt management, agent loop)
+- laew/multiagent/ (Multi-agent architecture: message types, shared context, specialist roles, plan schema, chief coordinator)
 - laew/eval/ (Evaluation harness with metrics, tasks, runner, and benchmark datasets)
 - laew/workflow/ (Workflow runtime with definitions, execution engine, approval gates, and rollback)
 - setup.py (Package installation configuration)
@@ -73,19 +74,19 @@ Implementation: Milestone 9 (Automation & Workflow Runtime) completed
 - tests/unit/test_rag.py: Tests for `ChromaVectorStore` (skipped when chromadb absent) and manifest-config store selection with graceful fallback.
 
 Audit remediation: all Critical (C1-C4), High (H1-H5), and Medium/Low (M1-M11, L1-L10) findings fixed with regression tests.
-Full test suite: 341 passed, 1 skipped.
+Full test suite: 407 passed, 1 skipped.
 
-Total: 321 unit tests collected across 15 test suites
+Total: 321 unit tests collected across 15 test suites (in tests/unit); 408 total tests collected.
 
 ## Important distinction
 
 The architecture documentation describes the intended
 LAEW v1.0 system.
 
-The current repository represents the declarative foundation, tool runtime layer, CLI, LLM provider, prompt management, chief agent orchestration loop, knowledge retrieval (RAG) system, systematic evaluation harness, and workflow automation runtime with approval gates and rollback.
+The current repository represents the declarative foundation, tool runtime layer, CLI, LLM provider, prompt management, chief agent orchestration loop, knowledge retrieval (RAG) system, systematic evaluation harness, workflow automation runtime with approval gates and rollback, and multi-agent architecture with chief-agent coordination and specialist roles.
 
 ## Current Focus
 
-Having completed Milestones 1-9 (including the Automation & Workflow Runtime) and remediated all Critical/High findings from the full technical audit, the project is ready to begin Milestone 10 (Multi-Agent Architecture) per
+Having completed Milestones 1-10 (including the Multi-Agent Architecture) and remediated all Critical/High findings from the full technical audit, the project is ready to begin Milestone 11 (Production Hardening) per
 `docs/ROADMAP.md`. The evaluation harness provides systematic testing of agent and RAG quality,
 enabling regression detection for future development.

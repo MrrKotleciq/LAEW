@@ -1,0 +1,31 @@
+# Multi-agent plan fixture used by tests/multiagent/test_plan.py
+# Loaded via laew.multiagent.plan.load_multiagent_plan_from_yaml.
+name: "Test Documentation Review Plan"
+objective: >
+  Review the new API documentation for consistency and correctness before
+  it is published.
+synthesize: true
+subtasks:
+  - id: "research-1"
+    role: researcher
+    prompt: >
+      Review the local documentation under 'docs/'. Using the FilesystemTool
+      only: first list_dir(directory_path="docs") to enumerate the files, then
+      view_file on the architecture and decision documents to find any public
+      API endpoints they reference. Report each endpoint with its source file
+      path. This workspace is self-contained: do NOT use the WebTool and do NOT
+      guess or invent URLs. If no explicit API endpoint inventory exists under
+      docs/, state that gap plainly (Principle P4) and instead summarize the
+      nearest artifacts found (e.g. referenced components and interfaces) with
+      their source paths.
+    deliverable: "api_endpoints"
+  - id: "review-1"
+    role: reviewer
+    prompt: >
+      Using the FilesystemTool only, read the documentation files under 'docs/'
+      that the researcher identified: list_dir(directory_path="docs") first, then
+      view_file on each relevant file. Examine them for ambiguous wording,
+      missing examples, and inconsistent terms. List the concrete issues found,
+      each with the file path it appears in. This workspace is self-contained:
+      do NOT use the WebTool and do NOT guess or invent URLs.
+    deliverable: "doc_issues"
