@@ -103,18 +103,25 @@ Precedence is **CLI flag > environment variable > manifest > provider default**.
 The provider selection is dispatch by manifest `provider.type` through the
 provider registry (`laew/llm/registry.py`).
 
+## Interactive Testing Console
+
+`laew console` provides an interactive REPL that drives the full runtime surface
+(tools, provider settings, agent loop, RAG, workflow, multi-agent, evaluation)
+in one persistent, exploratory session. Use `help` within the console to list commands.
+
 ## Project Status
 
-Current stage: Milestone 11 (Production Hardening)
+Current stage: Milestone 12 (Interactive Testing Console)
 
 The repository implements:
 - Declarative foundation with system manifest and tool contracts
 - Tool runtime wrappers with programmatic security
 - CLI, LLM provider abstraction, context budgeting, and agent orchestration
+- Interactive Testing Console REPL for exploratory testing (Milestone 12)
 - RAG system with embeddings, vector store, knowledge base, and retrieval pipeline
 - Persistent knowledge store backed by ChromaDB in Docker (falls back to in-memory store when unavailable)
 - Provider registry + factory with timeout/base_url configuration (Milestone 11)
 - PEP 621 packaging via `pyproject.toml` with install guides (Milestone 11)
-- 369 unit tests across 19 test suites
+- 471 unit tests across 26 test suites
 
 See `docs/ROADMAP.md` for the development roadmap and future milestones.

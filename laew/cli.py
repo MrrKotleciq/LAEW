@@ -4,9 +4,14 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Optional
 
 from laew.manifest import load_manifest, ManifestError
+from laew.runtime import (
+    terminal_allowlist_from_manifest,
+    resolve_model_name,
+    build_provider,
+    build_shared_tools,
+)
 from laew.tools import (
     FilesystemTool,
     GitTool,
@@ -19,8 +24,6 @@ from laew.workflow.engine import WorkflowEngine
 from laew.security.path_resolver import PathResolver
 from laew.agent.base import Agent, AgentConfig, AgentRole
 from laew.agent.executor import AgentExecutor
-from laew.llm.base import LLMProvider
-from laew.llm.registry import create_provider
 from laew.logging_config import configure_logging
 from laew.multiagent import (
     MultiAgentCoordinator,
@@ -29,51 +32,6 @@ from laew.multiagent import (
     load_multiagent_plan_from_yaml,
 )
 from laew.multiagent.plan import MultiAgentPlanError
-
-
-def _terminal_allowlist_from_manifest(manifest: dict) -> Optional[list]:
-    """
-    Extract the terminal command allowlist declared in a manifest.
-
-    Returns None when the manifest declares no terminal allowlist, in which
-    case callers keep ``TerminalTool``'s built-in default allowlist.
-    """
-    categories = manifest.get("tools", {}).get("categories", {})
-    allowlist = categories.get("terminal", {}).get("allowlist")
-    return list(allowlist) if allowlist else None
-
-
-def _provider_cfg_from_manifest(manifest: dict, provider_type: Optional[str] = None) -> dict:
-    """
-    Extract provider configuration from manifest for provider factory.
-
-    Args:
-        manifest: Loaded manifest dictionary
-        provider_type: If specified, filter providers by this type; otherwise use first provider
-
-    Returns:
-        Provider configuration dictionary, or {"type": "ollama"} if no providers found
-    """
-    providers_cfg = (
-        manifest.get("agent", {})
-        .get("llm", {})
-        .get("providers", [])
-    )
-
-    if not providers_cfg:
-        return {"type": "ollama"}
-
-    if provider_type is None:
-        # Use first provider if no specific type requested
-        return providers_cfg[0]
-
-    # Find provider matching the requested type
-    for provider in providers_cfg:
-        if provider.get("type") == provider_type:
-            return provider
-
-    # If not found, fall back to first provider (will raise appropriate error in factory)
-    return providers_cfg[0] if providers_cfg else {"type": "ollama"}
 
 
 def cmd_check(args) -> int:
@@ -204,7 +162,7 @@ def cmd_tool(args) -> int:
     terminal_allowlist = None
     try:
         manifest = load_manifest(Path(args.manifest))
-        terminal_allowlist = _terminal_allowlist_from_manifest(manifest)
+        terminal_allowlist = terminal_allowlist_from_manifest(manifest)
     except (FileNotFoundError, ManifestError):
         terminal_allowlist = None
 
@@ -277,7 +235,7 @@ def cmd_workflow_run(args) -> int:
     terminal_allowlist = None
     try:
         manifest = load_manifest(Path(args.manifest))
-        terminal_allowlist = _terminal_allowlist_from_manifest(manifest)
+        terminal_allowlist = terminal_allowlist_from_manifest(manifest)
     except (FileNotFoundError, ManifestError):
         terminal_allowlist = None
 
@@ -346,23 +304,19 @@ def cmd_multiagent_run(args) -> int:
     if providers_cfg:
         manifest_model = providers_cfg[0].get("model")
 
-    terminal_allowlist = _terminal_allowlist_from_manifest(manifest)
-    provider = create_provider(
-        _provider_cfg_from_manifest(manifest, args.provider),
+    terminal_allowlist = terminal_allowlist_from_manifest(manifest)
+    provider = build_provider(
+        manifest,
+        provider_type=args.provider,
         base_url=args.base_url,
         timeout=args.timeout,
     )
-    model_name = _resolve_model_name(args.model, manifest_model, provider)
+    model_name = resolve_model_name(args.model, manifest_model, provider)
 
     # One shared tool set for every agent (chief + specialists), honouring the
     # workspace's terminal allowlist. Mutation approval gates remain active, so
     # read/inspect operations work and mutating tools stay protected (P8).
-    shared_tools = [
-        FilesystemTool(),
-        GitTool(),
-        TerminalTool(allowlist=terminal_allowlist),
-        WebTool(),
-    ]
+    shared_tools = build_shared_tools(terminal_allowlist)
 
     def build_agent(name: str, system_prompt: str) -> Agent:
         """Build an agent on the resolved model + provider."""
@@ -428,49 +382,6 @@ def cmd_multiagent_run(args) -> int:
     return 0
 
 
-def _resolve_model_name(
-    cli_model: Optional[str],
-    manifest_model: Optional[str],
-    provider: LLMProvider,
-) -> str:
-    """
-    Resolve the model to use for a chat session.
-
-    An explicit CLI --model always wins. Otherwise the requested model comes
-    from the manifest primary provider; if that model is not installed, fall
-    back to a close match from the same family. If nothing matches, use a
-    sensible default with a notice.
-    """
-    requested = cli_model or manifest_model
-
-    # Explicit CLI choice: trust it and let Ollama report a missing model.
-    if cli_model:
-        return requested
-
-    try:
-        installed = provider.list_models()
-    except Exception:
-        installed = []
-    if not installed:
-        return requested or "llama3.1"
-
-    # Manifest-specified model is installed: use it as-is.
-    if requested in installed:
-        return requested
-
-    # Otherwise pick a close family match (e.g. request llama3.1, have llama3.2).
-    family = requested.split(":")[0].split(".")
-    family_prefix = family[0] if family else requested
-    for candidate in installed:
-        if candidate.split(":")[0].startswith(family_prefix):
-            print(f"[!] '{requested}' not installed; using '{candidate}' instead.")
-            return candidate
-
-    # No close match: use the first installed model with a notice.
-    print(f"[!] '{requested}' not installed; using '{installed[0]}' instead.")
-    return installed[0]
-
-
 def cmd_chat(args) -> int:
     """
     Start an interactive chat session with a local LLM.
@@ -494,21 +405,23 @@ def cmd_chat(args) -> int:
     if providers_cfg:
         manifest_model = providers_cfg[0].get("model")
 
-    provider = create_provider(
-        _provider_cfg_from_manifest(manifest, args.provider),
+    provider = build_provider(
+        manifest,
+        provider_type=args.provider,
         base_url=args.base_url,
         timeout=args.timeout,
     )
-    model_name = _resolve_model_name(args.model, manifest_model, provider)
+    model_name = resolve_model_name(args.model, manifest_model, provider)
 
     config = AgentConfig(name="laew-cli", model=model_name)
     try:
-        agent = Agent(config=config, provider=provider, tools=[
-            FilesystemTool(),
-            GitTool(),
-            TerminalTool(allowlist=_terminal_allowlist_from_manifest(manifest)),
-            WebTool(),
-        ])
+        agent = Agent(
+            config=config,
+            provider=provider,
+            tools=build_shared_tools(
+                terminal_allowlist_from_manifest(manifest)
+            ),
+        )
     except RuntimeError as e:
         print(f"[FAIL] Could not connect to a local LLM: {e}")
         return 1
@@ -540,6 +453,18 @@ def cmd_chat(args) -> int:
 
     print("\nSession ended.")
     return 0
+
+
+def cmd_console(args) -> int:
+    """
+    Start the LAEW interactive testing console.
+
+    Returns:
+        Exit code from the console REPL (0 on normal exit).
+    """
+    from laew.console import run_console
+
+    return run_console(manifest_path=args.manifest)
 
 
 def main() -> int:
@@ -655,6 +580,18 @@ def main() -> int:
         help="Path to system manifest (default: manifests/SYSTEM_MANIFEST.yaml)",
     )
     chat_parser.set_defaults(func=cmd_chat)
+
+    # console command
+    console_parser = subparsers.add_parser(
+        "console",
+        help="Start the interactive testing console",
+    )
+    console_parser.add_argument(
+        "--manifest",
+        default="manifests/SYSTEM_MANIFEST.yaml",
+        help="Path to system manifest (default: manifests/SYSTEM_MANIFEST.yaml)",
+    )
+    console_parser.set_defaults(func=cmd_console)
 
     # tool command
     tool_parser = subparsers.add_parser(

@@ -16,8 +16,9 @@ from laew.cli import (
     cmd_tool,
     cmd_chat,
     cmd_multiagent_run,
-    _resolve_model_name,
+    cmd_console,
 )
+from laew.runtime import resolve_model_name
 from laew.tools import ToolResult, ErrorCode
 from laew.manifest import ManifestError
 
@@ -406,7 +407,7 @@ class TestChatCommand:
         run_result.error = None
 
         with (
-            patch("laew.cli.create_provider") as mock_create,
+            patch("laew.runtime.create_provider") as mock_create,
             patch("laew.cli.Agent"),
             patch("laew.cli.AgentConfig"),
             patch("laew.cli.AgentExecutor") as mock_executor,
@@ -434,7 +435,7 @@ class TestChatCommand:
         args.timeout = 900
 
         with (
-            patch("laew.cli.create_provider") as mock_create,
+            patch("laew.runtime.create_provider") as mock_create,
             patch("laew.cli.Agent"),
             patch("laew.cli.AgentConfig"),
             patch("laew.cli.AgentExecutor") as mock_executor,
@@ -459,7 +460,7 @@ class TestChatCommand:
         args.provider = "ollama"
 
         with (
-            patch("laew.cli.create_provider") as mock_create,
+            patch("laew.runtime.create_provider") as mock_create,
             patch("laew.cli.Agent"),
             patch("laew.cli.AgentConfig"),
             patch("laew.cli.AgentExecutor") as mock_executor,
@@ -491,7 +492,7 @@ class TestChatCommand:
         result.final_response = "ok"
 
         with (
-            patch("laew.cli.create_provider") as mock_create,
+            patch("laew.runtime.create_provider") as mock_create,
             patch("laew.cli.MultiAgentCoordinator") as mock_coord,
             patch("laew.cli.Agent"),
             patch("laew.cli.AgentConfig"),
@@ -529,13 +530,44 @@ def multiagent_args(plan_path, manifest_path):
     )
 
 
+def console_args(manifest_path):
+    """Create argument-like object for cmd_console."""
+    return types.SimpleNamespace(manifest=str(manifest_path))
+
+
+class TestConsoleCommand:
+    """Tests for the `laew console` subcommand wiring."""
+
+    def test_cmd_console_boots_and_exits(self, capsys):
+        """cmd_console boots the REPL and exits cleanly on 'exit'."""
+        with patch("builtins.input", return_value="exit"):
+            exit_code = cmd_console(console_args("manifests/SYSTEM_MANIFEST.yaml"))
+
+        assert exit_code == 0
+        captured = capsys.readouterr()
+        assert "LAEW Interactive Console" in captured.out
+
+    def test_main_registers_console_subcommand(self, capsys):
+        """main(['console']) dispatches to the console REPL."""
+        with patch("sys.argv", ["laew", "console"]), \
+             patch("builtins.input", return_value="exit"):
+            exit_code = main()
+        assert exit_code == 0
+
+    def test_console_propagates_repl_exit_code(self, capsys):
+        """A keyboard interrupt inside the REPL surfaces as exit code 1."""
+        with patch("builtins.input", side_effect=KeyboardInterrupt):
+            exit_code = cmd_console(console_args("manifests/SYSTEM_MANIFEST.yaml"))
+        assert exit_code == 1
+
+
 class TestModelResolution:
     """Tests for chat model fallback when the requested model is not installed."""
 
     def test_explicit_cli_model_wins(self):
         """An explicit --model is used verbatim, no fallback."""
         provider = MagicMock()
-        result = _resolve_model_name(
+        result = resolve_model_name(
             cli_model="qwen2.5",
             manifest_model="llama3.1",
             provider=provider,
@@ -547,42 +579,42 @@ class TestModelResolution:
         """Manifest model that is installed is used unchanged (exact tag match)."""
         provider = MagicMock()
         provider.list_models.return_value = ["llama3.1:latest", "nomic-embed-text"]
-        result = _resolve_model_name(None, "llama3.1:latest", provider)
+        result = resolve_model_name(None, "llama3.1:latest", provider)
         assert result == "llama3.1:latest"
 
     def test_installed_model_without_tag_resolves_via_family(self):
         """Untagged request matches an installed tagged model of the same family."""
         provider = MagicMock()
         provider.list_models.return_value = ["llama3.1:latest"]
-        result = _resolve_model_name(None, "llama3.1", provider)
+        result = resolve_model_name(None, "llama3.1", provider)
         assert result == "llama3.1:latest"
 
     def test_family_fallback_to_installed(self):
         """Missing llama3.1 falls back to installed llama3.2 with a notice."""
         provider = MagicMock()
         provider.list_models.return_value = ["llama3.2:latest"]
-        result = _resolve_model_name(None, "llama3.1", provider)
+        result = resolve_model_name(None, "llama3.1", provider)
         assert result == "llama3.2:latest"
 
     def test_first_installed_model_fallback(self):
         """No family match falls back to the first installed model."""
         provider = MagicMock()
         provider.list_models.return_value = ["mistral:latest"]
-        result = _resolve_model_name(None, "llama3.1", provider)
+        result = resolve_model_name(None, "llama3.1", provider)
         assert result == "mistral:latest"
 
     def test_no_installed_models_uses_requested(self):
         """If Ollama has no models, keep the requested model name."""
         provider = MagicMock()
         provider.list_models.return_value = []
-        result = _resolve_model_name(None, "llama3.1", provider)
+        result = resolve_model_name(None, "llama3.1", provider)
         assert result == "llama3.1"
 
     def test_provider_error_uses_requested(self):
         """If listing models fails, keep the requested model name."""
         provider = MagicMock()
         provider.list_models.side_effect = RuntimeError("Ollama down")
-        result = _resolve_model_name(None, "llama3.1", provider)
+        result = resolve_model_name(None, "llama3.1", provider)
         assert result == "llama3.1"
 
 

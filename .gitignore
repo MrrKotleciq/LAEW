@@ -10,7 +10,7 @@ __pycache__/
 .venv/
 venv/
 env/
-.egg-info
+laew.egg-info/
 
 # Node
 node_modules/

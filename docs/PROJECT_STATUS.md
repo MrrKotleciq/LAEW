@@ -3,7 +3,7 @@
 ## Status
 
 Architecture: LAEW v1.0 documented
-Implementation: Milestone 11 (Production Hardening) completed
+Implementation: Milestone 12 (Interactive Testing Console) completed
 
 ## Currently present in repository
 
@@ -17,6 +17,8 @@ Implementation: Milestone 11 (Production Hardening) completed
 - package-lock.json
 - .gitignore
 - laew/ (Python package with tool runtime wrappers, CLI, LLM provider, prompt management, agent loop)
+- laew/runtime.py (Shared provider/tool/config helpers used by both CLI and console)
+- laew/console/ (Interactive testing console REPL and command handlers)
 - laew/llm/registry.py (Provider registry and factory dispatching on manifest provider `type`)
 - laew/logging_config.py (App-level stdlib logging: console + optional rotating file handler)
 - laew/multiagent/ (Multi-agent architecture: message types, shared context, specialist roles, plan schema, chief coordinator)
@@ -80,6 +82,16 @@ Implementation: Milestone 11 (Production Hardening) completed
 - docs/security/SECURITY_REVIEW.md: bandit audit record — 0 High/Medium findings.
 - .github/workflows/ci.yml: adds bandit SAST gate (`bandit -r laew -lll`), sdist+wheel build, and fresh-venv wheel-install verification.
 
+## Milestone 12 Implementation (Completed)
+
+- laew/console/ (new package): `laew console` interactive REPL (`cmd.Cmd`, stdlib only) driving every implemented surface in one session — state (SessionState), session (ConsoleSession parse/dispatch/history/`!N`), and command handlers in commands/ (core, tool, agent, rag, automation).
+- laew/runtime.py (new): shared runtime helpers extracted verbatim from cli.py (`provider_cfg_from_manifest`, `terminal_allowlist_from_manifest`, `resolve_model_name`) plus `build_provider` and `build_shared_tools`; CLI and console share the same config-resolution and tool-building code (DRY).
+- laew/cli.py: `laew console` subcommand registers the console entry; chat/multiagent/tool/workflow import the shared runtime helpers.
+- Console commands: `check`, `info`, `set`, `provider info|models|health|generate`, `tools`, `tool <name> <op> [k=v]`, `agent run|chat`, `trace on|off`, `rag query|embed|stats`, `workflow discover|show|run`, `multiagent discover|show|run`, `eval datasets|tasks|task|dataset`, `prompt list|show`, `budget`, `history`, `!N`, `help`, `exit`.
+- Approval gates (P8) are togglable per session (`set approval auto|ask|deny`); all tool mutations still route through the `Tool` classes.
+- Offline-first: manifest/tool/workflow/multiagent-parse/eval/prompt/budget commands work with Ollama down; provider, agent, and RAG-embed show `[!]` when unreachable.
+- Tests: ~85 new unit tests across test_runtime.py + 7 console suites + CLI wiring (test_console_agent_cmds, test_console_automation_cmds, test_console_core_cmds, test_console_rag_cmds, test_console_session, test_console_tool_cmds).
+
 ## Milestone 6 Implementation (Completed)
 
 - docker-compose.yml: ChromaDB service (`chromadb/chroma`) with a named volume for persistent storage, exposed on port 8000.
@@ -90,9 +102,9 @@ Implementation: Milestone 11 (Production Hardening) completed
 - tests/unit/test_rag.py: Tests for `ChromaVectorStore` (skipped when chromadb absent) and manifest-config store selection with graceful fallback.
 
 Audit remediation: all Critical (C1-C4), High (H1-H5), and Medium/Low (M1-M11, L1-L10) findings fixed with regression tests.
-Full test suite: 455 passed, 1 skipped.
+Full test suite: 557 passed, 1 skipped.
 
-Total: 369 unit tests collected across 19 test suites (in tests/unit); 456 total tests collected.
+Total: 471 unit tests collected across 26 test suites (in tests/unit); 558 total tests collected.
 
 ## Important distinction
 
@@ -103,4 +115,4 @@ The current repository represents the declarative foundation, tool runtime layer
 
 ## Current Focus
 
-Milestones 1–11 (including Production Hardening) are complete. LAEW is pip-installable (`pip install .` or `pip install laew`), has documented configuration (`LAEW_BASE_URL`, `LAEW_TIMEOUT`, `--provider`, `--timeout`), app-level logging, and a bandit SAST gate in CI. The roadmap (`docs/ROADMAP.md`) sequences Milestones 12–20; the agreed next objective is **Milestone 12: Session Memory & Conversation Persistence** (durable, resumable agent sessions per ADR-012).
+Milestones 1–12 (through the Interactive Testing Console) are complete. LAEW is pip-installable (`pip install .` or `pip install laew`), has documented configuration (`LAEW_BASE_URL`, `LAEW_TIMEOUT`, `--provider`, `--timeout`), app-level logging, a bandit SAST gate in CI, and an interactive `laew console` REPL for exploratory testing of every implemented surface. The roadmap (`docs/ROADMAP.md`) sequences Milestones 13–21; the agreed next objective is **Milestone 13: Session Memory & Conversation Persistence** (durable, resumable agent sessions per ADR-012).

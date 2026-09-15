@@ -2,9 +2,9 @@
 
 ## Current State
 
-- **Stage:** Milestones 1–11 complete (declarative foundation → production-hardened runtime).
-- **Implemented:** tools with programmatic security, LLM provider + registry (ADR-019), RAG (in-memory + optional ChromaDB), single-agent loop, workflow runtime, evaluation harness, multi-agent orchestration (ADR-018), PEP 621 packaging, app logging, bandit CI gate.
-- **Test health:** 456 collected / 455 passed / 1 skipped (369 unit tests across 19 suites).
+- **Stage:** Milestones 1–12 complete (declarative foundation → interactive testing console).
+- **Implemented:** tools with programmatic security, LLM provider + registry (ADR-019), RAG (in-memory + optional ChromaDB), single-agent loop, workflow runtime, evaluation harness, multi-agent orchestration (ADR-018), PEP 621 packaging, app logging, bandit CI gate, interactive testing console (`laew console`).
+- **Test health:** 558 collected / 557 passed / 1 skipped (471 unit tests across 26 suites).
 - **Milestone history** lives in `docs/history/CHANGELOG.md`; architecture decisions in `docs/decisions/`.
 
 ## Roadmap Principles
@@ -20,31 +20,38 @@
 
 ## Near-Term (next)
 
-### Milestone 12: Session Memory & Conversation Persistence
+### Milestone 12: Interactive Testing Console
+**Goal:** Provide an interactive console to drive every implemented surface (tools, provider/config precedence, agent loop, RAG, workflow, multi-agent, evaluation, manifests) for manual/exploratory testing, in one persistent session.
+**Scope:** Implement `laew console` subcommand with a REPL (cmd.Cmd) that exposes: system check/info/set, provider info/models/health/generate, tool operations with approval gates, agent run/chat with trace, rag query/embed/stats, workflow discover/show/run, multiagent discover/show/run, eval datasets/tasks/task/dataset, prompt list/show, budget estimation, and session history with !N replay. Refactor shared runtime helpers into `laew/runtime.py` for DRY between CLI and console. All handlers are pure functions (args, state) -> exit code for testability.
+**Dependencies:** None (all implemented components are already in place).
+**Tests:** ~50-60 unit tests across 7 test files covering session parsing, each command handler, approval gates, provider stubs, and CLI subcommand registration. Manual offline and online verification.
+**Definition of Done:** `laew console` boots, all commands work offline (except provider/agent/RAG-embed which need a live model and show [!] when unreachable), approval gates can be toggled and tested, config precedence is demonstrable, and the full test suite (existing + new) is green.
+
+### Milestone 13: Session Memory & Conversation Persistence
 **Goal:** Make agent sessions durable and restorable instead of ephemeral.
 **Scope:** Persist `memory.session` (manifest: `runtime/sessions`) — save/restore agent conversation history across `laew chat` restarts; session metadata and lifecycle; align with ADR-012 (current state from filesystem, not model memory).
 **Dependencies:** None (foundation stable).
 **Tests:** Persistence round-trips, multi-session isolation, restore-without-LM, session cleanup.
 **Definition of Done:** A chat session survives a process restart and can be resumed with `laew chat --resume <id>`; sessions are isolated and restorable via manifest path.
 
-### Milestone 13: Performance & Context-Efficiency Audit
+### Milestone 14: Performance & Context-Efficiency Audit
 **Goal:** Optimize the runtime on a verified baseline (ADR-014 level 8).
 **Scope:** Profile agent executor, RAG retrieval, and workflow dispatch; validate/improve the token estimator (~4 chars/token) for real budget accuracy; reduce prompt re-loads and redundant tool round-trips; add streaming for chat generation if feasible.
-**Dependencies:** Milestone 12 (stable sessions).
+**Dependencies:** Milestone 13 (stable sessions).
 **Tests:** Benchmark fixtures with tolerances; token-estimator accuracy against real model tokenizers; latency regression tests on RAG + agent paths.
 **Definition of Done:** Measured, documented latency improvements on standard fixtures; context budgets stay under the configured totals (P6).
 
-### Milestone 14: Multi-Model Routing & Provider Fallback
+### Milestone 15: Multi-Model Routing & Provider Fallback
 **Goal:** Route model roles across multiple providers and fall back on failure — the step right before multi-agent scaling.
 **Scope:** Implement the model router from the LAEW v1.0 architecture (model roles → `ollama_primary` / `ollama_fallback` / cloud API); role→provider mapping with availability checks and cost/priority policy; use the ADR-019 registry as the dispatch seam; extend the bounded provider-fallback retry budget (H1) to role routing.
-**Dependencies:** Milestone 13; build on the two providers already declared in the manifest.
+**Dependencies:** Milestone 14; build on the two providers already declared in the manifest.
 **Tests:** Router dispatch per role, unavailable-provider fallback, policy precedence, budget exhaustion handling.
 **Definition of Done:** A model role can resolve to a different provider (local→cloud) when the primary is unavailable, without code changes and with explicit policy configuration.
 
-### Milestone 15: Parallel Multi-Agent Execution & Semantic Conflict Detection
+### Milestone 16: Parallel Multi-Agent Execution & Semantic Conflict Detection
 **Goal:** Complete the deferred ADR-018 items.
 **Scope:** Execute independent subtasks concurrently (thread/async executor) with per-specialist isolation preserved; replace text-similarity conflict detection with embedding-based semantic comparison reusing the existing embedding stack.
-**Dependencies:** Milestone 14 (routing gives specialists resilient provider access); stable single-agent baseline (ADR-017).
+**Dependencies:** Milestone 15 (routing gives specialists resilient provider access); stable single-agent baseline (ADR-017).
 **Tests:** Deterministic parallel delegation, shared-context consistency under concurrency, semantic-conflict cases that text-similarity misses.
 **Definition of Done:** Independent subtasks run concurrently with a verifiable speedup; semantic conflicts are surfaced to the chief and caller.
 
@@ -52,31 +59,31 @@
 
 ## Mid-Term
 
-### Milestone 16: Second Brain & Global Knowledge Integration
+### Milestone 17: Second Brain & Global Knowledge Integration
 **Goal:** Make the Obsidian vault a real, curated knowledge source (ADR-002).
 **Scope:** Stand up the `knowledge/` vault configured in the manifest; ingest and index the global vault into `@knowledge` RAG with structured organization (Knowledge, Decisions, Research, Templates) rather than a dumping ground; enforce project-specific docs stay in-repo, cross-project knowledge in the vault (ADR-011); link-aware chunking to preserve Obsidian backlinks.
-**Dependencies:** None functional; Milestone 13 for retrieval latency.
+**Dependencies:** None functional; Milestone 14 for retrieval latency.
 **Tests:** Vault ingestion, scope separation (`@project` vs `@knowledge`), link preservation, source attribution in retrieved context.
 **Definition of Done:** A populated Obsidian vault is indexed and retrievable as `@knowledge` context with correct scoping and sources.
 
-### Milestone 17: Monitoring, Telemetry & Backup
+### Milestone 18: Monitoring, Telemetry & Backup
 **Goal:** Surround the system with the observability and backup layers from the v1.0 architecture.
 **Scope:** Structured run telemetry (agent/tool/LLM events) into the existing logging framework; health/status summary (`laew status`); crash-safe session and vault backup/restore paths; retention policy for logs and sessions.
-**Dependencies:** Milestones 12 (sessions to back up) and 16 (vault to backup).
+**Dependencies:** Milestones 13 (sessions to back up) and 17 (vault to backup).
 **Tests:** Telemetry event integrity, `laew status` accuracy, backup/restore round-trips, retention enforcement.
 **Definition of Done:** Every run produces inspectable telemetry; sessions and vault can be backed up and restored; operators can answer "what happened on run X."
 
-### Milestone 18: MCP Tools Layer
+### Milestone 19: MCP Tools Layer
 **Goal:** Open the tool layer to the tool ecosystem via the Model Context Protocol.
 **Scope:** MCP client adapter so external MCP servers appear as LAEW tools, enforcing existing approval/boundary rules (P8); keep the base `Tool` contract as the adapter interface so no tool behavior is bypassed.
-**Dependencies:** Milestone 17 (telemetry covers MCP tool calls).
+**Dependencies:** Milestone 18 (telemetry covers MCP tool calls).
 **Tests:** MCP tool discovery/adapter mapping, boundary enforcement, approval propagation, error mapping.
 **Definition of Done:** An external MCP server's tools are usable by agents behind the same security and logging controls as native tools.
 
-### Milestone 19: Multi-Project Workspace
+### Milestone 20: Multi-Project Workspace
 **Goal:** Scale to multiple projects from a single LAEW install (P10).
 **Scope:** Per-project workspaces each with their own RAG scope and memory, sharing one global vault; workspace switching; `@projects` orchestration and cross-project queries with explicit boundaries.
-**Dependencies:** Milestones 16 (shared vault) and 17 (per-project telemetry).
+**Dependencies:** Milestones 17 (shared vault) and 18 (per-project telemetry).
 **Tests:** Project isolation, shared-vault reads, boundary enforcement across projects, workspace switch correctness.
 **Definition of Done:** One LAEW runtime serves multiple projects with isolated project memory/RAG and a single shared global knowledge source.
 
@@ -84,7 +91,7 @@
 
 ## Long-Term
 
-### Milestone 20: v1.0 Stabilization & Release
+### Milestone 21: v1.0 Stabilization & Release
 **Goal:** Ship LAEW v1.0 per the documented architecture.
 **Scope:** Full-documentation reconciliation; coverage gate in CI (≥80% per testing rule) with a coverage baseline; end-to-end release verification against the LAEW_CONTEXT v1.0 architecture; release candidate build and install verification.
 **Dependencies:** All prior milestones.

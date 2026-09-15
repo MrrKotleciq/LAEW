@@ -5,6 +5,24 @@ For detailed code and file diffs, refer to Git commit history.
 
 ---
 
+## [2026-09-15] Milestone 12: Interactive Testing Console Completed
+
+- **Context & Motivation**:
+  LAEW had a large, verified runtime surface (4 security-gated tools, provider registry + config precedence, single-agent loop, RAG, workflow engine, multi-agent coordinator, evaluation harness) but only two ways to touch it: `pytest` (scripted, offline) and one-shot CLI commands (`laew tool`, `laew chat`, `laew workflow run`, `laew multiagent run`, `laew check`). Each CLI command exits after one action — testing everything meant re-invoking the shell dozens of times with no shared session, no command history, and no way to flip approval gates or provider settings between probes.
+- **Key Achievements**:
+  - Added `laew console` — a stdlib-only interactive REPL (`cmd.Cmd`, zero new dependencies) that drives every implemented surface in one persistent session: system check/info/set, provider info/models/health/generate, tool operations with approval gates, agent run/chat with trace, rag query/embed/stats, workflow discover/show/run, multiagent discover/show/run, eval datasets/tasks/task/dataset, prompt list/show, budget, and `history`/`!N` replay.
+  - Extracted shared runtime helpers (`laew/runtime.py`) — `provider_cfg_from_manifest`, `terminal_allowlist_from_manifest`, `resolve_model_name`, `build_provider`, `build_shared_tools` — so the CLI and console literally share the same config-resolution and tool-building code (DRY). The 455 existing CLI tests stayed green across the refactor.
+  - Structured handlers as pure functions `(args, state) -> int` (composition philosophy P9) so every command is unit-testable and the `ConsoleSession` only parses input, dispatches, and prints an `[OK]`/`[FAIL]` badge.
+  - Approval gates are togglable in-session (`set approval auto|ask|deny`), demonstrating P8 security below the model layer both ways — auto-approve for fast probes, deny to verify gates block mutations.
+  - Added ~85 new unit tests across 8 suites (`test_runtime.py` + 7 console suites + CLI wiring in `test_cli.py`, 3 new CLI tests).
+  - Verified: full suite **558 collected, 557 passed, 1 skipped** (471 unit tests / 26 suites).
+- **Decisions & Consequences**:
+  - Component addition + a contained internal refactor with no architectural shift — logged in the CHANGELOG without a new ADR (per project-sync, minor refactors don't get ADRs).
+  - The console never bypasses P8: all file/git/terminal actions go through the `Tool` classes with their approval gates.
+  - Offline-first: manifest, tool, workflow, multi-agent-parse, eval-list, and prompt commands work with Ollama down; only provider/agent/RAG-embed need a live model, with a clear `[!]` when unreachable.
+
+---
+
 ## [2026-09-15] Milestone 11: Production Hardening Completed
 
 - **Context & Motivation**:

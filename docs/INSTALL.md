@@ -83,6 +83,34 @@ Run a multi-agent plan:
 $ laew multiagent run tests/multiagent/test_plan.yaml --manifest manifests/SYSTEM_MANIFEST.yaml
 ```
 
+## Interactive Testing Console
+
+The console REPL lets you explore the full runtime surface in one session.
+Start it with:
+
+```console
+$ laew console --manifest manifests/SYSTEM_MANIFEST.yaml
+```
+
+Inside the console, `help` lists all commands. Key groups:
+
+| Group | Example commands |
+|-------|------------------|
+| System | `check`, `info`, `set timeout 600`, `set approval auto` |
+| Provider | `provider info`, `provider models`, `provider health`, `provider generate "hi"` |
+| Tools | `tool filesystem list_dir directory_path=@project`, `tool terminal run command=ls`, `tools` |
+| Agent | `agent run "list files in docs/"`, `agent chat`, `trace on` |
+| RAG | `rag query "find docs" scope=project k=5`, `rag embed`, `rag stats` |
+| Workflow | `workflow discover`, `workflow show test_flow.yaml`, `workflow run test_flow.yaml` |
+| Multi-agent | `multiagent discover`, `multiagent show test_plan.yaml`, `multiagent run test_plan.yaml` |
+| Evaluation | `eval datasets`, `eval tasks laew_specific`, `eval task 001`, `eval dataset laew_specific` |
+| Prompts | `prompt list`, `prompt show code_review`, `budget "some text"` |
+| Console | `history`, `!5` (re-run history item 5), `exit` |
+
+All commands work **offline** (no Ollama required) except: `provider *` (needs a reachable model), `agent *` (needs a reachable model), and `rag embed` (needs embeddings). Offline commands show a clear `[!]` when the provider is unreachable.
+
+Use `set approval auto` to auto-approve mutations for faster testing, `set approval deny` to verify gates block mutations, or `set approval ask` (default) for interactive prompts.
+
 ## Configuration
 
 LAEW reads provider configuration from the system manifest
