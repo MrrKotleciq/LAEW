@@ -21,6 +21,7 @@ from laew.console.commands.core import (
     cmd_tools,
 )
 from laew.console.state import SessionState
+from laew.llm.base import LLMResponse
 
 
 MANIFEST = {
@@ -106,7 +107,7 @@ def _fake_provider(**kwargs):
     p = MagicMock()
     p.is_available.return_value = kwargs.get("available", True)
     p.list_models.return_value = kwargs.get("models", ["llama3.1"])
-    p.generate.return_value = SimpleNamespace(content="generated text")
+    p.generate.return_value = LLMResponse(content="generated text", model="llama3.1")
     return p
 
 
@@ -155,12 +156,19 @@ def test_provider_health_down(mock_manifest_state, capsys):
 
 
 def test_provider_generate(mock_manifest_state, capsys):
-    """provider generate prints the one-turn response content."""
+    """provider generate sends a user message list (provider contract)."""
+    from laew.llm.base import LLMMessage, MessageRole
     fake = _fake_provider()
     with patch("laew.console.commands.core._build_provider", return_value=fake):
         assert cmd_provider(["generate", "hi"], mock_manifest_state) == 0
     out = capsys.readouterr().out
     assert "generated text" in out
+    # The provider's generate() takes a list[LLMMessage] as its first arg, the
+    # live OllamaProvider enforces this; a bare string crashes with
+    # "'str' object has no attribute 'to_dict'".
+    sent_messages = fake.generate.call_args.args[0]
+    assert isinstance(sent_messages, list)
+    assert sent_messages == [LLMMessage(role=MessageRole.USER, content="hi")]
 
 
 def test_provider_unknown_subcommand(mock_manifest_state, capsys):

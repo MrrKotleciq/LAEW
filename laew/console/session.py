@@ -104,6 +104,47 @@ class ConsoleSession(cmd.Cmd):
     def emptyline(self) -> None:
         """Ignore empty input (cmd.Cmd would otherwise repeat the last line)."""
 
+    def do_help(self, arg: str) -> None:
+        """Show help for a console command, or list all commands."""
+        topic = arg.strip() if arg else ""
+        if topic:
+            self._help_for_topic(topic)
+            return
+
+        # No topic: list every registered command with its one-line docstring.
+        lines = ["Documented commands:", ""]
+        for name in sorted(COMMAND_HANDLERS):
+            doc = getattr(COMMAND_HANDLERS[name], "__doc__") or "(no help)"
+            lines.append(f"  {name:<12} {doc.strip().splitlines()[0]}")
+        lines.append("")
+        lines.append("Console: 'history', '!<N>' (re-run history entry), 'exit'/'quit'.")
+        print("\n".join(lines))
+
+    def _help_for_topic(self, topic: str) -> None:
+        """Print help for a single topic (registered command or built-in)."""
+        cmd_name = topic.split()[0]
+
+        if cmd_name.startswith("!"):
+            print("Re-run a history entry: !<N> (see 'history').")
+            return
+
+        handler = COMMAND_HANDLERS.get(cmd_name)
+        if handler is not None:
+            print((getattr(handler, "__doc__") or "No help available.").strip())
+            return
+
+        builtins = {
+            "exit": "Exit the console.",
+            "quit": "Exit the console.",
+            "history": "Show in-session command history.",
+            "help": "Show help for a command, or list all commands.",
+        }
+        if cmd_name in builtins:
+            print(builtins[cmd_name])
+            return
+
+        print(f"Unknown command: {cmd_name}  (type 'help' for a list)")
+
 
 def run_console(manifest_path: Optional[str] = None) -> int:
     """
@@ -115,6 +156,16 @@ def run_console(manifest_path: Optional[str] = None) -> int:
     Returns:
         0 on normal exit, 1 on interruption or startup failure.
     """
+    # ToolLogger (laew.tools, ADR-016) has its own StreamHandler that emits the
+    # raw JSON line. Without ``propagate=False`` each record also travels up to
+    # the ``laew`` logger added by configure_logging() and prints a second,
+    # formatted copy — the duplicate per-call log lines in the console. Stop
+    # the propagation here so only the single ADR-016 line reaches the session.
+    import logging
+
+    tools_logger = logging.getLogger("laew.tools")
+    tools_logger.propagate = False
+
     try:
         session = ConsoleSession(manifest_path=manifest_path)
         session.cmdloop()

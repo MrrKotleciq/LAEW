@@ -44,7 +44,7 @@ class EmbeddingService(ABC):
 
 class OllamaEmbedding(EmbeddingService):
     """
-    Ollama embedding service using /api/embeddings endpoint.
+    Ollama embedding service using the /api/embed endpoint.
 
     Supports models like nomic-embed-text, all-minilm, etc.
     """
@@ -83,16 +83,16 @@ class OllamaEmbedding(EmbeddingService):
         """
         try:
             response = requests.post(
-                f"{self.base_url}/api/embeddings",
-                json={"model": self.model, "prompt": text},
+                f"{self.base_url}/api/embed",
+                json={"model": self.model, "input": text},
                 timeout=self.timeout,
             )
             response.raise_for_status()
             data = response.json()
-            embedding = data.get("embedding", [])
-
-            if not embedding:
+            embeddings = data.get("embeddings", [])
+            if not embeddings:
                 raise RuntimeError(f"No embedding returned from Ollama for model {self.model}")
+            embedding = embeddings[0]
 
             # Cache dimensions on first call
             if self._dimensions is None:

@@ -19,6 +19,19 @@ class WebTool(Tool):
 
     description = "Read web content and search technical documentation (read-only)"
 
+    operations = {
+        "search_web": {
+            "params": ["query", "domain"],
+            "description": "Search web for technical documentation",
+            "read_only": True,
+        },
+        "read_url_content": {
+            "params": ["url"],
+            "description": "Fetch URL and convert to Markdown",
+            "read_only": True,
+        },
+    }
+
     def __init__(self):
         """Initialize web tool."""
         super().__init__(requires_approval=False)

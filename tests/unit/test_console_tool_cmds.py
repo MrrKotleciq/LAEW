@@ -45,6 +45,65 @@ def test_tool_unknown_name(state, capsys):
     assert "filesystem" in out and "web" in out  # choices shown
 
 
+def test_tool_help_is_intercepted(state, capsys):
+    """`tool help` prints the operation table and never reaches a tool call."""
+    stub = StubTool(_success_result())
+    with patch("laew.console.commands.tool.TOOL_FACTORIES", {"filesystem": lambda a: stub}):
+        assert cmd_tool(["help"], state) == 0
+        assert cmd_tool(["-h"], state) == 0
+    out = capsys.readouterr().out
+    assert "Available tools and their operations" in out
+    assert "list_dir" in out  # a real declared operation is listed
+    assert stub.calls == []  # nothing was dispatched as an operation
+
+
+def test_tool_name_help_is_intercepted(state, capsys):
+    """`tool filesystem help` prints that tool's operations, no call."""
+    stub = StubTool(_success_result())
+    with patch("laew.console.commands.tool.TOOL_FACTORIES", {"filesystem": lambda a: stub}):
+        assert cmd_tool(["filesystem", "help"], state) == 0
+    out = capsys.readouterr().out
+    assert "Available tools and their operations" in out
+    assert stub.calls == []
+
+
+def test_tool_failure_prints_bare_error_code_not_enum_repr(state, capsys):
+    """An ErrorCode member renders as 'ERR_...' without the enum repr prefix."""
+    stub = StubTool(
+        ToolResult(
+            success=False,
+            error_code=ErrorCode.ERR_INVALID_INPUT,
+            error_message="Unknown operation: ls",
+        ),
+    )
+    factories = {"filesystem": lambda allowlist: stub}
+    state.approval = "auto"
+    with patch("laew.console.commands.tool.TOOL_FACTORIES", factories):
+        assert cmd_tool(["filesystem", "ls"], state) == 1
+    out = capsys.readouterr().out
+    assert "[FAIL] ERR_INVALID_INPUT" in out
+    assert "ErrorCode.ERR_INVALID_INPUT" not in out  # Python 3.11 str(Enum) leak
+
+
+def test_tool_unknown_operation_lists_available_ops(state, capsys):
+    """A failed operation with an 'operation' message suggests real ops."""
+    stub = StubTool(
+        ToolResult(
+            success=False,
+            error_code=ErrorCode.ERR_INVALID_INPUT,
+            error_message="Unknown operation: ls",
+        ),
+    )
+    factories = {"filesystem": lambda allowlist: stub}
+    state.approval = "auto"
+    with patch("laew.console.commands.tool.TOOL_FACTORIES", factories):
+        assert cmd_tool(["filesystem", "ls"], state) == 1
+    out = capsys.readouterr().out
+    assert "available filesystem operations:" in out
+    assert "run_command" in out  # points at the terminal path for shell commands
+    assert "tool terminal run_command command=..." in out
+
+
 def _success_result(data="ok"):
     return ToolResult(success=True, data=data)
 
@@ -58,19 +117,33 @@ def _denied_result():
 
 
 class StubTool:
-    """Minimal tool stand-in the handler drives (name, approve, call)."""
+    """Minimal tool stand-in the handler drives (name, approve, call).
 
-    def __init__(self, result, name="filesystem"):
+    Accepts a single fixed result, or a queue of results consumed one per
+    ``call`` — ask mode runs the mutation ungated first (normally denied),
+    then again after approval, so a two-element queue mirrors the real flow.
+    """
+
+    def __init__(self, result, name="filesystem", results=None):
         self.name = name
         self._result = result
+        self._results = list(results) if results is not None else None
         self.approved = False
         self.calls = []
+        # Tool.operations is used by the tool command to list operations.
+        # For the tests we provide a minimal dict; the real tools have more.
+        self.operations = {
+            "list_dir": {"params": ["directory_path"], "description": "List directory", "read_only": True},
+            "write_file": {"params": ["path", "content"], "description": "Write file", "read_only": False},
+        }
 
     def approve(self):
         self.approved = True
 
     def call(self, operation, **kwargs):
         self.calls.append((operation, kwargs))
+        if self._results is not None:
+            return self._results.pop(0)
         return self._result
 
 
@@ -86,9 +159,23 @@ def test_tool_auto_mode_approves_and_succeeds(state, capsys):
     assert "ok" in capsys.readouterr().out
 
 
-def test_tool_ask_mode_yes_approves(state, capsys):
-    """ask mode with a 'y' answer approves and runs the mutation."""
+def test_tool_ask_mode_no_prompt_for_read(state, capsys):
+    """ask mode never prompts for read operations that pass ungated."""
     stub = StubTool(_success_result())
+    factories = {"filesystem": lambda allowlist: stub}
+    with patch("laew.console.commands.tool.TOOL_FACTORIES", factories), \
+         patch("builtins.input", side_effect=AssertionError("input must not be called")) as inp:
+        state.approval = "ask"
+        code = cmd_tool(["filesystem", "list_dir", "directory_path=@project"], state)
+    assert code == 0
+    inp.assert_not_called()
+    assert stub.approved is False  # not needed for reads
+    assert stub.calls == [("list_dir", {"directory_path": "@project"})]
+
+
+def test_tool_ask_mode_yes_approves_after_denial(state, capsys):
+    """ask mode: mutation denied ungated, 'y' approves and re-runs it."""
+    stub = StubTool(_denied_result(), results=[_denied_result(), _success_result()])
     factories = {"filesystem": lambda allowlist: stub}
     with patch("laew.console.commands.tool.TOOL_FACTORIES", factories), \
          patch("builtins.input", return_value="y"):
@@ -96,18 +183,23 @@ def test_tool_ask_mode_yes_approves(state, capsys):
         code = cmd_tool(["filesystem", "write_file", "path=x.txt", "content=hi"], state)
     assert code == 0
     assert stub.approved is True
+    assert stub.calls == [
+        ("write_file", {"path": "x.txt", "content": "hi"}),
+        ("write_file", {"path": "x.txt", "content": "hi"}),
+    ]
 
 
-def test_tool_ask_mode_no_skips(state, capsys):
-    """ask mode with a 'n' answer skips the call entirely (returns 1)."""
-    stub = StubTool(_success_result())
+def test_tool_ask_mode_no_refuses_denied_mutation(state, capsys):
+    """ask mode: 'n' on a denied mutation returns 1 and does not re-run."""
+    stub = StubTool(_denied_result())
     factories = {"filesystem": lambda allowlist: stub}
     with patch("laew.console.commands.tool.TOOL_FACTORIES", factories), \
          patch("builtins.input", return_value="n"):
         state.approval = "ask"
         code = cmd_tool(["filesystem", "write_file", "path=x.txt", "content=hi"], state)
     assert code == 1
-    assert stub.calls == []
+    assert stub.approved is False
+    assert len(stub.calls) == 1  # ungated call only; no re-run after refusal
     assert "not approved" in capsys.readouterr().out
 
 

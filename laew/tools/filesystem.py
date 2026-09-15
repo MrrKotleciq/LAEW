@@ -24,6 +24,43 @@ class FilesystemTool(Tool):
     """
 
     description = "Read and write project files (list, view, find, grep, write)"
+    operations = {
+        "view_file": {
+            "params": ["file_path", "start_line", "end_line"],
+            "description": "Read file contents",
+            "read_only": True,
+        },
+        "list_dir": {
+            "params": ["directory_path", "depth"],
+            "description": "List directory entries",
+            "read_only": True,
+        },
+        "find_by_name": {
+            "params": ["pattern", "search_directory", "entry_type"],
+            "description": "Search by glob pattern",
+            "read_only": True,
+        },
+        "grep_search": {
+            "params": ["query", "search_path", "is_regex", "case_insensitive"],
+            "description": "Search file contents",
+            "read_only": True,
+        },
+        "write_file": {
+            "params": ["file_path", "content", "overwrite"],
+            "description": "Create/overwrite file (requires approval)",
+            "read_only": False,
+        },
+        "replace_file_content": {
+            "params": ["file_path", "start_line", "end_line", "target_content", "replacement_content"],
+            "description": "Modify file in place (requires approval)",
+            "read_only": False,
+        },
+        "delete_file": {
+            "params": ["file_path"],
+            "description": "Delete file (requires approval)",
+            "read_only": False,
+        },
+    }
 
     READ_OPS = {"view_file", "list_dir", "find_by_name", "grep_search"}
     WRITE_OPS = {"write_file", "replace_file_content", "delete_file"}

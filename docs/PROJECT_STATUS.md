@@ -102,9 +102,9 @@ Implementation: Milestone 12 (Interactive Testing Console) completed
 - tests/unit/test_rag.py: Tests for `ChromaVectorStore` (skipped when chromadb absent) and manifest-config store selection with graceful fallback.
 
 Audit remediation: all Critical (C1-C4), High (H1-H5), and Medium/Low (M1-M11, L1-L10) findings fixed with regression tests.
-Full test suite: 557 passed, 1 skipped.
+Full test suite: 565 passed, 0 skipped.
 
-Total: 471 unit tests collected across 26 test suites (in tests/unit); 558 total tests collected.
+Total: 485 unit tests collected across 26 test suites (in tests/unit); 572 total tests collected.
 
 ## Important distinction
 

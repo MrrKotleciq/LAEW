@@ -160,7 +160,17 @@ def cmd_rag_stats(args: list, state: SessionState) -> int:
 
 
 def _dispatch(args: list, state: SessionState) -> int:
-    """Dispatch ``rag <subcommand>`` onto the specific handler."""
+    """
+    rag query|embed|stats — drive the RAG pipeline against the manifest's
+    memory configuration.
+
+    Examples:
+      rag query "tool approval gates" scope=project k=5
+      rag embed force
+      rag stats
+
+    See also: 'agent run', 'prompt show rag'.
+    """
     sub = args[0] if args else "stats"
     if sub == "query":
         return cmd_rag_query(args[1:], state)

@@ -639,5 +639,45 @@ class TestKnowledgeBaseWithManifestConfig:
         assert isinstance(kb._global_store, VectorStore)
 
 
+# --------------------------------------------------------------------------- #
+# OllamaEmbedding endpoint regression (Ollama API drift)
+# --------------------------------------------------------------------------- #
+class TestOllamaEmbedding:
+    """Pins the live Ollama embedding contract (current /api/embed)."""
+
+    def test_embed_uses_embed_endpoint_and_input_key(self):
+        """embed posts to /api/embed with 'input' and reads embeddings[0]."""
+        import requests
+
+        embedder = OllamaEmbedding(model="nomic-embed-text", base_url="http://localhost:11434")
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = {"embeddings": [[0.1, 0.2, 0.3]]}
+
+        with patch.object(requests, "post", return_value=mock_response) as mock_post:
+            vector = embedder.embed("hello world")
+
+        assert vector == [0.1, 0.2, 0.3]
+        assert embedder.dimensions == 3
+        url, kwargs = mock_post.call_args.args[0], mock_post.call_args.kwargs
+        assert url.endswith("/api/embed"), f"expected /api/embed, got {url}"
+        assert kwargs["json"] == {"model": "nomic-embed-text", "input": "hello world"}
+        # Legacy endpoint must not be used.
+        assert "/api/embeddings" not in url
+
+    def test_embed_raises_on_missing_embeddings(self):
+        """An empty embeddings payload raises a readable RuntimeError."""
+        import requests
+
+        embedder = OllamaEmbedding()
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = {}
+
+        with patch.object(requests, "post", return_value=mock_response):
+            with pytest.raises(RuntimeError, match="No embedding returned"):
+                embedder.embed("x")
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

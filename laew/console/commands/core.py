@@ -11,6 +11,7 @@ from laew.console.state import SessionState, StateError
 from laew.runtime import terminal_allowlist_from_manifest
 from laew.prompts.loader import get_prompt_loader
 from laew.prompts.context_budget import TokenEstimator
+from laew.llm.base import LLMMessage, MessageRole
 
 
 def _err(msg: str) -> int:
@@ -22,7 +23,7 @@ def _err(msg: str) -> int:
 # check — validate the manifest and workspace configuration (offline)
 # --------------------------------------------------------------------------- #
 def cmd_check(args: list, state: SessionState) -> int:
-    """Validate the system manifest (mirrors ``laew check``)."""
+    """Validate the system manifest and workspace configuration (mirrors ``laew check``)."""
     try:
         manifest = state.load_manifest()
     except StateError as e:
@@ -53,7 +54,7 @@ def cmd_check(args: list, state: SessionState) -> int:
 # info — show resolved runtime configuration (live precedence)
 # --------------------------------------------------------------------------- #
 def cmd_info(args: list, state: SessionState) -> int:
-    """Show the resolved session configuration and precedence chain."""
+    """Show the resolved session configuration, provider status, and precedence chain."""
     try:
         manifest = state.load_manifest()
     except StateError as e:
@@ -81,7 +82,11 @@ def cmd_info(args: list, state: SessionState) -> int:
 # set — session overrides (session > env > manifest > default)
 # --------------------------------------------------------------------------- #
 def cmd_set(args: list, state: SessionState) -> int:
-    """Set a session override: provider|model|base-url|timeout|approval|trace."""
+    """
+    Set a session override: provider|model|base-url|timeout|approval|trace.
+
+    Example: 'set approval ask' or 'set timeout 600'.
+    """
     if len(args) < 2:
         return _err("usage: set <key> <value>  (keys: provider model base-url timeout approval trace)")
     key, value = args[0], args[1]
@@ -110,7 +115,11 @@ def _build_provider(state: SessionState):
 
 
 def cmd_provider(args: list, state: SessionState) -> int:
-    """provider info | models | health | generate "<prompt>"."""
+    """
+    Manage the LLM provider: info | models | health | generate "<prompt>".
+
+    Example: 'provider generate "What is LAEW?"'
+    """
     sub = args[0] if args else "info"
     try:
         provider = _build_provider(state)
@@ -159,7 +168,8 @@ def cmd_provider(args: list, state: SessionState) -> int:
             return _err("usage: provider generate \"<prompt>\"")
         prompt = args[1]
         try:
-            response = provider.generate(prompt, model=model or "llama3.1")
+            messages = [LLMMessage(MessageRole.USER, prompt)]
+            response = provider.generate(messages, model=model or "llama3.1")
         except Exception as e:
             return _err(f"generation failed: {e}")
         print(response.content)
@@ -182,7 +192,7 @@ def _prompt_names() -> list:
 
 
 def cmd_prompt(args: list, state: SessionState) -> int:
-    """prompt list | show <name>."""
+    """List or show prompt templates: prompt list | show <name>."""
     sub = args[0] if args else "list"
 
     if sub == "list":
@@ -215,7 +225,7 @@ def cmd_prompt(args: list, state: SessionState) -> int:
 # budget — estimate tokens for arbitrary text (offline)
 # --------------------------------------------------------------------------- #
 def cmd_budget(args: list, state: SessionState) -> int:
-    """budget "<text>" — estimate token count (~4 chars/token)."""
+    """Estimate token count for text: budget "<text>" (~4 chars/token)."""
     if not args:
         return _err('usage: budget "<text>"')
     text = " ".join(args)
@@ -230,7 +240,7 @@ def cmd_budget(args: list, state: SessionState) -> int:
 # tools — list the four registry tools and their operations (offline)
 # --------------------------------------------------------------------------- #
 def cmd_tools(args: list, state: SessionState) -> int:
-    """tools — list tool names and their available operations."""
+    """List all registered tools, their descriptions, and available operations."""
     from laew.runtime import build_shared_tools
     from laew.agent.executor import AgentExecutor
     from laew.agent.base import Agent, AgentConfig, AgentRole
@@ -255,7 +265,11 @@ def cmd_tools(args: list, state: SessionState) -> int:
     for tool in tools:
         print(f"{tool.name}:")
         print(f"  description: {tool.description}")
-        print(f"  operations: {', '.join(executor._valid_operations_for(tool))}")
+        if hasattr(tool, "operations") and tool.operations:
+            ops = ", ".join(tool.operations.keys())
+            print(f"  operations: {ops}")
+        else:
+            print(f"  operations: {', '.join(executor._valid_operations_for(tool))}")
     return 0
 
 

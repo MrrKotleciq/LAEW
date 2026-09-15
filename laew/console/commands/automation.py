@@ -32,7 +32,21 @@ def _workflow_yamls() -> List[Path]:
 
 
 def cmd_workflow(args: list, state: SessionState) -> int:
-    """workflow discover | show <file> | run <file>."""
+    """
+    workflow discover | show <file> | run <file> — inspect and execute
+    workflow fixtures.
+
+    'discover' lists the YAML fixtures under tests/workflow/, 'show' prints a
+    definition (mode, steps, approval gates), and 'run' executes it on the
+    shared tool registry. In approval mode 'auto' tools are pre-approved so the
+    engine does not pause at P8 gates. Offline-safe except run steps that call
+    the model.
+
+    Examples:
+      workflow discover
+      workflow show test_simple_workflow.yaml
+      workflow run test_simple_workflow.yaml
+    """
     sub = args[0] if args else "discover"
 
     if sub == "discover":
@@ -111,7 +125,20 @@ def _multiagent_yamls() -> List[Path]:
 
 
 def cmd_multiagent(args: list, state: SessionState) -> int:
-    """multiagent discover | show <file> | run <file>."""
+    """
+    multiagent discover | show <file> | run <file> — inspect and execute
+    multi-agent plan fixtures.
+
+    'discover' lists the plan YAMLs under tests/multiagent/, 'show' prints a
+    plan (objective, subtasks, synthesis flag), and 'run' executes it through
+    the MultiAgentCoordinator (chief + specialists on shared tools) and reports
+    delegations and conflicts. Requires a live model.
+
+    Examples:
+      multiagent discover
+      multiagent show test_plan.yaml
+      multiagent run test_plan.yaml
+    """
     sub = args[0] if args else "discover"
 
     if sub == "discover":
@@ -250,7 +277,21 @@ def _eval_datasets() -> List[str]:
 
 
 def cmd_eval(args: list, state: SessionState) -> int:
-    """eval datasets | tasks [dataset] | task <id> | dataset <name>."""
+    """
+    eval datasets|tasks|task|dataset — inspect and run the evaluation harness.
+
+    'datasets' lists registered datasets, 'tasks [ds]' lists tasks (optionally
+    scoped to one dataset), 'task <id>' shows a task's prompt and expected
+    outcomes, and 'dataset <name>' runs the whole dataset through the
+    EvaluationRunner and prints the report summary. Only the run requires a
+    live model.
+
+    Examples:
+      eval datasets
+      eval tasks
+      eval task laew_manifest_validation
+      eval dataset laew_specific
+    """
     sub = args[0] if args else "datasets"
 
     if sub == "datasets":

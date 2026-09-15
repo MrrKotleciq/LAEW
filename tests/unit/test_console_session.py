@@ -110,6 +110,63 @@ def test_empty_line_is_ignored(session):
     assert session.emptyline() is None  # must not re-dispatch
 
 
+def test_help_lists_registered_commands(session, capsys):
+    """help without a topic lists every registered handler's one-liner."""
+    session.do_help("")
+    out = capsys.readouterr().out
+    assert "Documented commands:" in out
+    for name in ("check", "provider", "tool", "workflow"):
+        assert f"{name}" in out
+    assert "*** No help" not in out
+
+
+def test_help_topic_shows_handler_docstring(session, capsys):
+    """help <registered-command> prints its docstring, not '* No help'."""
+    session.do_help("check")
+    out = capsys.readouterr().out
+    assert "Validate the system manifest" in out
+    assert "*** No help" not in out
+
+
+def test_help_topic_shows_rich_multi_line_docstring(session, capsys):
+    """help <cmd> surfaces subcommands and examples from the full docstring."""
+    session.do_help("tool")
+    out = capsys.readouterr().out
+    assert "tool <name> <op> [k=v ...]" in out
+    assert "tool terminal run_command command=ls" in out  # example
+    assert "Approval gates" in out
+
+
+def test_help_topic_agent_shows_subcommands(session, capsys):
+    """help agent/rag/workflow expose the whole subcommand surface."""
+    session.do_help("agent")
+    assert "agent run" in capsys.readouterr().out
+    session.do_help("rag")
+    out = capsys.readouterr().out
+    assert "rag query" in out
+    assert "scope=project" in out
+
+
+def test_help_list_first_lines_stable(session, capsys):
+    """The help list keeps first-line one-liners (registry docstring split)."""
+    session.do_help("")
+    out = capsys.readouterr().out
+    # First line of cmd_tool's docstring is the one-liner.
+    assert "tool <name> <op> [k=v ...]" in out
+
+
+def test_help_builtin_topic(session, capsys):
+    """help for a built-in (exit) resolves through the builtin map."""
+    session.do_help("exit")
+    assert "Exit the console." in capsys.readouterr().out
+
+
+def test_help_unknown_topic(session, capsys):
+    """help <unknown> prints a readable unknown-command message."""
+    session.do_help("frobnicate")
+    assert "Unknown command: frobnicate" in capsys.readouterr().out
+
+
 def test_run_console_boots_and_exits(capsys):
     """run_console returns 0 when the session exits normally via queued input."""
     with patch("builtins.input", return_value="exit"):

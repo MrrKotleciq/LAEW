@@ -98,10 +98,10 @@ Inside the console, `help` lists all commands. Key groups:
 |-------|------------------|
 | System | `check`, `info`, `set timeout 600`, `set approval auto` |
 | Provider | `provider info`, `provider models`, `provider health`, `provider generate "hi"` |
-| Tools | `tool filesystem list_dir directory_path=@project`, `tool terminal run command=ls`, `tools` |
+| Tools | `tool filesystem list_dir directory_path=@project`, `tool terminal run_command command=ls`, `tools` |
 | Agent | `agent run "list files in docs/"`, `agent chat`, `trace on` |
 | RAG | `rag query "find docs" scope=project k=5`, `rag embed`, `rag stats` |
-| Workflow | `workflow discover`, `workflow show test_flow.yaml`, `workflow run test_flow.yaml` |
+| Workflow | `workflow discover`, `workflow show test_simple_workflow.yaml`, `workflow run test_simple_workflow.yaml` |
 | Multi-agent | `multiagent discover`, `multiagent show test_plan.yaml`, `multiagent run test_plan.yaml` |
 | Evaluation | `eval datasets`, `eval tasks laew_specific`, `eval task 001`, `eval dataset laew_specific` |
 | Prompts | `prompt list`, `prompt show code_review`, `budget "some text"` |

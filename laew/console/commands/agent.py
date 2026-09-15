@@ -64,7 +64,19 @@ def _print_trace(result, state: SessionState) -> None:
 
 
 def cmd_agent_run(args: list, state: SessionState) -> int:
-    """agent [run] "<prompt>" — run the agent loop and print the trace."""
+    """
+    agent run "<prompt>" — run the agent loop and print the trace.
+
+    Both forms work: ``agent "prompt"`` and ``agent run "prompt"``. Uses the
+    same composition as ``laew chat`` (shared provider registry + the four
+    security-gated tools). Requires a live model (Ollama by default).
+
+    Examples:
+      agent "list the files in docs/"
+      agent run "summarize the manifest"   then 'trace on' to see each step
+
+    See also: 'agent chat', 'trace on|off', 'set approval auto|ask|deny'.
+    """
     # Accept both `agent "prompt"` and the explicit `agent run "prompt"` form.
     prompt_args = args
     if args and args[0] == "run":
@@ -100,7 +112,17 @@ def cmd_agent_run(args: list, state: SessionState) -> int:
 
 
 def cmd_agent_chat(args: list, state: SessionState) -> int:
-    """agent chat — interactive conversation on the same agent wiring."""
+    """
+    agent chat — interactive conversation on the same agent wiring.
+
+    Runs a multi-turn loop on the same AgentExecutor the run form uses (shared
+    context history). Type 'exit' or 'quit' to end; 'trace on' during the chat
+    shows each thought/action/observation step.
+
+    Examples:
+      agent chat
+      trace on
+    """
     try:
         agent, model_name = _build_agent(state)
     except Exception as e:

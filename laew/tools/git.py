@@ -24,6 +24,38 @@ class GitTool(Tool):
     """
 
     description = "Inspect and manage a Git repository (status, diff, log, commit)"
+    operations = {
+        "git_status": {
+            "params": [],
+            "description": "Read staged, unstaged, untracked files",
+            "read_only": True,
+        },
+        "git_diff": {
+            "params": ["file_path", "staged", "revision"],
+            "description": "Diff working tree or commits",
+            "read_only": True,
+        },
+        "git_log": {
+            "params": ["max_count", "file_path"],
+            "description": "Inspect commit history",
+            "read_only": True,
+        },
+        "git_commit": {
+            "params": ["message", "files"],
+            "description": "Commit changes (requires approval)",
+            "read_only": False,
+        },
+        "git_checkout": {
+            "params": ["branch_name", "create_new"],
+            "description": "Switch branches or restore files (requires approval)",
+            "read_only": False,
+        },
+        "git_branch": {
+            "params": ["branch_name", "delete"],
+            "description": "Create branch (requires approval)",
+            "read_only": False,
+        },
+    }
 
     # Strictly forbidden Git commands
     FORBIDDEN_COMMANDS = {
