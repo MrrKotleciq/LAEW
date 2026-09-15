@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "laew"
+version = "0.1.0"
+description = "Local AI Engineering Workspace"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    { name = "LAEW Contributors" },
+]
+keywords = ["ai", "llm", "engineering", "workspace", "local-first"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "pyyaml>=6.0",
+    "requests>=2.31.0",
+    "numpy>=1.24.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "html2text>=2020.1.16",
+    "chromadb>=0.4.0",
+    "build>=1.0.0",
+]
+
+[project.scripts]
+laew = "laew.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["laew*"]
+
+[tool.bandit]
+# Static security analysis for the shipped package only, not tests.
+exclude_dirs = ["tests", "docs"]
+# B101: assert statements are used deliberately as runtime invariants.
+skips = ["B101"]

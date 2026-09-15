@@ -10,7 +10,14 @@ from unittest.mock import patch, MagicMock
 import pytest
 import yaml
 
-from laew.cli import main, cmd_check, cmd_tool, cmd_chat, _resolve_model_name
+from laew.cli import (
+    main,
+    cmd_check,
+    cmd_tool,
+    cmd_chat,
+    cmd_multiagent_run,
+    _resolve_model_name,
+)
 from laew.tools import ToolResult, ErrorCode
 from laew.manifest import ManifestError
 
@@ -389,12 +396,135 @@ class TestChatCommand:
         captured = capsys.readouterr()
         assert "Could not connect to a local LLM" in captured.out
 
+    # -- Provider registry wiring (Milestone 11) --------------------------- #
+
+    def test_chat_builds_provider_via_registry(self, chat_manifest, capsys):
+        """cmd_chat must use create_provider, not a raw OllamaProvider."""
+        run_result = MagicMock()
+        run_result.success = True
+        run_result.final_response = "ok"
+        run_result.error = None
+
+        with (
+            patch("laew.cli.create_provider") as mock_create,
+            patch("laew.cli.Agent"),
+            patch("laew.cli.AgentConfig"),
+            patch("laew.cli.AgentExecutor") as mock_executor,
+            patch("builtins.input", side_effect=["hello", "exit"]),
+        ):
+            mock_create.return_value = MagicMock()
+            mock_executor.return_value.run.return_value = run_result
+            exit_code = cmd_chat(chats_args(chat_manifest))
+
+        assert exit_code == 0
+        mock_create.assert_called_once()
+        _, kwargs = mock_create.call_args
+        # base_url arg is an override; provider type comes from manifest.
+        assert kwargs.get("base_url") is None
+        assert kwargs.get("timeout") is None
+
+    def test_chat_timeout_flag_honored(self, chat_manifest, capsys):
+        """An explicit --timeout argument reaches create_provider."""
+        run_result = MagicMock()
+        run_result.success = True
+        run_result.final_response = "ok"
+        run_result.error = None
+
+        args = chats_args(chat_manifest)
+        args.timeout = 900
+
+        with (
+            patch("laew.cli.create_provider") as mock_create,
+            patch("laew.cli.Agent"),
+            patch("laew.cli.AgentConfig"),
+            patch("laew.cli.AgentExecutor") as mock_executor,
+            patch("builtins.input", side_effect=["hello", "exit"]),
+        ):
+            mock_create.return_value = MagicMock()
+            mock_executor.return_value.run.return_value = run_result
+            exit_code = cmd_chat(args)
+
+        assert exit_code == 0
+        _, kwargs = mock_create.call_args
+        assert kwargs.get("timeout") == 900
+
+    def test_chat_provider_flag_honored(self, chat_manifest, capsys):
+        """An explicit --provider type filters the manifest provider list."""
+        run_result = MagicMock()
+        run_result.success = True
+        run_result.final_response = "ok"
+        run_result.error = None
+
+        args = chats_args(chat_manifest)
+        args.provider = "ollama"
+
+        with (
+            patch("laew.cli.create_provider") as mock_create,
+            patch("laew.cli.Agent"),
+            patch("laew.cli.AgentConfig"),
+            patch("laew.cli.AgentExecutor") as mock_executor,
+            patch("builtins.input", side_effect=["hello", "exit"]),
+        ):
+            mock_create.return_value = MagicMock()
+            mock_executor.return_value.run.return_value = run_result
+            exit_code = cmd_chat(args)
+
+        assert exit_code == 0
+        mock_create.assert_called_once()
+        cfg_arg, _ = mock_create.call_args
+        assert cfg_arg[0].get("type") == "ollama"
+
+    def test_multiagent_run_builds_provider_via_registry(self, chat_manifest, tmp_path):
+        """cmd_multiagent_run must use create_provider for the shared provider."""
+        plan_path = tmp_path / "plan.yaml"
+        plan_path.write_text(
+            "name: P\nobjective: O\nsynthesize: false\nsubtasks:\n"
+            "  - id: t1\n    role: RESEARCHER\n    prompt: T\n    deliverable: D\n",
+            encoding="utf-8",
+        )
+
+        result = MagicMock()
+        result.success = True
+        result.delegations = []
+        result.conflicts = []
+        result.error = None
+        result.final_response = "ok"
+
+        with (
+            patch("laew.cli.create_provider") as mock_create,
+            patch("laew.cli.MultiAgentCoordinator") as mock_coord,
+            patch("laew.cli.Agent"),
+            patch("laew.cli.AgentConfig"),
+        ):
+            mock_create.return_value = MagicMock()
+            mock_coord.return_value.run.return_value = result
+            exit_code = cmd_multiagent_run(multiagent_args(plan_path, chat_manifest))
+
+        assert exit_code == 0
+        mock_create.assert_called_once()
+        cfg_arg, _ = mock_create.call_args
+        assert cfg_arg[0].get("type") == "ollama"
+
 
 def chats_args(manifest_path):
     """Create argument-like object for cmd_chat."""
     return types.SimpleNamespace(
         model=None,
-        base_url="http://localhost:11434",
+        base_url=None,
+        timeout=None,
+        provider=None,
+        manifest=str(manifest_path),
+    )
+
+
+def multiagent_args(plan_path, manifest_path):
+    """Create argument-like object for cmd_multiagent_run."""
+    return types.SimpleNamespace(
+        plan=str(plan_path),
+        model=None,
+        base_url=None,
+        timeout=None,
+        provider=None,
         manifest=str(manifest_path),
     )
 

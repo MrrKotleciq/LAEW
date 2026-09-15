@@ -591,3 +591,133 @@ rag:
         match="terminal.allowlist",
     ):
         load_manifest(manifest_path)
+
+
+# --------------------------------------------------------------------------- #
+# Provider timeout + type validation (Milestone 11: Phase 1c)
+# --------------------------------------------------------------------------- #
+
+_VALID_MANIFEST_YAML = (
+    'version: "1.0"\n'
+    'system_name: "LAEW"\n'
+    'stage: "foundation"\n'
+    "workspace:\n"
+    '  root: "."\n'
+    "  allowed_paths: []\n"
+    "  restricted_paths: []\n"
+    "  ignored_patterns: []\n"
+    "models:\n"
+    "  roles:\n"
+    "    primary: {}\n"
+    "    embedding: {}\n"
+    "    reviewer: {}\n"
+    "tools:\n"
+    "  categories:\n"
+    "    filesystem:\n"
+    '      policy: "read_only_by_default"\n'
+    "    git:\n"
+    '      policy: "inspection_first"\n'
+    "    terminal:\n"
+    '      policy: "safe_command_allowlist"\n'
+    '      allowlist:\n'
+    '        - "ls"\n'
+    '        - "git status"\n'
+    '        - "git diff"\n'
+    "    web:\n"
+    '      policy: "read_only"\n'
+    "memory:\n"
+    "  session: {}\n"
+    "  second_brain: {}\n"
+    "rag:\n"
+    "  pipeline: {}\n"
+)
+
+
+def _manifest_with_agent(providers_yaml: str) -> str:
+    """Build a full manifest YAML with a custom agent.llm.providers block."""
+    return (
+        _VALID_MANIFEST_YAML
+        + "agent:\n  llm:\n    providers:\n"
+        + providers_yaml
+        + "    retry:\n"
+        "      max_attempts: 3\n"
+        "      backoff_base_ms: 1000\n"
+        "      max_backoff_ms: 5000\n"
+    )
+
+
+def test_provider_timeout_positive_int_accepted(tmp_path):
+    """A provider with a positive-integer timeout is accepted."""
+    manifest_path = tmp_path / "manifest.yaml"
+    providers = (
+        '      - name: "ollama"\n'
+        '        type: "ollama"\n'
+        "        timeout: 300\n"
+    )
+    manifest_path.write_text(_manifest_with_agent(providers), encoding="utf-8")
+    manifest = load_manifest(manifest_path)
+    provider = manifest["agent"]["llm"]["providers"][0]
+    assert provider["timeout"] == 300
+
+
+def test_provider_timeout_zero_rejected(tmp_path):
+    """A provider with timeout=0 is rejected (must be positive)."""
+    manifest_path = tmp_path / "manifest.yaml"
+    providers = (
+        '      - name: "ollama"\n'
+        '        type: "ollama"\n'
+        "        timeout: 0\n"
+    )
+    manifest_path.write_text(_manifest_with_agent(providers), encoding="utf-8")
+    with pytest.raises(ManifestError, match="timeout"):
+        load_manifest(manifest_path)
+
+
+def test_provider_timeout_negative_rejected(tmp_path):
+    """A provider with a negative timeout is rejected."""
+    manifest_path = tmp_path / "manifest.yaml"
+    providers = (
+        '      - name: "ollama"\n'
+        '        type: "ollama"\n'
+        "        timeout: -10\n"
+    )
+    manifest_path.write_text(_manifest_with_agent(providers), encoding="utf-8")
+    with pytest.raises(ManifestError, match="timeout"):
+        load_manifest(manifest_path)
+
+
+def test_provider_timeout_non_int_rejected(tmp_path):
+    """A provider with a non-integer timeout is rejected."""
+    manifest_path = tmp_path / "manifest.yaml"
+    providers = (
+        '      - name: "ollama"\n'
+        '        type: "ollama"\n'
+        '        timeout: "long"\n'
+    )
+    manifest_path.write_text(_manifest_with_agent(providers), encoding="utf-8")
+    with pytest.raises(ManifestError, match="timeout"):
+        load_manifest(manifest_path)
+
+
+def test_provider_missing_type_rejected(tmp_path):
+    """A provider entry without a 'type' field is rejected."""
+    manifest_path = tmp_path / "manifest.yaml"
+    providers = (
+        '      - name: "unnamed"\n'
+        '        model: "llama3.1"\n'
+    )
+    manifest_path.write_text(_manifest_with_agent(providers), encoding="utf-8")
+    with pytest.raises(ManifestError, match="type"):
+        load_manifest(manifest_path)
+
+
+def test_provider_type_must_be_nonempty(tmp_path):
+    """A provider entry with an empty 'type' is rejected."""
+    manifest_path = tmp_path / "manifest.yaml"
+    providers = (
+        '      - name: "empty"\n'
+        '        type: ""\n'
+    )
+    manifest_path.write_text(_manifest_with_agent(providers), encoding="utf-8")
+    with pytest.raises(ManifestError, match="type"):
+        load_manifest(manifest_path)

@@ -3,7 +3,7 @@
 ## Status
 
 Architecture: LAEW v1.0 documented
-Implementation: Milestone 10 (Multi-Agent Architecture) completed
+Implementation: Milestone 11 (Production Hardening) completed
 
 ## Currently present in repository
 
@@ -17,10 +17,13 @@ Implementation: Milestone 10 (Multi-Agent Architecture) completed
 - package-lock.json
 - .gitignore
 - laew/ (Python package with tool runtime wrappers, CLI, LLM provider, prompt management, agent loop)
+- laew/llm/registry.py (Provider registry and factory dispatching on manifest provider `type`)
+- laew/logging_config.py (App-level stdlib logging: console + optional rotating file handler)
 - laew/multiagent/ (Multi-agent architecture: message types, shared context, specialist roles, plan schema, chief coordinator)
 - laew/eval/ (Evaluation harness with metrics, tasks, runner, and benchmark datasets)
 - laew/workflow/ (Workflow runtime with definitions, execution engine, approval gates, and rollback)
-- setup.py (Package installation configuration)
+- pyproject.toml (PEP 621 packaging metadata, console script, bandit config)
+- setup.py (Package installation compatibility shim for pyproject.toml)
 
 ## Milestone 1 Implementation (Completed)
 
@@ -64,6 +67,19 @@ Implementation: Milestone 10 (Multi-Agent Architecture) completed
 - tests/unit/test_documentation_validation.py: Tests ensuring README, PROJECT_STATUS, and manifest accurately reflect repository state.
 - .github/workflows/ci.yml: CI baseline running the full test suite on push and pull request.
 
+## Milestone 11 Implementation (Completed)
+
+- laew/llm/registry.py: provider registry + factory dispatching on manifest `agent.llm.providers[].type` (only `ollama` registered); unknown types raise `LLMError(code="UNSUPPORTED_PROVIDER")`; config precedence CLI flag > env var (`LAEW_BASE_URL`, `LAEW_TIMEOUT`) > manifest > provider default.
+- laew/llm/ollama.py: `OllamaProvider` now accepts a `timeout` parameter (was hardcoded to 120s — the root cause of CPU-model E2E timeouts).
+- laew/cli.py: `chat` and `multiagent run` build providers via `create_provider()`; new `--provider` and `--timeout` flags; `configure_logging()` invoked at `main()`.
+- manifests/SYSTEM_MANIFEST.yaml: provider entries accept optional `timeout`; manifest validation rejects non-positive `timeout` and empty provider `type`.
+- pyproject.toml: PEP 621 packaging (name `laew`, version 0.1.0, console script `laew = laew.cli:main`), dev extras (pytest, html2text, chromadb, build), `[tool.bandit]` SAST config.
+- setup.py: reduced to compatibility shim reading metadata from pyproject.toml.
+- laew/logging_config.py: idempotent `configure_logging()` — console StreamHandler to stderr + optional `RotatingFileHandler` (1 MiB, 3 backups); leaves `laew.tools` logger untouched.
+- docs/INSTALL.md: full install guide (Windows/Unix venv, pip install, Ollama setup, env-var table).
+- docs/security/SECURITY_REVIEW.md: bandit audit record — 0 High/Medium findings.
+- .github/workflows/ci.yml: adds bandit SAST gate (`bandit -r laew -lll`), sdist+wheel build, and fresh-venv wheel-install verification.
+
 ## Milestone 6 Implementation (Completed)
 
 - docker-compose.yml: ChromaDB service (`chromadb/chroma`) with a named volume for persistent storage, exposed on port 8000.
@@ -74,9 +90,9 @@ Implementation: Milestone 10 (Multi-Agent Architecture) completed
 - tests/unit/test_rag.py: Tests for `ChromaVectorStore` (skipped when chromadb absent) and manifest-config store selection with graceful fallback.
 
 Audit remediation: all Critical (C1-C4), High (H1-H5), and Medium/Low (M1-M11, L1-L10) findings fixed with regression tests.
-Full test suite: 407 passed, 1 skipped.
+Full test suite: 455 passed, 1 skipped.
 
-Total: 321 unit tests collected across 15 test suites (in tests/unit); 408 total tests collected.
+Total: 369 unit tests collected across 19 test suites (in tests/unit); 456 total tests collected.
 
 ## Important distinction
 
@@ -87,6 +103,4 @@ The current repository represents the declarative foundation, tool runtime layer
 
 ## Current Focus
 
-Having completed Milestones 1-10 (including the Multi-Agent Architecture) and remediated all Critical/High findings from the full technical audit, the project is ready to begin Milestone 11 (Production Hardening) per
-`docs/ROADMAP.md`. The evaluation harness provides systematic testing of agent and RAG quality,
-enabling regression detection for future development.
+Milestones 1–11 (including Production Hardening) are complete. LAEW is pip-installable (`pip install .` or `pip install laew`), has documented configuration (`LAEW_BASE_URL`, `LAEW_TIMEOUT`, `--provider`, `--timeout`), app-level logging, and a bandit SAST gate in CI. The roadmap (`docs/ROADMAP.md`) sequences Milestones 12–20; the agreed next objective is **Milestone 12: Session Memory & Conversation Persistence** (durable, resumable agent sessions per ADR-012).

@@ -19,7 +19,9 @@ from laew.workflow.engine import WorkflowEngine
 from laew.security.path_resolver import PathResolver
 from laew.agent.base import Agent, AgentConfig, AgentRole
 from laew.agent.executor import AgentExecutor
-from laew.llm.ollama import OllamaProvider
+from laew.llm.base import LLMProvider
+from laew.llm.registry import create_provider
+from laew.logging_config import configure_logging
 from laew.multiagent import (
     MultiAgentCoordinator,
     SpecialistRole,
@@ -39,6 +41,39 @@ def _terminal_allowlist_from_manifest(manifest: dict) -> Optional[list]:
     categories = manifest.get("tools", {}).get("categories", {})
     allowlist = categories.get("terminal", {}).get("allowlist")
     return list(allowlist) if allowlist else None
+
+
+def _provider_cfg_from_manifest(manifest: dict, provider_type: Optional[str] = None) -> dict:
+    """
+    Extract provider configuration from manifest for provider factory.
+
+    Args:
+        manifest: Loaded manifest dictionary
+        provider_type: If specified, filter providers by this type; otherwise use first provider
+
+    Returns:
+        Provider configuration dictionary, or {"type": "ollama"} if no providers found
+    """
+    providers_cfg = (
+        manifest.get("agent", {})
+        .get("llm", {})
+        .get("providers", [])
+    )
+
+    if not providers_cfg:
+        return {"type": "ollama"}
+
+    if provider_type is None:
+        # Use first provider if no specific type requested
+        return providers_cfg[0]
+
+    # Find provider matching the requested type
+    for provider in providers_cfg:
+        if provider.get("type") == provider_type:
+            return provider
+
+    # If not found, fall back to first provider (will raise appropriate error in factory)
+    return providers_cfg[0] if providers_cfg else {"type": "ollama"}
 
 
 def cmd_check(args) -> int:
@@ -312,7 +347,11 @@ def cmd_multiagent_run(args) -> int:
         manifest_model = providers_cfg[0].get("model")
 
     terminal_allowlist = _terminal_allowlist_from_manifest(manifest)
-    provider = OllamaProvider(base_url=args.base_url)
+    provider = create_provider(
+        _provider_cfg_from_manifest(manifest, args.provider),
+        base_url=args.base_url,
+        timeout=args.timeout,
+    )
     model_name = _resolve_model_name(args.model, manifest_model, provider)
 
     # One shared tool set for every agent (chief + specialists), honouring the
@@ -392,7 +431,7 @@ def cmd_multiagent_run(args) -> int:
 def _resolve_model_name(
     cli_model: Optional[str],
     manifest_model: Optional[str],
-    provider: OllamaProvider,
+    provider: LLMProvider,
 ) -> str:
     """
     Resolve the model to use for a chat session.
@@ -455,7 +494,11 @@ def cmd_chat(args) -> int:
     if providers_cfg:
         manifest_model = providers_cfg[0].get("model")
 
-    provider = OllamaProvider(base_url=args.base_url)
+    provider = create_provider(
+        _provider_cfg_from_manifest(manifest, args.provider),
+        base_url=args.base_url,
+        timeout=args.timeout,
+    )
     model_name = _resolve_model_name(args.model, manifest_model, provider)
 
     config = AgentConfig(name="laew-cli", model=model_name)
@@ -501,6 +544,7 @@ def cmd_chat(args) -> int:
 
 def main() -> int:
     """Main CLI entry point."""
+    configure_logging()  # app-level logger (console stderr), Phase 3
     parser = argparse.ArgumentParser(
         prog="laew",
         description="Local AI Engineering Workspace CLI",
@@ -563,8 +607,17 @@ def main() -> int:
     )
     ma_run_parser.add_argument(
         "--base-url",
-        default="http://localhost:11434",
-        help="Ollama API base URL (default: http://localhost:11434)",
+        default=None,
+        help="Ollama API base URL (default: None, uses manifest)",
+    )
+    ma_run_parser.add_argument(
+        "--provider",
+        help="LLM provider type (e.g., ollama, openai)",
+    )
+    ma_run_parser.add_argument(
+        "--timeout",
+        type=int,
+        help="Request timeout in seconds",
     )
     ma_run_parser.add_argument(
         "--manifest",
@@ -584,8 +637,17 @@ def main() -> int:
     )
     chat_parser.add_argument(
         "--base-url",
-        default="http://localhost:11434",
-        help="Ollama API base URL (default: http://localhost:11434)",
+        default=None,
+        help="Ollama API base URL (default: None, uses manifest)",
+    )
+    chat_parser.add_argument(
+        "--provider",
+        help="LLM provider type (e.g., ollama, openai)",
+    )
+    chat_parser.add_argument(
+        "--timeout",
+        type=int,
+        help="Request timeout in seconds",
     )
     chat_parser.add_argument(
         "--manifest",

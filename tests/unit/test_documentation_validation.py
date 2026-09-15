@@ -33,6 +33,11 @@ def _count_unit_tests() -> int:
     return int(match.group(1)) if match else 0
 
 
+def _count_test_suite_files() -> int:
+    """Count test_*.py files under tests/unit/ to stay in sync with PROJECT_STATUS."""
+    return len(list(Path("tests/unit").glob("test_*.py")))
+
+
 class TestReadmeStructure:
     """Test that README.md accurately describes repository structure."""
 
@@ -113,13 +118,15 @@ class TestProjectStatusAccuracy:
             "PROJECT_STATUS should not reference the outdated 287-test count"
 
     def test_project_status_mentions_correct_test_suites(self):
-        """PROJECT_STATUS should mention current test suite count (15)."""
+        """PROJECT_STATUS should mention current test suite count."""
         status_path = Path("docs/PROJECT_STATUS.md")
         content = status_path.read_text(encoding="utf-8")
 
-        # Should mention 15 test suites (current count)
-        assert "15 test suites" in content or "15 test files" in content, \
-            "PROJECT_STATUS should mention 15 test suites/files"
+        expected = _count_test_suite_files()
+        assert expected > 0, "should be able to count test suite files"
+        expected_phrase = f"{expected} test suites"
+        assert expected_phrase in content, \
+            f"PROJECT_STATUS should mention '{expected_phrase}'"
 
     def test_project_status_shows_correct_current_focus(self):
         """PROJECT_STATUS should show current focus is Milestone 5, not planning M4."""

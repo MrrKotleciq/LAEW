@@ -47,7 +47,7 @@ LAEW/
 ├── prompts/        # Version-controlled prompts
 ├── tests/          # Unit and specification tests
 ├── tools/          # Tool contracts
-├── setup.py        # Package installation configuration
+├── pyproject.toml  # Package build configuration (PEP 621)
 └── README.md
 ```
 
@@ -61,9 +61,51 @@ Read and analysis operations are separated from execution.
 Security restrictions must be enforced below the model layer.
 Every major component should be testable independently.
 ```
+## Installation
+
+LAEW requires **Python 3.10+** and (for chat/multi-agent features) a running local
+LLM — the built-in provider is **Ollama** ([ollama.com](https://ollama.com)).
+
+Install into an isolated virtual environment:
+
+### Windows
+
+```powershell
+py -3 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install laew
+```
+
+### Unix (macOS / Linux / WSL)
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install laew
+```
+
+From a source checkout: `pip install -e .[dev]` (editable install + test/build
+toolchain). Verify the install with `laew --version` and `laew --help`. For a
+full walkthrough including Ollama setup, troubleshooting, and the manifest
+configuration schema, see `docs/INSTALL.md`.
+
+## Configuration
+
+Provider configuration lives under `agent.llm.providers` in the system manifest
+(`manifests/SYSTEM_MANIFEST.yaml`) and can be overridden by environment variables
+and CLI flags:
+
+- Environment: `LAEW_TIMEOUT` (request timeout in seconds), `LAEW_BASE_URL` (LLM
+  API base URL).
+- CLI: `laew chat --provider ollama --timeout 600 --model llama3.1`.
+
+Precedence is **CLI flag > environment variable > manifest > provider default**.
+The provider selection is dispatch by manifest `provider.type` through the
+provider registry (`laew/llm/registry.py`).
+
 ## Project Status
 
-Current stage: Milestone 6 Complete (Foundation + Agent Runtime + RAG + Persistent Knowledge Store)
+Current stage: Milestone 11 (Production Hardening)
 
 The repository implements:
 - Declarative foundation with system manifest and tool contracts
@@ -71,6 +113,8 @@ The repository implements:
 - CLI, LLM provider abstraction, context budgeting, and agent orchestration
 - RAG system with embeddings, vector store, knowledge base, and retrieval pipeline
 - Persistent knowledge store backed by ChromaDB in Docker (falls back to in-memory store when unavailable)
-- 266 unit tests across 14 test suites
+- Provider registry + factory with timeout/base_url configuration (Milestone 11)
+- PEP 621 packaging via `pyproject.toml` with install guides (Milestone 11)
+- 369 unit tests across 19 test suites
 
 See `docs/ROADMAP.md` for the development roadmap and future milestones.

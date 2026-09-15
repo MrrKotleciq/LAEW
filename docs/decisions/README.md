@@ -27,6 +27,7 @@ Each significant architectural decision is recorded in its own dedicated documen
 | [ADR-016](ADR-016-structured-tool-invocation-logging.md) | Structured Tool Invocation Logging | `Accepted` | 2026-09-03 |
 | [ADR-017](ADR-017-single-agent-stability-before-multi-agent.md) | Single-Agent Stability Before Multi-Agent | `Accepted` | 2026-09-03 |
 | [ADR-018](ADR-018-multi-agent-communication-protocol.md) | Multi-Agent Communication Protocol | `Accepted` | 2026-09-14 |
+| [ADR-019](ADR-019-provider-registry-and-factory.md) | Provider Registry and Factory | `Accepted` | 2026-09-15 |
 
 ---
 

@@ -251,3 +251,27 @@ def validate_manifest(manifest: dict[str, Any]) -> None:
             raise ManifestError("Manifest key 'agent.llm.providers' must be a list.")
         if "retry" not in agent["llm"] or not isinstance(agent["llm"]["retry"], dict):
             raise ManifestError("Manifest key 'agent.llm.retry' must be a YAML mapping.")
+
+        providers = agent["llm"]["providers"]
+        for idx, provider in enumerate(providers):
+            if not isinstance(provider, dict):
+                raise ManifestError(
+                    f"Manifest key 'agent.llm.providers[{idx}]' must be a YAML mapping."
+                )
+
+            ptype = provider.get("type")
+            if not isinstance(ptype, str) or not ptype.strip():
+                raise ManifestError(
+                    f"Manifest key 'agent.llm.providers[{idx}].type' is required and must be a non-empty string."
+                )
+
+            timeout = provider.get("timeout")
+            if timeout is not None:
+                if not isinstance(timeout, int) or isinstance(timeout, bool):
+                    raise ManifestError(
+                        f"Manifest key 'agent.llm.providers[{idx}].timeout' must be a positive integer."
+                    )
+                if timeout <= 0:
+                    raise ManifestError(
+                        f"Manifest key 'agent.llm.providers[{idx}].timeout' must be a positive integer."
+                    )

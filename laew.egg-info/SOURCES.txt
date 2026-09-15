@@ -1,7 +1,9 @@
 README.md
+pyproject.toml
 setup.py
 laew/__init__.py
 laew/cli.py
+laew/logging_config.py
 laew/manifest.py
 laew.egg-info/PKG-INFO
 laew.egg-info/SOURCES.txt
@@ -19,6 +21,7 @@ laew/eval/tasks.py
 laew/llm/__init__.py
 laew/llm/base.py
 laew/llm/ollama.py
+laew/llm/registry.py
 laew/multiagent/__init__.py
 laew/multiagent/context.py
 laew/multiagent/coordinator.py

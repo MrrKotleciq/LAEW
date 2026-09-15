@@ -24,15 +24,16 @@ class OllamaProvider(LLMProvider):
     Ollama API documentation: https://github.com/ollama/ollama/blob/main/docs/api.md
     """
 
-    def __init__(self, base_url: str = "http://localhost:11434"):
+    def __init__(self, base_url: str = "http://localhost:11434", timeout: int = 120):
         """
         Initialize Ollama provider.
 
         Args:
             base_url: Ollama API base URL
+            timeout: HTTP request timeout in seconds
         """
         self.base_url = base_url.rstrip("/")
-        self._timeout = 120  # seconds
+        self._timeout = timeout  # seconds
 
     def generate(
         self,
