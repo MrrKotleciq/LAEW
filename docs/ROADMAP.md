@@ -2,9 +2,9 @@
 
 ## Current State
 
-- **Stage:** Milestones 1–12 complete (declarative foundation → interactive testing console).
-- **Implemented:** tools with programmatic security, LLM provider + registry (ADR-019), RAG (in-memory + optional ChromaDB), single-agent loop, workflow runtime, evaluation harness, multi-agent orchestration (ADR-018), PEP 621 packaging, app logging, bandit CI gate, interactive testing console (`laew console`).
-- **Test health:** 558 collected / 557 passed / 1 skipped (471 unit tests across 26 suites).
+- **Stage:** Milestones 1–14 complete (declarative foundation → performance & context-efficiency audit).
+- **Implemented:** tools with programmatic security, LLM provider + registry (ADR-019), RAG (in-memory + optional ChromaDB), single-agent loop, workflow runtime, evaluation harness, multi-agent orchestration (ADR-018), PEP 621 packaging, app logging, bandit CI gate, interactive testing console (`laew console`), session memory & conversation persistence (ADR-012), offline benchmark baselines + calibrated token estimation + real token accounting with budget enforcement + streaming chat.
+- **Test health:** 586 unit tests collected across 28 suites (including session store + session command suites).
 - **Milestone history** lives in `docs/history/CHANGELOG.md`; architecture decisions in `docs/decisions/`.
 
 ## Roadmap Principles
@@ -16,8 +16,6 @@
 - Scale by composition — add components, not one giant system (P10).
 - Every milestone ships with tests; do not weaken tests to pass.
 
----
-
 ## Near-Term (next)
 
 ### Milestone 12: Interactive Testing Console
@@ -27,19 +25,13 @@
 **Tests:** ~50-60 unit tests across 7 test files covering session parsing, each command handler, approval gates, provider stubs, and CLI subcommand registration. Manual offline and online verification.
 **Definition of Done:** `laew console` boots, all commands work offline (except provider/agent/RAG-embed which need a live model and show [!] when unreachable), approval gates can be toggled and tested, config precedence is demonstrable, and the full test suite (existing + new) is green.
 
-### Milestone 13: Session Memory & Conversation Persistence
+### Milestone 13: Session Memory & Conversation Persistence — ✅ Completed
 **Goal:** Make agent sessions durable and restorable instead of ephemeral.
-**Scope:** Persist `memory.session` (manifest: `runtime/sessions`) — save/restore agent conversation history across `laew chat` restarts; session metadata and lifecycle; align with ADR-012 (current state from filesystem, not model memory).
-**Dependencies:** None (foundation stable).
-**Tests:** Persistence round-trips, multi-session isolation, restore-without-LM, session cleanup.
-**Definition of Done:** A chat session survives a process restart and can be resumed with `laew chat --resume <id>`; sessions are isolated and restorable via manifest path.
+**Result:** `laew console` gains `session save|load|list|show|delete` with `SessionStore` (atomic, hardened JSON under `runtime/sessions`); `laew chat` gains `--resume/--session/--no-persist`; conversation memory persisted per ADR-012 and re-verified from the filesystem on load. 67 new tests (session_store: 45, session commands: 18, CLI resume/chat: 4).
 
-### Milestone 14: Performance & Context-Efficiency Audit
+### Milestone 14: Performance & Context-Efficiency Audit — ✅ Completed
 **Goal:** Optimize the runtime on a verified baseline (ADR-014 level 8).
-**Scope:** Profile agent executor, RAG retrieval, and workflow dispatch; validate/improve the token estimator (~4 chars/token) for real budget accuracy; reduce prompt re-loads and redundant tool round-trips; add streaming for chat generation if feasible.
-**Dependencies:** Milestone 13 (stable sessions).
-**Tests:** Benchmark fixtures with tolerances; token-estimator accuracy against real model tokenizers; latency regression tests on RAG + agent paths.
-**Definition of Done:** Measured, documented latency improvements on standard fixtures; context budgets stay under the configured totals (P6).
+**Result:** Four streams shipped. (A) `tests/benchmarks/` — offline pytest-benchmark fixtures for the agent executor, RAG retrieval, and workflow dispatch; baselines recorded in docs/performance/BASELINE.md; profiling surfaced and fixed a real O(k²) regression in `AgentExecutor._trim_to_budget` (rewritten as a single O(n) pass). (B) `TokenEstimator` override + `TokenCalibrator` + `calibrate_with_ollama()` via `/api/tokenize` (offline-skipped). (C) static system prompt memoized per executor, `ExecutionResult` token accounting from real provider counts, manifest-driven `ContextBudget` enforcement that trims oldest history turns under budget pressure. (D) streaming chat (`generate_stream`, NDJSON parse, terminal token counts) with `laew chat` streaming by default (`--no-stream` to escape). 586 unit tests + 7 benchmark hooks green.
 
 ### Milestone 15: Multi-Model Routing & Provider Fallback
 **Goal:** Route model roles across multiple providers and fall back on failure — the step right before multi-agent scaling.

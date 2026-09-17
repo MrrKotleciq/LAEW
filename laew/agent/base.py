@@ -52,6 +52,7 @@ class AgentConfig:
     max_tokens: Optional[int] = None
     max_iterations: int = 10
     context_budget: ContextBudget = field(default_factory=ContextBudget)
+    token_ratio: Optional[float] = None
     system_prompt: Optional[LayeredPrompt | str] = None
     retry: RetryConfig = field(default_factory=RetryConfig)
     history_path: Optional[str] = None

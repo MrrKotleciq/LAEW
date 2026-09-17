@@ -3,7 +3,7 @@
 ## Status
 
 Architecture: LAEW v1.0 documented
-Implementation: Milestone 12 (Interactive Testing Console) completed
+Implementation: Milestone 14 (Performance & Context-Efficiency Audit) completed
 
 ## Currently present in repository
 
@@ -92,6 +92,27 @@ Implementation: Milestone 12 (Interactive Testing Console) completed
 - Offline-first: manifest/tool/workflow/multiagent-parse/eval/prompt/budget commands work with Ollama down; provider, agent, and RAG-embed show `[!]` when unreachable.
 - Tests: ~85 new unit tests across test_runtime.py + 7 console suites + CLI wiring (test_console_agent_cmds, test_console_automation_cmds, test_console_core_cmds, test_console_rag_cmds, test_console_session, test_console_tool_cmds).
 
+## Milestone 13 Implementation (Completed)
+
+- laew/console/session_store.py (new): Durable session persistence layer — `SessionStore` CRUD (save/load/list/delete/exists), path-traversal-safe name validation, atomic writes (tempfile + `os.replace`), best-effort file/directory permission hardening, `SessionRecord` metadata, `make_chat_payload` and `validate_conversation` helpers, `session_store_from_manifest` storage resolver.
+- laew/console/state.py (extended): `SessionState.to_payload()` / `from_payload()` / `restore()` / `conversation_to_messages()` for serializing and resuming console session memory (overrides, approval, trace, history, conversation turns) without persisting project state (ADR-012).
+- laew/console/commands/sessions.py (new): `session save|load|list|show|delete` command handlers; `_resolve_store` for manifest-to-store resolution with offline fallback; ADR-012 manifest re-verification on load.
+- laew/console/commands/agent.py (extended): `_build_agent` seeds `agent.history` from `state.conversation_to_messages()`; `_record_exchange` persists user/assistant final responses to `state.conversation` after each successful run or chat turn.
+- laew/cli.py (extended): `--resume`, `--session`, `--no-persist` flags for `laew chat`; seeds agent history from resumed conversation; persists exchanges after each turn via `make_chat_payload` + `SessionStore.save`.
+- Payload schema: `laew.session.state` version 1 with `schema`, `version`, `kind` ("console"|"chat"), `manifest_path`, `overrides`, `approval`, `trace`, `history`, `conversation` fields; `created_at`/`updated_at` lifecycle timestamps (microsecond precision, ISO-8601 UTC).
+- Security: session names validated via `^[A-Za-z0-9][A-Za-z0-9._-]*$`; all writes go through tempfile + `os.replace` for crash safety; file permissions set to `0o600` / `0o700` best-effort.
+- Tests: test_session_store.py (45 tests: name validation, CRUD, atomic writes, corrupt handling, permissions, isolation, payload validation, timestamps, SessionRecord), test_console_session_cmds.py (18 tests: dispatcher, save/load/list/show/delete handlers, ADR-012 manifest re-verification), CLI resume/session/no-persist tests in test_cli.py (4 tests).
+
+## Milestone 14 Implementation (Completed)
+
+- Stream A — Benchmark fixtures + profiling: `pytest-benchmark>=4.0.0` added to dev extras; `tests/benchmarks/` (new, offline — no network, no models) with three suites: `test_profile_agent_executor.py` (full `AgentExecutor.run()` over a scripted stub provider, plus the cached system-prompt path), `test_profile_rag_retrieval.py` (in-memory cosine retrieval, ten-search batch, index build), `test_profile_workflow_dispatch.py` (sequential no-op plans). Numbers recorded in docs/performance/BASELINE.md (informational tolerances — record, not gate).
+- Performance bug found & fixed: `AgentExecutor._trim_to_budget` was O(k²) — it re-joined/estimate-scanned the whole message list after every dropped turn. Rewritten as a single O(n) char-length pass (executor.py: `_message_char_count`/`_estimate_chars` helpers + linear trimming). Verified with a 5000-call growth script: worst single call 61.6 ms at 10 010 turns, no quadratic blow-up.
+- Agent benchmark restructured: each measured round runs a fresh executor via `benchmark.pedantic(..., setup=...)` (setup runs per round, outside the timing window). An earlier draft reused one executor across rounds, compounding history and hanging the suite; agent full-run now isolates at ~133 µs mean, cache-hit at ~22 µs/run.
+- Stream B — Token-estimator accuracy: `TokenEstimator.estimate(text, chars_per_token=None)` keeps the 4.0 default with a data-driven override; new `TokenCalibrator` records (estimated, actual) pairs and fits the best chars-per-token; `calibrate_with_ollama()` in ollama.py hits the `/api/tokenize` endpoint over a fixed probe corpus (offline-skipped when Ollama is unreachable).
+- Stream C — Prompt/context caching + token accounting + budget enforcement: system prompt (static text + tool descriptions + instruction block) extracted into `_build_system_prompt()`, memoized once per executor so `inspect.signature()`-based operation hints run only on first call; `ExecutionResult` extended with `prompt_tokens`/`completion_tokens`/`total_tokens` accumulated from real provider counts after each `generate()`; `ContextBudget` loaded from the manifest into the executor, with estimated-token budget trimming of oldest conversation turns (never the system prompt or live user turn) plus a WARNING log; `AgentConfig` carries an optional `context_budget`. Console `agent run`/`chat` and CLI `chat` surfaces print prompt/completion tokens alongside elapsed time.
+- Stream D — Streaming chat: abstract `generate_stream()` on `LLMProvider`; `OllamaProvider.generate_stream()` posts `/api/chat` with `stream: True`, yields content chunks per NDJSON frame, and assembles a terminal `LLMResponse` (prompt/eval counts + done reason) from the final `done` frame; mid-stream failures map to `LLMError(code="STREAM_ERROR")`. `laew chat` streams by default with a `--no-stream` escape; console `agent chat` streams too. Streaming path feeds the same token accounting as `generate()`.
+- Tests: +24 unit tests across test_context_budget.py, test_agent_executor.py, test_agent.py, test_ollama.py, test_llm.py, test_prompts.py (calibration convergence, budget trimming, cached-prompt non-rebuild, token accumulation, streaming NDJSON parse + mid-stream error), plus 7 offline benchmark hooks in tests/benchmarks/.
+
 ## Milestone 6 Implementation (Completed)
 
 - docker-compose.yml: ChromaDB service (`chromadb/chroma`) with a named volume for persistent storage, exposed on port 8000.
@@ -102,9 +123,8 @@ Implementation: Milestone 12 (Interactive Testing Console) completed
 - tests/unit/test_rag.py: Tests for `ChromaVectorStore` (skipped when chromadb absent) and manifest-config store selection with graceful fallback.
 
 Audit remediation: all Critical (C1-C4), High (H1-H5), and Medium/Low (M1-M11, L1-L10) findings fixed with regression tests.
-Full test suite: 565 passed, 0 skipped.
 
-Total: 485 unit tests collected across 26 test suites (in tests/unit); 572 total tests collected.
+Total: 586 unit tests collected across 28 test suites (in tests/unit).
 
 ## Important distinction
 
@@ -115,4 +135,4 @@ The current repository represents the declarative foundation, tool runtime layer
 
 ## Current Focus
 
-Milestones 1–12 (through the Interactive Testing Console) are complete. LAEW is pip-installable (`pip install .` or `pip install laew`), has documented configuration (`LAEW_BASE_URL`, `LAEW_TIMEOUT`, `--provider`, `--timeout`), app-level logging, a bandit SAST gate in CI, and an interactive `laew console` REPL for exploratory testing of every implemented surface. The roadmap (`docs/ROADMAP.md`) sequences Milestones 13–21; the agreed next objective is **Milestone 13: Session Memory & Conversation Persistence** (durable, resumable agent sessions per ADR-012).
+Milestones 1–14 are complete through the Performance & Context-Efficiency Audit. LAEW is pip-installable (`pip install .` or `pip install laew`), has documented configuration (`LAEW_BASE_URL`, `LAEW_TIMEOUT`, `--provider`, `--timeout`), app-level logging, a bandit SAST gate in CI, an interactive `laew console` REPL, durable session persistence (`session save|load|list|show|delete`), offline benchmark baselines (docs/performance/BASELINE.md, `pytest tests/benchmarks`), calibrated token estimation, real prompt/completion token accounting with context-budget enforcement, and streaming chat (`laew chat` defaults to streaming; `--no-stream` escapes). The roadmap (`docs/ROADMAP.md`) sequences Milestones 15–21; the agreed next objective is **Milestone 15** (documented in ROADMAP.md).

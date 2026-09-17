@@ -15,7 +15,7 @@ from laew.prompts import (
     PromptTemplateRegistry,
     TokenEstimator,
 )
-from laew.prompts.context_budget import TokenEstimator
+from laew.prompts.context_budget import TokenEstimator, TokenCalibrator, CalibrationSample
 
 
 class TestContextBudget:
@@ -149,6 +149,59 @@ class TestTokenEstimator:
         sections = ["Section one", "Section two", "Section three"]
         # "Section one\n\nSection two\n\nSection three" = 37 chars -> ~9 tokens (37 // 4 = 9)
         assert TokenEstimator.estimate_prompt_sections(sections) == 9
+
+    def test_estimate_chars_per_token_override(self):
+        """TokenEstimator.estimate honours an explicit chars_per_token."""
+        # 100 chars at 2 chars/token = 50 tokens
+        assert TokenEstimator.estimate("x" * 100, chars_per_token=2.0) == 50
+        # 100 chars at 8 chars/token = 12 tokens (floor)
+        assert TokenEstimator.estimate("x" * 100, chars_per_token=8.0) == 12
+
+    def test_estimate_messages_chars_per_token(self):
+        """TokenEstimator.estimate_messages honours chars_per_token."""
+        messages = [{"role": "user", "content": "Hello"}]
+        assert TokenEstimator.estimate_messages(messages, chars_per_token=1.0) == 5
+
+
+class TestTokenCalibrator:
+    """Tests for TokenCalibrator (Stream B)."""
+
+    def test_record_and_best_ratio(self):
+        """Record samples and recover the planted chars/token ratio."""
+        cal = TokenCalibrator()
+        # Plant a 4.0 chars/token ratio: 40 chars -> 10 tokens, etc.
+        cal.record(40, 10)
+        cal.record(80, 20)
+        cal.record(120, 30)
+        assert cal.sample_count == 3
+        assert abs(cal.best_chars_per_token() - 4.0) < 1e-9
+
+    def test_best_clamps_min_one(self):
+        """best_chars_per_token() never returns below 1.0."""
+        cal = TokenCalibrator()
+        cal.record(10, 20)  # 0.5 ratio -> clamped to 1.0
+        assert cal.best_chars_per_token() == 1.0
+
+    def test_best_raises_on_no_samples(self):
+        """best_chars_per_token() raises when nothing was recorded."""
+        cal = TokenCalibrator()
+        with pytest.raises(RuntimeError):
+            cal.best_chars_per_token()
+
+    def test_sample_dataclass(self):
+        """CalibrationSample stores char_count and actual_tokens."""
+        s = CalibrationSample(char_count=40, actual_tokens=10)
+        assert s.char_count == 40
+        assert s.actual_tokens == 10
+
+    def test_converges_from_noisy_samples(self):
+        """Mean of noisy samples converges near the true ratio."""
+        cal = TokenCalibrator()
+        true_ratio = 3.7
+        for chars in (50, 100, 200, 400):
+            cal.record(chars, round(chars / true_ratio))
+        best = cal.best_chars_per_token()
+        assert 3.5 < best <= 4.0
 
 
 class TestPromptSection:

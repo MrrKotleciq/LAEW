@@ -2,14 +2,17 @@
 
 import inspect
 import json
+import logging
 import re
 import time
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
 from laew.agent.base import Agent, AgentError
-from laew.llm.base import LLMError, LLMMessage, MessageRole
+from laew.llm.base import LLMError, LLMMessage, LLMProvider, LLMResponse, MessageRole
 from laew.tools.base import Tool, ToolResult
+
+logger = logging.getLogger("laew.agent.executor")
 
 
 @dataclass
@@ -35,6 +38,9 @@ class ExecutionResult:
     total_steps: int = 0
     success: bool = True
     error: Optional[str] = None
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+    total_tokens: int = 0
 
 
 class AgentExecutor:
@@ -54,6 +60,11 @@ class AgentExecutor:
 
     def __init__(self, agent: Agent):
         self.agent = agent
+        # The system prompt (system text + tool descriptions + the constant
+        # instruction block) is rebuilt from the same inputs on every run().
+        # Cache the rendered string so inspect-based hints and description
+        # formatting run once per executor instance instead of per user turn.
+        self._system_prompt_cache: Optional[str] = None
 
     def _parse_tool_call(self, text: str) -> Optional[Dict[str, Any]]:
         """Extract a structured tool call from text if present."""
@@ -208,19 +219,17 @@ class AgentExecutor:
             lines.append(f"  Operations: {self._operation_hints(tool)}")
         return "\n".join(lines)
 
-    def run(self, user_prompt: str) -> ExecutionResult:
+    def _build_system_prompt(self) -> str:
         """
-        Execute the agent loop until completion or max iterations.
+        Build the full system prompt (system text + tools + instructions).
 
-        Args:
-            user_prompt: The user query or task description
-
-        Returns:
-            ExecutionResult containing all execution steps and final output
+        Memoized on the executor instance: the inputs (system prompt text,
+        tool registry, operation hints) are static for the agent's lifetime,
+        so the expensive inspect-based hint formatting runs exactly once.
         """
-        result = ExecutionResult(agent_name=self.agent.config.name)
+        if self._system_prompt_cache is not None:
+            return self._system_prompt_cache
 
-        # Build initial system message with tool instructions
         system_text = self.agent.get_system_prompt_text()
         tools_desc = self._format_tools_description()
 
@@ -261,6 +270,172 @@ class AgentExecutor:
             "text. Do not repeat the same tool call unless you actually need "
             "different data."
         )
+        self._system_prompt_cache = full_system_prompt
+        return full_system_prompt
+
+    def _token_ratio(self) -> Optional[float]:
+        """Return the configured calibrated chars/token ratio, if any."""
+        return getattr(self.agent.config, "token_ratio", None)
+
+    @staticmethod
+    def _provider_streams(provider: LLMProvider) -> bool:
+        """
+        Return True when the provider implements true incremental streaming.
+
+        ``LLMProvider.generate_stream`` has a concrete default that delegates
+        to ``generate()`` and yields the whole response as one chunk.  Only
+        providers overriding it (e.g. ``OllamaProvider``) can stream; the
+        executor keeps using ``generate()`` otherwise so results and token
+        accounting stay identical.  Uses ``getattr`` so duck-typed providers
+        that merely implement ``generate`` (no ``generate_stream``) are treated
+        as non-streaming.
+        """
+        stream_method = getattr(type(provider), "generate_stream", None)
+        if stream_method is None:
+            return False
+        return stream_method is not LLMProvider.generate_stream
+
+    def _generate(self, messages: list, stream: bool) -> LLMResponse:
+        """
+        Generate an LLM response, optionally via the provider's stream path.
+
+        When ``stream`` is set and the provider overrides ``generate_stream``,
+        the chunks are consumed through the streaming endpoint and the
+        accumulated content plus the stream's final token counts are returned
+        as a normal :class:`LLMResponse`.  Otherwise — and for providers that
+        only inherit the single-chunk default — ``generate()`` is used so
+        external behaviour (final text, token accounting) is identical either
+        way.
+
+        Args:
+            messages: Work message list sent to the provider
+            stream: Prefer the streaming endpoint when available
+
+        Returns:
+            LLMResponse with the full accumulated content
+        """
+        model = self.agent.config.model
+        if not (stream and self._provider_streams(self.agent.provider)):
+            return self.agent.provider.generate(
+                messages=messages,
+                model=model,
+                temperature=self.agent.config.temperature,
+                max_tokens=self.agent.config.max_tokens,
+            )
+
+        chunks: list[str] = []
+        for chunk in self.agent.provider.generate_stream(
+            messages=messages,
+            model=model,
+            temperature=self.agent.config.temperature,
+            max_tokens=self.agent.config.max_tokens,
+        ):
+            chunks.append(chunk)
+
+        streamed = getattr(self.agent.provider, "_last_stream_response", None)
+        return LLMResponse(
+            content="".join(chunks),
+            model=model,
+            prompt_tokens=streamed.prompt_tokens if streamed else None,
+            completion_tokens=streamed.completion_tokens if streamed else None,
+            total_tokens=streamed.total_tokens if streamed else None,
+            finish_reason=streamed.finish_reason if streamed else "stop",
+        )
+
+    def _estimate_messages_tokens(self, messages: list) -> int:
+        """Estimate tokens for messages using the configured ratio."""
+        from laew.prompts.context_budget import TokenEstimator
+
+        dicts = [m.to_dict() if hasattr(m, "to_dict") else m for m in messages]
+        return TokenEstimator.estimate_messages(dicts, self._token_ratio())
+
+    @staticmethod
+    def _message_char_count(message) -> int:
+        """Character length of a message's content (dict or LLMMessage)."""
+        content = message.content if hasattr(message, "content") else message.get("content", "")
+        return len(content or "")
+
+    @staticmethod
+    def _estimate_chars(total_length: int, chars_per_token: float) -> int:
+        """Token estimate for a running content length, mirroring TokenEstimator."""
+        return max(1, int(total_length // chars_per_token))
+
+    def _trim_to_budget(
+        self, messages: list, live_user_index: int
+    ) -> None:
+        """
+        Trim oldest seeded conversation turns when ``messages`` exceeds budget.
+
+        Uses the real token count from the previous ``generate()`` when one is
+        available, otherwise the calibrated ``TokenEstimator`` estimate.  The
+        system prompt (index 0) and the live user turn (``live_user_index``)
+        are never trimmed.  Consecutive steps can still append tool
+        observations above this seeded-history trim; this keeps the *seeded*
+        conversation from overflowing the configured context window (P6).
+
+        Args:
+            messages: The work message list sent to the provider
+            live_user_index: Index of the live user turn (never trimmed)
+        """
+        budget = self.agent.config.context_budget
+        if budget is None:
+            return
+        available = budget.available_for_prompt()
+        # Convert each message's content length once and track the running
+        # total (including the separator spaces ``estimate_messages`` would
+        # join).  This gives both the under-budget fast path and the trim below
+        # a single O(n) pass: re-joining and re-estimating the whole list after
+        # every drop was O(k^2) once history crossed the budget.
+        from laew.prompts.context_budget import TokenEstimator
+
+        ratio = self._token_ratio()
+        chars_per_token = (
+            ratio if ratio and ratio > 0 else TokenEstimator.CHARS_PER_TOKEN
+        )
+        lengths = [self._message_char_count(message) for message in messages]
+        separator_count = max(0, len(messages) - 1)
+        total_length = sum(lengths, separator_count)
+        if self._estimate_chars(total_length, chars_per_token) <= available:
+            return
+        # Drop oldest non-system turns (history seeded before the live turn)
+        # until the estimate fits or only the live turn remains.  The live user
+        # turn sits at ``live_user_index``; once it drops to index 1 (directly
+        # after the system prompt) there is nothing left to trim.
+        while (
+            live_user_index > 1
+            and self._estimate_chars(total_length, chars_per_token) > available
+        ):
+            # messages[0] is SYSTEM; messages[1] is the oldest seeded turn.
+            total_length -= lengths[1] + 1  # content plus its join separator
+            del messages[1]
+            del lengths[1]
+            live_user_index -= 1
+        if self._estimate_chars(total_length, chars_per_token) > available:
+            logger.warning(
+                "Agent context estimate %d exceeds budget (%d) even after "
+                "trimming to the live turn; sending oversized prompt",
+                self._estimate_chars(total_length, chars_per_token),
+                available,
+            )
+
+    def run(self, user_prompt: str, stream: bool = False) -> ExecutionResult:
+        """
+        Execute the agent loop until completion or max iterations.
+
+        Args:
+            user_prompt: The user query or task description
+            stream: When True (and the provider overrides ``generate_stream``),
+                LLM calls stream through the provider's streaming endpoint;
+                the accumulated result is identical to the non-streaming path.
+                Tool-call parsing still needs the full response, so streaming
+                here is a transport optimisation, not an output-different one.
+
+        Returns:
+            ExecutionResult containing all execution steps and final output
+        """
+        result = ExecutionResult(agent_name=self.agent.config.name)
+
+        full_system_prompt = self._build_system_prompt()
 
         # Prepare messages
         messages: List[LLMMessage] = [
@@ -273,11 +448,19 @@ class AgentExecutor:
         # Add the new user message
         messages.append(LLMMessage(role=MessageRole.USER, content=user_prompt))
         self.agent.add_message(MessageRole.USER, user_prompt)
+        # Index of the live user turn inside ``messages``.  Budget enforcement
+        # may drop OLDER seeded history turns but never the system prompt
+        # (index 0) nor this live turn.
+        live_user_index = len(messages) - 1
 
         iteration = 0
         while iteration < self.agent.config.max_iterations:
             iteration += 1
             step = ExecutionStep(step_number=iteration)
+
+            # Enforce the configured context budget: drop oldest seeded turns
+            # before growing further (P6 / ADR-004).
+            self._trim_to_budget(messages, live_user_index)
 
             # Attempt LLM generation with retry + bounded provider fallback.
             #
@@ -299,12 +482,7 @@ class AgentExecutor:
             while attempt < retry_config.max_attempts and remaining_tries > 0:
                 remaining_tries -= 1
                 try:
-                    llm_response = self.agent.provider.generate(
-                        messages=messages,
-                        model=self.agent.config.model,
-                        temperature=self.agent.config.temperature,
-                        max_tokens=self.agent.config.max_tokens,
-                    )
+                    llm_response = self._generate(messages, stream=stream)
                     break  # Success, exit retry loop
                 except Exception as e:
                     last_error = e
@@ -336,6 +514,15 @@ class AgentExecutor:
                 result.error = f"LLM generation failed at step {iteration} after {retry_config.max_attempts} attempts: {str(last_error)}"
                 result.steps.append(step)
                 return result
+
+            # Real token accounting (Stream C): accumulate actual counts from
+            # the provider's response when reported.
+            if llm_response.prompt_tokens:
+                result.prompt_tokens += llm_response.prompt_tokens
+            if llm_response.completion_tokens:
+                result.completion_tokens += llm_response.completion_tokens
+            if llm_response.total_tokens:
+                result.total_tokens += llm_response.total_tokens
 
             response_content = llm_response.content
             step.thought = response_content
@@ -459,13 +646,9 @@ class AgentExecutor:
             "to the user's original question in plain text now."
         )
         messages.append(LLMMessage(role=MessageRole.USER, content=forced_prompt))
+        self._trim_to_budget(messages, live_user_index)
         try:
-            llm_response = self.agent.provider.generate(
-                messages=messages,
-                model=self.agent.config.model,
-                temperature=self.agent.config.temperature,
-                max_tokens=self.agent.config.max_tokens,
-            )
+            llm_response = self._generate(messages, stream=stream)
         except Exception as e:
             result.success = False
             result.error = (
@@ -474,6 +657,14 @@ class AgentExecutor:
             )
             result.total_steps = iteration
             return result
+
+        # Real token accounting for the forced final generation.
+        if llm_response.prompt_tokens:
+            result.prompt_tokens += llm_response.prompt_tokens
+        if llm_response.completion_tokens:
+            result.completion_tokens += llm_response.completion_tokens
+        if llm_response.total_tokens:
+            result.total_tokens += llm_response.total_tokens
 
         # Return whatever the forced generation produced as the final answer —
         # but only if it is genuinely an answer.  If the model still emits a

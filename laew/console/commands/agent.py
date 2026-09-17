@@ -13,6 +13,7 @@ from laew.console.state import SessionState
 from laew.runtime import (
     build_provider,
     build_shared_tools,
+    context_budget_from_manifest,
     resolve_model_name,
     terminal_allowlist_from_manifest,
 )
@@ -39,11 +40,34 @@ def _build_agent(state: SessionState):
     )
     allowlist = terminal_allowlist_from_manifest(manifest)
     agent = Agent(
-        config=AgentConfig(name="laew-console", model=model_name),
+        config=AgentConfig(
+            name="laew-console",
+            model=model_name,
+            context_budget=context_budget_from_manifest(manifest),
+        ),
         provider=provider,
         tools=build_shared_tools(allowlist),
     )
+    # Resume any saved conversation memory (Milestone 13). The stored turns are
+    # memory/history — never treated as current project state (ADR-012), which
+    # the executor re-derives from the live filesystem on each tool call.
+    agent.history = state.conversation_to_messages()
     return agent, model_name
+
+
+def _record_exchange(state: SessionState, user_input: str, result) -> None:
+    """
+    Persist one user/assistant exchange into the session conversation memory.
+
+    Only the successful final answer is recorded as the assistant turn; tool
+    observations and corrective prompts are transient run detail and are not
+    recalled as conversation memory.
+    """
+    state.conversation.append({"role": "user", "content": user_input})
+    if result.success and result.final_response:
+        state.conversation.append(
+            {"role": "assistant", "content": result.final_response}
+        )
 
 
 def _print_trace(result, state: SessionState) -> None:
@@ -103,8 +127,12 @@ def cmd_agent_run(args: list, state: SessionState) -> int:
 
     _print_trace(result, state)
     if result.success:
-        print(f"\n[OK] completed in {elapsed:.2f}s ({result.total_steps} steps)")
+        print(
+            f"\n[OK] completed in {elapsed:.2f}s ({result.total_steps} steps)"
+            f" | {result.prompt_tokens}p / {result.completion_tokens}c tokens"
+        )
         print(result.final_response)
+        _record_exchange(state, prompt, result)
         return 0
 
     print(f"\n[FAIL] {result.error or 'agent loop failed'}")
@@ -142,10 +170,16 @@ def cmd_agent_chat(args: list, state: SessionState) -> int:
         if user_input.lower() in ("exit", "quit"):
             break
 
-        result = executor.run(user_input)
+        result = executor.run(user_input, stream=True)
         _print_trace(result, state)
         if result.success:
-            print(f"\nagent> {result.final_response}")
+            tokens = (
+                f" ({result.prompt_tokens}p / {result.completion_tokens}c)"
+                if result.total_tokens
+                else ""
+            )
+            print(f"\nagent> {result.final_response}{tokens}")
+            _record_exchange(state, user_input, result)
         else:
             print(f"\nagent> [FAIL] {result.error}")
     return 0

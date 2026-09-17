@@ -126,6 +126,44 @@ class LLMProvider(ABC):
             LLMError: If listing fails
         """
 
+    def generate_stream(
+        self,
+        messages: list[LLMMessage],
+        model: str,
+        temperature: float = 0.7,
+        max_tokens: Optional[int] = None,
+        stop: Optional[list[str]] = None,
+    ):
+        """
+        Stream a completion as content chunks (e.g. NDJSON for Ollama).
+
+        Default implementation yields the single completion from
+        :meth:`generate` so providers that do not implement true streaming
+        still behave correctly (one chunk, full text).  Streaming providers
+        override this to yield incrementally.
+
+        Args:
+            messages: Conversation history
+            model: Model name/identifier
+            temperature: Sampling temperature (0.0-1.0)
+            max_tokens: Maximum tokens to generate
+            stop: Stop sequences
+
+        Yields:
+            str: Partial content chunks
+
+        Raises:
+            LLMError: If generation fails
+        """
+        response = self.generate(
+            messages=messages,
+            model=model,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            stop=stop,
+        )
+        yield response.content
+
     @abstractmethod
     def is_available(self) -> bool:
         """

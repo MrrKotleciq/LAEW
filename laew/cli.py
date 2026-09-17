@@ -7,10 +7,11 @@ from pathlib import Path
 
 from laew.manifest import load_manifest, ManifestError
 from laew.runtime import (
-    terminal_allowlist_from_manifest,
-    resolve_model_name,
     build_provider,
     build_shared_tools,
+    context_budget_from_manifest,
+    resolve_model_name,
+    terminal_allowlist_from_manifest,
 )
 from laew.tools import (
     FilesystemTool,
@@ -25,6 +26,13 @@ from laew.security.path_resolver import PathResolver
 from laew.agent.base import Agent, AgentConfig, AgentRole
 from laew.agent.executor import AgentExecutor
 from laew.logging_config import configure_logging
+from laew.console.session_store import (
+    SessionStoreError,
+    make_chat_payload,
+    session_store_from_manifest,
+    validate_conversation,
+)
+from laew.llm.base import LLMMessage, MessageRole
 from laew.multiagent import (
     MultiAgentCoordinator,
     SpecialistRole,
@@ -413,7 +421,39 @@ def cmd_chat(args) -> int:
     )
     model_name = resolve_model_name(args.model, manifest_model, provider)
 
-    config = AgentConfig(name="laew-cli", model=model_name)
+    # Session persistence (Milestone 13): load or prepare a session store
+    session_store = None
+    session_name = None
+    if not args.no_persist:
+        try:
+            session_store = session_store_from_manifest(manifest)
+        except SessionStoreError as e:
+            print(f"[WARN] Session persistence unavailable: {e}")
+            session_store = None
+
+    # Resume existing session if requested
+    conversation = []
+    if args.resume and session_store:
+        try:
+            payload = session_store.load(args.resume)
+            conversation = payload.get("conversation", [])
+            print(f"[OK] Resumed session '{args.resume}' ({len(conversation)} prior turns)")
+            session_name = args.resume
+        except FileNotFoundError:
+            print(f"[FAIL] No saved session named '{args.resume}' (see 'laew chat --help')")
+            return 1
+        except SessionStoreError as e:
+            print(f"[FAIL] Could not load session '{args.resume}': {e}")
+            return 1
+    elif args.session and session_store:
+        session_name = args.session
+        print(f"[OK] Session '{session_name}' will be saved after each exchange")
+
+    config = AgentConfig(
+        name="laew-cli",
+        model=model_name,
+        context_budget=context_budget_from_manifest(manifest),
+    )
     try:
         agent = Agent(
             config=config,
@@ -425,9 +465,19 @@ def cmd_chat(args) -> int:
     except RuntimeError as e:
         print(f"[FAIL] Could not connect to a local LLM: {e}")
         return 1
+
+    # Seed agent history from resumed conversation (ADR-012: memory only)
+    if conversation:
+        agent.history = [
+            LLMMessage(role=MessageRole(msg["role"]), content=msg["content"])
+            for msg in conversation
+        ]
+
     executor = AgentExecutor(agent)
 
     print(f"Starting chat with {model_name} (Ollama at {provider.base_url})")
+    if session_name:
+        print(f"Session: {session_name}  (use --no-persist to disable)")
     print("Type 'exit' or 'quit' to end the session.")
     print("-" * 60)
 
@@ -442,9 +492,25 @@ def cmd_chat(args) -> int:
             if user_input.lower() in ("exit", "quit"):
                 break
 
-            result = executor.run(user_input)
+            result = executor.run(user_input, stream=not args.no_stream)
             if result.success:
                 print(f"\nAgent: {result.final_response}")
+                if result.total_tokens:
+                    print(
+                        f"[tokens] {result.prompt_tokens} prompt / "
+                        f"{result.completion_tokens} completion"
+                    )
+                # Persist the exchange if session is active
+                if session_store and session_name:
+                    # Build updated conversation for storage
+                    conversation.append({"role": "user", "content": user_input})
+                    if result.final_response:
+                        conversation.append({"role": "assistant", "content": result.final_response})
+                    try:
+                        payload = make_chat_payload(args.manifest, validate_conversation(conversation))
+                        session_store.save(session_name, payload)
+                    except SessionStoreError as e:
+                        print(f"[WARN] Could not save session: {e}")
             else:
                 print(f"\n[FAIL] {result.error}")
     except KeyboardInterrupt:
@@ -578,6 +644,28 @@ def main() -> int:
         "--manifest",
         default="manifests/SYSTEM_MANIFEST.yaml",
         help="Path to system manifest (default: manifests/SYSTEM_MANIFEST.yaml)",
+    )
+    chat_parser.add_argument(
+        "--resume",
+        metavar="NAME",
+        default=None,
+        help="Resume a saved chat session by name (seeds prior conversation)",
+    )
+    chat_parser.add_argument(
+        "--session",
+        metavar="NAME",
+        default=None,
+        help="Save this chat session under NAME after each exchange",
+    )
+    chat_parser.add_argument(
+        "--no-persist",
+        action="store_true",
+        help="Do not save or resume any session (ephemeral chat)",
+    )
+    chat_parser.add_argument(
+        "--no-stream",
+        action="store_true",
+        help="Disable streaming; collect the full response before printing",
     )
     chat_parser.set_defaults(func=cmd_chat)
 

@@ -24,7 +24,7 @@ def test_command_handler_registry_flat():
         "check", "info", "set", "provider", "prompt", "budget", "tools",
         "tool", "agent", "chat", "trace",
         "rag",
-        "workflow", "multiagent", "eval",
+        "workflow", "multiagent", "eval", "session",
     }
 
 

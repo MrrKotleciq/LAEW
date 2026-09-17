@@ -11,6 +11,12 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from laew.manifest import load_manifest, ManifestError
+from laew.console.session_store import (
+    PAYLOAD_SCHEMA,
+    PAYLOAD_VERSION,
+    SessionStoreError,
+    validate_conversation,
+)
 
 DEFAULT_MANIFEST = "manifests/SYSTEM_MANIFEST.yaml"
 
@@ -44,6 +50,9 @@ class SessionState:
     trace: bool = True
     history: List[str] = field(default_factory=list)
     exit_requested: bool = False
+    # Agent conversation memory as ``{role, content}`` turns (user/assistant).
+    # Persisted so a session can be resumed across restarts (Milestone 13).
+    conversation: List[Dict[str, str]] = field(default_factory=list)
 
     # ------------------------------------------------------------------ #
     # Manifest
@@ -167,3 +176,120 @@ class SessionState:
     def resolved_base_url(self) -> Optional[str]:
         """The session base-url override, if any."""
         return self.overrides.get("base-url")
+
+    # ------------------------------------------------------------------ #
+    # Persistence (Milestone 13) — durable, resumable sessions
+    # ------------------------------------------------------------------ #
+    def to_payload(self) -> dict:
+        """
+        Serialize the session's user-facing state for storage.
+
+        Only memory and preferences are exported — manifest contents, tool
+        results, and other current project state are never persisted, keeping
+        the session file decoupled from ground-truth (ADR-012).  Lifecycle
+        timestamps are stamped by :class:`SessionStore`, not here.
+
+        Returns:
+            A ``laew.session.state`` version-1 payload dict.
+        """
+        manifest_path = self.manifest_path
+        if isinstance(self.manifest_path, Path):
+            manifest_path = str(self.manifest_path)
+        return {
+            "schema": PAYLOAD_SCHEMA,
+            "version": PAYLOAD_VERSION,
+            "kind": "console",
+            "manifest_path": manifest_path,
+            "overrides": dict(self.overrides),
+            "approval": self.approval,
+            "trace": bool(self.trace),
+            "history": list(self.history),
+            "conversation": validate_conversation(self.conversation),
+        }
+
+    @classmethod
+    def from_payload(cls, payload: dict) -> "SessionState":
+        """
+        Restore a :class:`SessionState` from a validated session payload.
+
+        Does not touch the manifest — the caller re-verifies the restored
+        manifest path against the authoritative manifest on load (ADR-012).
+
+        Args:
+            payload: A ``laew.session.state`` payload (as loaded by
+                :class:`SessionStore`).
+
+        Returns:
+            A new :class:`SessionState` reflecting the saved state.
+
+        Raises:
+            StateError: The payload is malformed for console state.
+        """
+        try:
+            envelope = validate_conversation(payload.get("conversation", []))
+            history = payload.get("history", [])
+            overrides = payload.get("overrides", {})
+        except SessionStoreError as e:
+            raise StateError(str(e)) from e
+
+        if not isinstance(history, list) or not all(
+            isinstance(entry, str) for entry in history
+        ):
+            raise StateError("session payload: history must be a list of strings")
+        if not isinstance(overrides, dict) or not all(
+            isinstance(k, str) and isinstance(v, str) for k, v in overrides.items()
+        ):
+            raise StateError("session payload: overrides must be a string map")
+
+        manifest_path = payload.get("manifest_path") or DEFAULT_MANIFEST
+        approval = payload.get("approval", "ask")
+        if approval not in APPROVAL_CHOICES:
+            raise StateError(
+                f"session payload: invalid approval mode {approval!r}"
+                f" (choose: {', '.join(APPROVAL_CHOICES)})"
+            )
+        trace = payload.get("trace", True)
+        if not isinstance(trace, bool):
+            raise StateError("session payload: trace must be a boolean")
+
+        return cls(
+            manifest_path=manifest_path,
+            overrides=overrides,
+            approval=approval,
+            trace=trace,
+            history=history,
+            conversation=envelope,
+        )
+
+    def restore(self, other: "SessionState") -> None:
+        """
+        Replace this session's per-session state with *other*'s, in place.
+
+        Keeps the caller's object identity (handlers receive ``state`` by
+        reference) while adopting the saved overrides, approval mode, trace
+        flag, command history, and conversation memory from *other*.
+
+        Args:
+            other: The restored state (typically from :meth:`from_payload`).
+        """
+        self.manifest_path = other.manifest_path
+        self.overrides = dict(other.overrides)
+        self.approval = other.approval
+        self.trace = other.trace
+        self.history = list(other.history)
+        self.conversation = [dict(m) for m in other.conversation]
+
+    def conversation_to_messages(self) -> List["LLMMessage"]:
+        """
+        Convert the persisted conversation memory into provider messages.
+
+        Returns:
+            A list of user/assistant :class:`LLMMessage` to seed agent history,
+            or an empty list when there is no saved conversation.
+        """
+        from laew.llm.base import LLMMessage, MessageRole
+
+        return [
+            LLMMessage(role=MessageRole(msg["role"]), content=msg["content"])
+            for msg in validate_conversation(self.conversation)
+        ]

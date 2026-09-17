@@ -146,7 +146,7 @@
         providers:
           - name: "ollama_primary"
             type: "ollama"
-            model: "llama3.1"
+            model: "qwen2.5-coder:7b"
             host: "localhost"
             port: 11434
           - name: "ollama_fallback"

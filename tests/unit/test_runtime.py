@@ -14,6 +14,7 @@ from laew.runtime import (
     terminal_allowlist_from_manifest,
     build_shared_tools,
     build_provider,
+    context_budget_from_manifest,
     resolve_model_name,
 )
 
@@ -118,3 +119,57 @@ def test_resolve_model_name_unavailable_returns_requested_default():
     provider.list_models.side_effect = RuntimeError("connection refused")
     assert resolve_model_name(None, "llama3.1", provider) == "llama3.1"
     assert resolve_model_name(None, None, provider) == "llama3.1"
+
+
+CONTEXT_BUDGET_MANIFEST = {
+    "models": {
+        "roles": {
+            "primary": {
+                "context_budget": {
+                    "system": 1000,
+                    "conversation": 2000,
+                    "rag": 3000,
+                    "tools": 1500,
+                    "total": 8000,
+                }
+            }
+        }
+    }
+}
+
+
+def test_context_budget_from_manifest_parses():
+    """Full context_budget section is parsed into a ContextBudget."""
+    budget = context_budget_from_manifest(CONTEXT_BUDGET_MANIFEST)
+    assert budget is not None
+    assert budget.system == 1000
+    assert budget.conversation == 2000
+    assert budget.rag == 3000
+    assert budget.tools == 1500
+    assert budget.total == 8000
+    assert budget.available_for_prompt() == 8000 - budget.reserved
+
+
+def test_context_budget_from_manifest_returns_none_when_absent():
+    """No context_budget section -> None (AgentConfig default is used)."""
+    assert context_budget_from_manifest({}) is None
+    assert context_budget_from_manifest({"models": {}}) is None
+    assert (
+        context_budget_from_manifest(
+            {"models": {"roles": {"primary": {"model": "qwen2.5-coder:7b"}}}}
+        )
+        is None
+    )
+
+
+def test_context_budget_from_manifest_applies_defaults():
+    """Missing keys fall back to ContextBudget field defaults."""
+    budget = context_budget_from_manifest(
+        {"models": {"roles": {"primary": {"context_budget": {"total": 20000}}}}}
+    )
+    assert budget is not None
+    assert budget.system == 2000
+    assert budget.conversation == 4000
+    assert budget.rag == 8000
+    assert budget.tools == 4000
+    assert budget.total == 20000

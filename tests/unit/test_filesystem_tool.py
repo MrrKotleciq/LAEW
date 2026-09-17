@@ -59,6 +59,82 @@ def test_view_file_with_line_range(tool, tmp_project):
     assert "This is a test." not in result.data["content"]
 
 
+def test_view_file_returns_full_content_by_default(tool, tmp_project):
+    """view_file without a range returns EVERY line — no implicit crop."""
+    large = tmp_project / "large.txt"
+    large.write_text("\n".join(f"line {i}" for i in range(1, 301)) + "\n")
+
+    result = tool.view_file("@project/large.txt")
+
+    assert result.success
+    assert result.data["total_lines"] == 300
+    assert result.data["content"].count("\n") == 300
+    assert "line 1" in result.data["content"]
+    assert "line 300" in result.data["content"]
+
+
+def test_view_file_coerces_string_line_range(tool):
+    """String line params (console k=v / LLM tool-call args) are coerced."""
+    result = tool.view_file("@project/README.md", start_line="1", end_line="2")
+
+    assert result.success
+    assert result.data["content"] == "# Test Project\n\n"
+    assert result.data["total_lines"] == 3
+
+
+def test_view_file_explicit_range_still_honored(tool):
+    """An explicit numeric range returns exactly that slice (start inclusive,
+    end exclusive, as before)."""
+    result = tool.view_file("@project/README.md", start_line=2, end_line=3)
+
+    assert result.success
+    assert result.data["content"] == "\nThis is a test."
+
+
+def test_view_file_rejects_non_numeric_start_line(tool):
+    """A junk start_line returns a clean ERR_INVALID_INPUT, not a generic crash."""
+    result = tool.view_file("@project/README.md", start_line="abc")
+
+    assert not result.success
+    assert result.error_code == ErrorCode.ERR_INVALID_INPUT
+    assert "start_line" in result.error_message
+
+
+def test_view_file_rejects_float_end_line(tool):
+    """Float line numbers (which would silently truncate) are rejected."""
+    result = tool.view_file("@project/README.md", end_line=2.5)
+
+    assert not result.success
+    assert result.error_code == ErrorCode.ERR_INVALID_INPUT
+
+
+def test_view_file_rejects_end_before_start(tool):
+    """end_line < start_line is a clear error."""
+    result = tool.view_file("@project/README.md", start_line=3, end_line=1)
+
+    assert not result.success
+    assert result.error_code == ErrorCode.ERR_INVALID_INPUT
+    assert "end_line" in result.error_message
+
+
+def test_validate_view_file_accepts_string_range(tool):
+    """validate() accepts int-parseable string line params for view_file."""
+    ok, err = tool.validate(
+        "view_file", file_path="@project/README.md", start_line="1", end_line="20"
+    )
+    assert ok is True
+    assert err is None
+
+
+def test_validate_view_file_rejects_bad_line(tool):
+    """validate() rejects non-numeric view_file line params with a clear message."""
+    ok, err = tool.validate(
+        "view_file", file_path="@project/README.md", start_line="abc"
+    )
+    assert ok is False
+    assert "start_line" in err
+
+
 def test_view_file_not_found(tool):
     """Test viewing non-existent file."""
     result = tool.view_file("@project/nonexistent.txt")

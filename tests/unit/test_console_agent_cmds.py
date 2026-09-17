@@ -25,6 +25,9 @@ def _result(success=True, steps=None, final_response="done", error=None):
         total_steps=len(steps or []),
         final_response=final_response,
         error=error,
+        prompt_tokens=0,
+        completion_tokens=0,
+        total_tokens=0,
     )
 
 

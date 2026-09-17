@@ -506,6 +506,134 @@ class TestChatCommand:
         cfg_arg, _ = mock_create.call_args
         assert cfg_arg[0].get("type") == "ollama"
 
+    # -- Session persistence (Milestone 13) --------------------------------- #
+
+    def _store(self, tmp_path):
+        """A real SessionStore rooted in a temp directory."""
+        from laew.console.session_store import SessionStore
+
+        return SessionStore(tmp_path / "sessions")
+
+    def test_chat_resume_seeds_history(self, chat_manifest, tmp_path, capsys):
+        """--resume loads a saved session and seeds agent.history with its turns."""
+        store = self._store(tmp_path)
+        record = store.save(
+            "research",
+            make_test_chat_payload(str(chat_manifest), [
+                {"role": "user", "content": "earlier question"},
+                {"role": "assistant", "content": "earlier answer"},
+            ]),
+        )
+        assert record.name == "research"
+
+        run_result = MagicMock()
+        run_result.success = True
+        run_result.final_response = "resumed ok"
+        run_result.error = None
+
+        args = chats_args(chat_manifest)
+        args.resume = "research"
+
+        with (
+            patch("laew.runtime.create_provider") as mock_create,
+            patch("laew.cli.Agent") as mock_agent_cls,
+            patch("laew.cli.AgentConfig"),
+            patch("laew.cli.AgentExecutor") as mock_executor,
+            patch("laew.cli.session_store_from_manifest", return_value=store),
+            patch("builtins.input", side_effect=["hello", "exit"]),
+        ):
+            mock_create.return_value = MagicMock()
+            mock_agent_cls.return_value = MagicMock(history=[], tools={})
+            mock_executor.return_value.run.return_value = run_result
+            exit_code = cmd_chat(args)
+
+        assert exit_code == 0
+        captured = capsys.readouterr()
+        assert "Resumed session 'research' (2 prior turns)" in captured.out
+        # The constructed agent has its history seeded from the saved session.
+        created_agent = mock_agent_cls.call_args.kwargs
+        # Agent is constructed before history is seeded; verify via the instance.
+        instance = mock_agent_cls.return_value
+        assert len(instance.history) == 2
+        assert instance.history[0].content == "earlier question"
+
+    def test_chat_session_saves_after_exchange(self, chat_manifest, tmp_path, capsys):
+        """--session persists each successful exchange into the session file."""
+        store = self._store(tmp_path)
+        run_result = MagicMock()
+        run_result.success = True
+        run_result.final_response = "agent reply"
+        run_result.error = None
+
+        args = chats_args(chat_manifest)
+        args.session = "work"
+
+        with (
+            patch("laew.runtime.create_provider"),
+            patch("laew.cli.Agent") as mock_agent_cls,
+            patch("laew.cli.AgentConfig"),
+            patch("laew.cli.AgentExecutor") as mock_executor,
+            patch("laew.cli.session_store_from_manifest", return_value=store),
+            patch("builtins.input", side_effect=["prompt one", "prompt two", "exit"]),
+        ):
+            mock_agent_cls.return_value = MagicMock(history=[], tools={})
+            mock_executor.return_value.run.return_value = run_result
+            exit_code = cmd_chat(args)
+
+        assert exit_code == 0
+
+        payload = store.load("work")
+        turns = payload["conversation"]
+        assert turns == [
+            {"role": "user", "content": "prompt one"},
+            {"role": "assistant", "content": "agent reply"},
+            {"role": "user", "content": "prompt two"},
+            {"role": "assistant", "content": "agent reply"},
+        ]
+        # Chat sessions carry the "chat" kind, not console state fields.
+        assert payload["kind"] == "chat"
+
+    def test_chat_no_persist_skips_store(self, chat_manifest, capsys):
+        """--no-persist never touches a session store or writes a file."""
+        run_result = MagicMock()
+        run_result.success = True
+        run_result.final_response = "ephemeral reply"
+        run_result.error = None
+
+        args = chats_args(chat_manifest)
+        args.no_persist = True
+
+        with (
+            patch("laew.runtime.create_provider"),
+            patch("laew.cli.Agent") as mock_agent_cls,
+            patch("laew.cli.AgentConfig"),
+            patch("laew.cli.AgentExecutor") as mock_executor,
+            patch("laew.cli.session_store_from_manifest") as mock_store_from,
+            patch("builtins.input", side_effect=["hello", "exit"]),
+        ):
+            mock_agent_cls.return_value = MagicMock(history=[], tools={})
+            mock_executor.return_value.run.return_value = run_result
+            exit_code = cmd_chat(args)
+
+        assert exit_code == 0
+        mock_store_from.assert_not_called()
+
+    def test_chat_resume_missing_session_fails(self, chat_manifest, tmp_path, capsys):
+        """--resume of a nonexistent session fails gracefully."""
+        store = self._store(tmp_path)
+        args = chats_args(chat_manifest)
+        args.resume = "missing"
+
+        with (
+            patch("laew.cli.session_store_from_manifest", return_value=store),
+            patch("builtins.input", side_effect=["hello"]),
+        ):
+            exit_code = cmd_chat(args)
+
+        assert exit_code == 1
+        captured = capsys.readouterr()
+        assert "No saved session named 'missing'" in captured.out
+
 
 def chats_args(manifest_path):
     """Create argument-like object for cmd_chat."""
@@ -515,7 +643,28 @@ def chats_args(manifest_path):
         timeout=None,
         provider=None,
         manifest=str(manifest_path),
+        resume=None,
+        session=None,
+        no_persist=False,
+        no_stream=False,
     )
+
+
+def make_test_chat_payload(manifest_path, conversation):
+    """Build a chat session payload for seeding a store in tests."""
+    from laew.console.session_store import (
+        PAYLOAD_SCHEMA,
+        PAYLOAD_VERSION,
+        validate_conversation,
+    )
+
+    return {
+        "schema": PAYLOAD_SCHEMA,
+        "version": PAYLOAD_VERSION,
+        "kind": "chat",
+        "manifest_path": manifest_path,
+        "conversation": validate_conversation(conversation),
+    }
 
 
 def multiagent_args(plan_path, manifest_path):

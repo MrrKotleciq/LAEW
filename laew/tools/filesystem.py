@@ -8,6 +8,35 @@ from laew.security import PathResolver, PathResolverError
 from laew.tools.base import ErrorCode, Tool, ToolResult
 
 
+def coerce_line_number(value, param_name: str) -> int:
+    """
+    Coerce a value to a positive integer line number, or raise ``ValueError``.
+
+    Accepts an ``int`` or an int-parseable ``str`` (the console's ``k=v`` arg
+    parser and LLM tool-call args can both deliver line numbers as strings);
+    rejects booleans, floats, and non-numeric values with a clear message so the
+    caller can return a proper ``ERR_INVALID_INPUT`` instead of letting a
+    ``TypeError`` escape to the generic handler.
+
+    Raises:
+        ValueError: The value is not a positive integer (or cannot be parsed).
+    """
+    # bool is an int subclass; a float would silently truncate.  Reject both.
+    if isinstance(value, bool):
+        raise ValueError(f"{param_name} must be an integer, got boolean")
+    if isinstance(value, float):
+        raise ValueError(f"{param_name} must be an integer, got float")
+    try:
+        as_int = int(value)
+    except (TypeError, ValueError):
+        raise ValueError(
+            f"{param_name} must be an integer, got {type(value).__name__}"
+        ) from None
+    if as_int < 1:
+        raise ValueError(f"{param_name} must be >= 1, got {as_int}")
+    return as_int
+
+
 class FilesystemTool(Tool):
     """
     Filesystem operations with security enforcement (P8).
@@ -27,7 +56,7 @@ class FilesystemTool(Tool):
     operations = {
         "view_file": {
             "params": ["file_path", "start_line", "end_line"],
-            "description": "Read file contents",
+            "description": "Read file contents (default: full file)",
             "read_only": True,
         },
         "list_dir": {
@@ -145,6 +174,18 @@ class FilesystemTool(Tool):
                 if "file_path" not in kwargs:
                     return False, "Missing required parameter: file_path"
 
+        # Validate view_file line parameters (int, or int-parseable str — the
+        # console k=v parser and LLM tool-call args both deliver strings).
+        if operation == "view_file":
+            for param in ("start_line", "end_line"):
+                value = kwargs.get(param)
+                if value is None:
+                    continue
+                try:
+                    coerce_line_number(value, param)
+                except ValueError as e:
+                    return False, str(e)
+
         return True, None
 
     def execute(self, operation: str, **kwargs) -> ToolResult:
@@ -216,10 +257,28 @@ class FilesystemTool(Tool):
         except UnicodeDecodeError:
             return ToolResult.error(ErrorCode.ERR_BINARY_FILE, f"Cannot decode as UTF-8: {file_path}")
 
+        # Line-range semantics: the DEFAULT is the full file.  start_line and
+        # end_line may arrive as strings (console k=v parsing, LLM tool-call
+        # args) or be silently guessed by a model, so coerce/validate them here
+        # and reject bad values with a clear error instead of letting a
+        # TypeError escape to the generic handler as a misleading
+        # ERR_INVALID_INPUT.
+        try:
+            start_line = coerce_line_number(start_line, "start_line")
+            end_line = None if end_line is None else coerce_line_number(end_line, "end_line")
+        except ValueError as e:
+            return ToolResult.error(ErrorCode.ERR_INVALID_INPUT, str(e))
+
+        if end_line is not None and end_line < start_line:
+            return ToolResult.error(
+                ErrorCode.ERR_INVALID_INPUT,
+                f"end_line ({end_line}) must be >= start_line ({start_line})",
+            )
+
         total_lines = len(lines)
 
         # Apply line range (1-indexed to 0-indexed)
-        start_idx = max(0, start_line - 1)
+        start_idx = start_line - 1
         end_idx = total_lines if end_line is None else min(total_lines, end_line)
 
         content = "".join(lines[start_idx:end_idx])

@@ -72,6 +72,34 @@ def terminal_allowlist_from_manifest(manifest: dict) -> Optional[list]:
     return list(allowlist) if allowlist else None
 
 
+def context_budget_from_manifest(manifest: dict) -> Optional["ContextBudget"]:
+    """
+    Build a :class:`ContextBudget` from the manifest's primary model role.
+
+    Reads ``models.roles.primary.context_budget`` (system/conversation/rag/
+    tools/total).  Returns ``None`` when the manifest declares no budget, so
+    callers fall back to ``AgentConfig``'s default budget.
+    """
+    from laew.prompts.context_budget import ContextBudget
+
+    section = (
+        manifest.get("models", {})
+        .get("roles", {})
+        .get("primary", {})
+        .get("context_budget")
+    )
+    if not section:
+        return None
+
+    return ContextBudget(
+        system=int(section.get("system", 2000)),
+        conversation=int(section.get("conversation", 4000)),
+        rag=int(section.get("rag", 8000)),
+        tools=int(section.get("tools", 4000)),
+        total=int(section.get("total", 18000)),
+    )
+
+
 def resolve_model_name(
     cli_model: Optional[str],
     manifest_model: Optional[str],

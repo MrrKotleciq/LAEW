@@ -1,6 +1,7 @@
 """Tests for LLM provider abstraction and Ollama implementation (ADR-001)."""
 
 import json
+from io import BytesIO
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -182,6 +183,133 @@ class TestOllamaProvider:
         mock_get.side_effect = requests.exceptions.ConnectionError()
 
         assert provider.is_available() is False
+
+
+class TestOllamaStreaming:
+    """Tests for Ollama streaming and tokenization endpoints."""
+
+    @pytest.fixture
+    def provider(self):
+        """Create Ollama provider instance for testing."""
+        return OllamaProvider(base_url="http://localhost:11434")
+
+    @patch("requests.post")
+    def test_tokenize_count_success(self, mock_post, provider):
+        """Successful tokenize request returns exact count."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"count": 7}
+        mock_post.return_value = mock_response
+
+        count = provider.tokenize_count("hello world", "llama3.1")
+        assert count == 7
+
+        mock_post.assert_called_once()
+        args, kwargs = mock_post.call_args
+        assert args[0] == "http://localhost:11434/api/tokenize"
+        payload = kwargs["json"]
+        assert payload["model"] == "llama3.1"
+        assert payload["prompt"] == "hello world"
+
+    @patch("requests.post")
+    def test_tokenize_count_error(self, mock_post, provider):
+        """Tokenize errors map to LLMError with proper codes."""
+        mock_post.side_effect = requests.exceptions.ConnectionError("boom")
+        with pytest.raises(LLMError) as exc_info:
+            provider.tokenize_count("hi", "llama3.1")
+        assert exc_info.value.code == "CONNECTION_ERROR"
+
+    @patch("requests.post")
+    def test_calibrate_with_ollama(self, mock_post, provider):
+        """calibrate_with_ollama returns TokenCalibrator with recorded samples."""
+        # Mock responses for four probe texts
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.side_effect = [
+            {"count": 2},   # "def helper():\n    return 42\n" -> len 24, 2 tokens -> ratio 12
+            {"count": 4},   # short probe
+            {"count": 8},   # medium probe
+            {"count": 16},  # long probe
+        ]
+        mock_post.return_value = mock_response
+
+        calibrator = provider.calibrate_with_ollama("llama3.1")
+        assert calibrator.sample_count == 4
+        # best_chars_per_token() is mean of ratios; we can't assert exact because
+        # probe lengths vary, but it should be positive and sane
+        ratio = calibrator.best_chars_per_token()
+        assert ratio > 0
+
+    @patch("requests.post")
+    def test_generate_stream_yields_chunks_and_sets_last_response(self, mock_post, provider):
+        """Streaming yields chunks and sets _last_stream_response with final counts."""
+        # Simulate NDJSON stream: three content chunks then done
+        stream_lines = [
+            b'{"message": {"content": "Hello"}, "done": false}\n',
+            b'{"message": {"content": " "}, "done": false}\n',
+            b'{"message": {"content": "world!"}, "done": false}\n',
+            b'{"message": {}, "done": true, "prompt_eval_count": 5, "eval_count": 3, "done_reason": "stop"}\n',
+        ]
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        # make iter_lines return the lines
+        mock_response.iter_lines.return_value = stream_lines
+        mock_response.raise_for_status.return_value = None
+        mock_post.return_value = mock_response
+
+        messages = [LLMMessage(role=MessageRole.USER, content="Say hi")]
+        chunks = list(provider.generate_stream(messages, "llama3.1"))
+        assert chunks == ["Hello", " ", "world!"]
+
+        # final aggregated response should be stored
+        last = provider._last_stream_response
+        assert last is not None
+        assert last.content == ""  # content is empty; we don't reassemble
+        assert last.model == "llama3.1"
+        assert last.prompt_tokens == 5
+        assert last.completion_tokens == 3
+        assert last.total_tokens == 8
+        assert last.finish_reason == "stop"
+
+    @patch("requests.post")
+    def test_generate_stream_connection_error_midstream_raises(self, mock_post, provider):
+        """ConnectionError mid-stream maps to LLMError STREAM_ERROR."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.raise_for_status.return_value = None
+
+        def iter_lines(decode_unicode=False):
+            """Yield one content frame, then die mid-stream."""
+            yield b'{"message": {"content": "ok"}, "done": false}\n'
+            raise requests.exceptions.ConnectionError("died")
+
+        mock_response.iter_lines = iter_lines
+        mock_post.return_value = mock_response
+
+        with pytest.raises(LLMError) as exc_info:
+            list(provider.generate_stream([LLMMessage(role=MessageRole.USER, content="hi")], "llama3.1"))
+        assert exc_info.value.code == "STREAM_ERROR"
+        assert "Stream interrupted" in str(exc_info.value)
+
+    @patch("requests.post")
+    def test_generate_stream_request_exception_midstream_raises(self, mock_post, provider):
+        """RequestException mid-stream maps to LLMError STREAM_ERROR."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.raise_for_status.return_value = None
+
+        def iter_lines(decode_unicode=False):
+            """Yield one content frame, then die mid-stream."""
+            yield b'{"message": {"content": "ok"}, "done": false}\n'
+            raise requests.exceptions.RequestException("timeout")
+
+        mock_response.iter_lines = iter_lines
+        mock_post.return_value = mock_response
+
+        with pytest.raises(LLMError) as exc_info:
+            list(provider.generate_stream([LLMMessage(role=MessageRole.USER, content="hi")], "llama3.1"))
+        assert exc_info.value.code == "STREAM_ERROR"
+        assert "Stream request failed" in str(exc_info.value)
 
 
 if __name__ == "__main__":

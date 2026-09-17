@@ -730,5 +730,184 @@ class TestStructuredOutputValidation:
         assert result is None
 
 
+class TestAgentExecutorStreamingAndBudget:
+    """AgentExecutor streaming (Stream D) and context budget (Stream C) tests."""
+
+    def test_provider_streams_detection(self):
+        """_provider_streams detects true streaming implementors and duck-types."""
+        from laew.llm.base import LLMProvider
+
+        class ConcreteLLM(LLMProvider):
+            """Concrete provider satisfying the abstract interface."""
+
+            def generate(self, messages, model, temperature=0.7, max_tokens=None, stop=None):
+                return LLMResponse(content="x", model=model)
+
+            def list_models(self):
+                return []
+
+            def is_available(self):
+                return True
+
+        class NonStreamingLLM(ConcreteLLM):
+            """Only inherits the concrete single-chunk generate_stream default."""
+
+        class StreamingLLM(ConcreteLLM):
+            def generate_stream(self, messages, model, temperature=0.7, max_tokens=None, stop=None):
+                yield "x"
+
+        assert AgentExecutor._provider_streams(NonStreamingLLM()) is False
+        assert AgentExecutor._provider_streams(StreamingLLM()) is True
+        # Duck-typed: has generate() but no generate_stream at all.
+        assert AgentExecutor._provider_streams(MockProvider()) is False
+
+    def test_generate_uses_stream_when_available(self):
+        """_generate streams when provider truly overrides generate_stream."""
+        from laew.llm.base import LLMProvider
+
+        class StreamingLLM(LLMProvider):
+            def generate(self, messages, model, temperature=0.7, max_tokens=None, stop=None):
+                return LLMResponse(content="x", model=model)
+
+            def list_models(self):
+                return []
+
+            def is_available(self):
+                return True
+
+            def generate_stream(self, messages, model, temperature=0.7, max_tokens=None, stop=None):
+                yield "he"
+                yield "llo"
+
+        provider = StreamingLLM()
+        # The stream endpoint sets this on completion (Ollama contract).
+        provider._last_stream_response = LLMResponse(
+            content="", model="q", prompt_tokens=3, completion_tokens=5, total_tokens=8
+        )
+        agent = Agent(config=AgentConfig(model="q"), provider=provider)
+        executor = AgentExecutor(agent)
+
+        resp = executor._generate(
+            [LLMMessage(role=MessageRole.USER, content="hi")], stream=True
+        )
+        assert resp.content == "hello"
+        assert resp.prompt_tokens == 3
+        assert resp.completion_tokens == 5
+        assert resp.total_tokens == 8
+
+    def test_generate_falls_back_to_generate_when_no_stream(self):
+        """_generate uses generate() when the provider only has the default."""
+        provider = MockProvider(responses=["plain"])
+        agent = Agent(config=AgentConfig(model="q"), provider=provider)
+        executor = AgentExecutor(agent)
+
+        resp = executor._generate(
+            [LLMMessage(role=MessageRole.USER, content="hi")], stream=True
+        )
+        assert resp.content == "plain"
+
+    def test_cached_system_prompt_avoids_rebuilding_hints(self):
+        """_build_system_prompt is memoized: expensive operation hints run once."""
+        provider = MockProvider(responses=["answer"])
+        agent = Agent(config=AgentConfig(), provider=provider)
+        agent.register_tool(MockTool())
+        executor = AgentExecutor(agent)
+
+        spy = MagicMock(wraps=executor._operation_hints)
+        executor._operation_hints = spy
+
+        executor.run("first")
+        first_hint_calls = spy.call_count
+        executor.run("second")
+        # The operation hints (inspect-based) must not be computed again.
+        assert spy.call_count == first_hint_calls
+        assert first_hint_calls >= 1
+
+    def test_token_accumulation_single_step(self):
+        """ExecutionResult reports a single generate() call's tokens."""
+        provider = MockProvider(responses=["answer"])
+        agent = Agent(config=AgentConfig(), provider=provider)
+        executor = AgentExecutor(agent)
+        # MockProvider reports 10 prompt / 20 completion / 30 total per call.
+        result = executor.run("task 1")
+        assert result.prompt_tokens == 10
+        assert result.completion_tokens == 20
+        assert result.total_tokens == 30
+
+    def test_token_accumulation_over_multiple_steps(self):
+        """A multi-tool-step run sums tokens from every generate() call."""
+        tool_call_json = json.dumps({
+            "tool": "mock_tool",
+            "operation": "test_op",
+            "args": {},
+        })
+        tool_response = f"```tool_call\n{tool_call_json}\n```"
+
+        provider = MockProvider(responses=[tool_response, "Final answer"])
+        tool = MockTool()
+        agent = Agent(config=AgentConfig(), provider=provider)
+        agent.register_tool(tool)
+        executor = AgentExecutor(agent)
+
+        result = executor.run("use a tool")
+        # Two generate() calls: 2 * (10p/20c/30t)
+        assert result.prompt_tokens == 20
+        assert result.completion_tokens == 40
+        assert result.total_tokens == 60
+
+    def test_trim_to_budget_drops_oldest_history_turns(self):
+        """_trim_to_budget removes oldest seeded turns, never system or live user."""
+        from laew.prompts.context_budget import ContextBudget
+
+        budget = ContextBudget(
+            system=100, conversation=100, rag=100, tools=100, total=5000, reserved=100
+        )
+        agent = Agent(config=AgentConfig(context_budget=budget), provider=MockProvider())
+        executor = AgentExecutor(agent)
+
+        messages = [
+            LLMMessage(role=MessageRole.SYSTEM, content="system"),
+            LLMMessage(role=MessageRole.USER, content="old turn 1"),
+            LLMMessage(role=MessageRole.USER, content="old turn 2"),
+            LLMMessage(role=MessageRole.USER, content="old turn 3"),
+            LLMMessage(role=MessageRole.USER, content="LIVE USER TURN"),
+        ]
+        live_index = len(messages) - 1
+        executor._trim_to_budget(messages, live_index)
+
+        # Under budget (all ~16 tokens) => nothing trimmed.
+        assert len(messages) == 5
+        assert messages[0].role == MessageRole.SYSTEM
+        assert messages[-1].content == "LIVE USER TURN"
+
+    def test_trim_to_budget_drops_to_fit(self):
+        """_trim_to_budget trims oldest seeded turns when estimate exceeds budget."""
+        budget = ContextBudget(
+            system=100, conversation=100, rag=100, tools=100, total=2000, reserved=100
+        )
+        agent = Agent(
+            config=AgentConfig(context_budget=budget, token_ratio=4.0),
+            provider=MockProvider(),
+        )
+        executor = AgentExecutor(agent)
+
+        # Force a large estimate: each old turn ~100 chars (~25 tokens), live turn huge.
+        messages = [
+            LLMMessage(role=MessageRole.SYSTEM, content="system"),
+        ]
+        for i in range(10):
+            messages.append(LLMMessage(role=MessageRole.USER, content="x" * 100))
+        messages.append(LLMMessage(role=MessageRole.USER, content="y" * 10000))
+        live_index = len(messages) - 1
+
+        before_count = len(messages)
+        executor._trim_to_budget(messages, live_index)
+
+        # At least one oldest turn dropped, system + live user kept.
+        assert len(messages) < before_count
+        assert messages[0].role == MessageRole.SYSTEM
+        assert messages[-1].content == "y" * 10000
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
