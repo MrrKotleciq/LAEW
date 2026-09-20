@@ -3,7 +3,7 @@
 ## Status
 
 Architecture: LAEW v1.0 documented
-Implementation: Milestone 14 (Performance & Context-Efficiency Audit) completed
+Implementation: Milestone 16 (Parallel Multi-Agent Execution & Semantic Conflict Detection) completed
 
 ## Currently present in repository
 
@@ -124,15 +124,31 @@ Implementation: Milestone 14 (Performance & Context-Efficiency Audit) completed
 
 Audit remediation: all Critical (C1-C4), High (H1-H5), and Medium/Low (M1-M11, L1-L10) findings fixed with regression tests.
 
-Total: 586 unit tests collected across 28 test suites (in tests/unit).
+## Milestone 15 Implementation (Completed)
+
+- laew/llm/registry.py: Provider registry extended with `get_provider_for_role(role, manifest, base_url, timeout, _registry)` implementing manifest-driven role dispatch across `primary`, `embedding`, `reviewer` roles per ADR-001/ADR-019. Tries ordered provider candidate list sequentially with error accumulation; raises typed `LLMError` codes (`NO_PROVIDER_FOR_ROLE`, `PROVIDER_NOT_FOUND`, `ALL_PROVIDERS_FAILED`).
+- laew/runtime.py: Added `build_provider_for_role(manifest, role, base_url, timeout, _registry)` as the shared entry point for role-based provider resolution across CLI commands and console commands.
+- laew/manifest.py: Enhanced schema validation to verify `agent.llm.roles` structure and ensure all referenced provider names exist within declared `agent.llm.providers`.
+- laew/cli.py & laew/console/commands/agent.py: Refactored `cmd_chat`, `cmd_multiagent_run`, and console `_build_agent` to construct providers via `build_provider_for_role(manifest, "primary", ...)` preserving config precedence.
+- manifests/SYSTEM_MANIFEST.yaml: Primary provider switched to `qwen2.5-coder:7b` for reliable agent reasoning and tool dispatch.
+- Tests: `tests/unit/test_routing.py` (16 unit tests: role dispatch, fallback sequence, error handling, manifest validation, CLI integration, and override precedence).
+
+## Milestone 16 Implementation (Completed)
+
+- laew/multiagent/context.py: `SharedContext` journal made thread-safe with `threading.RLock()` protecting all mutations and reads (`post`, `get`, `all_for`, `keys`, `render`, `clear`, `__len__`) during concurrent specialist execution.
+- laew/multiagent/coordinator.py: `MultiAgentCoordinator.run()` extended with `parallel=True` and `max_workers` parameters using `concurrent.futures.ThreadPoolExecutor` for concurrent subtask delegation while preserving per-specialist isolation (`AgentExecutor` per delegation, principle P8); deterministic result ordering maintained via pre-indexed collection matching `plan.subtasks`.
+- Semantic conflict detection: `_detect_conflicts_semantic()` using `EmbeddingService.embed_batch()` and pairwise cosine similarity (`_cosine_similarity()`) against configurable `conflict_threshold` (default 0.85); resilient fallback to normalized text comparison (`_detect_conflicts_text()`) when embeddings fail or are omitted.
+- Tests: `tests/unit/test_multiagent_parallel.py` (7 unit tests: deterministic parallel execution, shared-context thread safety under concurrent writes, semantic conflict detection on divergent outputs, semantic matching, error handling with graceful fallback, and helper functions).
+
+Total: 609 unit tests collected across 30 test suites (in tests/unit).
 
 ## Important distinction
 
 The architecture documentation describes the intended
 LAEW v1.0 system.
 
-The current repository represents the declarative foundation, tool runtime layer, CLI, LLM provider, prompt management, chief agent orchestration loop, knowledge retrieval (RAG) system, systematic evaluation harness, workflow automation runtime with approval gates and rollback, and multi-agent architecture with chief-agent coordination and specialist roles.
+The current repository represents the declarative foundation, tool runtime layer, CLI, LLM provider, prompt management, chief agent orchestration loop, knowledge retrieval (RAG) system, systematic evaluation harness, workflow automation runtime with approval gates and rollback, multi-agent architecture with chief-agent coordination and specialist roles, and manifest-driven role-based provider routing with ordered fallback.
 
 ## Current Focus
 
-Milestones 1–14 are complete through the Performance & Context-Efficiency Audit. LAEW is pip-installable (`pip install .` or `pip install laew`), has documented configuration (`LAEW_BASE_URL`, `LAEW_TIMEOUT`, `--provider`, `--timeout`), app-level logging, a bandit SAST gate in CI, an interactive `laew console` REPL, durable session persistence (`session save|load|list|show|delete`), offline benchmark baselines (docs/performance/BASELINE.md, `pytest tests/benchmarks`), calibrated token estimation, real prompt/completion token accounting with context-budget enforcement, and streaming chat (`laew chat` defaults to streaming; `--no-stream` escapes). The roadmap (`docs/ROADMAP.md`) sequences Milestones 15–21; the agreed next objective is **Milestone 15** (documented in ROADMAP.md).
+Milestones 1–15 are complete through Multi-Model Routing & Provider Fallback. LAEW is pip-installable (`pip install .` or `pip install laew`), has documented configuration (`LAEW_BASE_URL`, `LAEW_TIMEOUT`, `--provider`, `--timeout`), app-level logging, a bandit SAST gate in CI, an interactive `laew console` REPL, durable session persistence (`session save|load|list|show|delete`), offline benchmark baselines (docs/performance/BASELINE.md, `pytest tests/benchmarks`), calibrated token estimation, real prompt/completion token accounting with context-budget enforcement, streaming chat (`laew chat` defaults to streaming; `--no-stream` escapes), and manifest-driven provider dispatch across model roles with fallback chains. The roadmap (`docs/ROADMAP.md`) sequences Milestones 16–21; the agreed next objective is **Milestone 16** (documented in ROADMAP.md).

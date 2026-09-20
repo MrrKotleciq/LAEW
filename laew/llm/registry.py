@@ -137,6 +137,55 @@ class ProviderRegistry:
             return f"http://{host}"
         return None  # let the builder use its own default
 
+    # -- role-based provider selection ---------------------------------------- #
+
+    def get_provider_for_role(
+        self,
+        role: str,
+        manifest: dict,
+        *,
+        base_url: Optional[str] = None,
+        timeout: Optional[int] = None,
+    ) -> LLMProvider:
+        """Get a provider for the given *role* by trying the list of provider names
+        in the manifest's ``agent.llm.roles[role]`` in order.
+
+        Raises LLMError if no provider can be built for the role.
+        """
+        roles_cfg = manifest.get("agent", {}).get("llm", {}).get("roles", {})
+        provider_names = roles_cfg.get(role)
+        if not provider_names:
+            raise LLMError(
+                f"No provider list found for role '{role}' in manifest.",
+                code="NO_PROVIDER_FOR_ROLE",
+            )
+
+        providers_cfg = manifest.get("agent", {}).get("llm", {}).get("providers", [])
+        provider_by_name = {p.get("name"): p for p in providers_cfg if p.get("name")}
+
+        last_error = None
+        for name in provider_names:
+            cfg = provider_by_name.get(name)
+            if not cfg:
+                last_error = LLMError(
+                    f"Provider '{name}' not found in manifest for role '{role}'.",
+                    code="PROVIDER_NOT_FOUND",
+                )
+                continue
+
+            try:
+                return self.create(cfg, base_url=base_url, timeout=timeout)
+            except LLMError as e:
+                last_error = e
+                # Try the next provider in the list
+                continue
+
+        # If we got here, all providers for the role failed.
+        raise LLMError(
+            f"Failed to build any provider for role '{role}'. Last error: {last_error}",
+            code="ALL_PROVIDERS_FAILED",
+        ) from last_error
+
 
 # --------------------------------------------------------------------------- #
 # Default (module-level) registry
@@ -163,3 +212,15 @@ def create_provider(
     Keyword arguments override values from env vars and the manifest.
     """
     return _registry.create(cfg, base_url=base_url, timeout=timeout)
+
+
+def get_provider_for_role(
+    role: str,
+    manifest: dict,
+    *,
+    base_url: Optional[str] = None,
+    timeout: Optional[int] = None,
+    _registry: ProviderRegistry = DEFAULT_REGISTRY,
+) -> LLMProvider:
+    """Get a provider for *role* using the default registry."""
+    return _registry.get_provider_for_role(role, manifest, base_url=base_url, timeout=timeout)

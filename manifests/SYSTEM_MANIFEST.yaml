@@ -44,10 +44,10 @@
             rag: 8000                                                                      
             tools: 4000                                                                    
             total: 18000                                                                   
-        embedding:                                                                         
+        embedding:
           description: "Model do generowania wektorów na potrzeby bazy wiedzy i RAG"
-          model_name: "nomic-embed-text:latest"       
-          target_dimensions: 768                                                           
+          model_name: "bge-m3:latest"
+          target_dimensions: 1024                                                           
         reviewer:                                                                          
           description: "Model specjalistyczny do audytu architektury i przeglądu kodu"     
                                                                                            
@@ -154,6 +154,10 @@
             model: "mistral:latest"
             host: "localhost"
             port: 11434
+        roles:
+          primary: ["ollama_primary", "ollama_fallback"]
+          embedding: ["ollama_primary", "ollama_fallback"]
+          reviewer: ["ollama_primary", "ollama_fallback"]
         retry:
           max_attempts: 3
           backoff_base_ms: 1000

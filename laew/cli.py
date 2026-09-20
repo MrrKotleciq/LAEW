@@ -7,7 +7,7 @@ from pathlib import Path
 
 from laew.manifest import load_manifest, ManifestError
 from laew.runtime import (
-    build_provider,
+    build_provider_for_role,
     build_shared_tools,
     context_budget_from_manifest,
     resolve_model_name,
@@ -313,9 +313,9 @@ def cmd_multiagent_run(args) -> int:
         manifest_model = providers_cfg[0].get("model")
 
     terminal_allowlist = terminal_allowlist_from_manifest(manifest)
-    provider = build_provider(
+    provider = build_provider_for_role(
         manifest,
-        provider_type=args.provider,
+        "primary",
         base_url=args.base_url,
         timeout=args.timeout,
     )
@@ -413,9 +413,9 @@ def cmd_chat(args) -> int:
     if providers_cfg:
         manifest_model = providers_cfg[0].get("model")
 
-    provider = build_provider(
+    provider = build_provider_for_role(
         manifest,
-        provider_type=args.provider,
+        "primary",
         base_url=args.base_url,
         timeout=args.timeout,
     )

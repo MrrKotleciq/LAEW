@@ -11,6 +11,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
+import threading
+import concurrent.futures
+import math
 
 from laew.agent.base import Agent
 from laew.agent.executor import AgentExecutor, ExecutionResult
@@ -18,6 +21,7 @@ from laew.multiagent.context import SharedContext
 from laew.multiagent.message import AgentMessage, MessageKind
 from laew.multiagent.plan import MultiAgentPlan, SubTask
 from laew.multiagent.roles import SpecialistRole
+from laew.rag.embedding import EmbeddingService
 
 
 @dataclass(frozen=True)
@@ -91,6 +95,18 @@ def _normalize_text(text: str) -> str:
     import re
 
     return re.sub(r"\s+", " ", text.strip().lower())
+
+
+def _cosine_similarity(vec1: List[float], vec2: List[float]) -> float:
+    """Compute cosine similarity between two vectors."""
+    dot_product = sum(a * b for a, b in zip(vec1, vec2))
+    norm1 = math.sqrt(sum(a * a for a in vec1))
+    norm2 = math.sqrt(sum(b * b for b in vec2))
+
+    if norm1 == 0 or norm2 == 0:
+        return 0.0
+
+    return dot_product / (norm1 * norm2)
 
 
 class MultiAgentCoordinator:
@@ -210,12 +226,12 @@ class MultiAgentCoordinator:
     # --------------------------------------------------------------------- #
     # Conflict detection
     # --------------------------------------------------------------------- #
-    def _detect_conflicts(
+    def _detect_conflicts_text(
         self,
         shared_context: SharedContext,
         plan: MultiAgentPlan,
     ) -> List[Conflict]:
-        """Compare specialist outputs for the same deliverable.
+        """Compare specialist outputs for the same deliverable using text normalization.
 
         Returns a list of Conflict objects where two or more specialists
         produced materially different outputs for the same deliverable key.
@@ -235,6 +251,78 @@ class MultiAgentCoordinator:
                 continue  # need at least two to conflict
 
             # Normalize outputs for comparison
+            normalized: Dict[SpecialistRole, str] = {
+                role: _normalize_text(text) for role, text in outputs.items()
+            }
+            unique_normalized = set(normalized.values())
+
+            if len(unique_normalized) <= 1:
+                continue  # all outputs are effectively identical
+
+            # Build conflict report
+            agents = list(outputs.keys())
+            conflicts.append(
+                Conflict(
+                    deliverable=deliverable,
+                    agents=agents,
+                    outputs={role: outputs[role] for role in agents},
+                )
+            )
+
+        return conflicts
+
+    def _detect_conflicts_semantic(
+        self,
+        shared_context: SharedContext,
+        plan: MultiAgentPlan,
+        embedding_service: EmbeddingService,
+        conflict_threshold: float = 0.85,
+    ) -> List[Conflict]:
+        """Compare specialist outputs for the same deliverable using semantic similarity.
+
+        Returns a list of Conflict objects where two or more specialists
+        produced materially different outputs for the same deliverable key.
+        Falls back to text normalization if embedding service fails.
+        """
+        conflicts: List[Conflict] = []
+
+        # Group results by deliverable key
+        by_deliverable: Dict[str, Dict[SpecialistRole, str]] = {}
+        for delegation in self._delegations:
+            if not delegation.success:
+                continue
+            d = delegation.deliverable
+            by_deliverable.setdefault(d, {})[delegation.role] = delegation.output
+
+        for deliverable, outputs in by_deliverable.items():
+            if len(outputs) < 2:
+                continue  # need at least two to conflict
+
+            # Try semantic comparison first
+            try:
+                # Get embeddings for all outputs
+                texts = list(outputs.values())
+                embeddings = embedding_service.embed_batch(texts)
+
+                # Check if all pairs are above threshold (semantically similar)
+                all_similar = True
+                for i in range(len(embeddings)):
+                    for j in range(i + 1, len(embeddings)):
+                        similarity = _cosine_similarity(embeddings[i], embeddings[j])
+                        if similarity < conflict_threshold:
+                            all_similar = False
+                            break
+                    if not all_similar:
+                        break
+
+                if all_similar:
+                    continue  # all outputs are semantically similar
+
+            except Exception:
+                # Fall back to text normalization if embedding fails
+                pass
+
+            # Fallback to text normalization
             normalized: Dict[SpecialistRole, str] = {
                 role: _normalize_text(text) for role, text in outputs.items()
             }
@@ -287,7 +375,15 @@ class MultiAgentCoordinator:
     # --------------------------------------------------------------------- #
     # Public API
     # --------------------------------------------------------------------- #
-    def run(self, plan: MultiAgentPlan) -> MultiAgentResult:
+    def run(
+        self,
+        plan: MultiAgentPlan,
+        *,
+        parallel: bool = False,
+        max_workers: Optional[int] = None,
+        embedding_service: Optional[EmbeddingService] = None,
+        conflict_threshold: float = 0.85,
+    ) -> MultiAgentResult:
         """Execute the multi-agent plan and return the aggregated result.
 
         Steps:
@@ -299,18 +395,90 @@ class MultiAgentCoordinator:
         3. Detect conflicts between specialists.
         4. If synthesis requested, ask the chief agent for a final answer.
         5. Return the populated MultiAgentResult.
+
+        Args:
+            plan: The multi-agent plan to execute.
+            parallel: If True, execute subtasks concurrently using a thread pool.
+            max_workers: Maximum number of workers in the thread pool (defaults to number of subtasks).
+            embedding_service: Optional embedding service for semantic conflict detection.
+            conflict_threshold: Cosine similarity threshold for semantic conflict detection (0.0-1.0).
+                               Higher values mean stricter similarity requirements.
         """
         # Reset context for a clean run
         context = SharedContext()
         self._delegations = []
 
         # 1. Delegate each subtask to its specialist
-        for subtask in plan.subtasks:
-            delegation_result = self._delegate_subtask(subtask, context)
-            self._delegations.append(delegation_result)
+        if parallel and len(plan.subtasks) > 1:
+            # Parallel execution with ThreadPoolExecutor
+            # Determine number of workers
+            if max_workers is None:
+                max_workers = len(plan.subtasks)
+            else:
+                max_workers = min(max_workers, len(plan.subtasks))
+
+            # Use ThreadPoolExecutor for concurrent delegation
+            with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+                # Submit all delegation tasks
+                future_to_subtask = {
+                    executor.submit(self._delegate_subtask, subtask, context): subtask
+                    for subtask in plan.subtasks
+                }
+
+                # Collect results as they complete, maintaining order
+                delegations: List[Optional[DelegationResult]] = [None] * len(plan.subtasks)
+                for future in concurrent.futures.as_completed(future_to_subtask):
+                    subtask = future_to_subtask[future]
+                    try:
+                        delegation_result = future.result()
+                        # Find the index of this subtask to maintain order
+                        idx = plan.subtasks.index(subtask)
+                        delegations[idx] = delegation_result
+                    except Exception as exc:
+                        # Handle unexpected errors in delegation
+                        error_msg = f"Delegation failed with exception: {exc}"
+                        context.post(
+                            key=f"{subtask.deliverable}:error",
+                            content=error_msg,
+                            source=subtask.role.value,
+                        )
+                        msg = AgentMessage(
+                            kind=MessageKind.ERROR,
+                            content=error_msg,
+                            sender=subtask.role.value,
+                            recipient="chief",
+                            correlation_id=subtask.id,
+                            metadata={"deliverable": subtask.deliverable},
+                        )
+                        delegation_result = DelegationResult(
+                            role=subtask.role,
+                            subtask_id=subtask.id,
+                            deliverable=subtask.deliverable,
+                            success=False,
+                            error=error_msg,
+                            message=msg,
+                        )
+                        idx = plan.subtasks.index(subtask)
+                        delegations[idx] = delegation_result
+
+                # Filter out None values (shouldn't happen, but just in case)
+                self._delegations = [d for d in delegations if d is not None]
+        else:
+            # Sequential execution (original behavior)
+            for subtask in plan.subtasks:
+                delegation_result = self._delegate_subtask(subtask, context)
+                self._delegations.append(delegation_result)
 
         # 2. Detect conflicts
-        conflicts = self._detect_conflicts(context, plan)
+        conflicts: List[Conflict] = []
+        if embedding_service is not None:
+            # Use semantic conflict detection
+            conflicts = self._detect_conflicts_semantic(
+                context, plan, embedding_service, conflict_threshold
+            )
+        else:
+            # Fall back to text-based conflict detection
+            conflicts = self._detect_conflicts_text(context, plan)
 
         # 3. Optional synthesis by the chief
         final_response = ""

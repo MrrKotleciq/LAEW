@@ -275,3 +275,38 @@ def validate_manifest(manifest: dict[str, Any]) -> None:
                     raise ManifestError(
                         f"Manifest key 'agent.llm.providers[{idx}].timeout' must be a positive integer."
                     )
+
+        # Validate agent.llm.roles if present
+        if "llm" in agent:
+            llm = agent["llm"]
+            if "roles" in llm and llm["roles"] is not None:
+                roles = llm["roles"]
+                if not isinstance(roles, dict):
+                    raise ManifestError(
+                        "Manifest key 'agent.llm.roles' must be a YAML mapping."
+                    )
+                # Get provider names from the providers list for validation
+                provider_names = {p.get("name") for p in llm.get("providers", []) if p.get("name")}
+                for role, provider_list in roles.items():
+                    if not isinstance(role, str) or not role.strip():
+                        raise ManifestError(
+                            f"Manifest key 'agent.llm.roles' keys must be non-empty strings (invalid role: '{role}')"
+                        )
+                    if not isinstance(provider_list, list):
+                        raise ManifestError(
+                            f"Manifest key 'agent.llm.roles[{role}]' must be a list of provider names."
+                        )
+                    if not provider_list:
+                        raise ManifestError(
+                            f"Manifest key 'agent.llm.roles[{role}]' must be a non-empty list."
+                        )
+                    for provider_name in provider_list:
+                        if not isinstance(provider_name, str) or not provider_name.strip():
+                            raise ManifestError(
+                                f"Manifest key 'agent.llm.roles[{role}]' contains an empty or non-string provider name."
+                            )
+                        if provider_name not in provider_names:
+                            raise ManifestError(
+                                f"Manifest key 'agent.llm.roles[{role}]' references unknown provider '{provider_name}'. "
+                                f"Declared providers: {sorted(provider_names)}"
+                            )

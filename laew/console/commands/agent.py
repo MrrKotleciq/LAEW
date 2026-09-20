@@ -2,8 +2,8 @@
 
 Drives the single-agent loop (``agent run``), an interactive chat loop
 (``agent chat``), and the step-trace toggle (``trace on|off``).  The run path
-reuses the shared runtime composition (``build_provider`` + shared tools) so
-what the console exercises is the identical wiring the CLI chat command uses.
+reuses the shared runtime composition (``build_provider_for_role`` + shared tools)
+so what the console exercises is the identical wiring the CLI chat command uses.
 """
 
 import time
@@ -11,7 +11,7 @@ from typing import Callable, Dict, Optional
 
 from laew.console.state import SessionState
 from laew.runtime import (
-    build_provider,
+    build_provider_for_role,
     build_shared_tools,
     context_budget_from_manifest,
     resolve_model_name,
@@ -29,9 +29,9 @@ def _build_agent(state: SessionState):
     from laew.agent.base import Agent, AgentConfig
 
     manifest = state.load_manifest()
-    provider = build_provider(
+    provider = build_provider_for_role(
         manifest,
-        provider_type=state.overrides.get("provider"),
+        "primary",
         base_url=state.overrides.get("base-url"),
         timeout=int(state.overrides["timeout"]) if state.overrides.get("timeout") else None,
     )

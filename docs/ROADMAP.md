@@ -2,9 +2,9 @@
 
 ## Current State
 
-- **Stage:** Milestones 1–14 complete (declarative foundation → performance & context-efficiency audit).
-- **Implemented:** tools with programmatic security, LLM provider + registry (ADR-019), RAG (in-memory + optional ChromaDB), single-agent loop, workflow runtime, evaluation harness, multi-agent orchestration (ADR-018), PEP 621 packaging, app logging, bandit CI gate, interactive testing console (`laew console`), session memory & conversation persistence (ADR-012), offline benchmark baselines + calibrated token estimation + real token accounting with budget enforcement + streaming chat.
-- **Test health:** 586 unit tests collected across 28 suites (including session store + session command suites).
+- **Stage:** Milestones 1–16 complete (declarative foundation → parallel multi-agent execution & semantic conflict detection).
+- **Implemented:** tools with programmatic security, LLM provider + registry (ADR-019), RAG (in-memory + optional ChromaDB), single-agent loop, workflow runtime, evaluation harness, multi-agent orchestration (ADR-018) with parallel execution & semantic conflict detection, PEP 621 packaging, app logging, bandit CI gate, interactive testing console (`laew console`), session memory & conversation persistence (ADR-012), offline benchmark baselines + calibrated token estimation + real token accounting with budget enforcement + streaming chat, and manifest-driven role-based provider routing with ordered fallback (ADR-001/ADR-019).
+- **Test health:** 609 unit tests collected across 30 suites (including routing and multiagent parallel suites).
 - **Milestone history** lives in `docs/history/CHANGELOG.md`; architecture decisions in `docs/decisions/`.
 
 ## Roadmap Principles
@@ -33,19 +33,14 @@
 **Goal:** Optimize the runtime on a verified baseline (ADR-014 level 8).
 **Result:** Four streams shipped. (A) `tests/benchmarks/` — offline pytest-benchmark fixtures for the agent executor, RAG retrieval, and workflow dispatch; baselines recorded in docs/performance/BASELINE.md; profiling surfaced and fixed a real O(k²) regression in `AgentExecutor._trim_to_budget` (rewritten as a single O(n) pass). (B) `TokenEstimator` override + `TokenCalibrator` + `calibrate_with_ollama()` via `/api/tokenize` (offline-skipped). (C) static system prompt memoized per executor, `ExecutionResult` token accounting from real provider counts, manifest-driven `ContextBudget` enforcement that trims oldest history turns under budget pressure. (D) streaming chat (`generate_stream`, NDJSON parse, terminal token counts) with `laew chat` streaming by default (`--no-stream` to escape). 586 unit tests + 7 benchmark hooks green.
 
-### Milestone 15: Multi-Model Routing & Provider Fallback
+### Milestone 15: Multi-Model Routing & Provider Fallback — ✅ Completed
 **Goal:** Route model roles across multiple providers and fall back on failure — the step right before multi-agent scaling.
-**Scope:** Implement the model router from the LAEW v1.0 architecture (model roles → `ollama_primary` / `ollama_fallback` / cloud API); role→provider mapping with availability checks and cost/priority policy; use the ADR-019 registry as the dispatch seam; extend the bounded provider-fallback retry budget (H1) to role routing.
-**Dependencies:** Milestone 14; build on the two providers already declared in the manifest.
-**Tests:** Router dispatch per role, unavailable-provider fallback, policy precedence, budget exhaustion handling.
-**Definition of Done:** A model role can resolve to a different provider (local→cloud) when the primary is unavailable, without code changes and with explicit policy configuration.
+**Result:** Manifest-driven provider dispatch across model roles (`primary`, `embedding`, `reviewer`) with ordered fallback chain via `get_provider_for_role` / `build_provider_for_role`. Config precedence: CLI flag > env var (`LAEW_BASE_URL`, `LAEW_TIMEOUT`) > manifest > provider default. Typed errors (`NO_PROVIDER_FOR_ROLE`, `PROVIDER_NOT_FOUND`, `ALL_PROVIDERS_FAILED`). Primary model upgraded to `qwen2.5-coder:7b`. 16 new unit tests in `tests/unit/test_routing.py` (602 unit tests total).
 
-### Milestone 16: Parallel Multi-Agent Execution & Semantic Conflict Detection
+### Milestone 16: Parallel Multi-Agent Execution & Semantic Conflict Detection — ✅ Completed
 **Goal:** Complete the deferred ADR-018 items.
-**Scope:** Execute independent subtasks concurrently (thread/async executor) with per-specialist isolation preserved; replace text-similarity conflict detection with embedding-based semantic comparison reusing the existing embedding stack.
+**Result:** Concurrent subtask execution via `concurrent.futures.ThreadPoolExecutor` with per-specialist isolation (fresh `AgentExecutor` per delegation, principle P8) and deterministic result ordering matching `plan.subtasks`. Thread-safe `SharedContext` journal using `threading.RLock()` across all public methods (`post`, `get`, `all_for`, `keys`, `render`, `clear`, `__len__`). Semantic conflict detection using `EmbeddingService.embed_batch()` and pairwise cosine similarity (`_cosine_similarity()`) against configurable `conflict_threshold` (default 0.85), with automatic fallback to text normalization (`_detect_conflicts_text()`) when embeddings fail or are omitted. 7 unit tests in `tests/unit/test_multiagent_parallel.py` covering parallel execution ordering, thread safety under 20 concurrent tasks, semantic conflict detection (matching/divergent outputs), embedding failure fallback, and failure isolation. Total: 609 unit tests collected across 30 test suites.
 **Dependencies:** Milestone 15 (routing gives specialists resilient provider access); stable single-agent baseline (ADR-017).
-**Tests:** Deterministic parallel delegation, shared-context consistency under concurrency, semantic-conflict cases that text-similarity misses.
-**Definition of Done:** Independent subtasks run concurrently with a verifiable speedup; semantic conflicts are surfaced to the chief and caller.
 
 ---
 

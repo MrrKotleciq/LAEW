@@ -2,7 +2,7 @@
 
 from laew.llm.base import LLMProvider, LLMMessage, LLMResponse, LLMError
 from laew.llm.ollama import OllamaProvider
-from laew.llm.registry import ProviderRegistry, create_provider, build_ollama
+from laew.llm.registry import ProviderRegistry, create_provider, get_provider_for_role, build_ollama
 
 __all__ = [
     "LLMProvider",
@@ -12,5 +12,6 @@ __all__ = [
     "OllamaProvider",
     "ProviderRegistry",
     "create_provider",
+    "get_provider_for_role",
     "build_ollama",
 ]

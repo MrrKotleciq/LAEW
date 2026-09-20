@@ -88,6 +88,23 @@ def temp_manifest():
                 "top_k": 5,
             },
         },
+        "agent": {
+            "llm": {
+                "providers": [
+                    {"name": "ollama_primary", "type": "ollama", "model": "llama3.1"},
+                ],
+                "retry": {
+                    "max_attempts": 1,
+                    "backoff_base_ms": 100,
+                    "max_backoff_ms": 200,
+                },
+                "roles": {
+                    "primary": ["ollama_primary"],
+                    "embedding": ["ollama_primary"],
+                    "reviewer": ["ollama_primary"],
+                }
+            }
+        }
     }
 
     with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
@@ -332,6 +349,11 @@ class TestChatCommand:
                         "backoff_base_ms": 100,
                         "max_backoff_ms": 200,
                     },
+                    "roles": {
+                        "primary": ["ollama_primary"],
+                        "embedding": ["ollama_primary"],
+                        "reviewer": ["ollama_primary"],
+                    },
                 },
             },
         }
@@ -400,32 +422,32 @@ class TestChatCommand:
     # -- Provider registry wiring (Milestone 11) --------------------------- #
 
     def test_chat_builds_provider_via_registry(self, chat_manifest, capsys):
-        """cmd_chat must use create_provider, not a raw OllamaProvider."""
+        """cmd_chat must use build_provider_for_role, not a raw OllamaProvider."""
         run_result = MagicMock()
         run_result.success = True
         run_result.final_response = "ok"
         run_result.error = None
 
         with (
-            patch("laew.runtime.create_provider") as mock_create,
+            patch("laew.cli.build_provider_for_role") as mock_build,
             patch("laew.cli.Agent"),
             patch("laew.cli.AgentConfig"),
             patch("laew.cli.AgentExecutor") as mock_executor,
             patch("builtins.input", side_effect=["hello", "exit"]),
         ):
-            mock_create.return_value = MagicMock()
+            mock_build.return_value = MagicMock()
             mock_executor.return_value.run.return_value = run_result
             exit_code = cmd_chat(chats_args(chat_manifest))
 
         assert exit_code == 0
-        mock_create.assert_called_once()
-        _, kwargs = mock_create.call_args
+        mock_build.assert_called_once()
+        _, kwargs = mock_build.call_args
         # base_url arg is an override; provider type comes from manifest.
         assert kwargs.get("base_url") is None
         assert kwargs.get("timeout") is None
 
     def test_chat_timeout_flag_honored(self, chat_manifest, capsys):
-        """An explicit --timeout argument reaches create_provider."""
+        """An explicit --timeout argument reaches build_provider_for_role."""
         run_result = MagicMock()
         run_result.success = True
         run_result.final_response = "ok"
@@ -435,48 +457,48 @@ class TestChatCommand:
         args.timeout = 900
 
         with (
-            patch("laew.runtime.create_provider") as mock_create,
+            patch("laew.cli.build_provider_for_role") as mock_build,
             patch("laew.cli.Agent"),
             patch("laew.cli.AgentConfig"),
             patch("laew.cli.AgentExecutor") as mock_executor,
             patch("builtins.input", side_effect=["hello", "exit"]),
         ):
-            mock_create.return_value = MagicMock()
+            mock_build.return_value = MagicMock()
             mock_executor.return_value.run.return_value = run_result
             exit_code = cmd_chat(args)
 
         assert exit_code == 0
-        _, kwargs = mock_create.call_args
+        _, kwargs = mock_build.call_args
         assert kwargs.get("timeout") == 900
 
     def test_chat_provider_flag_honored(self, chat_manifest, capsys):
-        """An explicit --provider type filters the manifest provider list."""
+        """An explicit --base-url flag is passed to build_provider_for_role."""
         run_result = MagicMock()
         run_result.success = True
         run_result.final_response = "ok"
         run_result.error = None
 
         args = chats_args(chat_manifest)
-        args.provider = "ollama"
+        args.base_url = "http://custom:11434"
 
         with (
-            patch("laew.runtime.create_provider") as mock_create,
+            patch("laew.cli.build_provider_for_role") as mock_build,
             patch("laew.cli.Agent"),
             patch("laew.cli.AgentConfig"),
             patch("laew.cli.AgentExecutor") as mock_executor,
             patch("builtins.input", side_effect=["hello", "exit"]),
         ):
-            mock_create.return_value = MagicMock()
+            mock_build.return_value = MagicMock()
             mock_executor.return_value.run.return_value = run_result
             exit_code = cmd_chat(args)
 
         assert exit_code == 0
-        mock_create.assert_called_once()
-        cfg_arg, _ = mock_create.call_args
-        assert cfg_arg[0].get("type") == "ollama"
+        mock_build.assert_called_once()
+        _, kwargs = mock_build.call_args
+        assert kwargs.get("base_url") == "http://custom:11434"
 
     def test_multiagent_run_builds_provider_via_registry(self, chat_manifest, tmp_path):
-        """cmd_multiagent_run must use create_provider for the shared provider."""
+        """cmd_multiagent_run must use build_provider_for_role for the shared provider."""
         plan_path = tmp_path / "plan.yaml"
         plan_path.write_text(
             "name: P\nobjective: O\nsynthesize: false\nsubtasks:\n"
@@ -492,19 +514,19 @@ class TestChatCommand:
         result.final_response = "ok"
 
         with (
-            patch("laew.runtime.create_provider") as mock_create,
+            patch("laew.cli.build_provider_for_role") as mock_build,
             patch("laew.cli.MultiAgentCoordinator") as mock_coord,
             patch("laew.cli.Agent"),
             patch("laew.cli.AgentConfig"),
         ):
-            mock_create.return_value = MagicMock()
+            mock_build.return_value = MagicMock()
             mock_coord.return_value.run.return_value = result
             exit_code = cmd_multiagent_run(multiagent_args(plan_path, chat_manifest))
 
         assert exit_code == 0
-        mock_create.assert_called_once()
-        cfg_arg, _ = mock_create.call_args
-        assert cfg_arg[0].get("type") == "ollama"
+        mock_build.assert_called_once()
+        args, _ = mock_build.call_args
+        assert args[1] == "primary"
 
     # -- Session persistence (Milestone 13) --------------------------------- #
 

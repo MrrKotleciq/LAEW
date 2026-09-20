@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import List, Optional
 
 from laew.llm.base import LLMProvider
-from laew.llm.registry import create_provider
+from laew.llm.registry import create_provider, get_provider_for_role
 from laew.tools import (
     FilesystemTool,
     GitTool,
@@ -126,6 +126,10 @@ def resolve_model_name(
     if not installed:
         return requested or "llama3.1"
 
+    # If no manifest model, use the first installed model.
+    if requested is None:
+        return installed[0]
+
     # Manifest-specified model is installed: use it as-is.
     if requested in installed:
         return requested
@@ -164,6 +168,35 @@ def build_provider(
     """
     cfg = provider_cfg_from_manifest(manifest, provider_type)
     return create_provider(cfg, base_url=base_url, timeout=timeout)
+
+
+def build_provider_for_role(
+    manifest: dict,
+    role: str,
+    base_url: Optional[str] = None,
+    timeout: Optional[int] = None,
+    _registry: Optional[ProviderRegistry] = None,
+) -> LLMProvider:
+    """
+    Build an LLM provider for the given *role* using the registry's fallback chain.
+
+    The manifest's ``agent.llm.roles[role]`` list gives the ordered provider
+    names to try.  The first one that builds successfully is returned.  Raises
+    :exc:`LLMError` (``code="ALL_PROVIDERS_FAILED"``) if every option fails.
+
+    Args:
+        manifest: Loaded manifest dictionary.
+        role: Abstract model role (e.g. ``"primary"``, ``"embedding"``, ``"reviewer"``).
+        base_url: Optional base-URL override (highest precedence).
+        timeout: Optional timeout override in seconds (highest precedence).
+        _registry: Optional provider registry to use (defaults to the global registry).
+
+    Returns:
+        A configured :class:`LLMProvider`.
+    """
+    if _registry is not None:
+        return get_provider_for_role(role, manifest, base_url=base_url, timeout=timeout, _registry=_registry)
+    return get_provider_for_role(role, manifest, base_url=base_url, timeout=timeout)
 
 
 def build_shared_tools(terminal_allowlist: Optional[list] = None) -> List[object]:

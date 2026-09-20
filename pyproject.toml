@@ -32,6 +32,7 @@ dev = [
     "chromadb>=0.4.0",
     "build>=1.0.0",
     "pytest-benchmark>=4.0.0",
+    "bandit>=1.7.0",
 ]
 
 [project.scripts]
