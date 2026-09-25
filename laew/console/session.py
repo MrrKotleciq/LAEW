@@ -7,6 +7,12 @@ from typing import Dict, List, Optional
 from laew.console.state import SessionState
 from laew.console.commands import COMMAND_HANDLERS
 
+# Color codes (ANSI escape sequences)
+COLOR_USER = "\x1b[32m"   # Green for user input
+COLOR_MODEL = "\x1b[90m"  # White/gray for model output
+COLOR_PROMPT = "\x1b[32m" # Green for the prompt prefix
+COLOR_RESET = "\x1b[0m"    # Reset to default color
+
 class ConsoleSession(cmd.Cmd):
     """
     Interactive REPL for LAEW testing.
@@ -17,11 +23,13 @@ class ConsoleSession(cmd.Cmd):
     malformed commands produce a readable error instead of crashing the REPL.
     """
 
+ 
+    
     intro = (
         "LAEW Interactive Console. Type 'help' or '?' for commands, "
         "'exit' or 'quit' to leave."
     )
-    prompt = "(laew) "
+    prompt = f"{COLOR_PROMPT}(laew){COLOR_RESET} "
 
     def __init__(self, manifest_path: Optional[str] = None):
         super().__init__()
@@ -37,7 +45,7 @@ class ConsoleSession(cmd.Cmd):
         try:
             parts = shlex.split(line)
         except ValueError as e:
-            print(f"[FAIL] Could not parse command: {e}")
+            self.stdout.write(f"{COLOR_RESET}[FAIL]{COLOR_RESET} Could not parse command: {e}\n")
             return
         if not parts:
             return

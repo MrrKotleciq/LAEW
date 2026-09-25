@@ -68,20 +68,20 @@ class OllamaProvider(LLMProvider):
         ollama_messages = [msg.to_dict() for msg in messages]
 
         # Build request payload
+        options: Dict[str, Any] = {
+            "temperature": temperature,
+        }
+        if max_tokens is not None:
+            options["num_predict"] = max_tokens
+        if stop is not None:
+            options["stop"] = stop
+
         payload = {
             "model": model,
             "messages": ollama_messages,
             "stream": False,
-            "options": {
-                "temperature": temperature,
-            },
+            "options": options,
         }
-
-        if max_tokens is not None:
-            payload["options"]["num_predict"] = max_tokens
-
-        if stop is not None:
-            payload["options"]["stop"] = stop
 
         try:
             response = requests.post(

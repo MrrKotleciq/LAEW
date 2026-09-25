@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional
 
-from laew.prompts.context_budget import TokenEstimator
+from laew.prompts.context_budget import ContextBudget, TokenEstimator
 
 
 @dataclass

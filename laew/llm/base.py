@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Optional
+from typing import Any, Generator, Optional
 
 
 class LLMError(Exception):
@@ -133,7 +133,7 @@ class LLMProvider(ABC):
         temperature: float = 0.7,
         max_tokens: Optional[int] = None,
         stop: Optional[list[str]] = None,
-    ):
+    ) -> Generator[str, None, None]:
         """
         Stream a completion as content chunks (e.g. NDJSON for Ollama).
 

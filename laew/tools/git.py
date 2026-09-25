@@ -23,7 +23,11 @@ class GitTool(Tool):
         - git_branch: Create branch (requires approval)
     """
 
-    description = "Inspect and manage a Git repository (status, diff, log, commit)"
+    def __init__(self):
+        super().__init__(
+            requires_approval=False,
+            description="Inspect and manage a Git repository (status, diff, log, commit)"
+        )
     operations = {
         "git_status": {
             "params": [],

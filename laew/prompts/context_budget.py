@@ -1,7 +1,7 @@
 """Context budgeting and token estimation for LAEW prompts."""
 
 from dataclasses import dataclass, field
-from typing import List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 
 @dataclass
@@ -28,7 +28,7 @@ class ContextBudget:
     total: int = 18000
     reserved: int = 2000  # For model response generation
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate budget consistency."""
         allocated = self.system + self.conversation + self.rag + self.tools
         if allocated > self.total:
@@ -119,7 +119,7 @@ class TokenEstimator:
 
     @staticmethod
     def estimate_messages(
-        messages: list[dict], chars_per_token: Optional[float] = None
+        messages: list[dict[str, Any]], chars_per_token: Optional[float] = None
     ) -> int:
         """
         Estimate tokens for a list of message dictionaries.

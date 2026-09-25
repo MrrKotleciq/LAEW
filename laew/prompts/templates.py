@@ -2,7 +2,7 @@
 
 import re
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Pattern
+from typing import Any, Dict, List, Optional, Pattern, Set
 
 
 @dataclass
@@ -20,9 +20,9 @@ class PromptTemplate:
     name: str
     template: str
     variables: Set[str] = field(default_factory=set)
-    compiled_pattern: Optional[Pattern] = field(default=None, init=False)
+    compiled_pattern: Optional[Pattern[str]] = field(default=None, init=False)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Extract variable names from template and compile pattern."""
         # Find all {{variable}} patterns
         variable_pattern = r"\{\{([^}]+)\}\}"
@@ -48,10 +48,12 @@ class PromptTemplate:
         if missing:
             raise KeyError(f"Missing required template variables: {sorted(missing)}")
 
-        def replace_match(match):
+        def replace_match(match: re.Match[str]) -> str:
             var_name = match.group(1).strip()
             return str(context.get(var_name, match.group(0)))  # fallback to original
 
+        if self.compiled_pattern is None:
+            return self.template
         return self.compiled_pattern.sub(replace_match, self.template)
 
     def validate_context(self, context: Dict[str, Any]) -> List[str]:
@@ -87,7 +89,7 @@ class PromptTemplateRegistry:
     Provides template caching, loading, and retrieval.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize empty template registry."""
         self._templates: Dict[str, PromptTemplate] = {}
 

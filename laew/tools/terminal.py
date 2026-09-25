@@ -19,8 +19,6 @@ class TerminalTool(Tool):
         - run_command: Executes shell commands (allowlisted or approved).
     """
 
-    description = "Run allowlisted shell commands in a confined workspace"
-
     operations = {
         "run_command": {
             "params": ["command", "cwd", "timeout_ms"],
@@ -63,7 +61,10 @@ class TerminalTool(Tool):
                 so the runtime enforces the security contract declared in the
                 workspace manifest (P8) instead of only a hardcoded default.
         """
-        super().__init__(requires_approval=False)
+        super().__init__(
+            requires_approval=False,
+            description="Run allowlisted shell commands in a confined workspace"
+        )
         if workspace_root is None:
             self.workspace_root = Path.cwd().resolve()
         else:

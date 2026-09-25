@@ -70,7 +70,7 @@ class ToolResult:
         """Create an error result."""
         return cls(success=False, error_code=code, error_message=message)
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         """Convert result to dictionary for logging (sanitized)."""
         return {
             "success": self.success,
@@ -87,14 +87,14 @@ class ToolInvocationLog:
     timestamp: str
     tool: str
     operation: str
-    arguments: dict
+    arguments: dict[str, Any]
     success: bool
     error_code: Optional[str]
     error_message: Optional[str]
     duration_ms: int
     status: str
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         return asdict(self)
 
@@ -241,15 +241,19 @@ class Tool(ABC):
     - Logging and traceability (ADR-016)
     """
 
-    def __init__(self, requires_approval: bool = False):
+    description: str
+
+    def __init__(self, requires_approval: bool = False, description: str = ""):
         """
         Initialize tool.
 
         Args:
             requires_approval: Whether this tool requires user approval by default
+            description: Human-readable description of what the tool does
         """
         self._requires_approval = requires_approval
         self._approved = False
+        self.description = description
 
     @property
     def name(self) -> str:
