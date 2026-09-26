@@ -1,0 +1,3 @@
+### Milestone 13: Session Memory & Conversation Persistence — ✅ Completed
+**Goal:** Make agent sessions durable and restorable instead of ephemeral.
+**Result:** `laew console` gains `session save|load|list|show|delete` with `SessionStore` (atomic, hardened JSON under `runtime/sessions`); `laew chat` gains `--resume/--session/--no-persist`; conversation memory persisted per ADR-012 and re-verified from the filesystem on load. 67 new tests (session_store: 45, session commands: 18, CLI resume/chat: 4).
