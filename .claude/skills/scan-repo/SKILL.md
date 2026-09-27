@@ -3,6 +3,14 @@
 --Data Schemas: Plain text markdown format
 --User Verbatim Instruction: write a prompt for yourself to scan repo in order to find bugs, duplicated code, etc, after I clear your context
 
+---
+type: skill
+title: Scan Repo
+scope: repository-wide code quality, security, and architecture scanning
+read_when:
+  - requested via /scan command
+---
+
 # Repository Scan Prompt (Post-Context-Clear)
 
 ## Objective

@@ -1,3 +1,12 @@
+---
+type: architecture
+title: Architecture Principles
+scope: core architectural principles (P1–P10)
+read_when:
+  - evaluating design proposals
+  - reviewing architectural decisions
+---
+
 # LAEW — Architecture Principles
 
 ## P1 — Model is replaceable

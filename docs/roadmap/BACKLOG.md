@@ -1,3 +1,14 @@
+---
+type: roadmap
+id: backlog
+title: Backlog
+status: backlog
+purpose: List of candidate milestones not yet sequenced into the roadmap
+read_when:
+  - planning new work
+  - evaluating feature candidates
+---
+
 ## Future Candidates (not yet sequenced)
 
 - Cloud-provider integration beyond routing (full OpenAI/Anthropic provider builders in the ADR-019 registry).

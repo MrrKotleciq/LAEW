@@ -1,3 +1,11 @@
+---
+type: rule
+title: Agents
+scope: when and how to delegate to sub-agents
+read_when:
+  - deciding whether to spawn an agent
+---
+
 # Agent Use 
 Use available sub-agents when they provide clear value. 
 - Use a planning/architecture agent for complex features, refactors, or architectural decisions. 

@@ -1,3 +1,11 @@
+---
+type: prompt
+title: Documentation
+scope: technical documentation guidelines
+read_when:
+  - writing or reviewing documentation
+---
+
 # LAEW Technical Documentation Instructions
 
 ## 1. Purpose

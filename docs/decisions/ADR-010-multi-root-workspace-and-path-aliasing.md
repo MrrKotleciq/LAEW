@@ -1,3 +1,19 @@
+---
+type: adr
+id: ADR-010
+title: Multi-Root Workspace Boundaries and Logical Path Aliasing
+status: Accepted
+date: 2026-09-03
+purpose: Define multi-root workspace boundaries and logical path aliases (@project, @projects, @knowledge) with traversal prevention and restricted-path enforcement.
+scope: path resolution, workspace boundaries, path aliases
+read_when:
+  - working on path resolution or path_resolver.py
+  - enforcing workspace boundaries in tools
+  - handling @project / @knowledge aliasing
+related:
+  - ADR-006
+  - ADR-011
+---
 # ADR-010 — Multi-Root Workspace Boundaries and Logical Path Aliasing
 
 ## Status

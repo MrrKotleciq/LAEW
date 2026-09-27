@@ -1,3 +1,13 @@
+---
+type: roadmap
+id: M04
+title: Knowledge System & RAG Pipeline
+status: completed
+purpose: Implement the knowledge retrieval subsystem — embeddings, in-memory vector store, knowledge base, RAG pipeline with reranking, and the RAG tool.
+read_when:
+  - working on RAG, the vector store, or the knowledge base
+  - understanding retrieval, reranking, or context injection
+---
 ## [2026-09-06] Milestone 4: Knowledge System & RAG Pipeline Completed
 
 - **Context & Motivation**:

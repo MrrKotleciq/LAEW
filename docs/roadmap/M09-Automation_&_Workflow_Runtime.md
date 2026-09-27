@@ -1,3 +1,14 @@
+---
+type: roadmap
+id: M09
+title: Automation & Workflow Runtime
+status: completed
+purpose: Execute multi-step engineering workflows with human oversight, approval gates, compensating rollback, and manual/disabled fallback modes (ADR-015).
+read_when:
+  - implementing workflow automation
+  - Milestone 9 (Automation & Workflow Runtime)
+---
+
 ## [2026-09-09] Milestone 9: Automation & Workflow Runtime Completed
 
 - **Context & Motivation**:

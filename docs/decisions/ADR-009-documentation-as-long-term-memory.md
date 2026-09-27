@@ -1,3 +1,20 @@
+---
+type: adr
+id: ADR-009
+title: Repository Documentation as Long-Term Memory and Project Sync
+status: Accepted
+date: 2026-08-25
+purpose: Treat in-repository documentation as the project's long-term memory and keep it synchronized with the code and its state.
+scope: documentation, project-sync, docs/ maintenance
+read_when:
+  - creating or updating project documentation
+  - running or extending project-sync
+  - deciding where a decision belongs
+related:
+  - ADR-007
+  - ADR-012
+  - ADR-013
+---
 # ADR-009 — Repository Documentation as Long-Term Memory and Project Sync
 
 ## Status

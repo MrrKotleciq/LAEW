@@ -21,12 +21,20 @@ class ContextBudget:
         reserved: Tokens reserved for model response generation (not shown in manifest)
     """
 
-    system: int = 2000
-    conversation: int = 4000
-    rag: int = 8000
-    tools: int = 4000
-    total: int = 18000
-    reserved: int = 2000  # For model response generation
+    # Named constants for context budget allocation (ADR-004)
+    DEFAULT_SYSTEM_TOKENS: int = 2000
+    DEFAULT_CONVERSATION_TOKENS: int = 4000
+    DEFAULT_RAG_TOKENS: int = 8000
+    DEFAULT_TOOLS_TOKENS: int = 4000
+    DEFAULT_TOTAL_TOKENS: int = 18000
+    DEFAULT_RESERVED_TOKENS: int = 2000
+
+    system: int = DEFAULT_SYSTEM_TOKENS
+    conversation: int = DEFAULT_CONVERSATION_TOKENS
+    rag: int = DEFAULT_RAG_TOKENS
+    tools: int = DEFAULT_TOOLS_TOKENS
+    total: int = DEFAULT_TOTAL_TOKENS
+    reserved: int = DEFAULT_RESERVED_TOKENS  # For model response generation
 
     def __post_init__(self) -> None:
         """Validate budget consistency."""

@@ -1,3 +1,20 @@
+---
+type: adr
+id: ADR-003
+title: RAG Retrieval and Reranking Pipeline
+status: Accepted
+date: 2026-08-25
+purpose: Specify the RAG pipeline — retrieval, candidate results, reranking, and a small relevant context — with structured source attribution, so the model is never fed a whole knowledge base.
+scope: RAG, vector store, knowledge base, reranking, context injection
+read_when:
+  - building or modifying RAG or the vector store
+  - Milestone 4 (Knowledge System & RAG Pipeline)
+  - Milestone 14 (performance of retrieval)
+related:
+  - ADR-001
+  - ADR-002
+  - ADR-004
+---
 # ADR-003 — RAG Retrieval and Reranking Pipeline
 
 ## Status

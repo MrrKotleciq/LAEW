@@ -1,3 +1,11 @@
+---
+type: rule
+title: Testing
+scope: pytest usage, test quality, coverage goals
+read_when:
+  - writing or modifying tests
+---
+
 # Testing 
 
 Maintain a meaningful automated test suite. 

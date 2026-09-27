@@ -7,6 +7,7 @@ from enum import Enum
 from pathlib import Path
 from typing import List, Optional
 
+from laew.config.constants import RAG_CHUNK_SIZE, RAG_CHUNK_OVERLAP
 from laew.rag.embedding import EmbeddingService
 from laew.rag.vector_store import ChromaVectorStore, DocumentChunk, VectorStore
 
@@ -42,8 +43,8 @@ class KnowledgeBase:
         project_root: str,
         knowledge_root: str,
         embedding_service: EmbeddingService,
-        chunk_size: int = 1000,
-        chunk_overlap: int = 200,
+        chunk_size: int = RAG_CHUNK_SIZE,
+        chunk_overlap: int = RAG_CHUNK_OVERLAP,
         vector_store_config: Optional[dict] = None,
     ):
         """
@@ -94,9 +95,10 @@ class KnowledgeBase:
                     source=scope,
                     timeout=int(config.get("timeout", 30)),
                 )
-            except Exception:
+            except (ConnectionError, ConnectionRefusedError, TimeoutError) as e:
                 # Graceful fallback to in-memory store when ChromaDB is unavailable
                 # (includes import errors, connection errors, version mismatches, etc.).
+                logger.debug("ChromaDB unavailable, falling back to in-memory store: %s", e)
                 return VectorStore()
 
         return VectorStore()
@@ -185,8 +187,9 @@ class KnowledgeBase:
                 # Generate embedding
                 try:
                     embedding = self.embedding_service.embed(chunk_text)
-                except Exception:
-                    # Skip chunks that fail to embed
+                except (ValueError, RuntimeError) as e:
+                    # Skip chunks that fail to embed (e.g., embedding model error)
+                    logger.debug("Failed to embed chunk text: %s", e)
                     continue
 
                 chunk_id = f"{source}:{file_path.relative_to(base_dir)}:{i}"

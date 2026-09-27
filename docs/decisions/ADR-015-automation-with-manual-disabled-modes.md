@@ -1,3 +1,20 @@
+---
+type: adr
+id: ADR-015
+title: Automation with Manual and Disabled Modes
+status: Accepted
+date: 2026-09-03
+purpose: Allow LAEW to automate repetitive tasks while preserving manual and fully-disabled fallback modes, so automation never removes user control.
+scope: workflow runtime, automation, approval gates
+read_when:
+  - designing or changing workflow/automation behavior
+  - Milestone 9 (Automation & Workflow Runtime)
+  - implementing manual/disabled fallback modes
+related:
+  - ADR-006
+  - ADR-013
+  - ADR-019
+---
 # ADR-015 — Automation with Manual and Disabled Modes
 
 ## Status

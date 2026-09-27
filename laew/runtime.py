@@ -16,7 +16,9 @@ from pathlib import Path
 from typing import List, Optional
 
 from laew.llm.base import LLMProvider
+from laew.prompts.context_budget import ContextBudget
 from laew.llm.registry import create_provider, get_provider_for_role
+from laew.prompts.context_budget import ContextBudget
 from laew.tools import (
     FilesystemTool,
     GitTool,
@@ -104,7 +106,7 @@ def resolve_model_name(
     cli_model: Optional[str],
     manifest_model: Optional[str],
     provider: LLMProvider,
-) -> str:
+) -> Optional[str]:
     """
     Resolve the model to use for a session.
 
@@ -112,8 +114,11 @@ def resolve_model_name(
     model comes from the manifest primary provider; if that model is not
     installed, fall back to a close match from the same family. If nothing
     matches, use a sensible default with a notice.
+
+    Returns:
+        The resolved model name, or None if no model is specified.
     """
-    requested = cli_model or manifest_model
+    requested: Optional[str] = cli_model or manifest_model
 
     # Explicit choice: trust it and let Ollama report a missing model.
     if cli_model:
@@ -121,7 +126,8 @@ def resolve_model_name(
 
     try:
         installed = provider.list_models()
-    except Exception:
+    except (ConnectionError, ConnectionRefusedError, TimeoutError) as e:
+        logger.debug("Failed to list Ollama models: %s", e)
         installed = []
     if not installed:
         return requested or "llama3.1"

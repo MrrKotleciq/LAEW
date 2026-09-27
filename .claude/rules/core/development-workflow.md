@@ -1,3 +1,11 @@
+---
+type: rule
+title: Development Workflow
+scope: inspect → plan → implement → test → review
+read_when:
+  - starting a non-trivial development task
+---
+
 # Development Workflow 
 For non-trivial changes, follow: 
 1. Understand the requirement and current implementation. 

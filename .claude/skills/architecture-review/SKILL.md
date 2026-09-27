@@ -1,3 +1,11 @@
+---
+type: skill
+title: Architecture Review
+scope: architectural analysis, ADR generation, decision documentation
+read_when:
+  - requested via /architecture command
+---
+
 # LAEW Architecture Review
 
 ## Purpose

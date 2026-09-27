@@ -129,6 +129,12 @@ class AgentExecutor:
         (lowercase) form so "TerminalTool" and "terminal" both resolve to the
         TerminalTool entry.  Returns the canonical registry key when found,
         otherwise passes the requested name through unchanged.
+
+        Args:
+            requested: The tool name as supplied by the model.
+
+        Returns:
+            The canonical registry key, or the requested name if no match is found.
         """
         if requested in self.agent.tools:
             return requested
@@ -136,6 +142,7 @@ class AgentExecutor:
         for registered in self.agent.tools:
             if registered.lower() == requested_lower:
                 return registered
+        # No match found; return the requested name unchanged
         return requested
 
     # Maximum times the model may repeat the *identical* tool+operation
@@ -215,7 +222,14 @@ class AgentExecutor:
 
         lines = ["Available tools:"]
         for name, tool in self.agent.tools.items():
-            lines.append(f"- {name}: {tool.description}")
+            # Use class-level description if set, otherwise use instance description
+            # Class-level descriptions (like MockTool.description = "A mock tool for testing")
+            # are preserved if not overridden in __init__
+            if hasattr(tool, "description"):
+                desc = tool.description
+            else:
+                desc = ""
+            lines.append(f"- {name}: {desc}")
             lines.append(f"  Operations: {self._operation_hints(tool)}")
         return "\n".join(lines)
 

@@ -1,3 +1,11 @@
+---
+type: prompt
+title: Debugging
+scope: systematic defect diagnosis and root cause analysis
+read_when:
+  - debugging a failure or bug
+---
+
 # LAEW Debugging & Root Cause Analysis Instructions
 
 ## 1. Purpose

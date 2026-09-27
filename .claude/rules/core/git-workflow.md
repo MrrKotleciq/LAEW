@@ -1,3 +1,11 @@
+---
+type: rule
+title: Git Workflow
+scope: commit conventions, PR process, branch strategy
+read_when:
+  - making commits or creating PRs
+---
+
 # Git Workflow
 
 ## Commits

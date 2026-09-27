@@ -8,6 +8,9 @@ from typing import Optional
 
 from laew.tools.base import ErrorCode, Tool, ToolResult
 
+# Named constant for terminal command timeout (30 seconds)
+DEFAULT_COMMAND_TIMEOUT_MS: int = 30000
+
 
 class TerminalTool(Tool):
     """
@@ -146,7 +149,7 @@ class TerminalTool(Tool):
         self,
         command: str,
         cwd: str = ".",
-        timeout_ms: int = 30000
+        timeout_ms: int = DEFAULT_COMMAND_TIMEOUT_MS
     ) -> ToolResult:
         """Public interface for execution."""
         return self.call("run_command", command=command, cwd=cwd, timeout_ms=timeout_ms)
@@ -158,7 +161,7 @@ class TerminalTool(Tool):
 
         command = kwargs["command"]
         cwd = kwargs.get("cwd", ".")
-        timeout_ms = kwargs.get("timeout_ms", 30000)
+        timeout_ms = kwargs.get("timeout_ms", DEFAULT_COMMAND_TIMEOUT_MS)
 
         # 1. Blacklist check (programmatic security)
         if self._is_blacklisted(command):

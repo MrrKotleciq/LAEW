@@ -1,3 +1,11 @@
+---
+type: rule
+title: Performance
+scope: evidence-based optimization, avoid premature optimization
+read_when:
+  - optimizing code
+---
+
 # Performance 
 
 Optimize based on evidence, not assumptions. 

@@ -181,8 +181,8 @@ class PromptLoader:
                             priority=i,  # File order determines priority
                         )
                         prompt.add_section(section)
-                    except Exception:
-                        # Skip unreadable files
+                    except (OSError, PermissionError, UnicodeDecodeError) as e:
+                        logger.debug("Failed to load file %s: %s", section_file, e)
                         continue
 
                 if prompt.sections:
@@ -207,7 +207,8 @@ class PromptLoader:
                     )
                     prompt.add_section(section)
                     return prompt
-                except Exception:
+                except (OSError, PermissionError, UnicodeDecodeError) as e:
+                    logger.debug("Failed to load prompt file %s: %s", prompt_file, e)
                     continue
 
             # Try without extension
@@ -223,7 +224,8 @@ class PromptLoader:
                     )
                     prompt.add_section(section)
                     return prompt
-                except Exception:
+                except (OSError, PermissionError, UnicodeDecodeError) as e:
+                    logger.debug("Failed to load prompt file %s: %s", prompt_file, e)
                     continue
 
         return None

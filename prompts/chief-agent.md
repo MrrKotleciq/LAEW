@@ -1,3 +1,11 @@
+---
+type: prompt
+title: Chief Agent
+scope: task classification, 6-step workflow, context budget, delegation
+read_when:
+  - understanding the chief agent's orchestration role
+---
+
 # LAEW Chief Agent Instructions
 
 ## 1. Role & Objective

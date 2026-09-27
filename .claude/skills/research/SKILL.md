@@ -1,3 +1,11 @@
+---
+type: skill
+title: Research
+scope: web search, external source gathering, evidence synthesis
+read_when:
+  - requested via /research command
+---
+
 # LAEW Research
 
 ## Purpose

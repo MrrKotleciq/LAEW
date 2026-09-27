@@ -1,3 +1,11 @@
+---
+type: prompt
+title: Core Instructions
+scope: identity, principles, knowledge priority, tool selection
+read_when:
+  - understanding the agent's core behavior
+---
+
 # LAEW Core Instructions
 
 ## 1. Identity & Operating Environment

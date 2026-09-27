@@ -1,3 +1,20 @@
+---
+type: adr
+id: ADR-004
+title: Explicit Context Budgeting
+status: Accepted
+date: 2026-08-25
+purpose: Treat context as a limited resource and budget it explicitly (system prompt, conversation, RAG, tool results), reserving room for reasoning and the response.
+scope: prompt sizing, token budgeting, context enforcement
+read_when:
+  - tuning prompt or context budgets
+  - token calibration or estimation
+  - Milestone 3 (Chief Agent Runtime) and Milestone 14 (Performance & Context-Efficiency Audit)
+related:
+  - ADR-001
+  - ADR-003
+  - ADR-005
+---
 # ADR-004 — Explicit Context Budgeting
 
 ## Status

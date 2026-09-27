@@ -1,3 +1,11 @@
+---
+type: prompt
+title: Code Review
+scope: code review checklist and review process
+read_when:
+  - reviewing code changes
+---
+
 # LAEW Code Review Instructions
 
 ## 1. Purpose

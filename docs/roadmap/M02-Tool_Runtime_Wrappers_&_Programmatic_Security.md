@@ -1,3 +1,13 @@
+---
+type: roadmap
+id: M02
+title: Tool Runtime Wrappers & Programmatic Security
+status: completed
+purpose: Implement manifest validation, multi-root path resolution, and the four security-gated tool wrappers (filesystem, git, terminal, web).
+read_when:
+  - working on tool wrappers or path resolution
+  - implementing manifest validation or approval gates
+---
 ## [2026-08-28] Milestone 2: Tool Runtime Wrappers & Programmatic Security Completed
 
 - **Context & Motivation**:

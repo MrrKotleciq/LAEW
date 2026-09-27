@@ -1,3 +1,14 @@
+---
+type: roadmap
+id: M01
+title: Declarative Foundation
+status: completed
+purpose: Establish the declarative baseline — system manifest, modular tool contracts, layered prompts, and test scenario specifications — before any runtime code.
+read_when:
+  - understanding the baseline architecture
+  - reading the manifest, tool contracts, or prompt templates
+  - tracing the origin of core contracts
+---
 ## [2026-08-25] Milestone 1: Declarative Foundation Completed
 
 - **Context & Motivation**:

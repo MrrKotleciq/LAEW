@@ -1,3 +1,19 @@
+---
+type: adr
+id: ADR-017
+title: Single-Agent Stability Before Multi-Agent
+status: Accepted
+date: 2026-09-03
+purpose: Establish a stable, reliably-behaved single-agent baseline (Thought→Action→Observation→Response) before introducing multi-agent coordination.
+scope: agent loop, single-agent reliability, prerequisites
+read_when:
+  - before starting multi-agent work
+  - debugging single-agent loops or tool calling
+  - Milestone 7 (Single-Agent Stability) and Milestone 10 (Multi-Agent)
+related:
+  - ADR-014
+  - ADR-018
+---
 # ADR-017 — Single-Agent Stability Before Multi-Agent
 
 ## Status

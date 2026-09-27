@@ -1,3 +1,20 @@
+---
+type: adr
+id: ADR-006
+title: Programmatic Security Below Model Layer
+status: Accepted
+date: 2026-08-25
+purpose: Enforce security (allowlists, approval gates, path boundaries, blocked operations) in code below the model layer, never by relying on model behavior.
+scope: tool security, approval gates, path traversal, command execution
+read_when:
+  - adding or changing any tool
+  - reviewing or implementing security boundaries
+  - Milestone 2 (Tool Runtime Wrappers) and Milestone 19 (MCP tool layer)
+related:
+  - ADR-008
+  - ADR-010
+  - ADR-015
+---
 # ADR-006 — Programmatic Security Below Model Layer
 
 ## Status

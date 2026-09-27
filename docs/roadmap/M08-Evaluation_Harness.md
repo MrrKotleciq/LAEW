@@ -1,3 +1,14 @@
+---
+type: roadmap
+id: M08
+title: Evaluation Harness
+status: completed
+purpose: Establish systematic, quantitative evaluation of agent and RAG quality to enable regression detection ahead of workflow automation work.
+read_when:
+  - building or modifying the evaluation harness
+  - Milestone 8 (Evaluation Harness)
+---
+
 ## [2026-09-09] Milestone 8: Evaluation Harness Completed
 
 - **Context & Motivation**:

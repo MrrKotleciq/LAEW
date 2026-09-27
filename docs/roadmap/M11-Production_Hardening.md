@@ -1,3 +1,14 @@
+---
+type: roadmap
+id: M11
+title: Production Hardening
+status: completed
+purpose: Prepare LAEW for real-world usage with pip-installable packaging, documented configuration, app-level logging, bandit SAST gate in CI, and documented installation.
+read_when:
+  - preparing for production deployment
+  - Milestone 11 (Production Hardening)
+---
+
 ## [2026-09-15] Milestone 11: Production Hardening Completed
 
 - **Context & Motivation**:

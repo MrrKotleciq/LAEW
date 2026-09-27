@@ -1,3 +1,11 @@
+---
+type: rule
+title: Security
+scope: security boundaries, validation, deny-by-default
+read_when:
+  - making security-sensitive changes
+---
+
 # Security 
 
 Treat security boundaries as first-class requirements. 

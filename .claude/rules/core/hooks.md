@@ -1,3 +1,11 @@
+---
+type: rule
+title: Hooks
+scope: deterministic checks and automation via hooks
+read_when:
+  - configuring or using hooks
+---
+
 # Hooks
 
 Use hooks for deterministic checks and automation.

@@ -8,7 +8,7 @@ from dataclasses import dataclass, asdict
 from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
-from typing import Any, Optional, IO
+from typing import Any, Dict, Optional, IO
 
 
 class ToolError(Exception):
@@ -241,19 +241,23 @@ class Tool(ABC):
     - Logging and traceability (ADR-016)
     """
 
-    description: str
+    description: str = ""
+    operations: Optional[Dict[str, Any]] = None
 
-    def __init__(self, requires_approval: bool = False, description: str = ""):
+    def __init__(self, requires_approval: bool = False, description: Optional[str] = None):
         """
         Initialize tool.
 
         Args:
             requires_approval: Whether this tool requires user approval by default
-            description: Human-readable description of what the tool does
+            description: Human-readable description of what the tool does. If None,
+                the class-level description (if any) is preserved.
         """
         self._requires_approval = requires_approval
         self._approved = False
-        self.description = description
+        # Preserve class-level description if not explicitly provided
+        if description is not None:
+            self.description = description
 
     @property
     def name(self) -> str:

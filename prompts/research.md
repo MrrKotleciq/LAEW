@@ -1,3 +1,11 @@
+---
+type: prompt
+title: Research
+scope: technical investigations, library/hardware evaluation
+read_when:
+  - conducting technical research
+---
+
 # LAEW Technical Research Instructions
 
 ## 1. Purpose

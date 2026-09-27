@@ -1,3 +1,14 @@
+---
+type: roadmap
+id: M12
+title: Interactive Testing Console
+status: completed
+purpose: Provide an interactive stdlib-only REPL (`laew console`) that drives every implemented surface in one persistent session with approval gates and history replay.
+read_when:
+  - implementing the interactive console
+  - Milestone 12 (Interactive Testing Console)
+---
+
 ### Milestone 12: Interactive Testing Console — ✅ Completed
 **Goal:** Provide an interactive console to drive every implemented surface (tools, provider/config precedence, agent loop, RAG, workflow, multi-agent, evaluation, manifests) for manual/exploratory testing, in one persistent session.
 **Scope:** Implement `laew console` subcommand with a REPL (cmd.Cmd) that exposes: system check/info/set, provider info/models/health/generate, tool operations with approval gates, agent run/chat with trace, rag query/embed/stats, workflow discover/show/run, multiagent discover/show/run, eval datasets/tasks/task/dataset, prompt list/show, budget estimation, and session history with !N replay. Refactor shared runtime helpers into `laew/runtime.py` for DRY between CLI and console. All handlers are pure functions (args, state) -> exit code for testability.

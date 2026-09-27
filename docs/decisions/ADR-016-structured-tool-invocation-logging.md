@@ -1,3 +1,20 @@
+---
+type: adr
+id: ADR-016
+title: Structured Tool Invocation Logging
+status: Accepted
+date: 2026-09-03
+purpose: Log tool invocations in a structured, diagnostic format so every agent action is traceable for debugging and audit.
+scope: tool logging, diagnostics, invocation records
+read_when:
+  - debugging tool calls or agent behavior
+  - implementing structured logging (laew/tools)
+  - Milestone 18 (Monitoring, Telemetry & Backup)
+related:
+  - ADR-006
+  - ADR-008
+  - ADR-019
+---
 # ADR-016 — Structured Tool Invocation Logging
 
 ## Status

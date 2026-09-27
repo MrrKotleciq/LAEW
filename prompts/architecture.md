@@ -1,3 +1,11 @@
+---
+type: prompt
+title: Architecture
+scope: architecture analysis, ADR creation, trade-off evaluation
+read_when:
+  - evaluating architectural changes
+---
+
 # LAEW Architecture Workflow Instructions
 
 ## 1. Purpose

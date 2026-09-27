@@ -1,3 +1,20 @@
+---
+type: adr
+id: ADR-011
+title: Separation of Project Memory and Global Knowledge
+status: Accepted
+date: 2026-09-03
+purpose: Keep project-scoped memory inside the project repository and cross-project domain knowledge in the single global vault, with no duplication between them.
+scope: @project vs @knowledge, memory separation, scoping
+read_when:
+  - designing RAG scope separation
+  - placing project vs. global knowledge
+  - Milestone 17 (global knowledge) and Milestone 20 (multi-project)
+related:
+  - ADR-002
+  - ADR-010
+  - ADR-012
+---
 # ADR-011 — Separation of Project Memory and Global Knowledge
 
 ## Status

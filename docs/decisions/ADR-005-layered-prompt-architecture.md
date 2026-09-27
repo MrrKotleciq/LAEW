@@ -1,3 +1,20 @@
+---
+type: adr
+id: ADR-005
+title: Layered Modular Prompt Instructions
+status: Accepted
+date: 2026-08-25
+purpose: Reject one gigantic system prompt in favor of layered, composable prompt templates that can be combined per role and task.
+scope: prompt architecture, templates, prompt loader
+read_when:
+  - designing or editing prompt templates
+  - adding an agent role or specialist
+  - composing role prompts from base templates
+related:
+  - ADR-001
+  - ADR-009
+  - ADR-018
+---
 # ADR-005 — Layered Modular Prompt Instructions
 
 ## Status

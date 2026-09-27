@@ -1,3 +1,14 @@
+---
+type: roadmap
+id: M15
+title: Multi-Model Routing & Provider Fallback
+status: completed
+purpose: Route model roles across multiple providers with ordered fallback chains, manifest-driven dispatch, and typed error handling (ADR-019).
+read_when:
+  - implementing multi-model routing
+  - Milestone 15 (Multi-Model Routing & Provider Fallback)
+---
+
 ### Milestone 15: Multi-Model Routing & Provider Fallback — ✅ Completed
 **Goal:** Route model roles across multiple providers and fall back on failure — the step right before multi-agent scaling.
 **Result:** Manifest-driven provider dispatch across model roles (`primary`, `embedding`, `reviewer`) with ordered fallback chain via `get_provider_for_role` / `build_provider_for_role`. Config precedence: CLI flag > env var (`LAEW_BASE_URL`, `LAEW_TIMEOUT`) > manifest > provider default. Typed errors (`NO_PROVIDER_FOR_ROLE`, `PROVIDER_NOT_FOUND`, `ALL_PROVIDERS_FAILED`). Primary model upgraded to `qwen2.5-coder:7b`. 16 new unit tests in `tests/unit/test_routing.py` (602 unit tests total).

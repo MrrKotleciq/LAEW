@@ -290,7 +290,7 @@ def cmd_multiagent_run(args) -> int:
     print("-" * 60)
 
     try:
-        plan = load_multiagent_plan_from_yaml(plan_path)
+        plan = load_multiagent_plan_from_yaml(str(plan_path))
     except MultiAgentPlanError as e:
         print(f"[FAIL] Could not load plan: {e}")
         return 1
@@ -375,7 +375,7 @@ def cmd_multiagent_run(args) -> int:
     for conflict in result.conflicts:
         print(
             f"[!] Conflict on '{conflict.deliverable}' between "
-            f"{', '.join(conflict.agents)}"
+            f"{', '.join(c.value for c in conflict.agents)}"
         )
 
     if not result.success:

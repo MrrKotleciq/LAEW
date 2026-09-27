@@ -1,3 +1,20 @@
+---
+type: adr
+id: ADR-012
+title: Agent Memory vs Current State Separation
+status: Accepted
+date: 2026-09-03
+purpose: Keep agent memory distinct from filesystem current state; current state is verified from Git/filesystem, not assumed from memory.
+scope: session memory, conversation persistence, agent memory
+read_when:
+  - designing agent or session memory
+  - Milestone 13 (Session Memory & Conversation Persistence)
+  - resuming or restoring sessions
+related:
+  - ADR-009
+  - ADR-011
+  - ADR-017
+---
 # ADR-012 — Agent Memory vs Current State Separation
 
 ## Status

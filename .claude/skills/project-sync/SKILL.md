@@ -4,6 +4,14 @@ description: >-
   Synchronizes technical decisions, implementation milestones, architectural changes, and project state from the active conversation into persistent LAEW project documentation, individual ADR files, history logs, and status files. Use whenever the user asks to sync project documentation, record decisions, update project status, or when an engineering milestone is reached.
 ---
 
+---
+type: skill
+title: Project Sync
+scope: synchronize conversation decisions into project documentation
+read_when:
+  - requested via /sync command
+---
+
 # LAEW Project Sync Skill
 
 ## 1. Purpose & Identity

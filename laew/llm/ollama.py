@@ -76,7 +76,7 @@ class OllamaProvider(LLMProvider):
         if stop is not None:
             options["stop"] = stop
 
-        payload = {
+        payload: dict[str, Any] = {
             "model": model,
             "messages": ollama_messages,
             "stream": False,

@@ -1,3 +1,20 @@
+---
+type: adr
+id: ADR-019
+title: Provider Registry and Factory
+status: Accepted
+date: 2026-09-15
+purpose: Dispatch model roles across providers through a registry and factory with an ordered fallback chain, keeping provider selection manifest-driven.
+scope: provider registry, role-based routing, fallback
+read_when:
+  - adding or changing a model provider
+  - Milestone 15 (Multi-Model Routing & Provider Fallback)
+  - resolving a model role to a provider
+related:
+  - ADR-001
+  - ADR-015
+  - ADR-016
+---
 # ADR-019 — Provider Registry and Factory
 
 ## Status

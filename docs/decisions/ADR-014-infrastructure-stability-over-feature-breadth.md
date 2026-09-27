@@ -1,3 +1,18 @@
+---
+type: adr
+id: ADR-014
+title: Infrastructure Stability Over Feature Breadth
+status: Accepted
+date: 2026-09-03
+purpose: Prioritize a stable, proven foundation (manifest, tools, providers, RAG) over adding new features, so the platform is reliable before it scales.
+scope: infrastructure, foundations, roadmap ordering
+read_when:
+  - deciding whether to build a feature or harden the base
+  - roadmap prioritization (Milestones 5–7)
+related:
+  - ADR-013
+  - ADR-017
+---
 # ADR-014 — Infrastructure Stability Over Feature Breadth
 
 ## Status

@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
-from laew.rag.embedding import EmbeddingService
+from laew.config.constants import RAG_MAX_CONTEXT_TOKENS
 from laew.rag.knowledge_base import KnowledgeBase, KnowledgeScope
 from laew.rag.vector_store import DocumentChunk, VectorStore
 
@@ -66,7 +66,7 @@ class RAGPipeline:
         self,
         knowledge_base: KnowledgeBase,
         embedding_service: EmbeddingService,
-        max_context_tokens: int = 8000,
+        max_context_tokens: int = RAG_MAX_CONTEXT_TOKENS,
         top_k: int = 5,
         similarity_threshold: float = 0.3,
     ):
@@ -225,8 +225,8 @@ class RAGPipeline:
         used_chunks = []
         total_tokens = 0
 
-        # Estimate tokens per character (~4 chars per token)
-        CHARS_PER_TOKEN = 4
+        # Named constant for character-to-token ratio estimate
+        CHARS_PER_TOKEN: int = 4
 
         for chunk, score in chunks:
             # Estimate tokens for this chunk

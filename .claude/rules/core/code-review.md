@@ -1,3 +1,11 @@
+---
+type: rule
+title: Code Review
+scope: review checklist, required follow-up, review process
+read_when:
+  - performing or requesting a code review
+---
+
 # Code Review 
 Review meaningful code changes before declaring them complete. 
 ## Review Checklist 

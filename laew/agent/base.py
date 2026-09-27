@@ -1,5 +1,6 @@
 """Agent base classes and configuration."""
 
+import logging
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, List, Optional
@@ -8,6 +9,8 @@ from laew.llm.base import LLMMessage, LLMProvider, MessageRole
 from laew.prompts.context_budget import ContextBudget
 from laew.prompts.loader import LayeredPrompt
 from laew.tools.base import Tool
+
+logger = logging.getLogger("laew.agent")
 
 
 class AgentRole(str, Enum):
@@ -198,5 +201,5 @@ class Agent:
             ]
         except (json.JSONDecodeError, KeyError, ValueError) as e:
             # If history is corrupted, start fresh but log the error
-            print(f"Warning: Could not load conversation history from {self.config.history_path}: {e}")
+            logger.warning("Could not load conversation history from %s: %s", self.config.history_path, e)
             self.history = []

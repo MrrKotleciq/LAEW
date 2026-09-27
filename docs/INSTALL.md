@@ -1,3 +1,11 @@
+---
+type: docs
+title: Installation Guide
+scope: installation and configuration instructions
+read_when:
+  - setting up LAEW on a new system
+---
+
 # LAEW Installation Guide
 
 This guide covers installing the **Local AI Engineering Workspace (LAEW)** CLI and

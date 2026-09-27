@@ -1,3 +1,11 @@
+---
+type: rule
+title: Coding Style
+scope: KISS, DRY, YAGNI, immutability, error handling
+read_when:
+  - writing new code
+---
+
 # Coding Style 
 ## Core Principles 
 - Prefer simple solutions over clever ones. 

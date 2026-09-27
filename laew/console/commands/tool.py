@@ -46,7 +46,8 @@ def _OP_TABLE() -> str:
     for name, factory in TOOL_FACTORIES.items():
         tool = factory([])  # empty allowlist; we only read the operation table
         lines.append(f"{name}  ({tool.name})")
-        for op, meta in (tool.operations or {}).items():
+        operations = tool.operations if hasattr(tool, "operations") and tool.operations else {}
+        for op, meta in operations.items():
             params = ", ".join(str(p) for p in meta.get("params", [])) or "(no params)"
             ro = "read" if meta.get("read_only") else "write (requires approval)"
             lines.append(f"  .{op:<22} {ro:<26} {params}")

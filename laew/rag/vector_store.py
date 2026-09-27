@@ -5,6 +5,8 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
+from laew.config.constants import DEFAULT_VECTOR_STORE_PORT
+
 
 @dataclass
 class DocumentChunk:
@@ -212,7 +214,7 @@ class ChromaVectorStore:
     def __init__(
         self,
         host: str = "localhost",
-        port: int = 8000,
+        port: int = DEFAULT_VECTOR_STORE_PORT,
         collection_name: str = "laew_vectors",
         source: Optional[str] = None,
         timeout: int = 30,
@@ -332,7 +334,8 @@ class ChromaVectorStore:
                     n_results=top_k,
                     where={"source": source_filter},
                 )
-            except Exception:
+            except (KeyError, TypeError) as e:
+                logger.debug("ChromaDB query with source filter failed, retrying without filter: %s", e)
                 results = self._collection.query(
                     query_embeddings=[normalized],
                     n_results=top_k,
@@ -380,7 +383,8 @@ class ChromaVectorStore:
         """
         try:
             result = self._collection.get(ids=[chunk_id])
-        except Exception:
+        except (ConnectionError, ValueError, RuntimeError) as e:
+            logger.debug("Failed to retrieve chunk %s from ChromaDB: %s", chunk_id, e)
             return None
 
         if not result.get("ids"):
@@ -416,7 +420,8 @@ class ChromaVectorStore:
                 return False
             self._collection.delete(ids=[chunk_id])
             return True
-        except Exception:
+        except (ConnectionError, ValueError, RuntimeError) as e:
+            logger.debug("Failed to delete chunk %s from ChromaDB: %s", chunk_id, e)
             return False
 
     def clear(self) -> None:
@@ -427,7 +432,7 @@ class ChromaVectorStore:
                 name=self.collection_name,
                 metadata={"hnsw:space": "cosine"},
             )
-        except Exception:
+        except (ConnectionError, ValueError, RuntimeError):
             pass
 
     def count(self, source: Optional[str] = None) -> int:
@@ -449,7 +454,8 @@ class ChromaVectorStore:
                     if metadata and metadata.get("source") == source
                 )
             return len(result.get("ids", []))
-        except Exception:
+        except (KeyError, TypeError, ValueError) as e:
+            logger.debug("Failed to count chunks in ChromaDB: %s", e)
             return 0
 
     @staticmethod

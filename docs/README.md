@@ -1,3 +1,12 @@
+---
+type: index
+title: Documentation
+scope: architecture, decisions, roadmap, history, performance, security, source
+read_when:
+  - navigating the documentation tree
+  - understanding the project structure
+---
+
 # LAEW Documentation
 
 This directory contains the project's architecture, decisions, status, history, roadmap, performance data, security reviews, and reference material.

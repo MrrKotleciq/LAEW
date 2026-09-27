@@ -1,3 +1,11 @@
+---
+type: prompt
+title: RAG
+scope: RAG query generation, retrieval, reranking, context synthesis
+read_when:
+  - working with the RAG pipeline
+---
+
 # LAEW RAG & Context Retrieval Instructions
 
 ## 1. Purpose

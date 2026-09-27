@@ -318,7 +318,7 @@ class MultiAgentCoordinator:
                 if all_similar:
                     continue  # all outputs are semantically similar
 
-            except Exception:
+            except (ValueError, KeyError, TypeError, RuntimeError):
                 # Fall back to text normalization if embedding fails
                 pass
 

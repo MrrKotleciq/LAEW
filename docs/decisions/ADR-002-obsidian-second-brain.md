@@ -1,3 +1,19 @@
+---
+type: adr
+id: ADR-002
+title: Obsidian Vault for Global Knowledge Storage
+status: Accepted
+date: 2026-08-25
+purpose: Design a single global Obsidian vault as the cross-project "Second Brain" knowledge store, kept outside individual project repositories and outside the model.
+scope: global knowledge storage, Second Brain, @knowledge scope
+read_when:
+  - integrating the Obsidian vault into LAEW
+  - designing @knowledge retrieval or scope separation
+  - Milestone 17 (Second Brain & Global Knowledge Integration)
+related:
+  - ADR-003
+  - ADR-011
+---
 # ADR-002 — Obsidian Vault for Global Knowledge Storage
 
 ## Status
