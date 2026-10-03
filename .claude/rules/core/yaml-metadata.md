@@ -197,4 +197,4 @@ python -c "import yaml; yaml.safe_load(open('file.md').read())"
 ## See Also
 
 - [Project Structure](./project-structure.md) — overall project layout
-- [Project Sync Skill](../skills/project-sync/SKILL.md) — documentation synchronization
+- [Project Sync Skill](../../skills/project-sync/SKILL.md) — documentation synchronization

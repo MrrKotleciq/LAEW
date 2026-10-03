@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
-from laew.config.constants import RAG_MAX_CONTEXT_TOKENS
+from laew.config.constants import CHARS_PER_TOKEN_DEFAULT, RAG_MAX_CONTEXT_TOKENS
 from laew.rag.knowledge_base import KnowledgeBase, KnowledgeScope
 from laew.rag.vector_store import DocumentChunk, VectorStore
 
@@ -226,7 +226,7 @@ class RAGPipeline:
         total_tokens = 0
 
         # Named constant for character-to-token ratio estimate
-        CHARS_PER_TOKEN: int = 4
+        CHARS_PER_TOKEN: float = CHARS_PER_TOKEN_DEFAULT
 
         for chunk, score in chunks:
             # Estimate tokens for this chunk

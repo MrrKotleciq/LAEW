@@ -1,11 +1,14 @@
 """Knowledge base loader for project memory and global knowledge."""
 
+import logging
 import os
 import re
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 from typing import List, Optional
+
+logger = logging.getLogger(__name__)
 
 from laew.config.constants import RAG_CHUNK_SIZE, RAG_CHUNK_OVERLAP
 from laew.rag.embedding import EmbeddingService
@@ -95,7 +98,7 @@ class KnowledgeBase:
                     source=scope,
                     timeout=int(config.get("timeout", 30)),
                 )
-            except (ConnectionError, ConnectionRefusedError, TimeoutError) as e:
+            except (ConnectionError, ConnectionRefusedError, TimeoutError, ValueError) as e:
                 # Graceful fallback to in-memory store when ChromaDB is unavailable
                 # (includes import errors, connection errors, version mismatches, etc.).
                 logger.debug("ChromaDB unavailable, falling back to in-memory store: %s", e)

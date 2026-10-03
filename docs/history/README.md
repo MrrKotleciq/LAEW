@@ -18,6 +18,8 @@ This directory contains chronological records of LAEW's development.
 |--------|----------|---------|
 | 2026-08 | [2026-08.md](2026-08.md) | Milestones 1–4, code audit, evaluation harness, chat CLI, tool-calling fixes, audit remediation (Critical/High/Medium/Low) |
 | 2026-09 | [2026-09.md](2026-09.md) | Milestones 3–16, multi-agent architecture, console, production hardening, performance audit |
+| 2026-09-27 | [2026-09-27.md](2026-09-27.md) | Documentation reorganization report migration (condensed standalone record) |
+| 2026-10-03 | [2026-10.md](2026-10.md) | Repair 4 failing tests (runtime/knowledge_base graceful degradation) and correct PROJECT_STATUS counts; archived from 2026-09.md |
 
 ## Milestone Timeline
 

@@ -48,7 +48,9 @@ def test_default_unparseable_line(session, capsys):
     """A line that shlex cannot parse fails gracefully."""
     assert session.default('check "unterminated') is None
     out = capsys.readouterr().out
-    assert "[FAIL] Could not parse command" in out
+    # Output carries ANSI color codes; normalize before asserting on text.
+    normalized = out.replace("\x1b[0m", "").replace("\x1b[0", "").replace("\x1b[32m", "").replace("\x1b[90m", "").replace("\x1b[", "")
+    assert "[FAIL] Could not parse command" in normalized
 
 
 def test_default_handler_exception_is_a_net(session, capsys):

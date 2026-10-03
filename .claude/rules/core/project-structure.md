@@ -38,7 +38,7 @@ Do not read the entire `docs/` directory by default.
 
 Before reading a document: 
 
-1. Start with `./docs/README.md` when the relevant location is unknown. 
+1. Start with `./docs/README.md` when the relevant location is unknown and always read `README.md` first if present in a directory. 
 2. Use filenames, directory structure, and document metadata to identify relevant documents. 
 3. Read only documents relevant to the current task. 
 4. Prefer targeted search before opening large documents. 

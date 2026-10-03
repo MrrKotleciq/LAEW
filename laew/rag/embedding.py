@@ -139,5 +139,6 @@ class OllamaEmbedding(EmbeddingService):
         try:
             response = requests.get(f"{self.base_url}/api/tags", timeout=5)
             return response.status_code == 200
-        except Exception:
+        except (ConnectionError, ConnectionRefusedError, TimeoutError, requests.exceptions.RequestException) as e:
+            logger.debug("Ollama availability check failed: %s", e)
             return False

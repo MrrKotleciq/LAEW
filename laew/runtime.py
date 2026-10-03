@@ -12,8 +12,11 @@ This module is deliberately small and pure; keep it free of argparse, REPL,
 and I/O orchestration so both entry points share it without leaking concerns.
 """
 
+import logging
 from pathlib import Path
 from typing import List, Optional
+
+logger = logging.getLogger(__name__)
 
 from laew.llm.base import LLMProvider
 from laew.prompts.context_budget import ContextBudget
@@ -126,7 +129,7 @@ def resolve_model_name(
 
     try:
         installed = provider.list_models()
-    except (ConnectionError, ConnectionRefusedError, TimeoutError) as e:
+    except (ConnectionError, ConnectionRefusedError, TimeoutError, RuntimeError) as e:
         logger.debug("Failed to list Ollama models: %s", e)
         installed = []
     if not installed:

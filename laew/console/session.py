@@ -45,7 +45,7 @@ class ConsoleSession(cmd.Cmd):
         try:
             parts = shlex.split(line)
         except ValueError as e:
-            self.stdout.write(f"{COLOR_RESET}[FAIL]{COLOR_RESET} Could not parse command: {e}\n")
+            print(f"{COLOR_RESET}[FAIL]{COLOR_RESET} Could not parse command: {e}")
             return
         if not parts:
             return
