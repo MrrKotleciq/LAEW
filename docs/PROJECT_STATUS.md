@@ -15,6 +15,10 @@ read_when:
 Architecture: LAEW v1.0 documented
 Implementation: Milestone 16 (Parallel Multi-Agent Execution & Semantic Conflict Detection) completed
 
+## Current Focus
+
+Milestones 1–16 are complete through Parallel Multi-Agent Execution & Semantic Conflict Detection. Milestones 17–21 are in progress. The current work focus is **Milestone 17** (Second Brain & Global Knowledge Integration): realizing the `@knowledge` scope with Obsidian vault integration, building on the durable knowledge system established in Milestone 4.
+
 ## Milestone Summary
 
 | Milestone | Status | Date |
