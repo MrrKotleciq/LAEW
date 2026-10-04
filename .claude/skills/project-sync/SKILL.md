@@ -1,5 +1,9 @@
 ---
 name: project-sync
+description: >-
+  Synchronizes technical decisions, milestones, and architectural changes from
+  the active conversation into persistent LAEW project documentation — ADRs,
+  the history log, project status, and roadmap.
 type: skill
 title: Project Sync
 scope: synchronize conversation decisions into persistent LAEW project documentation
