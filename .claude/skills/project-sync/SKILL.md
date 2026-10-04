@@ -1,125 +1,106 @@
 ---
 name: project-sync
-description: >-
-  Synchronizes technical decisions, implementation milestones, architectural changes, and project state from the active conversation into persistent LAEW project documentation, individual ADR files, history logs, and status files. Use whenever the user asks to sync project documentation, record decisions, update project status, or when an engineering milestone is reached.
----
-
----
 type: skill
 title: Project Sync
-scope: synchronize conversation decisions into project documentation
+scope: synchronize conversation decisions into persistent LAEW project documentation
 read_when:
-  - requested via /sync command
+  - user asks to sync, record, or update project documentation
+  - an engineering milestone is reached
+  - a significant architectural decision was made
 ---
 
-# LAEW Project Sync Skill
+# LAEW Project Sync
 
-## 1. Purpose & Identity
-`project-sync` synchronizes ephemeral conversation context into the persistent long-term memory of LAEW (the repository's documentation).
+## Purpose
 
-- **Core Role**: Knowledge and state synchronization from active session to project memory.
-- **Explicit Exclusions**:
-  - It does NOT end, close, or pause the conversation session.
-  - It does NOT invoke `/resume` or trigger session management commands.
-  - It does NOT execute `git commit`, `git push`, or any destructive Git commands.
-- **Repeatability & Idempotency**: Can be safely invoked multiple times within a single conversation turn or session. If no new significant changes or decisions occurred, it performs zero file modifications.
+`project-sync` moves ephemeral conversation context into LAEW's persistent
+long-term memory (the repository's documentation). It is a documentation task,
+not a session task.
 
----
+- **Does NOT** end, close, or pause the conversation session.
+- **Does NOT** invoke session-management commands (`/resume`, `/exit`, etc.).
+- **Does NOT** execute `git commit`, `git push`, or any destructive Git commands.
+- **Is idempotent**: if the session's decisions and milestones are already
+  accurately recorded, make **zero** file modifications and report that.
 
-## 2. 5-Tier Project Memory Model
+## Memory Model
 
-Documentation responsibilities are strictly separated to prevent duplication and noise:
+Documentation responsibilities are separated to prevent duplication:
 
-| Tier | Component | Path | Responsibility |
-| :--- | :--- | :--- | :--- |
-| **1** | **Git** | `.git/` | Detailed file diffs, line modifications, commit history. |
-| **2** | **Project History** | `docs/history/CHANGELOG.md` | Conceptual milestone completions, major structural shifts, evolutionary events (*Why* changes happened). |
-| **3** | **ADRs** | `docs/decisions/ADR-NNN-<title>.md` | Individual architectural decision records (One ADR = One File). |
-| **4** | **Project Status** | `docs/PROJECT_STATUS.md` | Current verified operational snapshot, implemented components, and immediate next objective. |
-| **5** | **Architecture & Specs** | `docs/architecture/`, `docs/LAEW_CONTEXT.md`, `manifests/` | Living specifications, domain models, principles, system manifests, and tool contracts. |
+| Layer | Path | Responsibility |
+| :--- | :--- | :--- |
+| **Git** | `.git/` | File diffs and commit history. Never the sync target. |
+| **History** | `docs/history/*.md` + `docs/history/README.md` | Verified milestone completions and evolutionary events (*why* things changed). |
+| **ADRs** | `docs/decisions/ADR-NNN-<title>.md` | Individual architectural decisions (one decision = one file). |
+| **Status** | `docs/PROJECT_STATUS.md` | Current verified snapshot: implemented components and next objective. |
+| **Roadmap** | `docs/roadmap/` | Planned milestones (M16–M21) and in-progress work. |
+| **Architecture** | `docs/architecture/`, `docs/LAEW_CONTEXT.md`, `manifests/` | Living specs, principles, manifests, tool contracts. |
 
----
+## Procedure
 
-## 3. Synchronization Procedure
+### Step 1: Ground-Truth Audit
+Never record a milestone or component as done from conversation alone.
+1. Inspect the actual repository: `git status`, `git diff`, and the files
+   themselves.
+2. Read the relevant existing docs before writing (`PROJECT_STATUS.md`,
+   `docs/history/README.md`, `docs/decisions/README.md`, `PRINCIPLES.md`).
 
-When `project-sync` is invoked, execute the following steps:
+### Step 2: Idempotency Gate
+If every decision, milestone, and status item from the session is already
+accurately recorded, **stop** and report: `Documentation is already in sync
+with current state. No changes needed.`
 
-### Step 1: Conversation & Ground Truth Audit
-1. **Analyze Active Conversation**:
-   - Identify verified completed milestones or major work items.
-   - Identify significant architectural or engineering decisions.
-   - Identify technical constraints, discarded alternatives, or discovered architectural risks.
-2. **Inspect Actual Repository State**:
-   - Run `git status` and `git diff` to verify ground truth.
-   - Inspect files to verify physical completion (never record a milestone or component as completed based solely on conversational claims).
+### Step 3: Targeted Updates
 
-### Step 2: Differential Analysis & Idempotency Check
-1. Read existing documentation files:
-   - `docs/PROJECT_STATUS.md`
-   - `docs/history/CHANGELOG.md` (if exists)
-   - Existing ADRs in `docs/decisions/` and `docs/decisions/README.md`
-   - `docs/architecture/PRINCIPLES.md`
-   - `manifests/SYSTEM_MANIFEST.yaml`
-2. **Idempotency Gate**:
-   - If all decisions, milestones, and status items from the session are already accurately recorded, **STOP** and report: `Documentation is already in sync with current state. No changes needed.`
+#### A. Architectural Decisions (ADRs)
+- **One ADR = One File** (`docs/decisions/ADR-NNN-<short-title>.md`).
+- Scan `docs/decisions/` for the next sequence number.
+- Use the LAEW ADR frontmatter (see `yaml-metadata.md`): `type: adr`, `id`,
+  `title`, `status`, `purpose`, `scope`, `read_when`, `related`.
+- **Superseding**: do not overwrite the old ADR. Set its `status` to
+  `Superseded` and record `related`/`Supersedes` in the new one.
+- Update `docs/decisions/README.md` when a new ADR is added.
+- Do NOT create ADRs for minor details or temporary refactors.
 
-### Step 3: Targeted Documentation Updates
-
-#### A. Architectural Decisions (Individual ADRs)
-- **Rule: One ADR = One File** (`docs/decisions/ADR-NNN-<short-title>.md`).
-- Scan `docs/decisions/` to determine the next sequence number (e.g., `ADR-010`, `ADR-011`...).
-- Use the standard LAEW ADR structure:
-  ```markdown
-  # ADR-NNN — Title
-
-  ## Status
-  Proposed | Accepted | Deprecated | Superseded by [ADR-YYY](ADR-YYY-name.md)
-
-  ## Context
-  Problem statement, architectural motivation, and background.
-
-  ## Decision
-  Clear statement of the architectural decision made.
-
-  ## Consequences
-  - Positive trade-offs and architectural capabilities.
-  - Negative trade-offs and operational overhead.
-  ```
-- **Superseding Decisions**: If a new decision replaces a prior ADR, do NOT overwrite the old ADR file. Mark the old ADR's status as `Superseded by [ADR-XXX](ADR-XXX-name.md)` and record `Supersedes [ADR-YYY](ADR-YYY-name.md)` in the new ADR.
-- **Index Update**: When a new ADR is added, update the table in `docs/decisions/README.md`.
-- Do NOT create ADRs for minor implementation details or temporary refactors.
-
-#### B. Project History (`docs/history/CHANGELOG.md`)
-- Update ONLY on verified, significant project milestones or major evolutionary events:
-  - Milestone completion (e.g., Milestone 1 Declarative Foundation).
-  - Introduction of a new subsystem or major architectural pattern.
-  - Significant technology, framework, or model role transition.
-  - Critical architectural risk resolution or fundamental pivot.
-- Do NOT log conversational steps, minor bug fixes, or routine file edits.
-- Structure entries with: Date, Milestone / Event Title, Context & Motivation, Key Achievements, Decisions & Consequences.
+#### B. Project History (`docs/history/*.md`)
+- Update **only** for verified, significant milestones or evolutionary events:
+  milestone completion, new subsystems, technology/model-role transitions,
+  critical risk resolution.
+- Do NOT log conversational steps, minor fixes, or routine edits.
+- Match the existing format: a `## [YYYY-MM-DD] Title` header followed by
+  `- **Context & Motivation:**`, `- **Key Achievements:**`, and
+  `- **Decisions & Consequences:**` bullet lists, each ending with a `---`.
+- History files intentionally omit YAML frontmatter (per project-structure rules).
+- Update the `docs/history/README.md` index with a new row.
 
 #### C. Project Status (`docs/PROJECT_STATUS.md`)
-- Update current implementation stage.
-- Update list of present and verified repository components.
-- Update the immediate next objective.
+- Update the implementation stage and the "current focus" statement.
+- Update the list of present, verified components.
+- Update the next objective.
 
-#### D. Principles Protection (`docs/architecture/PRINCIPLES.md`)
-- `PRINCIPLES.md` contains fundamental axioms (P1–Pn) and is strictly protected.
-- `project-sync` MUST NOT automatically modify `docs/architecture/PRINCIPLES.md`.
-- If a proposed change affects a core principle, flag it explicitly in the report for interactive user approval.
+#### D. Roadmap (`docs/roadmap/`)
+- Record in-progress milestones and their objectives here; do not duplicate
+  them as if completed in Status or History.
+- Use the milestone file naming and frontmatter conventions (`MXX`, `yaml-metadata.md`).
 
-#### E. Living Specifications & Manifests
-- Update `docs/LAEW_CONTEXT.md` or `manifests/SYSTEM_MANIFEST.yaml` ONLY if underlying domain models, principles, or configuration schemas changed.
+#### E. Principles Protection (`docs/architecture/PRINCIPLES.md`)
+- `PRINCIPLES.md` holds fundamental axioms (P1–Pn) and is protected.
+- Do NOT auto-modify it. If a proposed change affects a principle, flag it in
+  the report for explicit user approval.
 
-### Step 4: Verification & Consistency Check
-1. Verify that all recorded statements match verified repository files.
-2. Verify that no contradictions exist across ADRs, Project Status, History, and Architecture specs.
-3. Ensure no unapproved mutating Git commands were run.
+#### F. Living Specs & Manifests
+- Update `docs/LAEW_CONTEXT.md` or `manifests/SYSTEM_MANIFEST.yaml` only when
+  domain models, principles, or configuration schemas genuinely change.
 
-### Step 5: Structured Sync Report
-Output a concise summary:
-- **ADRs Created / Updated**: Links to specific `ADR-NNN` files.
-- **Project History Updated**: Summary of entry added to `docs/history/CHANGELOG.md` (or `None`).
-- **Status & Specs Updated**: Specific status lines modified.
-- **Principles Flagged (if any)**: Potential principle revisions requiring explicit user approval.
-- **Uncertainties / Open Items**: Any ambiguous points flagged.
+### Step 4: Verification
+1. Confirm every recorded statement matches verified repository files.
+2. Confirm no contradictions across Status, History, ADRs, and Architecture.
+3. Confirm no unapproved mutating Git commands were run.
+
+### Step 5: Sync Report
+Report concisely:
+- **ADRs Created / Updated**: links to `ADR-NNN` files.
+- **History Updated**: entry added to `docs/history/` (or `None`).
+- **Status / Roadmap / Specs Updated**: specific lines or files.
+- **Principles Flagged (if any)**: proposed revisions awaiting approval.
+- **Uncertainties / Open Items**: ambiguous points.
