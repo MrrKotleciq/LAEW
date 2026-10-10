@@ -1,3 +1,15 @@
+---
+name: LAEW Performance Baseline — Milestone 14
+description: Recorded pytest-benchmark numbers from a clean offline local run (M14), with regression guidance.
+type: report
+scope: LAEW performance benchmark numbers and regression thresholds
+status: implemented
+tags:
+  - performance
+  - benchmark
+  - m14
+---
+
 # LAEW Performance Baseline — Milestone 14
 
 Reference numbers recorded by `tests/benchmarks/` (pytest-benchmark) on a clean

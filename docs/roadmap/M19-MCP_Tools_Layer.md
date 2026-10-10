@@ -2,6 +2,13 @@
 type: roadmap
 id: M19
 title: MCP Tools Layer
+name: MCP Tools Layer
+description: Opens the tool layer to the Model Context Protocol ecosystem so external MCP servers appear as LAEW tools while enforcing security boundaries.
+scope: project
+tags:
+  - tools
+  - mcp
+  - plugins
 status: completed
 purpose: Open the tool layer to the Model Context Protocol ecosystem so external MCP servers appear as LAEW tools while enforcing existing security boundaries.
 read_when:

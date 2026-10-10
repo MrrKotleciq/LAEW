@@ -2,11 +2,21 @@
 type: roadmap
 id: M17
 title: Second Brain & Global Knowledge Integration
+name: Second Brain & Global Knowledge Integration
+description: Make the Obsidian vault a real, curated knowledge source (ADR-002) with structured organization, link-aware chunking, and proper scope separation between @project and @knowledge.
+scope: project
+tags:
+  - knowledge
+  - obsidian
+  - second-brain
+  - global-knowledge
 status: completed
 purpose: Make the Obsidian vault a real, curated knowledge source (ADR-002) with structured organization, link-aware chunking, and proper scope separation between @project and @knowledge.
 read_when:
   - implementing Obsidian vault integration
   - Milestone 17 (Second Brain & Global Knowledge Integration)
+implements:
+  - ADR-002
 ---
 
 ### Milestone 17: Second Brain & Global Knowledge Integration

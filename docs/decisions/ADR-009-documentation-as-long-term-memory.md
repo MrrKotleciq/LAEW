@@ -2,6 +2,12 @@
 type: adr
 id: ADR-009
 title: Repository Documentation as Long-Term Memory and Project Sync
+name: Repository Documentation as Long-Term Memory and Project Sync
+description: Treats repository documentation as LAEW's long-term persistent memory and keeps it synchronized with code and state via project-sync.
+tags:
+  - documentation
+  - memory
+  - project-sync
 status: Accepted
 date: 2026-08-25
 purpose: Treat in-repository documentation as the project's long-term memory and keep it synchronized with the code and its state.

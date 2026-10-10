@@ -1,7 +1,9 @@
 ---
+name: Current Project Status
+description: Summary of LAEW's current implementation state, milestones, and progress.
 type: status
-title: Current Project Status
-scope: implementation state summary
+scope: project
+status: active
 read_when:
   - understanding what is currently implemented
   - verifying repository state matches documentation

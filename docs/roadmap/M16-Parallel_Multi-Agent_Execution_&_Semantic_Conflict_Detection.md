@@ -2,6 +2,14 @@
 type: roadmap
 id: M16
 title: Parallel Multi-Agent Execution & Semantic Conflict Detection
+name: Parallel Multi-Agent Execution & Semantic Conflict Detection
+description: "Complete ADR-018 deferred items: concurrent subtask execution with thread-safe shared context and semantic conflict detection via embedding similarity."
+scope: project
+tags:
+  - agent
+  - parallel
+  - concurrency
+  - conflict-detection
 status: completed
 purpose: Complete ADR-018 deferred items: concurrent subtask execution with thread-safe shared context and semantic conflict detection via embedding similarity.
 read_when:

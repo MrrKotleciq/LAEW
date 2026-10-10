@@ -2,6 +2,13 @@
 type: roadmap
 id: M14
 title: Performance & Context-Efficiency Audit
+name: Performance & Context-Efficiency Audit
+description: "Optimize runtime on a verified baseline: O(n) context trimming, token calibration, streaming chat, pytest-benchmark baselines, and context-budget enforcement."
+scope: project
+tags:
+  - performance
+  - context
+  - benchmark
 status: completed
 purpose: Optimize runtime on a verified baseline: O(n) context trimming, token calibration, streaming chat, pytest-benchmark baselines, and context-budget enforcement.
 read_when:

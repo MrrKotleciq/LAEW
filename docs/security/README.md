@@ -1,7 +1,10 @@
 ---
+name: Security Reviews and Findings
+description: Security audits, findings, and remediation records for LAEW.
 type: index
 title: Security Reviews and Findings
-scope: security audits, findings, and remediation
+scope: project
+status: active
 read_when:
   - before making a security-sensitive change
   - reviewing security posture

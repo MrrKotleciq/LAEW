@@ -2,6 +2,12 @@
 type: adr
 id: ADR-010
 title: Multi-Root Workspace Boundaries and Logical Path Aliasing
+name: Multi-Root Workspace Boundaries and Logical Path Aliasing
+description: Defines multi-root workspace boundaries and logical path aliases (@project, @projects, @knowledge) with traversal prevention and restricted-path enforcement.
+tags:
+  - path
+  - workspace
+  - boundaries
 status: Accepted
 date: 2026-09-03
 purpose: Define multi-root workspace boundaries and logical path aliases (@project, @projects, @knowledge) with traversal prevention and restricted-path enforcement.

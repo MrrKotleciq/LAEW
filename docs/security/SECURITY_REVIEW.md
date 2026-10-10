@@ -1,3 +1,15 @@
+---
+name: Security Review — Milestone 11 (Production Hardening)
+description: bandit SAST plus manual review of the M11 production-hardening changes; no HIGH or CRITICAL findings.
+type: report
+scope: LAEW package security audit (bandit + manual)
+status: implemented
+tags:
+  - security
+  - m11
+  - bandit
+---
+
 # Security Review — Milestone 11 (Production Hardening)
 
 **Date:** 2026-09-15

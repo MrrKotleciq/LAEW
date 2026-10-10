@@ -2,6 +2,12 @@
 type: adr
 id: ADR-005
 title: Layered Modular Prompt Instructions
+name: Layered Modular Prompt Instructions
+description: Rejects a single monolithic system prompt in favor of layered, composable prompt templates combined per role and task.
+tags:
+  - prompts
+  - architecture
+  - templates
 status: Accepted
 date: 2026-08-25
 purpose: Reject one gigantic system prompt in favor of layered, composable prompt templates that can be combined per role and task.

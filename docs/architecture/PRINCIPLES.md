@@ -1,7 +1,9 @@
 ---
+name: Architecture Principles
+description: Core architectural axioms (P1–P10) that govern LAEW design and evaluation.
 type: architecture
-title: Architecture Principles
-scope: core architectural principles (P1–P10)
+scope: project
+status: active
 read_when:
   - evaluating design proposals
   - reviewing architectural decisions

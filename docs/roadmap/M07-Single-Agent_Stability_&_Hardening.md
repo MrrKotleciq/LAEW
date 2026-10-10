@@ -2,12 +2,21 @@
 type: roadmap
 id: M07
 title: Single-Agent Stability & Hardening
+name: Single-Agent Stability & Hardening
+description: Establish a stable, well-tested single-agent runtime as the foundation for multi-agent scaling; add structured logging; implement provider registry/factory; harden CI.
+scope: project
+tags:
+  - agent
+  - stability
+  - testing
 status: completed
 purpose: Establish a stable, well-tested single-agent runtime as the foundation for multi-agent scaling; add structured logging; implement provider registry/factory; harden CI.
 read_when:
   - establishing a stable single-agent baseline
   - preparing for multi-agent scaling
   - understanding the foundation for M10-M11
+implements:
+  - ADR-013
 related:
   - ADR-017
   - ADR-019

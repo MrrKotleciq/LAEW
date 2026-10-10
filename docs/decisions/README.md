@@ -1,7 +1,10 @@
 ---
+name: Architecture Decision Records
+description: Index of accepted and proposed Architecture Decision Records (ADRs) governing LAEW design.
 type: index
 title: Architecture Decision Records
-scope: architectural decisions
+scope: project
+status: active
 read_when:
   - implementing a feature that requires an architectural decision
   - reviewing a design change

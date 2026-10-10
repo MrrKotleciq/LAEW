@@ -2,6 +2,13 @@
 type: roadmap
 id: M13
 title: Session Memory & Conversation Persistence
+name: Session Memory & Conversation Persistence
+description: Make agent sessions durable and restorable via SessionStore with atomic writes, hardened path validation, and manifest-driven storage resolution.
+scope: project
+tags:
+  - memory
+  - persistence
+  - sessions
 status: completed
 purpose: Make agent sessions durable and restorable via SessionStore with atomic writes, hardened path validation, and manifest-driven storage resolution.
 read_when:

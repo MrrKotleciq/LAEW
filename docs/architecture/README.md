@@ -1,7 +1,10 @@
 ---
+name: Architecture
+description: Current architectural intent, principles, and design direction for LAEW.
 type: index
 title: Architecture
-scope: current architectural intent and principles
+scope: project
+status: active
 read_when:
   - understanding the current architectural direction
   - evaluating new architectural changes

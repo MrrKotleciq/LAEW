@@ -2,6 +2,12 @@
 type: adr
 id: ADR-004
 title: Explicit Context Budgeting
+name: Explicit Context Budgeting
+description: Treats context as a limited resource and budgets it explicitly across system prompt, conversation, RAG, and tool results.
+tags:
+  - context
+  - budgeting
+  - tokens
 status: Accepted
 date: 2026-08-25
 purpose: Treat context as a limited resource and budget it explicitly (system prompt, conversation, RAG, tool results), reserving room for reasoning and the response.

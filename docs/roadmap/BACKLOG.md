@@ -2,6 +2,12 @@
 type: roadmap
 id: backlog
 title: Backlog
+name: Backlog
+description: List of candidate milestones not yet sequenced into the roadmap.
+scope: project
+tags:
+  - backlog
+  - candidates
 status: backlog
 purpose: List of candidate milestones not yet sequenced into the roadmap
 read_when:

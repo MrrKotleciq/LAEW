@@ -2,11 +2,21 @@
 type: roadmap
 id: M03
 title: Chief Agent Runtime, LLM Provider & Orchestration
+name: Chief Agent Runtime, LLM Provider & Orchestration
+description: Implements the model-agnostic LLM provider interface, context budgeting, layered prompt loading, and the chief agent execution loop (Thought → Action → Observation → Response).
+scope: project
+tags:
+  - agent
+  - llm
+  - orchestration
 status: completed
 purpose: Implement the model-agnostic LLM provider interface, context budgeting, layered prompt loading, and the chief agent execution loop (Thought → Action → Observation → Response).
 read_when:
   - working on the agent loop, LLM provider, or prompt management
   - understanding context budgeting or tool calling
+implements:
+  - ADR-005
+  - ADR-004
 ---
 ## [2026-09-03] Milestone 3: Chief Agent Runtime, LLM Provider & Orchestration Completed
 
