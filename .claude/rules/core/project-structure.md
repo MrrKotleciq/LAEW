@@ -118,6 +118,12 @@ The following file types intentionally do NOT use YAML frontmatter:
 - `docs/source/*.md` — external reference material
 - `tools/*/*.md` — tool contracts (use their own format)
 - `tests/*/*.md` — test specifications (use their own format)
+## Document Metadata
+
+YAML frontmatter conventions (type values, type-specific fields, examples, and
+validation guidance) are maintained in the canonical schema reference at
+`.claude/rules/core/yaml-metadata.md`. Read that file for the full metadata
+schema instead of duplicating it here.
 
 ## See Also
 
