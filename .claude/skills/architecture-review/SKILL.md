@@ -1,4 +1,5 @@
 ---
+name: architecture-review
 type: skill
 title: Architecture Review
 scope: architectural analysis, ADR generation, decision documentation
