@@ -9,7 +9,7 @@ tags:
   - tools
   - mcp
   - plugins
-status: completed
+status: in-progress
 purpose: Open the tool layer to the Model Context Protocol ecosystem so external MCP servers appear as LAEW tools while enforcing existing security boundaries.
 read_when:
   - implementing MCP tool adapter

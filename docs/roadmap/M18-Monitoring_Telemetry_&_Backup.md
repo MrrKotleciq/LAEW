@@ -9,7 +9,7 @@ tags:
   - observability
   - telemetry
   - backup
-status: completed
+status: in-progress
 purpose: Surround the system with observability and backup layers: structured run telemetry, health/status summary, crash-safe session and vault backup/restore, and retention policy.
 read_when:
   - implementing monitoring or backup

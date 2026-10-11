@@ -10,7 +10,7 @@ tags:
   - obsidian
   - second-brain
   - global-knowledge
-status: completed
+status: in-progress
 purpose: Make the Obsidian vault a real, curated knowledge source (ADR-002) with structured organization, link-aware chunking, and proper scope separation between @project and @knowledge.
 read_when:
   - implementing Obsidian vault integration
