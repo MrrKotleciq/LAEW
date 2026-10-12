@@ -182,6 +182,16 @@ Before committing a file with YAML frontmatter:
 6. For ADRs, ensure `id` follows the `ADR-NNN` format.
 7. For roadmap milestones, ensure `id` follows the `MXX` format and `status` is one of: `completed`, `in-progress`, `backlog`.
 
+## Exceptions
+
+The following file types intentionally do NOT use YAML frontmatter — this is an
+exception, not a migration target. They fall outside the schema reference:
+
+- `docs/history/*.md` — chronological records
+- `docs/source/*.md` — external reference material
+- `tools/*/*.md` — tool contracts (use their own contract header format)
+- `tests/*/*.md` — test specifications (use their own spec header format)
+
 ## Verification
 
 After making changes:
