@@ -1,3 +1,12 @@
+---
+type: rule
+title: Common Patterns
+scope: skeleton projects, repository pattern, and API response format
+read_when:
+  - implementing new functionality from a skeleton
+  - extracting or refactoring an existing module
+---
+
 # Common Patterns
 
 ## Skeleton Projects

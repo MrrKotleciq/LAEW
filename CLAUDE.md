@@ -10,7 +10,7 @@ You are NOT part of LAEW's runtime architecture.
 LAEW's own prompt templates in `prompts/` are application/runtime
 assets, not Claude Code instructions.
 
-Do not design LAEW around Claude Code, Claude, Omniroute, or any
+Do not design LAEW around Claude Code, Claude, or any
 specific model/provider unless explicitly decided.
 
 ## Project
