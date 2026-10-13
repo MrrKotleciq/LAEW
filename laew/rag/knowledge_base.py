@@ -3,7 +3,7 @@
 import logging
 import os
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 from typing import List, Optional
@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 from laew.config.constants import RAG_CHUNK_SIZE, RAG_CHUNK_OVERLAP
 from laew.rag.embedding import EmbeddingService
+from laew.rag.obsidian import FRONTMATTER_RE, parse_note
 from laew.rag.vector_store import ChromaVectorStore, DocumentChunk, VectorStore
 
 
@@ -32,6 +33,11 @@ class ChunkMetadata:
     section_header: str = ""
     chunk_index: int = 0
     total_chunks: int = 0
+    # Obsidian note metadata (Milestone 17). Preserved per chunk so that
+    # frontmatter tags and [[backlinks]] survive chunking and are surfaced
+    # in retrieved context. Empty when the source has no Obsidian metadata.
+    tags: List[str] = field(default_factory=list)
+    backlinks: List[str] = field(default_factory=list)
 
 
 class KnowledgeBase:
@@ -73,6 +79,9 @@ class KnowledgeBase:
         self._project_store = self._create_store("project")
         self._global_store = self._create_store("global")
         self._loaded = False
+        # load_vault() indexes the global store on its own; it must not set
+        # _loaded, or a later load() would skip reloading project memory.
+        self._vault_loaded = False
 
     def _create_store(self, scope: str) -> VectorStore:
         """
@@ -106,6 +115,21 @@ class KnowledgeBase:
 
         return VectorStore()
 
+    @staticmethod
+    def _roots_overlap(a: Path, b: Path) -> bool:
+        """
+        Return True if two knowledge roots overlap.
+
+        Two roots overlap when they are equal or one is nested inside the
+        other. ``load``/``load_vault`` scan each root with ``rglob`` into its
+        own store, so an overlap would index the same ``.md`` into both stores
+        and duplicate it — exactly what ADR-011 forbids. Rejecting the overlap
+        keeps ``@project`` and ``@knowledge`` as disjoint sibling directories.
+        """
+        a = Path(a).resolve()
+        b = Path(b).resolve()
+        return a == b or a.is_relative_to(b) or b.is_relative_to(a)
+
     def load(self, force: bool = False) -> None:
         """
         Load documents from project and global knowledge sources.
@@ -116,6 +140,16 @@ class KnowledgeBase:
         if self._loaded and not force:
             return
 
+        # Project and global knowledge must be disjoint sibling roots; otherwise
+        # rglob over one root would reach the other and double-index the vault
+        # into both stores, breaking the @project/@knowledge separation.
+        if self._roots_overlap(self.project_root, self.knowledge_root):
+            raise ValueError(
+                "Project and knowledge roots overlap; configure them as "
+                "disjoint sibling directories so @project and @knowledge stay "
+                "separate."
+            )
+
         # Load project memory
         if self.project_root.exists():
             self._load_directory(self.project_root, "project", self._project_store)
@@ -125,6 +159,56 @@ class KnowledgeBase:
             self._load_directory(self.knowledge_root, "global", self._global_store)
 
         self._loaded = True
+
+    def load_vault(self, force: bool = False) -> None:
+        """
+        (Re)load only the global-knowledge Obsidian vault into its store.
+
+        Unlike :meth:`load`, this does not touch project memory; it is used to
+        (re)index the Second Brain vault on its own.
+
+        Args:
+            force: Force reload even if already loaded
+        """
+        if self._vault_loaded and not force:
+            return
+
+        # The vault must not overlap the project root, or rglob over the vault
+        # root would reach project notes and double-index them into @knowledge.
+        if self._roots_overlap(self.project_root, self.knowledge_root):
+            raise ValueError(
+                "Project and knowledge roots overlap; configure them as "
+                "disjoint sibling directories so @project and @knowledge stay "
+                "separate."
+            )
+
+        if self.knowledge_root.exists():
+            self._load_directory(self.knowledge_root, "global", self._global_store)
+
+        self._vault_loaded = True
+
+    def structure(self) -> Dict[str, int]:
+        """
+        Inspect the Obsidian vault directory tree.
+
+        Returns:
+            Ordered dict mapping each immediate subfolder name to the number
+            of ``.md`` notes it contains (0 for empty folders). Hidden folders
+            and non-note directories are excluded.
+        """
+        counts: Dict[str, int] = {}
+
+        if not self.knowledge_root.exists():
+            return counts
+
+        for folder in sorted(self.knowledge_root.iterdir()):
+            if not folder.is_dir():
+                continue
+            if any(part.startswith(".") for part in folder.name.split(os.sep)):
+                continue
+            counts[folder.name] = sum(1 for _ in folder.rglob("*.md"))
+
+        return counts
 
     def _load_directory(
         self,
@@ -178,8 +262,14 @@ class KnowledgeBase:
         except (UnicodeDecodeError, PermissionError):
             return []
 
-        # Extract sections based on headers
-        sections = self._extract_sections(content)
+        # Extract Obsidian note metadata (tags, backlinks) once per file so it
+        # is available for every chunk without re-parsing the frontmatter.
+        obsidian_metadata = self._obsidian_metadata(content)
+
+        # Strip frontmatter before section extraction so chunk text stays clean
+        # of YAML and reflects only the note body.
+        body = self._strip_frontmatter(content)
+        sections = self._extract_sections(body)
 
         chunks = []
         for section_content, section_header in sections:
@@ -205,11 +295,33 @@ class KnowledgeBase:
                     metadata={
                         "section_header": section_header,
                         "chunk_index": i,
+                        **obsidian_metadata,
                     },
                 )
                 chunks.append(chunk)
 
         return chunks
+
+    def _strip_frontmatter(self, content: str) -> str:
+        """Remove a leading YAML frontmatter block from an Obsidian note."""
+        match = FRONTMATTER_RE.search(content)
+        return content[match.end():] if match else content
+
+    def _obsidian_metadata(self, content: str) -> Dict[str, List[str]]:
+        """
+        Extract Obsidian note metadata for RAG indexing.
+
+        Args:
+            content: Note text (frontmatter + body).
+
+        Returns:
+            Dict with ``tags`` and ``backlinks`` lists (empty when absent).
+        """
+        note = parse_note(content)
+        return {
+            "tags": list(note["tags"]),
+            "backlinks": list(note["backlinks"]),
+        }
 
     def _extract_sections(self, content: str) -> List[tuple[str, str]]:
         """

@@ -14,9 +14,12 @@ from laew.rag.knowledge_base import KnowledgeBase, KnowledgeScope
 from laew.rag.pipeline import RAGPipeline
 
 #: ``scope=`` values accepted by ``rag query`` (mirror KnowledgeScope values).
+#: ``knowledge`` is an alias for ``global`` — the ADRs (ADR-002/ADR-011) name
+#: the global store ``@knowledge`` while the enum calls it ``global``.
 SCOPE_ALIASES = {
     "project": KnowledgeScope.PROJECT,
     "global": KnowledgeScope.GLOBAL,
+    "knowledge": KnowledgeScope.GLOBAL,
     "hybrid": KnowledgeScope.HYBRID,
 }
 
@@ -94,7 +97,7 @@ def cmd_rag_query(args: list, state: SessionState) -> int:
             alias = item.split("=", 1)[1].lower()
             scope = SCOPE_ALIASES.get(alias)
             if scope is None:
-                return _err(f"unknown scope '{alias}' (project|global|hybrid)")
+                return _err(f"unknown scope '{alias}' (project|global|knowledge|hybrid)")
         elif item.startswith("k="):
             try:
                 top_k = max(1, int(item.split("=", 1)[1]))
@@ -103,7 +106,7 @@ def cmd_rag_query(args: list, state: SessionState) -> int:
         else:
             query_parts.append(item)
     if not query_parts:
-        return _err('usage: rag query "<query>" [scope=project|global|hybrid] [k=5]')
+        return _err('usage: rag query "<query>" [scope=project|global|knowledge|hybrid] [k=5]')
     query = " ".join(query_parts)
 
     try:

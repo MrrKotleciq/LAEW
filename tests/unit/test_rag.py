@@ -260,8 +260,8 @@ class TestRAGPipeline:
         embedding_service = MockEmbeddingService()
         with tempfile.TemporaryDirectory() as tmpdir:
             kb = KnowledgeBase(
-                project_root=tmpdir,
-                knowledge_root=tmpdir,
+                project_root=os.path.join(tmpdir, "project"),
+                knowledge_root=os.path.join(tmpdir, "knowledge"),
                 embedding_service=embedding_service,
             )
             pipeline = RAGPipeline(
@@ -283,9 +283,11 @@ class TestRAGPipeline:
                 "# Architecture\n\nLAEW uses modular architecture with clear separation."
             )
 
+            # project and knowledge roots must be disjoint siblings; knowledge
+            # root is an empty sibling so the project doc isn't double-indexed.
             kb = KnowledgeBase(
                 project_root=str(project_dir),
-                knowledge_root=tmpdir,
+                knowledge_root=os.path.join(tmpdir, "knowledge"),
                 embedding_service=embedding_service,
             )
             pipeline = RAGPipeline(
@@ -334,8 +336,8 @@ class TestRAGPipeline:
         embedding_service = MockEmbeddingService()
         with tempfile.TemporaryDirectory() as tmpdir:
             kb = KnowledgeBase(
-                project_root=tmpdir,
-                knowledge_root=tmpdir,
+                project_root=os.path.join(tmpdir, "project"),
+                knowledge_root=os.path.join(tmpdir, "knowledge"),
                 embedding_service=embedding_service,
             )
             pipeline = RAGPipeline(
@@ -406,8 +408,8 @@ class TestRagTool:
         embedding_service = MockEmbeddingService()
         with tempfile.TemporaryDirectory() as tmpdir:
             kb = KnowledgeBase(
-                project_root=tmpdir,
-                knowledge_root=tmpdir,
+                project_root=os.path.join(tmpdir, "project"),
+                knowledge_root=os.path.join(tmpdir, "knowledge"),
                 embedding_service=embedding_service,
             )
             pipeline = RAGPipeline(knowledge_base=kb, embedding_service=embedding_service)
@@ -427,8 +429,8 @@ class TestRagTool:
         embedding_service = MockEmbeddingService()
         with tempfile.TemporaryDirectory() as tmpdir:
             kb = KnowledgeBase(
-                project_root=tmpdir,
-                knowledge_root=tmpdir,
+                project_root=os.path.join(tmpdir, "project"),
+                knowledge_root=os.path.join(tmpdir, "knowledge"),
                 embedding_service=embedding_service,
             )
             pipeline = RAGPipeline(knowledge_base=kb, embedding_service=embedding_service)

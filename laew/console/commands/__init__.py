@@ -27,8 +27,9 @@ from laew.console.commands import agent  # noqa: E402
 from laew.console.commands import rag  # noqa: E402
 from laew.console.commands import automation  # noqa: E402
 from laew.console.commands import sessions  # noqa: E402
+from laew.console.commands import knowledge  # noqa: E402
 
 # Merge each module's local registry into the global one.
-for _module in (core, tool, agent, rag, automation, sessions):
+for _module in (core, tool, agent, rag, automation, sessions, knowledge):
     for _name, _handler in _module.register().items():
         COMMAND_HANDLERS[_name] = _handler

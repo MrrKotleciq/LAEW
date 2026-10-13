@@ -247,10 +247,21 @@ class RAGPipeline:
                         total_tokens += remaining_chars // CHARS_PER_TOKEN
                 break
 
-            # Add chunk with source attribution
+            # Add chunk with source attribution. Obsidian note metadata
+            # (section header, #tags, [[backlinks]]) is surfaced so the agent
+            # can see how a retrieved fact is organized and connected.
             header = chunk.metadata.get("section_header", "")
             header_str = f" > {header}" if header else ""
-            attribution = f"[{chunk.source.upper()}: {chunk.file_path}{header_str}]"
+            tags = chunk.metadata.get("tags") or []
+            backlinks = chunk.metadata.get("backlinks") or []
+            tags_str = f" > {', '.join(tags)}" if tags else ""
+            backlinks_str = (
+                f" | backlinks: {', '.join(backlinks)}" if backlinks else ""
+            )
+            attribution = (
+                f"[{chunk.source.upper()}: {chunk.file_path}"
+                f"{header_str}{tags_str}{backlinks_str}]"
+            )
 
             context_parts.append(f"{attribution}\n{chunk.text}")
             used_chunks.append((chunk, score))

@@ -53,7 +53,7 @@ Milestones 1–16 are complete through Parallel Multi-Agent Execution & Semantic
 - **manifests/SYSTEM_MANIFEST.yaml** — System manifest v1.0 (workspace boundaries, model roles, tool policies, memory layers, RAG configuration)
 - **tools/** — Tool contracts for filesystem, git, terminal, web (each with CONTRACT.md and Python implementation)
 - **prompts/** — Layered prompt templates (core.md, chief-agent.md, architecture.md, research.md, code-review.md, debugging.md, documentation.md, rag.md)
-- **tests/** — Test specifications for security, agent, rag, workflow, multi-agent, console, CLI, benchmarking, and documentation validation (609 unit tests across 30 suites)
+- **tests/** — Test specifications for security, agent, rag, workflow, multi-agent, console, CLI, benchmarking, and documentation validation (639 unit tests across 33 suites)
 - **docs/** — Architecture, principles, decisions, context, status, history, roadmap, performance, security, and source reference material
 - **.claude/** — Agent SDK configuration, settings, prompts, and skills (project-sync, research, architecture-review)
 - **laew/** — Python package (tool runtime wrappers, CLI, LLM provider, prompt management, agent loop, multi-agent coordination, RAG, workflow, evaluation)
@@ -62,8 +62,8 @@ Milestones 1–16 are complete through Parallel Multi-Agent Execution & Semantic
 
 ## Test Suite Summary
 
-- **609 unit tests** collected across **30 test suites** (in `tests/unit`)
-- Full test suite: 701 passed, 2 skipped, 0 failed (the previously environmental failures — Ollama and ChromaDB unreachable — are now passing; see Test Suite Summary)
+- **639 unit tests** collected across **33 test suites** (in `tests/unit`)
+- Full test suite: 625 passed, 8 failed, 2 skipped, 4 errors (the Ollama and live-tooling tests remain environmentally blocked — see Test Suite Summary)
 - Bandit SAST: 0 High, 0 Medium findings over `laew/`
 
 ## What Is Implemented
