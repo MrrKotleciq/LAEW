@@ -559,6 +559,18 @@ def cmd_chat(args) -> int:
     return 0
 
 
+def cmd_ui(args) -> int:
+    """Start the loopback-only browser workspace."""
+    from laew.web import serve
+
+    try:
+        serve(args.manifest, args.port, open_browser=not args.no_browser)
+    except OSError as e:
+        print(f"[FAIL] Could not start LAEW UI: {e}")
+        return 1
+    return 0
+
+
 def cmd_console(args) -> int:
     """
     Start the LAEW interactive testing console.
@@ -706,6 +718,12 @@ def main() -> int:
         help="Disable streaming; collect the full response before printing",
     )
     chat_parser.set_defaults(func=cmd_chat)
+
+    ui_parser = subparsers.add_parser("ui", help="Start the local browser workspace")
+    ui_parser.add_argument("--manifest", default="manifests/SYSTEM_MANIFEST.yaml", help="Path to system manifest")
+    ui_parser.add_argument("--port", type=int, default=8765, help="Loopback port (default: 8765)")
+    ui_parser.add_argument("--no-browser", action="store_true", help="Do not open a browser automatically")
+    ui_parser.set_defaults(func=cmd_ui)
 
     # console command
     console_parser = subparsers.add_parser(

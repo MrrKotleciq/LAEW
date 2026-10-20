@@ -41,6 +41,9 @@ laew = "laew.cli:main"
 [tool.setuptools.packages.find]
 include = ["laew*"]
 
+[tool.setuptools.package-data]
+laew = ["ui/*.html", "ui/*.css", "ui/*.js"]
+
 [tool.bandit]
 # Static security analysis for the shipped package only, not tests.
 exclude_dirs = ["tests", "docs"]
