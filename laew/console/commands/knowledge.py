@@ -22,18 +22,14 @@ def _err(msg: str) -> int:
     return 1
 
 
-def _manifest_knowledge_cfg(state: SessionState) -> dict:
+def _manifest_knowledge_cfg(manifest: dict) -> dict:
     """Collect the Obsidian vault configuration the manifest declares.
 
-    The embedding model is read from ``models.roles.embedding.model_name`` when
-    the manifest declares one; ``knowledge stats`` indexes the vault and needs
-    it. When the manifest omits the embedding role, this falls back to
-    ``"nomic-embed-text"`` — a valid default per the session resolution order
-    (manifest role, then hardcoded default). The manifest declares
-    ``bge-m3:latest`` (1024-dim), so this default only applies to manifests
-    without an embedding role.
+    Embedding selection for ``knowledge stats`` is handled by
+    :func:`laew.runtime.build_embedding_service`, which reads
+    ``models.roles.embedding.type`` (default ``"ollama"``). This helper only
+    supplies the vault path/structure the read-only commands need.
     """
-    manifest = state.load_manifest()
     # The Second Brain config lives under ``memory.second_brain`` (the manifest
     # declares it there and validates it as a mapping), not under ``memory``
     # directly — matching how ``rag.py`` reads the same knowledge root.
@@ -42,10 +38,6 @@ def _manifest_knowledge_cfg(state: SessionState) -> dict:
         "project_root": (manifest.get("workspace", {}) or {}).get("root", "."),
         "knowledge_root": second_brain.get("path", "knowledge"),
         "structure": second_brain.get("structure") or [],
-        "embedding_model": (
-            (manifest.get("models", {}) or {}).get("roles", {}) or {}
-        ).get("embedding", {}).get("model_name")
-        or "nomic-embed-text",
     }
 
 
@@ -53,7 +45,8 @@ def _cmd_list(args: list, state: SessionState) -> int:
     """knowledge list — show vault structure and note counts per folder."""
     from laew.rag.knowledge_base import KnowledgeBase
 
-    cfg = _manifest_knowledge_cfg(state)
+    manifest = state.load_manifest()
+    cfg = _manifest_knowledge_cfg(manifest)
     kb = KnowledgeBase(
         project_root=cfg["project_root"],
         knowledge_root=cfg["knowledge_root"],
@@ -78,7 +71,8 @@ def _cmd_show(args: list, state: SessionState) -> int:
     """knowledge show <path> — show a note's frontmatter, tags and body."""
     from laew.rag.obsidian import parse_note
 
-    cfg = _manifest_knowledge_cfg(state)
+    manifest = state.load_manifest()
+    cfg = _manifest_knowledge_cfg(manifest)
     knowledge_root = Path(cfg["knowledge_root"])
 
     if not args:
@@ -111,14 +105,15 @@ def _cmd_show(args: list, state: SessionState) -> int:
 
 def _cmd_stats(args: list, state: SessionState) -> int:
     """knowledge stats — show vault files and the @knowledge chunk counts."""
-    from laew.rag.embedding import OllamaEmbedding
     from laew.rag.knowledge_base import KnowledgeBase
+    from laew.runtime import build_embedding_service
 
-    cfg = _manifest_knowledge_cfg(state)
+    manifest = state.load_manifest()
+    cfg = _manifest_knowledge_cfg(manifest)
     kb = KnowledgeBase(
         project_root=cfg["project_root"],
         knowledge_root=cfg["knowledge_root"],
-        embedding_service=OllamaEmbedding(model=cfg["embedding_model"]),
+        embedding_service=build_embedding_service(manifest),
     )
 
     structure = kb.structure()

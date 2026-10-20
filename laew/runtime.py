@@ -18,7 +18,7 @@ from typing import List, Optional
 
 logger = logging.getLogger(__name__)
 
-from laew.llm.base import LLMProvider
+from laew.llm.base import LLMError, LLMProvider
 from laew.prompts.context_budget import ContextBudget
 from laew.llm.registry import create_provider, get_provider_for_role
 from laew.prompts.context_budget import ContextBudget
@@ -129,8 +129,8 @@ def resolve_model_name(
 
     try:
         installed = provider.list_models()
-    except (ConnectionError, ConnectionRefusedError, TimeoutError, RuntimeError) as e:
-        logger.debug("Failed to list Ollama models: %s", e)
+    except (ConnectionError, ConnectionRefusedError, TimeoutError, RuntimeError, LLMError) as e:
+        logger.debug("Failed to list provider models: %s", e)
         installed = []
     if not installed:
         return requested or "llama3.1"
@@ -179,6 +179,62 @@ def build_provider(
     return create_provider(cfg, base_url=base_url, timeout=timeout)
 
 
+def build_explicit_provider(
+    provider_type: str,
+    *,
+    model: Optional[str] = None,
+    base_url: Optional[str] = None,
+    timeout: Optional[int] = None,
+) -> LLMProvider:
+    """Build a provider explicitly requested on the command line.
+
+    Unlike manifest role resolution, this deliberately does not fall back to a
+    manifest provider.  It permits registered providers such as ``llama.cpp``
+    to be selected without adding a manifest entry, while the registry still
+    validates unknown provider types.
+    """
+    cfg = {"type": provider_type}
+    if model:
+        cfg["model"] = model
+    return create_provider(cfg, base_url=base_url, timeout=timeout)
+
+
+def resolve_llamacpp_model(
+    cli_model: Optional[str], provider: LLMProvider
+) -> str:
+    """Resolve a llama.cpp model, discovering it from ``/v1/models`` if needed.
+
+    Discovery is intentionally strict: an explicitly selected llama.cpp
+    provider must not silently inherit an Ollama model name or fall back to a
+    different provider when its server is unavailable.
+    """
+    if cli_model:
+        return cli_model
+
+    endpoint = f"{provider.base_url.rstrip('/')}/models"
+    try:
+        models = provider.list_models()
+    except LLMError as e:
+        raise LLMError(
+            f"Could not discover a llama.cpp model from {endpoint}: {e.message}. "
+            "Check that the llama.cpp server is running and that GET /v1/models is reachable.",
+            code=e.code or "MODEL_DISCOVERY_FAILED",
+        ) from e
+
+    model = next((item for item in models if isinstance(item, str) and item.strip()), None)
+    if not model:
+        raise LLMError(
+            f"llama.cpp returned no usable model IDs from {endpoint}. "
+            "Check the server's GET /v1/models response or pass --model explicitly.",
+            code="MODEL_DISCOVERY_FAILED",
+        )
+
+    # Keep the adapter's configured model aligned with the discovered server
+    # ID as well as passing it to AgentConfig/generate().
+    provider.model = model
+    return model
+
+
 def build_provider_for_role(
     manifest: dict,
     role: str,
@@ -206,6 +262,61 @@ def build_provider_for_role(
     if _registry is not None:
         return get_provider_for_role(role, manifest, base_url=base_url, timeout=timeout, _registry=_registry)
     return get_provider_for_role(role, manifest, base_url=base_url, timeout=timeout)
+
+
+def build_embedding_service(
+    manifest: dict,
+    *,
+    base_url: Optional[str] = None,
+    timeout: Optional[int] = None,
+) -> "EmbeddingService":
+    """
+    Build an embedding service from the manifest's ``models.roles.embedding`` role.
+
+    The role's ``type`` selects the backend (default ``"ollama"``):
+
+      - ``"ollama"``    -> :class:`~laew.rag.embedding.OllamaEmbedding`
+      - ``"llamacpp"``   -> :func:`~laew.rag.llamacpp.build_llamacpp_embedding`
+
+    Selection is independent of chat: chat is chosen by
+    ``agent.llm.roles.primary`` (the provider registry), embedding by
+    ``models.roles.embedding.type`` here.  Switching chat has no effect on the
+    embedding and vice versa.
+
+    The default manifest declares only ``model_name`` + ``target_dimensions``
+    (no ``type``), so it resolves to the Ollama backend and is unchanged.  To
+    opt into llama.cpp, set ``type: "llamacpp"`` plus a ``model_name`` (the
+    llama.cpp embedding model ID) and ``base_url``.
+
+    Args:
+        manifest: Loaded manifest dictionary.
+        base_url: Optional llama.cpp base-URL override (highest precedence) for
+            the ``llamacpp`` backend.
+        timeout: Optional timeout override in seconds (highest precedence).
+
+    Returns:
+        A configured :class:`EmbeddingService`.
+    """
+    from laew.rag.embedding import OllamaEmbedding
+    from laew.rag.llamacpp import build_llamacpp_embedding
+
+    section = (
+        manifest.get("models", {})
+        .get("roles", {})
+        .get("embedding", {})
+        or {}
+    )
+    role_type = section.get("type", "ollama")
+
+    if role_type == "llamacpp":
+        return build_llamacpp_embedding(
+            model=section.get("model_name", "default"),
+            base_url=base_url,
+            target_dimensions=section.get("target_dimensions"),
+        )
+
+    # Default: Ollama embedding (the manifest default; model_name only).
+    return OllamaEmbedding(model=section.get("model_name", "default"))
 
 
 def build_shared_tools(terminal_allowlist: Optional[list] = None) -> List[object]:

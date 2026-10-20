@@ -10,13 +10,16 @@ from unittest.mock import patch, MagicMock
 import pytest
 
 from laew.runtime import (
+    build_explicit_provider,
     provider_cfg_from_manifest,
     terminal_allowlist_from_manifest,
     build_shared_tools,
     build_provider,
     context_budget_from_manifest,
     resolve_model_name,
+    resolve_llamacpp_model,
 )
+from laew.llm.base import LLMError
 
 
 MANIFEST_WITH_PROVIDERS = {
@@ -89,6 +92,52 @@ def test_build_provider_uses_registry():
         timeout=42,
     )
     assert provider is fake
+
+
+def test_build_explicit_provider_does_not_require_manifest_entry():
+    """An explicit provider type is sent directly to the registry."""
+    fake = MagicMock()
+    with patch("laew.runtime.create_provider", return_value=fake) as factory:
+        assert build_explicit_provider(
+            "llama.cpp", model="server-model", base_url="http://127.0.0.1:8080", timeout=42
+        ) is fake
+    factory.assert_called_once_with(
+        {"type": "llama.cpp", "model": "server-model"},
+        base_url="http://127.0.0.1:8080",
+        timeout=42,
+    )
+
+
+def test_resolve_llamacpp_model_discovers_first_server_id():
+    provider = MagicMock(base_url="http://127.0.0.1:8080/v1")
+    provider.list_models.return_value = ["C:/models/local.gguf"]
+
+    assert resolve_llamacpp_model(None, provider) == "C:/models/local.gguf"
+    assert provider.model == "C:/models/local.gguf"
+
+
+def test_resolve_llamacpp_model_explicit_value_skips_discovery():
+    provider = MagicMock()
+    assert resolve_llamacpp_model("selected", provider) == "selected"
+    provider.list_models.assert_not_called()
+
+
+def test_resolve_llamacpp_model_reports_unavailable_models_endpoint():
+    provider = MagicMock(base_url="http://127.0.0.1:8080/v1")
+    provider.list_models.side_effect = LLMError("connection refused", code="CONNECTION_ERROR")
+
+    with pytest.raises(LLMError, match=r"GET /v1/models") as exc_info:
+        resolve_llamacpp_model(None, provider)
+    assert exc_info.value.code == "CONNECTION_ERROR"
+
+
+def test_resolve_llamacpp_model_rejects_empty_models_response():
+    provider = MagicMock(base_url="http://127.0.0.1:8080/v1")
+    provider.list_models.return_value = []
+
+    with pytest.raises(LLMError, match="no usable model IDs") as exc_info:
+        resolve_llamacpp_model(None, provider)
+    assert exc_info.value.code == "MODEL_DISCOVERY_FAILED"
 
 
 def test_resolve_model_name_explicit_cli_wins():

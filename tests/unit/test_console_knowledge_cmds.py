@@ -19,6 +19,9 @@ from laew.console.commands.knowledge import (
 )
 from laew.console.commands.rag import cmd_rag_query
 from laew.console.state import SessionState
+from laew.rag.embedding import OllamaEmbedding
+from laew.rag.llamacpp import LlamaCppEmbedding
+from laew.runtime import build_embedding_service
 from laew.rag.knowledge_base import KnowledgeScope
 
 
@@ -32,7 +35,6 @@ def _cfg(tmp_path):
         "project_root": str(tmp_path / "project"),
         "knowledge_root": str(tmp_path),
         "structure": ["Decisions", "Research"],
-        "embedding_model": "nomic-embed-text",
     }
 
 
@@ -166,35 +168,47 @@ def test_rag_query_knowledge_alias_maps_to_global(state, capsys):
     assert kwargs["scope"] == KnowledgeScope.GLOBAL
 
 
-def test_manifest_knowledge_cfg_parses_real_manifest(state, capsys):
-    """_manifest_knowledge_cfg reads the real manifest's Second Brain config.
+def test_knowledge_stats_selects_embedding_from_manifest(state, capsys):
+    """knowledge stats resolves the embedding service from models.roles.embedding.
 
     Exercises the real manifest-reading path (no mock of the function or its
     dependency), so the manifest wiring is covered, not just the patched dict.
+    With the default manifest (no ``type``), build_embedding_service picks the
+    Ollama backend using the declared ``model_name``.
     """
-    cfg = _manifest_knowledge_cfg(state)
-    assert cfg["project_root"] == "."
-    assert cfg["knowledge_root"] == "knowledge"
-    assert cfg["structure"] == ["Knowledge", "Decisions", "Research", "Templates"]
-    assert cfg["embedding_model"] == "bge-m3:latest"
+    service = build_embedding_service(state.load_manifest())
+    assert isinstance(service, OllamaEmbedding)
+    assert service.model == "bge-m3:latest"
 
 
-def test_manifest_knowledge_cfg_fallback_default_embedding(state, capsys):
-    """A manifest with an embedding role but no model_name falls back to a default.
+def test_knowledge_stats_embedding_default_and_llamacpp_opt_in(state, capsys):
+    """Embedding selection honors models.roles.embedding.type (default ollama).
 
-    The embedding model is read from ``models.roles.embedding.model_name`` when
-    the manifest declares one; when the role omits ``model_name`` the function
-    falls back to the hardcoded ``"nomic-embed-text"`` default (a valid fallback
-    per the session resolution order). ``load_manifest`` is patched to bypass
-    manifest validation and isolate this branch.
+    A role with no ``type`` resolves to the Ollama backend using the declared
+    ``model_name``. Setting ``type: "llamacpp"`` opts into the llama.cpp
+    embedding adapter (normalized base URL, declared ``target_dimensions``).
+    ``load_manifest`` is patched to bypass manifest validation and isolate the
+    role-selection branches.
     """
     raw = {
         "version": "0.1.0",
-        "models": {"roles": {"embedding": {}}},
+        "models": {"roles": {"embedding": {"model_name": "nomic-embed-text"}}},
         "workspace": {"root": "."},
         "memory": {"second_brain": {"path": "knowledge"}},
     }
-    with patch.object(SessionState, "load_manifest", return_value=raw):
-        cfg = _manifest_knowledge_cfg(state)
-    assert cfg["embedding_model"] == "nomic-embed-text"
-    assert cfg["knowledge_root"] == "knowledge"
+
+    # Default (no type) -> Ollama with the declared model.
+    default_emb = build_embedding_service(raw)
+    assert isinstance(default_emb, OllamaEmbedding)
+    assert default_emb.model == "nomic-embed-text"
+
+    # Opt-in: type "llamacpp" -> llama.cpp adapter.
+    raw["models"]["roles"]["embedding"]["type"] = "llamacpp"
+    raw["models"]["roles"]["embedding"]["model_name"] = "nomic-embed-text"
+    raw["models"]["roles"]["embedding"]["target_dimensions"] = 768
+    raw["models"]["roles"]["embedding"]["base_url"] = "http://localhost:9931"
+    ll_emb = build_embedding_service(raw)
+    assert isinstance(ll_emb, LlamaCppEmbedding)
+    assert ll_emb.model == "nomic-embed-text"
+    assert ll_emb.base_url.endswith("/v1")
+    assert ll_emb.target_dimensions == 768

@@ -6,6 +6,28 @@ from enum import Enum
 from typing import Any, Generator, Optional
 
 
+def normalize_llamacpp_base_url(base_url: str) -> str:
+    """
+    Normalize a llama.cpp OpenAI-compatible base URL.
+
+    Strips trailing slashes, then appends ``/v1`` only if the stripped form
+    does not already end with ``/v1``. Both forms resolve identically:
+
+    - ``http://localhost:9931`` -> ``http://localhost:9931/v1``
+    - ``http://localhost:9931/v1`` -> ``http://localhost:9931/v1``
+
+    Args:
+        base_url: Raw base URL, with or without a trailing ``/v1`` segment.
+
+    Returns:
+        The normalized base URL ending in ``/v1``.
+    """
+    stripped = base_url.rstrip("/")
+    if not stripped.endswith("/v1"):
+        stripped = f"{stripped}/v1"
+    return stripped
+
+
 class LLMError(Exception):
     """Base exception for LLM provider errors."""
 

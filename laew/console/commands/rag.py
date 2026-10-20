@@ -29,10 +29,8 @@ def _err(msg: str) -> int:
     return 1
 
 
-def _manifest_rag_config(state: SessionState) -> dict:
+def _manifest_rag_config(manifest: dict) -> dict:
     """Collect the RAG configuration the manifest declares (best-effort)."""
-    manifest = state.load_manifest()
-
     project_root = (
         manifest.get("workspace", {}).get("root", ".") or "."
     )
@@ -47,19 +45,11 @@ def _manifest_rag_config(state: SessionState) -> dict:
     top_k = int(pipeline_cfg.get("top_k", 5))
     max_context_tokens = int(pipeline_cfg.get("max_context_tokens", 8000))
 
-    embedding_model = (
-        manifest.get("models", {})
-        .get("roles", {})
-        .get("embedding", {})
-        .get("model_name")
-    ) or "nomic-embed-text"
-
     vector_store_config = manifest.get("rag", {}).get("vector_store", {})
 
     return {
         "project_root": project_root,
         "knowledge_root": knowledge_root,
-        "embedding_model": embedding_model,
         "top_k": top_k,
         "max_context_tokens": max_context_tokens,
         "vector_store_config": vector_store_config,
@@ -68,10 +58,11 @@ def _manifest_rag_config(state: SessionState) -> dict:
 
 def _build_pipeline(state: SessionState) -> RAGPipeline:
     """Build the session RAG pipeline from the manifest config."""
-    from laew.rag.embedding import OllamaEmbedding
+    from laew.runtime import build_embedding_service
 
-    cfg = _manifest_rag_config(state)
-    embedding = OllamaEmbedding(model=cfg["embedding_model"])
+    manifest = state.load_manifest()
+    cfg = _manifest_rag_config(manifest)
+    embedding = build_embedding_service(manifest)
     kb = KnowledgeBase(
         project_root=cfg["project_root"],
         knowledge_root=cfg["knowledge_root"],

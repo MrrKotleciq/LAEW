@@ -7,10 +7,12 @@ from pathlib import Path
 
 from laew.manifest import load_manifest, ManifestError
 from laew.runtime import (
+    build_explicit_provider,
     build_provider_for_role,
     build_shared_tools,
     context_budget_from_manifest,
     resolve_model_name,
+    resolve_llamacpp_model,
     terminal_allowlist_from_manifest,
 )
 from laew.tools import (
@@ -32,7 +34,7 @@ from laew.console.session_store import (
     session_store_from_manifest,
     validate_conversation,
 )
-from laew.llm.base import LLMMessage, MessageRole
+from laew.llm.base import LLMError, LLMMessage, MessageRole
 from laew.multiagent import (
     MultiAgentCoordinator,
     SpecialistRole,
@@ -313,13 +315,31 @@ def cmd_multiagent_run(args) -> int:
         manifest_model = providers_cfg[0].get("model")
 
     terminal_allowlist = terminal_allowlist_from_manifest(manifest)
-    provider = build_provider_for_role(
-        manifest,
-        "primary",
-        base_url=args.base_url,
-        timeout=args.timeout,
-    )
-    model_name = resolve_model_name(args.model, manifest_model, provider)
+    try:
+        provider_type = getattr(args, "provider", None)
+        if provider_type:
+            provider = build_explicit_provider(
+                provider_type,
+                model=args.model,
+                base_url=args.base_url,
+                timeout=args.timeout,
+            )
+            model_name = (
+                resolve_llamacpp_model(args.model, provider)
+                if provider_type == "llama.cpp"
+                else resolve_model_name(args.model, manifest_model, provider)
+            )
+        else:
+            provider = build_provider_for_role(
+                manifest,
+                "primary",
+                base_url=args.base_url,
+                timeout=args.timeout,
+            )
+            model_name = resolve_model_name(args.model, manifest_model, provider)
+    except LLMError as e:
+        print(f"[FAIL] Could not initialize provider: {e}")
+        return 1
 
     # One shared tool set for every agent (chief + specialists), honouring the
     # workspace's terminal allowlist. Mutation approval gates remain active, so
@@ -413,13 +433,31 @@ def cmd_chat(args) -> int:
     if providers_cfg:
         manifest_model = providers_cfg[0].get("model")
 
-    provider = build_provider_for_role(
-        manifest,
-        "primary",
-        base_url=args.base_url,
-        timeout=args.timeout,
-    )
-    model_name = resolve_model_name(args.model, manifest_model, provider)
+    try:
+        provider_type = getattr(args, "provider", None)
+        if provider_type:
+            provider = build_explicit_provider(
+                provider_type,
+                model=args.model,
+                base_url=args.base_url,
+                timeout=args.timeout,
+            )
+            model_name = (
+                resolve_llamacpp_model(args.model, provider)
+                if provider_type == "llama.cpp"
+                else resolve_model_name(args.model, manifest_model, provider)
+            )
+        else:
+            provider = build_provider_for_role(
+                manifest,
+                "primary",
+                base_url=args.base_url,
+                timeout=args.timeout,
+            )
+            model_name = resolve_model_name(args.model, manifest_model, provider)
+    except LLMError as e:
+        print(f"[FAIL] Could not initialize provider: {e}")
+        return 1
 
     # Session persistence (Milestone 13): load or prepare a session store
     session_store = None
@@ -475,7 +513,7 @@ def cmd_chat(args) -> int:
 
     executor = AgentExecutor(agent)
 
-    print(f"Starting chat with {model_name} (Ollama at {provider.base_url})")
+    print(f"Starting chat with {model_name} ({getattr(args, 'provider', None) or 'manifest provider'} at {provider.base_url})")
     if session_name:
         print(f"Session: {session_name}  (use --no-persist to disable)")
     print("Type 'exit' or 'quit' to end the session.")
@@ -594,16 +632,16 @@ def main() -> int:
     ma_run_parser.add_argument("plan", help="Path to the multi-agent plan YAML file")
     ma_run_parser.add_argument(
         "--model",
-        help="Ollama model name (overrides the manifest model role)",
+        help="Model name (overrides the manifest model role)",
     )
     ma_run_parser.add_argument(
         "--base-url",
         default=None,
-        help="Ollama API base URL (default: None, uses manifest)",
+        help="Provider API base URL (default: None, uses manifest/provider default)",
     )
     ma_run_parser.add_argument(
         "--provider",
-        help="LLM provider type (e.g., ollama, openai)",
+        help="Explicit LLM provider type (e.g., ollama, llama.cpp)",
     )
     ma_run_parser.add_argument(
         "--timeout",
@@ -624,16 +662,16 @@ def main() -> int:
     )
     chat_parser.add_argument(
         "--model",
-        help="Ollama model name (overrides the manifest model role)",
+        help="Model name (overrides the manifest model role)",
     )
     chat_parser.add_argument(
         "--base-url",
         default=None,
-        help="Ollama API base URL (default: None, uses manifest)",
+        help="Provider API base URL (default: None, uses manifest/provider default)",
     )
     chat_parser.add_argument(
         "--provider",
-        help="LLM provider type (e.g., ollama, openai)",
+        help="Explicit LLM provider type (e.g., ollama, llama.cpp)",
     )
     chat_parser.add_argument(
         "--timeout",

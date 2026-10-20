@@ -414,6 +414,7 @@ def test_chat_command_uses_build_provider_for_role(monkeypatch):
     # Mock the provider that would be returned
     mock_provider = build_ollama({})
     mock_provider._name = "test-provider"
+    mock_provider.is_available = lambda: True
 
     # Mock build_provider_for_role to return our mock
     with patch("laew.cli.build_provider_for_role", return_value=mock_provider) as mock_build:
@@ -517,6 +518,7 @@ def test_console_agent_build_uses_build_provider_for_role(monkeypatch):
     # Mock the provider that would be returned
     mock_provider = build_ollama({})
     mock_provider._name = "test-provider"
+    mock_provider.is_available = lambda: True
 
     # Mock SessionState to return a basic manifest
     class MockState(SessionState):
