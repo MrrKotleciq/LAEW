@@ -564,7 +564,13 @@ def cmd_ui(args) -> int:
     from laew.web import serve
 
     try:
-        serve(args.manifest, args.port, open_browser=not args.no_browser)
+        serve(
+            args.manifest,
+            args.port,
+            open_browser=not args.no_browser,
+            projects_root=args.projects_root,
+            workspace_root=args.workspace_root,
+        )
     except OSError as e:
         print(f"[FAIL] Could not start LAEW UI: {e}")
         return 1
@@ -722,6 +728,8 @@ def main() -> int:
     ui_parser = subparsers.add_parser("ui", help="Start the local browser workspace")
     ui_parser.add_argument("--manifest", default="manifests/SYSTEM_MANIFEST.yaml", help="Path to system manifest")
     ui_parser.add_argument("--port", type=int, default=8765, help="Loopback port (default: 8765)")
+    ui_parser.add_argument("--workspace-root", help="Trusted workspace root (default: inferred from the LAEW repository layout or LAEW_WORKSPACE_ROOT)")
+    ui_parser.add_argument("--projects-root", help="Override the Projects directory under the workspace root")
     ui_parser.add_argument("--no-browser", action="store_true", help="Do not open a browser automatically")
     ui_parser.set_defaults(func=cmd_ui)
 

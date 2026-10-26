@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 
 from laew.llm.base import LLMError, LLMProvider
 from laew.prompts.context_budget import ContextBudget
+from laew.security.path_resolver import PathResolver
 from laew.llm.registry import create_provider, get_provider_for_role
 from laew.prompts.context_budget import ContextBudget
 from laew.tools import (
@@ -319,20 +320,30 @@ def build_embedding_service(
     return OllamaEmbedding(model=section.get("model_name", "default"))
 
 
-def build_shared_tools(terminal_allowlist: Optional[list] = None) -> List[object]:
+def build_shared_tools(
+    terminal_allowlist: Optional[list] = None,
+    *,
+    project_root: Optional[Path | str] = None,
+    projects_root: Optional[Path | str] = None,
+    knowledge_root: Optional[Path | str] = None,
+) -> List[object]:
     """
     Build the standard shared tool suite for an agent session.
 
     Args:
         terminal_allowlist: Optional manifest terminal allowlist; ``None`` lets
             ``TerminalTool`` use its built-in default allowlist.
+        project_root: Active project root shared by filesystem, Git, and terminal tools.
+        projects_root: Trusted Projects directory used by the filesystem path resolver.
+        knowledge_root: Shared local knowledge root used by the filesystem path resolver.
 
     Returns:
         A list of the four workspace tools (filesystem, git, terminal, web).
     """
+    resolver = PathResolver(project_root=project_root, projects_root=projects_root, knowledge_root=knowledge_root)
     return [
-        FilesystemTool(),
-        GitTool(),
-        TerminalTool(allowlist=terminal_allowlist),
+        FilesystemTool(resolver=resolver),
+        GitTool(repo_root=project_root),
+        TerminalTool(workspace_root=project_root, allowlist=terminal_allowlist),
         WebTool(),
     ]
