@@ -35,10 +35,10 @@ Conflating these memory tiers causes repository clutter, redundant duplication o
 Formally decouple project memory from global knowledge across storage, provenance, and retrieval scopes:
 
 1. **Project Memory (`@project`)**:
-   - Resides directly within the project Git repository (`docs/`, `manifests/`, `tools/`, `prompts/`, `tests/`).
+   - Resides directly within the project Git repository, including its project-local `Knowledge/` directory.
    - Captures repository ground truth, architecture decisions (ADRs), status, and contracts specific to LAEW.
 2. **Global Knowledge (`@knowledge`)**:
-   - Resides in the single global Obsidian Vault (`~/Projects/knowledge/`).
+   - Resides in the single global Obsidian Vault, reached through the configured `@knowledge` root. For the current LAEW workspace, that root is `C:\ROOT\Knowledge`.
    - Captures general engineering knowledge, research notes, hardware specs, and reusable templates.
 3. **Retrieval & Attribution Scoping**:
    - Agents and RAG pipelines must explicitly scope queries: `project-scoped` for implementation tasks, `global-scoped` for conceptual research, or `hybrid-scoped` when combining domain patterns with local state.

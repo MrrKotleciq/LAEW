@@ -1,6 +1,9 @@
 """Tests for LAEW TerminalTool (CONTRACT.md)."""
 
 import os
+import json
+import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
@@ -27,8 +30,12 @@ def tool(tmp_project):
 
 # === Allowlisted commands (no approval required) ===
 
-def test_allowlisted_ls(tool, tmp_project):
-    """Test that 'ls' command is allowlisted."""
+def test_allowlisted_ls(tool, monkeypatch):
+    """The default allowlist permits ls without relying on a host utility."""
+    monkeypatch.setattr(
+        "laew.tools.terminal.subprocess.run",
+        lambda argv, **kwargs: subprocess.CompletedProcess(argv, 0, "test.txt\n", ""),
+    )
     result = tool.run_command("ls")
 
     assert result.success
@@ -36,8 +43,12 @@ def test_allowlisted_ls(tool, tmp_project):
     assert "test.txt" in result.data["stdout"]
 
 
-def test_allowlisted_cat(tool, tmp_project):
-    """Test that 'cat' command is allowlisted."""
+def test_allowlisted_cat(tool, monkeypatch):
+    """The default allowlist permits cat without relying on a host utility."""
+    monkeypatch.setattr(
+        "laew.tools.terminal.subprocess.run",
+        lambda argv, **kwargs: subprocess.CompletedProcess(argv, 0, "hello world", ""),
+    )
     result = tool.run_command("cat test.txt")
 
     assert result.success
@@ -45,8 +56,12 @@ def test_allowlisted_cat(tool, tmp_project):
     assert "hello world" in result.data["stdout"]
 
 
-def test_allowlisted_git_commands(tool):
+def test_allowlisted_git_commands(tool, monkeypatch):
     """Test that git inspection commands are allowlisted."""
+    monkeypatch.setattr(
+        "laew.tools.terminal.subprocess.run",
+        lambda argv, **kwargs: subprocess.CompletedProcess(argv, 0, "", ""),
+    )
     for cmd in ["git status", "git log", "git diff"]:
         result = tool.run_command(cmd)
         # Command might fail (not a git repo), but should not be blocked
@@ -163,17 +178,21 @@ def test_allowlist_command_substitution_blocked(tool):
     assert result.error_code == ErrorCode.ERR_UNAUTHORIZED
 
 
-def test_allowlisted_command_tokens_still_pass(tool):
+def test_allowlisted_command_tokens_still_pass(tool, monkeypatch):
     """A genuinely safe inspect command with arguments still needs no approval."""
+    monkeypatch.setattr(
+        "laew.tools.terminal.subprocess.run",
+        lambda argv, **kwargs: subprocess.CompletedProcess(argv, 0, "", ""),
+    )
     result = tool.run_command("git status --porcelain")
 
     assert result.error_code != ErrorCode.ERR_UNAUTHORIZED
 
 
 def test_non_allowlisted_with_approval(tool):
-    """Test that non-allowlisted command succeeds with approval."""
+    """An approved, portable Python command executes through the real subprocess."""
     tool.approve()
-    result = tool.run_command("echo hello")
+    result = tool.run_command(_python_command("print('hello')"))
 
     assert result.success
     assert "hello" in result.data["stdout"]
@@ -203,7 +222,7 @@ def test_absolute_path_outside_blocked(tool, tmp_path):
 def test_timeout(tool):
     """Test that long-running command times out."""
     tool.approve()
-    result = tool.run_command("sleep 10", timeout_ms=100)
+    result = tool.run_command(_python_command("import time; time.sleep(10)"), timeout_ms=100)
 
     assert not result.success
     assert result.error_code == ErrorCode.ERR_TIMEOUT
@@ -225,9 +244,15 @@ def _normalize_pwd_output(stdout: str) -> str:
     return os.path.normcase(os.path.normpath(path_str))
 
 
+def _python_command(code: str) -> str:
+    """Build a shlex-compatible command that invokes the active Python."""
+    return f'"{sys.executable}" -c {json.dumps(code)}'
+
+
 def test_execution_respects_cwd(tool, tmp_project):
-    """Test that command executes in specified cwd."""
-    result = tool.run_command("pwd", cwd=".")
+    """A real portable child process observes the confined working directory."""
+    tool.approve()
+    result = tool.run_command(_python_command("import os; print(os.getcwd())"), cwd=".")
 
     assert result.success
     # PWD should contain tmp_project path
@@ -238,16 +263,18 @@ def test_execution_respects_cwd(tool, tmp_project):
 # === Exit codes ===
 
 def test_non_zero_exit_code(tool):
-    """Test that non-zero exit codes are captured."""
-    result = tool.run_command("false")
+    """Non-zero Python child exit codes are captured."""
+    tool.approve()
+    result = tool.run_command(_python_command("raise SystemExit(7)"))
 
     assert result.success  # Tool executed successfully
     assert result.data["exit_code"] != 0
 
 
 def test_zero_exit_code(tool):
-    """Test that zero exit codes work correctly."""
-    result = tool.run_command("true")
+    """Zero Python child exit codes are captured."""
+    tool.approve()
+    result = tool.run_command(_python_command("raise SystemExit(0)"))
 
     assert result.success
     assert result.data["exit_code"] == 0
@@ -255,7 +282,7 @@ def test_zero_exit_code(tool):
 
 # === Injectable allowlist (M8) ===
 
-def test_injectable_allowlist_overrides_default(tmp_project):
+def test_injectable_allowlist_overrides_default(tmp_project, monkeypatch):
     """
     A manifest-supplied allowlist replaces the built-in default.
 
@@ -265,6 +292,10 @@ def test_injectable_allowlist_overrides_default(tmp_project):
     tool = TerminalTool(
         workspace_root=tmp_project,
         allowlist=["ls", "cat"],
+    )
+    monkeypatch.setattr(
+        "laew.tools.terminal.subprocess.run",
+        lambda argv, **kwargs: subprocess.CompletedProcess(argv, 0, "test.txt\n", ""),
     )
 
     # Injected allowlist entry works without approval.
@@ -289,10 +320,6 @@ def test_injectable_allowlist_empty_requires_approval(tmp_project):
 
 
 def test_default_allowlist_used_when_none_injected(tmp_project):
-    """Omitting the allowlist keeps the built-in default behavior."""
+    """Omitting the allowlist keeps the built-in command authorization."""
     tool = TerminalTool(workspace_root=tmp_project)
-
-    result = tool.run_command("ls")
-
-    assert result.success
-    assert result.error_code != ErrorCode.ERR_UNAUTHORIZED
+    assert tool._is_allowlisted("ls")

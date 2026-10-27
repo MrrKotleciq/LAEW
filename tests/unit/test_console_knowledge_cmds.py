@@ -19,7 +19,6 @@ from laew.console.commands.knowledge import (
 )
 from laew.console.commands.rag import cmd_rag_query
 from laew.console.state import SessionState
-from laew.rag.embedding import OllamaEmbedding
 from laew.rag.llamacpp import LlamaCppEmbedding
 from laew.runtime import build_embedding_service
 from laew.rag.knowledge_base import KnowledgeScope
@@ -69,7 +68,9 @@ def test_knowledge_list_empty_vault(state, tmp_path, capsys):
         return_value=kb,
     ):
         assert _cmd_list([], state) == 0
-    assert "Total: 0 note(s)" in capsys.readouterr().out
+    out = capsys.readouterr().out
+    assert "Total: 0 note(s)" in out
+    assert "Decisions/  (0 notes)" in out
 
 
 def test_knowledge_show_note(state, tmp_path, capsys):
@@ -115,13 +116,40 @@ def test_knowledge_show_missing_note(state, capsys):
     assert "note not found" in capsys.readouterr().out
 
 
+def test_knowledge_show_rejects_paths_outside_vault(state, tmp_path, capsys):
+    outside = tmp_path.parent / "outside.md"
+    outside.write_text("# Outside\n", encoding="utf-8")
+    with patch(
+        "laew.console.commands.knowledge._manifest_knowledge_cfg",
+        return_value={**_cfg(tmp_path), "knowledge_root": str(tmp_path / "vault")},
+    ):
+        (tmp_path / "vault").mkdir()
+        assert _cmd_show([str(outside)], state) == 1
+    assert "escapes" in capsys.readouterr().out
+
+
+def test_manifest_knowledge_alias_resolves_to_workspace_vault(tmp_path):
+    project = tmp_path / "Projects" / "LAEW"
+    (project / "manifests").mkdir(parents=True)
+    state = SessionState(manifest_path=str(project / "manifests" / "SYSTEM_MANIFEST.yaml"))
+    cfg = _manifest_knowledge_cfg(
+        {
+            "workspace": {"root": "."},
+            "memory": {"second_brain": {"path": "@knowledge"}},
+        },
+        state,
+    )
+    assert cfg["project_root"] == project.resolve()
+    assert cfg["knowledge_root"] == (tmp_path / "Knowledge").resolve()
+
+
 def test_knowledge_stats_reports_vault_and_store(state, tmp_path, capsys):
     """``knowledge stats`` prints vault note counts and @knowledge chunk counts."""
     kb = MagicMock()
     kb.structure.return_value = {"Decisions": 2, "Research": 2}
     kb.load_vault.return_value = None
     kb.global_store.count.return_value = 7
-    with patch(
+    with patch("laew.runtime.build_embedding_service", return_value=MagicMock()), patch(
         "laew.console.commands.knowledge._manifest_knowledge_cfg",
         return_value=_cfg(tmp_path),
     ), patch(
@@ -137,7 +165,7 @@ def test_knowledge_stats_reports_vault_and_store(state, tmp_path, capsys):
 
 def test_knowledge_dispatch_routes(state, tmp_path, capsys):
     """The knowledge dispatcher routes onto list/show/stats."""
-    with patch(
+    with patch("laew.runtime.build_embedding_service", return_value=MagicMock()), patch(
         "laew.console.commands.knowledge._manifest_knowledge_cfg",
         return_value=_cfg(tmp_path),
     ), patch(
@@ -173,42 +201,36 @@ def test_knowledge_stats_selects_embedding_from_manifest(state, capsys):
 
     Exercises the real manifest-reading path (no mock of the function or its
     dependency), so the manifest wiring is covered, not just the patched dict.
-    With the default manifest (no ``type``), build_embedding_service picks the
-    Ollama backend using the declared ``model_name``.
+    The manifest selects the dedicated llama.cpp server model and dimensions.
     """
-    service = build_embedding_service(state.load_manifest())
-    assert isinstance(service, OllamaEmbedding)
-    assert service.model == "bge-m3:latest"
+    embedding = build_embedding_service(state.load_manifest())
+    assert isinstance(embedding, LlamaCppEmbedding)
+    assert embedding.model == "laew-qwen3-embedding"
+    assert embedding.base_url == "http://127.0.0.1:8081/v1"
+    assert embedding.dimensions == 1024
 
 
-def test_knowledge_stats_embedding_default_and_llamacpp_opt_in(state, capsys):
-    """Embedding selection honors models.roles.embedding.type (default ollama).
+def test_knowledge_stats_requires_dedicated_llamacpp_embedding_config(state, capsys):
+    """Embedding selection requires an explicit llama.cpp server model and URL.
 
-    A role with no ``type`` resolves to the Ollama backend using the declared
-    ``model_name``. Setting ``type: "llamacpp"`` opts into the llama.cpp
-    embedding adapter (normalized base URL, declared ``target_dimensions``).
+    Setting ``model_name`` selects the server-advertised ID; ``base_url`` is
+    independent from the chat endpoint.
     ``load_manifest`` is patched to bypass manifest validation and isolate the
     role-selection branches.
     """
     raw = {
         "version": "0.1.0",
-        "models": {"roles": {"embedding": {"model_name": "nomic-embed-text"}}},
+        "models": {"roles": {"embedding": {
+            "type": "llamacpp", "model_name": "nomic-embed-text",
+            "base_url": "http://127.0.0.1:8081",
+            "target_dimensions": 1024,
+        }}},
         "workspace": {"root": "."},
         "memory": {"second_brain": {"path": "knowledge"}},
     }
 
-    # Default (no type) -> Ollama with the declared model.
-    default_emb = build_embedding_service(raw)
-    assert isinstance(default_emb, OllamaEmbedding)
-    assert default_emb.model == "nomic-embed-text"
-
-    # Opt-in: type "llamacpp" -> llama.cpp adapter.
-    raw["models"]["roles"]["embedding"]["type"] = "llamacpp"
-    raw["models"]["roles"]["embedding"]["model_name"] = "nomic-embed-text"
-    raw["models"]["roles"]["embedding"]["target_dimensions"] = 768
-    raw["models"]["roles"]["embedding"]["base_url"] = "http://localhost:9931"
     ll_emb = build_embedding_service(raw)
     assert isinstance(ll_emb, LlamaCppEmbedding)
     assert ll_emb.model == "nomic-embed-text"
-    assert ll_emb.base_url.endswith("/v1")
-    assert ll_emb.target_dimensions == 768
+    assert ll_emb.base_url == "http://127.0.0.1:8081/v1"
+    assert ll_emb.target_dimensions == 1024

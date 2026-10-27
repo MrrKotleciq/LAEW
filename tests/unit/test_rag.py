@@ -8,6 +8,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from laew.prompts.context_budget import ContextBudget
+from laew.manifest import load_manifest
 from laew.rag import (
     ChromaVectorStore,
     DocumentChunk,
@@ -232,6 +233,44 @@ class TestKnowledgeBase:
             chunks = kb.project_store.search([0.5] * 768, top_k=10)
             files = set(c.file_path for c, _ in chunks)
             assert all(f.endswith(".md") for f in files)
+
+    def test_load_surfaces_embedding_failure_instead_of_skipping_chunk(self, tmp_path):
+        project = tmp_path / "project"
+        vault = tmp_path / "global"
+        project.mkdir()
+        vault.mkdir()
+        note = project / "important.md"
+        note.write_text("# Critical\n\nThis must be embedded.", encoding="utf-8")
+        embedding = MockEmbeddingService()
+
+        def fail_embedding(_texts):
+            raise RuntimeError("embedding endpoint unavailable")
+
+        embedding.embed_batch = fail_embedding
+        kb = KnowledgeBase(str(project), str(vault), embedding)
+
+        with pytest.raises(RuntimeError, match="important.md.*embedding endpoint unavailable"):
+            kb.load_project()
+        assert kb.project_store.count() == 0
+
+    def test_chunk_ids_are_unique_across_sections(self, tmp_path):
+        project = tmp_path / "project"
+        vault = tmp_path / "global"
+        project.mkdir()
+        vault.mkdir()
+        note = project / "sections.md"
+        note.write_text(
+            "# First section\n\nFirst section content.\n\n"
+            "# Second section\n\nSecond section content.",
+            encoding="utf-8",
+        )
+        kb = KnowledgeBase(str(project), str(vault), MockEmbeddingService())
+
+        chunks = kb._load_file(note, "project", project)
+
+        assert len(chunks) == 2
+        assert len({chunk.chunk_id for chunk in chunks}) == 2
+        assert {chunk.metadata["section_index"] for chunk in chunks} == {0, 1}
 
 
 class TestRAGPipeline:
@@ -516,6 +555,82 @@ class TestChromaVectorStore:
         # Connection tests would require a running instance
         pass
 
+    def test_populated_collection_with_unknown_embedding_is_rejected(self, monkeypatch):
+        """Persistent vectors from an unknown/different model are never searched."""
+        from types import SimpleNamespace
+
+        collection = MagicMock()
+        collection.metadata = {"hnsw:space": "cosine", "embedding_model_id": "old-model"}
+        collection.count.return_value = 3
+        client = MagicMock()
+        client.get_or_create_collection.return_value = collection
+        monkeypatch.setitem(
+            __import__("sys").modules,
+            "chromadb",
+            SimpleNamespace(HttpClient=MagicMock(return_value=client)),
+        )
+
+        with pytest.raises(RuntimeError, match="incompatible embedding model identity"):
+            ChromaVectorStore(
+                collection_name="project", source="project",
+                embedding_model_id="new-model",
+            )
+
+    def test_empty_collection_is_tagged_with_embedding_identity(self, monkeypatch):
+        from types import SimpleNamespace
+
+        collection = MagicMock()
+        collection.metadata = {"hnsw:space": "cosine", "custom": "kept"}
+        collection.count.return_value = 0
+        client = MagicMock()
+        client.get_or_create_collection.return_value = collection
+        monkeypatch.setitem(
+            __import__("sys").modules,
+            "chromadb",
+            SimpleNamespace(HttpClient=MagicMock(return_value=client)),
+        )
+
+        ChromaVectorStore(
+            collection_name="project", source="project",
+            embedding_model_id="new-model",
+        )
+        collection.modify.assert_called_once_with(
+            metadata={"custom": "kept", "embedding_model_id": "new-model"}
+        )
+
+    def test_add_chunks_uses_one_idempotent_upsert(self):
+        store = object.__new__(ChromaVectorStore)
+        collection = MagicMock()
+        store._collection = collection
+        chunks = [
+            DocumentChunk(
+                "one", "First", [1.0, 0.0], "project", "a.md",
+                metadata={"tags": ["architecture", "rag"], "section_index": 2},
+            ),
+            DocumentChunk("two", "Second", [0.0, 1.0], "project", "b.md"),
+        ]
+
+        store.add_chunks(chunks)
+
+        collection.upsert.assert_called_once()
+        call = collection.upsert.call_args.kwargs
+        assert call["ids"] == ["one", "two"]
+        assert [metadata["file_path"] for metadata in call["metadatas"]] == ["a.md", "b.md"]
+        assert call["metadatas"][0]["tags"] == '["architecture", "rag"]'
+        assert call["metadatas"][0]["section_index"] == "2"
+        collection.add.assert_not_called()
+
+    def test_add_chunk_retries_update_existing_id(self):
+        store = object.__new__(ChromaVectorStore)
+        collection = MagicMock()
+        store._collection = collection
+        chunk = DocumentChunk("stable-id", "Updated text", [1.0, 0.0])
+
+        store.add_chunk(chunk)
+
+        collection.upsert.assert_called_once()
+        assert collection.upsert.call_args.kwargs["ids"] == ["stable-id"]
+
     def test_normalize_method(self):
         """Test the _normalize static method."""
         try:
@@ -558,7 +673,11 @@ class TestChromaVectorStore:
         collection = MagicMock()
         collection.query.return_value = {
             "ids": [["chunk-1"]],
-            "metadatas": [[{"text": "Golden retriever", "source": "project", "file_path": "doc.md"}]],
+            "metadatas": [[{
+                "text": "Golden retriever", "source": "project", "file_path": "doc.md",
+                "tags": '["dogs", "retrievers"]', "backlinks": '["related-note"]',
+                "section_index": "3",
+            }]],
             "distances": [[0.0]],  # identical vector -> cosine distance 0
         }
         store._collection = collection
@@ -568,6 +687,11 @@ class TestChromaVectorStore:
         assert len(results) == 1
         chunk, similarity = results[0]
         assert chunk.chunk_id == "chunk-1"
+        assert chunk.metadata == {
+            "tags": ["dogs", "retrievers"],
+            "backlinks": ["related-note"],
+            "section_index": 3,
+        }
         # distance 0.0 must map to similarity 1.0, not 0.5
         assert similarity == pytest.approx(1.0)
         assert collection.query.call_count == 1
@@ -623,22 +747,143 @@ class TestKnowledgeBaseWithManifestConfig:
         assert isinstance(kb._project_store, VectorStore)
         assert isinstance(kb._global_store, VectorStore)
 
-    def test_init_with_vector_store_config_enabled_but_no_chromadb(self):
-        """Test fallback when chromadb is not available but config is enabled."""
-        embedding_service = MockEmbeddingService()
-        vector_store_config = {"enabled": True, "host": "localhost", "port": 9999}
+    def test_project_source_allowlist_filters_project_but_not_global_scope(self, tmp_path):
+        project = tmp_path / "project"
+        vault = tmp_path / "global"
+        for folder in (
+            project / "docs" / "decisions",
+            project / "docs" / "history",
+            project / "docs" / "source",
+            project / "prompts",
+            project / "knowledge" / "Knowledge",
+            project / "tests",
+            vault / "Research",
+        ):
+            folder.mkdir(parents=True)
+        files = {
+            project / "README.md": "# Project overview",
+            project / "docs" / "LAEW_CONTEXT.md": "# Project context",
+            project / "docs" / "decisions" / "ADR-001.md": "# Accepted decision",
+            project / "docs" / "history" / "2026-01.md": "# History",
+            project / "docs" / "source" / "Chapter-1.md": "# Source chapter",
+            project / "prompts" / "rag.md": "# Runtime prompt",
+            project / "knowledge" / "Knowledge" / "note.md": "# Local knowledge",
+            project / "tests" / "fixture.md": "# Test fixture",
+            vault / "Research" / "shared.md": "# Global research",
+        }
+        for path, content in files.items():
+            path.write_text(content, encoding="utf-8")
 
+        allowlist = [
+            "README.md",
+            "docs/LAEW_CONTEXT.md",
+            "docs/decisions/ADR-001.md",
+            "knowledge/**/*.md",
+        ]
         kb = KnowledgeBase(
-            project_root="/tmp/project",
-            knowledge_root="/tmp/knowledge",
-            embedding_service=embedding_service,
-            vector_store_config=vector_store_config,
+            str(project), str(vault), MockEmbeddingService(),
+            vector_store_config={"enabled": False},
+            project_source_allowlist=allowlist,
+        )
+        kb.load_project()
+        kb.load_vault()
+
+        project_paths = {
+            chunk.file_path.replace("\\", "/")
+            for chunk in kb.project_store._chunks.values()
+        }
+        assert project_paths == {
+            "README.md",
+            "docs/LAEW_CONTEXT.md",
+            "docs/decisions/ADR-001.md",
+            "knowledge/Knowledge/note.md",
+        }
+        assert kb.global_store.count() == 1
+        assert (
+            next(iter(kb.global_store._chunks.values())).file_path.replace("\\", "/")
+            == "Research/shared.md"
         )
 
-        # Should fall back to VectorStore due to ConnectionError or ImportError
-        from laew.rag.vector_store import VectorStore
+    def test_repository_project_ingestion_excludes_tool_contracts(self, tmp_path):
+        project = tmp_path / "project"
+        contracts = (
+            "tools/filesystem/CONTRACT.md",
+            "tools/git/CONTRACT.md",
+            "tools/terminal/CONTRACT.md",
+            "tools/web/CONTRACT.md",
+        )
+        for relative in contracts:
+            path = project / Path(relative)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("# Tool instruction", encoding="utf-8")
+        (project / "README.md").write_text("# Project knowledge", encoding="utf-8")
+        vault = tmp_path / "global"
+        vault.mkdir()
+
+        manifest_path = Path(__file__).resolve().parents[2] / "manifests" / "SYSTEM_MANIFEST.yaml"
+        manifest = load_manifest(manifest_path)
+        allowlist = manifest["rag"]["project_sources"]["allowlist"]
+        assert not set(contracts).intersection(allowlist)
+
+        kb = KnowledgeBase(
+            str(project), str(vault), MockEmbeddingService(),
+            project_source_allowlist=allowlist,
+        )
+        kb.load_project()
+
+        selected = {
+            chunk.file_path.replace("\\", "/")
+            for chunk in kb.project_store._chunks.values()
+        }
+        assert selected == {"README.md"}
+        assert not set(contracts).intersection(selected)
+
+    def test_fresh_pipeline_uses_existing_persistent_index_without_reembedding(self, tmp_path):
+        from laew.rag.vector_store import ChromaVectorStore
+
+        project = tmp_path / "project"
+        vault = tmp_path / "global"
+        project.mkdir()
+        vault.mkdir()
+        kb = KnowledgeBase(str(project), str(vault), MockEmbeddingService())
+        persistent_store = object.__new__(ChromaVectorStore)
+        persistent_store.count = MagicMock(return_value=4)
+        kb._project_store = persistent_store
+
+        with patch.object(kb, "_load_directory") as scan:
+            kb.load_project()
+
+        scan.assert_not_called()
+        assert kb._project_loaded is True
+
+        with patch.object(kb, "_load_directory") as scan:
+            kb.load_project(force=True)
+
+        scan.assert_called_once_with(project, "project", persistent_store)
+
+    def test_init_with_vector_store_config_enabled_but_no_chromadb(self):
+        """Fallback is visible and actionable if persistent init fails."""
+        embedding_service = MockEmbeddingService()
+        vector_store_config = {
+            "enabled": True, "host": "localhost", "port": 9999,
+            "project_collection": "project_test", "global_collection": "global_test",
+        }
+        with patch(
+            "laew.rag.knowledge_base.ChromaVectorStore",
+            side_effect=ConnectionError("test connection failure"),
+        ), pytest.warns(RuntimeWarning, match="test connection failure") as caught:
+            kb = KnowledgeBase(
+                project_root="/tmp/project",
+                knowledge_root="/tmp/knowledge",
+                embedding_service=embedding_service,
+                vector_store_config=vector_store_config,
+            )
+
         assert isinstance(kb._project_store, VectorStore)
         assert isinstance(kb._global_store, VectorStore)
+        assert len(caught) == 2
+        assert "project_test" in str(caught[0].message)
+        assert "in-memory storage" in str(caught[0].message)
 
 
 # --------------------------------------------------------------------------- #
@@ -679,6 +924,13 @@ class TestOllamaEmbedding:
         with patch.object(requests, "post", return_value=mock_response):
             with pytest.raises(RuntimeError, match="No embedding returned"):
                 embedder.embed("x")
+
+    def test_is_available_returns_false_when_service_is_unreachable(self):
+        import requests
+
+        embedder = OllamaEmbedding(model="bge-m3:latest")
+        with patch.object(requests, "get", side_effect=requests.ConnectionError("offline")):
+            assert embedder.is_available() is False
 
 
 if __name__ == "__main__":

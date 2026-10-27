@@ -52,7 +52,11 @@ def _parse_frontmatter_block(block: str) -> Dict[str, Any]:
         key = key.strip()
         value = value.strip()
 
-        if value.startswith("[") and value.endswith("]"):
+        if value.startswith("[") != value.endswith("]"):
+            # Ignore a malformed inline flow list rather than turning it into
+            # character-wise metadata later in note normalization.
+            i += 1
+        elif value.startswith("[") and value.endswith("]"):
             items = [
                 s.strip().strip('"').strip("'")
                 for s in value[1:-1].split(",")
@@ -97,6 +101,17 @@ def _strip_frontmatter(content: str) -> str:
     """Return *content* with any leading YAML frontmatter block removed."""
     match = FRONTMATTER_RE.search(content)
     return content[match.end():] if match else content
+
+
+def _as_string_list(value: Any) -> List[str]:
+    """Normalize scalar or list frontmatter values without splitting strings."""
+    if isinstance(value, str):
+        values = [value]
+    elif isinstance(value, list):
+        values = value
+    else:
+        return []
+    return [item.strip() for item in values if isinstance(item, str) and item.strip()]
 
 
 def parse_frontmatter(content: str) -> Dict[str, Any]:
@@ -159,8 +174,8 @@ def parse_note(content: str) -> Dict[str, Any]:
             elif line:
                 title = line
 
-    tags = list(frontmatter.get("tags", []) or [])
-    backlinks = list(frontmatter.get("backlinks", []) or [])
+    tags = _as_string_list(frontmatter.get("tags", []))
+    backlinks = _as_string_list(frontmatter.get("backlinks", []))
     if not backlinks:
         backlinks = extract_links(content)
     if not tags:

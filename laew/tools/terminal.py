@@ -22,6 +22,8 @@ class TerminalTool(Tool):
         - run_command: Executes shell commands (allowlisted or approved).
     """
 
+    system_contract_path = "@project/tools/terminal/CONTRACT.md"
+
     operations = {
         "run_command": {
             "params": ["command", "cwd", "timeout_ms"],

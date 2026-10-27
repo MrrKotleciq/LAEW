@@ -49,3 +49,9 @@ laew = ["ui/*.html", "ui/*.css", "ui/*.js"]
 exclude_dirs = ["tests", "docs"]
 # B101: assert statements are used deliberately as runtime invariants.
 skips = ["B101"]
+
+[tool.pytest.ini_options]
+markers = [
+    "integration: tests that exercise multiple LAEW components or a live local service",
+    "ollama: tests that call a live Ollama HTTP API",
+]

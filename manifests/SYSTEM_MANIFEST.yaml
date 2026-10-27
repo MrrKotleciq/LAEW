@@ -46,8 +46,11 @@
             total: 18000                                                                   
         embedding:
           description: "Model do generowania wektorów na potrzeby bazy wiedzy i RAG"
-          model_name: "bge-m3:latest"
-          target_dimensions: 1024                                                           
+          type: "llamacpp"
+          base_url: "http://127.0.0.1:8081"
+          model_name: "laew-qwen3-embedding"
+          target_dimensions: 1024
+          timeout: 30
         reviewer:                                                                          
           description: "Model specjalistyczny do audytu architektury i przeglądu kodu"     
                                                                                            
@@ -114,7 +117,7 @@
         storage: "runtime/sessions"
       second_brain:
         type: "obsidian_vault"
-        path: "knowledge"
+        path: "@knowledge"
         structure:
           - "Knowledge"
           - "Decisions"
@@ -130,8 +133,48 @@
         reranking: true
         top_k: 5
         max_context_tokens: 8000
+      project_sources:
+        # Project RAG is an allowlist, not a repository-wide Markdown crawl.
+        # @knowledge remains a separate global vault scope.
+        allowlist:
+          - "README.md"
+          - "docs/README.md"
+          - "docs/INSTALL.md"
+          - "docs/LAEW_CONTEXT.md"
+          - "docs/PROJECT_STATUS.md"
+          - "docs/architecture/README.md"
+          - "docs/architecture/PRINCIPLES.md"
+          - "docs/architecture/UI_ARCHITECTURE.md"
+          - "docs/decisions/README.md"
+          - "docs/decisions/ADR-001-model-abstraction.md"
+          - "docs/decisions/ADR-002-obsidian-second-brain.md"
+          - "docs/decisions/ADR-003-rag-pipeline-reranking.md"
+          - "docs/decisions/ADR-004-explicit-context-budgeting.md"
+          - "docs/decisions/ADR-005-layered-prompt-architecture.md"
+          - "docs/decisions/ADR-006-security-below-model-layer.md"
+          - "docs/decisions/ADR-007-documentation-language-convention.md"
+          - "docs/decisions/ADR-008-modular-tool-contracts.md"
+          - "docs/decisions/ADR-009-documentation-as-long-term-memory.md"
+          - "docs/decisions/ADR-010-multi-root-workspace-and-path-aliasing.md"
+          - "docs/decisions/ADR-011-project-memory-vs-global-knowledge-separation.md"
+          - "docs/decisions/ADR-012-agent-memory-vs-current-state-separation.md"
+          - "docs/decisions/ADR-013-sequential-deployment-stages.md"
+          - "docs/decisions/ADR-014-infrastructure-stability-over-feature-breadth.md"
+          - "docs/decisions/ADR-015-automation-with-manual-disabled-modes.md"
+          - "docs/decisions/ADR-016-structured-tool-invocation-logging.md"
+          - "docs/decisions/ADR-017-single-agent-stability-before-multi-agent.md"
+          - "docs/decisions/ADR-018-multi-agent-communication-protocol.md"
+          - "docs/decisions/ADR-019-provider-registry-and-factory.md"
+          - "docs/decisions/ADR-020-local-web-application.md"
+          - "docs/decisions/ADR-021-project-centric-engineering-workbench.md"
+          - "docs/roadmap/README.md"
+          - "docs/roadmap/M04-Knowledge_System_&_RAG_Pipeline.md"
+          - "docs/roadmap/M14-Performance_&_Context-Efficiency_Audit.md"
+          - "docs/roadmap/M17-Second_Brain_&_Global_Knowledge_Integration.md"
+          - "docs/roadmap/M20-Multi-Project_Workspace.md"
+          - "knowledge/**/*.md"
       vector_store:
-        enabled: false
+        enabled: true
         host: "localhost"
         port: 8000
         timeout: 30
@@ -144,20 +187,14 @@
     agent:
       llm:
         providers:
-          - name: "ollama_primary"
-            type: "ollama"
-            model: "qwen2.5-coder:7b"
-            host: "localhost"
-            port: 11434
-          - name: "ollama_fallback"
-            type: "ollama"
-            model: "mistral:latest"
-            host: "localhost"
-            port: 11434
+          - name: "llamacpp_primary"
+            type: "llama.cpp"
+            # Discover the loaded chat model from llama.cpp /v1/models.
+            host: "127.0.0.1"
+            port: 8080
         roles:
-          primary: ["ollama_primary", "ollama_fallback"]
-          embedding: ["ollama_primary", "ollama_fallback"]
-          reviewer: ["ollama_primary", "ollama_fallback"]
+          primary: ["llamacpp_primary"]
+          reviewer: ["llamacpp_primary"]
         retry:
           max_attempts: 3
           backoff_base_ms: 1000

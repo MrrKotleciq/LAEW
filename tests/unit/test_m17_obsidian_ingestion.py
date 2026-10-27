@@ -15,6 +15,7 @@ Covers the Definition of Done for the Second Brain / global knowledge scope:
 import os
 import tempfile
 from pathlib import Path
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -22,6 +23,10 @@ from laew.rag.knowledge_base import KnowledgeBase, KnowledgeScope
 from laew.rag.obsidian import parse_note
 from laew.rag.pipeline import RAGPipeline
 from laew.rag.vector_store import VectorStore
+from laew.agent.base import Agent, AgentConfig
+from laew.agent.executor import AgentExecutor
+from laew.llm.base import LLMResponse
+from laew.runtime import build_shared_tools
 
 
 def _make_note(path: Path, content: str) -> None:
@@ -174,6 +179,7 @@ class TestLinkAwareRetrieval:
             scope=KnowledgeScope.GLOBAL,
         )
         assert len(result.sources) >= 1
+        assert all(source.startswith("@knowledge/") for source in result.sources)
         # Scope isolation comes from retrieving the right store (GLOBAL only
         # searches the @knowledge vault), so every source is a vault note.
         # ``file_path`` is the OS-native relative path (backslashes on Windows),
@@ -182,6 +188,24 @@ class TestLinkAwareRetrieval:
         assert all(
             "Decisions/" in source for source in posix_sources
         )
+
+    def test_project_query_does_not_index_global_vault(self, tmp_path):
+        project = tmp_path / "project"
+        vault = tmp_path / "knowledge"
+        project.mkdir()
+        vault.mkdir()
+        _make_note(project / "local.md", "# Local\n\nProject-specific fact.")
+        _vault_note(str(vault))
+        embedding = MockEmbeddingService()
+        kb = KnowledgeBase(str(project), str(vault), embedding)
+        pipeline = RAGPipeline(kb, embedding, similarity_threshold=0.0)
+
+        result = pipeline.retrieve("Project-specific fact", scope=KnowledgeScope.PROJECT)
+
+        assert result.error is None
+        assert kb.count_chunks(KnowledgeScope.PROJECT) > 0
+        assert kb.count_chunks(KnowledgeScope.GLOBAL) == 0
+        assert all(source.startswith("@project/") for source in result.sources)
 
 
 class TestParseNote:
@@ -202,6 +226,16 @@ class TestParseNote:
         # which is the intended behaviour (Obsidian tags may contain spaces).
         assert note["tags"] == ["tag here"]
         assert note["backlinks"] == ["link"]
+
+    def test_malformed_frontmatter_does_not_invent_tags_or_links(self):
+        note = parse_note(
+            "---\nthis line is malformed\ntags: [unterminated\n---\n\n"
+            "# Plain note\n\nBody text without Obsidian metadata."
+        )
+        assert note["title"] == "Plain note"
+        assert note["tags"] == []
+        assert note["backlinks"] == []
+        assert "Body text" in note["body"]
 
 
 class TestRootOverlap:
@@ -243,7 +277,7 @@ class TestRootOverlap:
         knowledge.mkdir()
         project.mkdir()
         with pytest.raises(ValueError):
-            self._kb(project, project).load()
+            self._kb(project, knowledge).load()
 
     def test_valid_siblings_load_both_stores(self, tmp_path):
         """Disjoint sibling roots load without raising."""
@@ -309,8 +343,138 @@ class TestEndToEndRetrieval:
 
         # (4) Source attribution names the global store and the vault note.
         assert result.scope == KnowledgeScope.GLOBAL
-        assert "GLOBAL" in result.context
+        assert "GLOBAL KNOWLEDGE @knowledge" in result.context
         assert "001-global-second-brain.md" in result.context
+
+    def test_missing_global_vault_is_a_visible_retrieval_error(self, tmp_path):
+        project = tmp_path / "project"
+        project.mkdir()
+        kb = KnowledgeBase(
+            project_root=str(project),
+            knowledge_root=str(tmp_path / "missing-vault"),
+            embedding_service=MockEmbeddingService(),
+        )
+        pipeline = RAGPipeline(kb, MockEmbeddingService())
+
+        result = pipeline.retrieve("global knowledge", scope=KnowledgeScope.GLOBAL)
+
+        assert result.error is not None
+        assert "Global knowledge vault is unavailable" in result.error
+        assert result.context == ""
+
+    def test_empty_global_vault_is_distinct_from_a_missing_vault(self, tmp_path):
+        project = tmp_path / "project"
+        vault = tmp_path / "knowledge"
+        project.mkdir()
+        vault.mkdir()
+        pipeline = RAGPipeline(
+            KnowledgeBase(str(project), str(vault), MockEmbeddingService()),
+            MockEmbeddingService(),
+        )
+
+        result = pipeline.retrieve("global knowledge", scope=KnowledgeScope.GLOBAL)
+
+        assert result.error is None
+        assert result.chunks == []
+        assert result.context == ""
+
+    def test_realistic_nested_local_vault_and_sibling_global_scope(self, tmp_path):
+        """LAEW/Knowledge is indexed with @project; sibling Knowledge is @knowledge."""
+        project = tmp_path / "Projects" / "LAEW"
+        local_vault = project / "Knowledge"
+        global_vault = tmp_path / "Knowledge"
+        local_vault.mkdir(parents=True)
+        global_vault.mkdir()
+        _make_note(local_vault / "local.md", "# Local\n\nLAEW local requirement: board revision C.")
+        _make_note(global_vault / "global.md", "# Global\n\nReusable fact: I2C uses two signal lines.")
+
+        embedding = MockEmbeddingService()
+        kb = KnowledgeBase(str(project), str(global_vault), embedding)
+        pipeline = RAGPipeline(kb, embedding, similarity_threshold=0.0)
+
+        local = pipeline.retrieve("board revision C", scope=KnowledgeScope.PROJECT)
+        assert local.error is None
+        assert any("@project/Knowledge/local.md" in source for source in local.sources)
+        assert kb.count_chunks(KnowledgeScope.GLOBAL) == 0
+
+        global_result = pipeline.retrieve("I2C signal lines", scope=KnowledgeScope.GLOBAL)
+        assert global_result.error is None
+        assert any("@knowledge/global.md" in source for source in global_result.sources)
+        assert all(source.startswith("@knowledge/") for source in global_result.sources)
+
+    def test_index_and_query_embedding_models_must_match(self, tmp_path):
+        from laew.rag.llamacpp import LlamaCppEmbedding
+
+        project = tmp_path / "project"
+        vault = tmp_path / "vault"
+        project.mkdir()
+        vault.mkdir()
+        kb_embedding = LlamaCppEmbedding(
+            "index-model", "http://127.0.0.1:8081", target_dimensions=4
+        )
+        query_embedding = LlamaCppEmbedding(
+            "different-model", "http://127.0.0.1:8082", target_dimensions=4
+        )
+        kb = KnowledgeBase(str(project), str(vault), kb_embedding)
+        pipeline = RAGPipeline(kb, query_embedding)
+
+        result = pipeline.retrieve("query", scope=KnowledgeScope.PROJECT)
+
+        assert result.chunks == []
+        assert "Embedding model configuration changed" in result.error
+
+    def test_chief_agent_can_retrieve_attributed_global_vault_context(self, tmp_path):
+        """The shared runtime registers RagTool and returns its real retrieval to the agent."""
+        project = tmp_path / "Projects" / "LAEW"
+        project.mkdir(parents=True)
+        vault = tmp_path / "Knowledge"
+        vault.mkdir()
+        _vault_note(str(vault))
+        manifest = {
+            "memory": {"second_brain": {"path": "@knowledge"}},
+            "rag": {"pipeline": {"top_k": 5, "max_context_tokens": 8000}},
+        }
+        tools = build_shared_tools(
+            ["python"],
+            project_root=project,
+            projects_root=project.parent,
+            knowledge_root=vault,
+            manifest=manifest,
+            rag_embedding_service=MockEmbeddingService(),
+        )
+        provider = MagicMock()
+        provider.generate.side_effect = [
+            LLMResponse(
+                content=(
+                    "```tool_call\n"
+                    '{"tool":"RagTool","operation":"query","args":'
+                    '{"query":"global second brain","scope":"global"}}\n'
+                    "```"
+                ),
+                model="fixture",
+            ),
+            LLMResponse(content="The global note says it is shared.", model="fixture"),
+        ]
+        agent = Agent(
+            config=AgentConfig(name="chief"),
+            provider=provider,
+            tools=tools,
+        )
+
+        executor = AgentExecutor(agent)
+        # Catch missing operation metadata before a real model silently
+        # declines to invoke RagTool (as happened in the live UI check).
+        assert "query(query, scope, max_results)" in executor._format_tools_description()
+        result = executor.run("Find the global second brain note.")
+
+        assert result.success is True
+        assert result.final_response == "The global note says it is shared."
+        assert result.steps[0].tool_name == "RagTool"
+        assert result.steps[0].tool_result.success is True
+        attributed_context = result.steps[0].tool_result.data["context"].replace("\\", "/")
+        assert "[GLOBAL KNOWLEDGE @knowledge: Decisions/001-global-second-brain.md" in attributed_context
+        observed = "\n".join(message.content for message in provider.generate.call_args_list[1].kwargs["messages"])
+        assert "002-knowledge-scope-separation" in observed
 
 
 class MockEmbeddingService:

@@ -1,9 +1,24 @@
 """Embedding service interface and implementations."""
 
+import logging
 from abc import ABC, abstractmethod
 from typing import List, Optional
 
 import requests
+
+logger = logging.getLogger(__name__)
+
+
+def embedding_model_identity(service: "EmbeddingService") -> str:
+    """Return a stable signature used to keep indexed/query vectors compatible."""
+    provider = f"{type(service).__module__}.{type(service).__qualname__}"
+    model = getattr(service, "model", None)
+    endpoint = getattr(service, "base_url", None)
+    try:
+        dimensions = service.dimensions
+    except Exception:
+        dimensions = None
+    return f"{provider}|{model or ''}|{endpoint or ''}|{dimensions or ''}"
 
 
 class EmbeddingService(ABC):

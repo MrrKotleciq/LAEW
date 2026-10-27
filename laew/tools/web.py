@@ -18,6 +18,7 @@ class WebTool(Tool):
     """
 
     description = "Read web content and search technical documentation (read-only)"
+    system_contract_path = "@project/tools/web/CONTRACT.md"
 
     operations = {
         "search_web": {

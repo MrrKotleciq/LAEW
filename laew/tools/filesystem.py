@@ -53,6 +53,7 @@ class FilesystemTool(Tool):
     """
 
     description = "Read and write project files (list, view, find, grep, write)"
+    system_contract_path = "@project/tools/filesystem/CONTRACT.md"
     operations = {
         "view_file": {
             "params": ["file_path", "start_line", "end_line"],

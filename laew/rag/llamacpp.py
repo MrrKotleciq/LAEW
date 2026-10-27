@@ -21,7 +21,6 @@ Design notes
   violation raises :class:`~laew.llm.base.LLMError`.
 """
 
-import json
 from typing import List, Optional
 
 import requests
@@ -73,6 +72,11 @@ def _validate_embeddings(
                 f"llama.cpp embedding for index {index} is not a list: {entry!r}",
                 code="INVALID_RESPONSE",
             )
+        if any(not isinstance(value, (int, float)) or isinstance(value, bool) for value in embedding):
+            raise LLMError(
+                f"llama.cpp embedding for index {index} contains non-numeric values",
+                code="INVALID_RESPONSE",
+            )
         if target_dimensions is not None and len(embedding) != target_dimensions:
             raise LLMError(
                 f"llama.cpp embedding for index {index} has length "
@@ -89,6 +93,23 @@ def _validate_embeddings(
             )
 
     return [by_index[i] for i in range(n)]
+
+
+def _response_data(response: requests.Response) -> list:
+    """Extract a valid OpenAI embeddings ``data`` list from an HTTP response."""
+    try:
+        payload = response.json()
+    except (ValueError, requests.exceptions.JSONDecodeError) as e:
+        raise LLMError(
+            f"Failed to parse llama.cpp embeddings response: {response.text}",
+            code="PARSE_ERROR",
+        ) from e
+    if not isinstance(payload, dict) or not isinstance(payload.get("data"), list):
+        raise LLMError(
+            "llama.cpp embeddings response must contain a data array",
+            code="INVALID_RESPONSE",
+        )
+    return payload["data"]
 
 
 class LlamaCppEmbedding(EmbeddingService):
@@ -161,42 +182,13 @@ class LlamaCppEmbedding(EmbeddingService):
                 code="REQUEST_ERROR",
             ) from e
 
-        try:
-            data = response.json().get("data", [])
-        except json.JSONDecodeError as e:
-            raise LLMError(
-                f"Failed to parse llama.cpp embeddings response: {response.text}",
-                code="PARSE_ERROR",
-            ) from e
-
-        if not isinstance(data, list) or len(data) != 1:
-            raise LLMError(
-                f"expected exactly one embedding entry, got {len(data)}",
-                code="INVALID_RESPONSE",
-            )
-
-        entry = data[0]
-        if not isinstance(entry, dict):
-            raise LLMError(
-                f"unexpected llama.cpp embedding entry: {entry!r}",
-                code="INVALID_RESPONSE",
-            )
-        embedding = entry.get("embedding")
-        if not isinstance(embedding, list):
-            raise LLMError(
-                f"llama.cpp embedding for entry 0 is not a list: {entry!r}",
-                code="INVALID_RESPONSE",
-            )
-        if self.target_dimensions is not None:
-            if len(embedding) != self.target_dimensions:
-                raise LLMError(
-                    f"llama.cpp embedding has length {len(embedding)}, "
-                    f"expected {self.target_dimensions}",
-                    code="INVALID_RESPONSE",
-                )
-            return embedding
-        # eager: observe dimensions from the first real response (no probe).
-        self._dimensions = len(embedding)
+        embeddings = _validate_embeddings(
+            _response_data(response), [text], self.target_dimensions
+        )
+        embedding = embeddings[0]
+        if self.target_dimensions is None:
+            # eager: observe dimensions from the first real response (no probe).
+            self._dimensions = len(embedding)
         return embedding
 
     def embed_batch(self, texts: List[str]) -> List[List[float]]:
@@ -230,15 +222,12 @@ class LlamaCppEmbedding(EmbeddingService):
                 code="REQUEST_ERROR",
             ) from e
 
-        try:
-            data = response.json().get("data", [])
-        except json.JSONDecodeError as e:
-            raise LLMError(
-                f"Failed to parse llama.cpp embeddings response: {response.text}",
-                code="PARSE_ERROR",
-            ) from e
-
-        return _validate_embeddings(data, texts, self.target_dimensions)
+        embeddings = _validate_embeddings(
+            _response_data(response), texts, self.target_dimensions
+        )
+        if self.target_dimensions is None and embeddings:
+            self._dimensions = len(embeddings[0])
+        return embeddings
 
     @property
     def dimensions(self) -> int:

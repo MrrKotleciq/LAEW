@@ -228,6 +228,7 @@ class WorkspaceService:
                 project_root=Path(self.active_project["path"]),
                 projects_root=self.projects_root,
                 knowledge_root=self.knowledge_root,
+                manifest=manifest,
             ),
         )
         self._agent = agent

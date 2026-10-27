@@ -15,7 +15,6 @@ import pytest
 from laew.agent.base import Agent, AgentConfig, AgentRole
 from laew.agent.executor import AgentExecutor
 from laew.cli import main
-from laew.llm.ollama import OllamaProvider
 from laew.manifest import load_manifest
 from laew.prompts.context_budget import ContextBudget, TokenEstimator
 from laew.prompts.loader import PromptLoader
@@ -24,6 +23,19 @@ from laew.tools.filesystem import FilesystemTool
 from laew.tools.git import GitTool
 from laew.tools.terminal import TerminalTool
 from laew.tools.web import WebTool
+
+
+class ToolTestProvider:
+    """Offline provider for tests that exercise tools directly, not inference."""
+
+    def is_available(self):
+        return True
+
+    def list_models(self):
+        return ["tool-test"]
+
+    def generate(self, *args, **kwargs):
+        raise AssertionError("These tool-only tests must not call model inference")
 
 
 class TestAgentToolsIntegration:
@@ -59,12 +71,15 @@ class TestAgentToolsIntegration:
         # Tools
         filesystem = FilesystemTool(resolver=path_resolver)
         git = GitTool(repo_root=temp_project)
-        terminal = TerminalTool()
+        terminal = TerminalTool(
+            workspace_root=temp_project,
+            allowlist=["python"],
+        )
         web = WebTool()
 
         agent = Agent(
             config=config,
-            provider=OllamaProvider(),
+            provider=ToolTestProvider(),
             tools=[filesystem, git, terminal, web]
         )
         return AgentExecutor(agent)
@@ -91,9 +106,12 @@ class TestAgentToolsIntegration:
 
     def test_agent_can_run_allowlisted_command(self, executor):
         """Test agent can run allowlisted terminal command."""
-        result = executor.agent.tools["TerminalTool"].execute("run_command", command="ls")
+        result = executor.agent.tools["TerminalTool"].execute(
+            "run_command", command="python --version"
+        )
         assert result.success
         assert "stdout" in result.data
+        assert result.data["exit_code"] == 0
 
 
 class TestAgentRAGIntegration:

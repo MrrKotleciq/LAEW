@@ -176,6 +176,9 @@ class TestOllamaProvider:
         mock_get.return_value = mock_response
 
         assert provider.is_available() is True
+        mock_get.assert_called_once_with(
+            "http://localhost:11434/api/tags", timeout=5
+        )
 
     @patch("requests.get")
     def test_is_available_false(self, mock_get, provider):

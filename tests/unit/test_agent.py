@@ -374,6 +374,37 @@ Let me check the file.'''
         assert "TerminalTool" in desc
         assert "WebTool" in desc
 
+    def test_tool_contract_references_are_scoped_to_available_tools(self):
+        provider = MockProvider()
+        agent = Agent(config=AgentConfig(), provider=provider)
+        agent.register_tool(FilesystemTool())
+        agent.register_tool(GitTool())
+
+        desc = AgentExecutor(agent)._format_tools_description()
+
+        assert "@project/tools/git/CONTRACT.md" in desc
+        assert "FilesystemTool.view_file" in desc
+        assert "@project/tools/filesystem/CONTRACT.md" in desc
+        assert "@project/tools/terminal/CONTRACT.md" not in desc
+        assert "@project/tools/web/CONTRACT.md" not in desc
+        contract = agent.tools["FilesystemTool"].view_file(
+            "@project/tools/git/CONTRACT.md"
+        )
+        assert contract.success
+        assert "LAEW Tool Contract" in contract.data["content"]
+
+    def test_tool_without_filesystem_gets_only_its_contract_in_prompt(self):
+        provider = MockProvider()
+        agent = Agent(config=AgentConfig(), provider=provider)
+        agent.register_tool(GitTool())
+
+        desc = AgentExecutor(agent)._format_tools_description()
+
+        assert "LAEW Tool Contract — Git" in desc
+        assert "LAEW Tool Contract — Filesystem" not in desc
+        assert "LAEW Tool Contract — Terminal" not in desc
+        assert "LAEW Tool Contract — Web" not in desc
+
     def test_run_simple_response(self):
         """Test execution with simple response (no tool call)."""
         provider = MockProvider(responses=["This is the final answer."])

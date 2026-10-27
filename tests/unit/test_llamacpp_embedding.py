@@ -295,6 +295,16 @@ def test_embed_batch_rejects_non_object_entry(post_mock):
     assert exc_info.value.code == "INVALID_RESPONSE"
 
 
+@patch("requests.post")
+def test_embed_rejects_response_without_data_array(post_mock):
+    post_mock.return_value = Mock(json=lambda: ["not", "an", "object"], status_code=200)
+    service = LlamaCppEmbedding("m", target_dimensions=DIM)
+
+    with pytest.raises(LLMError, match="must contain a data array") as exc_info:
+        service.embed("x")
+    assert exc_info.value.code == "INVALID_RESPONSE"
+
+
 # ---------------------------------------------------------------------------
 # Dimensions
 # ---------------------------------------------------------------------------

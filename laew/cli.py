@@ -344,7 +344,7 @@ def cmd_multiagent_run(args) -> int:
     # One shared tool set for every agent (chief + specialists), honouring the
     # workspace's terminal allowlist. Mutation approval gates remain active, so
     # read/inspect operations work and mutating tools stay protected (P8).
-    shared_tools = build_shared_tools(terminal_allowlist)
+    shared_tools = build_shared_tools(terminal_allowlist, manifest=manifest)
 
     def build_agent(name: str, system_prompt: str) -> Agent:
         """Build an agent on the resolved model + provider."""
@@ -497,7 +497,7 @@ def cmd_chat(args) -> int:
             config=config,
             provider=provider,
             tools=build_shared_tools(
-                terminal_allowlist_from_manifest(manifest)
+                terminal_allowlist_from_manifest(manifest), manifest=manifest
             ),
         )
     except RuntimeError as e:

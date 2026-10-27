@@ -10,9 +10,8 @@ layer):
 - ``DEFAULT_REGISTRY.register("llama.cpp", build_llamacpp)`` -> ``build_llamacpp``.
 
 They verify the headline invariant from the plan: chat selection and embedding
-selection read **disjoint** config trees, so switching chat to llama.cpp does not
-change the embedding provider and vice versa.  The default manifest is left
-unchanged (Ollama chat + Ollama ``bge-m3:latest`` embedding).
+selection read **disjoint** config trees. Embedding requires an explicit
+llama.cpp server endpoint and model ID; no Ollama fallback is provided.
 """
 
 from pathlib import Path
@@ -20,9 +19,7 @@ from pathlib import Path
 import yaml
 
 from laew.llm.llamacpp import LlamaCppProvider
-from laew.llm.ollama import OllamaProvider
 from laew.llm.registry import DEFAULT_REGISTRY, build_llamacpp, get_provider_for_role
-from laew.rag.embedding import OllamaEmbedding
 from laew.rag.llamacpp import LlamaCppEmbedding, build_llamacpp_embedding
 from laew.runtime import build_embedding_service
 
@@ -36,10 +33,10 @@ MANIFEST_PATH = Path(__file__).resolve().parent.parent.parent / "manifests" / "S
 
 def _embedding_manifest(
     *,
-    rtype: str = "ollama",
-    model_name: str = "bge-m3:latest",
-    target_dimensions: int = 1024,
-    base_url: str | None = None,
+    rtype: str = "llamacpp",
+    model_name: str = "nomic-embed-text",
+    target_dimensions: int = 768,
+    base_url: str | None = "http://127.0.0.1:8081",
 ):
     """A manifest whose embedding role selects the given backend."""
     return {
@@ -56,19 +53,28 @@ def _embedding_manifest(
     }
 
 
-def test_embedding_default_manifest_builds_ollama():
-    """The default manifest (no type) resolves to the Ollama embedding backend.
-
-    Loaded from the real manifest so the Ollama defaults are preserved.
-    """
+def test_repository_manifest_selects_the_dedicated_embedding_model_id():
+    """The repository config selects the model exposed by its dedicated server."""
     manifest = yaml.safe_load(MANIFEST_PATH.read_text())
     section = manifest["models"]["roles"]["embedding"]
-    assert "type" not in section
+    assert section["type"] == "llamacpp"
+    assert section["base_url"] == "http://127.0.0.1:8081"
+    assert section["model_name"] == "laew-qwen3-embedding"
+    assert section["target_dimensions"] == 1024
+    embedding = build_embedding_service(manifest)
+    assert embedding.model == section["model_name"]
+    assert embedding.dimensions == section["target_dimensions"]
 
-    service = build_embedding_service(manifest)
 
-    assert isinstance(service, OllamaEmbedding)
-    assert service.model == "bge-m3:latest"
+def test_repository_manifest_selects_llamacpp_chat_without_ollama_fallback():
+    manifest = yaml.safe_load(MANIFEST_PATH.read_text())
+    llm = manifest["agent"]["llm"]
+    assert [provider["type"] for provider in llm["providers"]] == ["llama.cpp"]
+    assert llm["roles"]["primary"] == ["llamacpp_primary"]
+
+    provider = get_provider_for_role("primary", manifest, _registry=DEFAULT_REGISTRY)
+    assert isinstance(provider, LlamaCppProvider)
+    assert provider.base_url == "http://127.0.0.1:8080/v1"
 
 
 def test_embedding_type_llamacpp_builds_llamacpp():
@@ -97,7 +103,7 @@ def _chat_manifest(
     *,
     primary: list[str],
     providers: list[dict],
-    embedding_type: str = "ollama",
+    embedding_type: str = "llamacpp",
 ):
     """A manifest with the given chat provider names and provider entries."""
     return {
@@ -111,46 +117,45 @@ def _chat_manifest(
             "roles": {
                 "embedding": {
                     "type": embedding_type,
-                    "model_name": "bge-m3:latest",
-                    "target_dimensions": 1024,
+                    "model_name": "nomic-embed-text",
+                    "target_dimensions": 768,
+                    "base_url": "http://127.0.0.1:8081",
                 }
             }
         },
     }
 
 
-def _ollama_chat_provider(name="ollama_primary", model="qwen2.5-coder:7b"):
+def _llamacpp_chat_provider(name="llamacpp_primary", model="gpt-oss-20b-q4"):
     return {
         "name": name,
-        "type": "ollama",
-        "host": "localhost",
-        "port": 11434,
+        "type": "llama.cpp",
+        "host": "127.0.0.1",
+        "port": 8080,
         "model": model,
     }
 
 
-def test_chat_default_builds_ollama_provider():
-    """The default manifest resolves primary chat to an Ollama provider."""
+def test_chat_default_builds_llamacpp_provider():
+    """The configured primary chat provider is llama.cpp."""
     manifest = _chat_manifest(
-        primary=["ollama_primary", "ollama_fallback"],
-        providers=[_ollama_chat_provider(), _ollama_chat_provider("ollama_fallback")],
+        primary=["llamacpp_primary"],
+        providers=[_llamacpp_chat_provider()],
     )
 
     provider = get_provider_for_role("primary", manifest, _registry=DEFAULT_REGISTRY)
 
-    assert isinstance(provider, OllamaProvider)
-    assert provider.base_url == "http://localhost:11434"
+    assert isinstance(provider, LlamaCppProvider)
+    assert provider.base_url == "http://127.0.0.1:8080/v1"
 
 
-def test_chat_llamacpp_first_with_ollama_fallback():
-    """A llama.cpp entry prepended to primary is tried first, with Ollama
-    fallback preserved; the first that builds wins."""
+def test_chat_provider_chain_selects_first_llamacpp_entry():
+    """The configured llama.cpp provider is selected before its fallback."""
     manifest = _chat_manifest(
-        primary=["llamacpp_primary", "ollama_primary", "ollama_fallback"],
+        primary=["llamacpp_primary", "llamacpp_fallback"],
         providers=[
-            _ollama_chat_provider(),
-            _ollama_chat_provider("ollama_fallback"),
-            {"name": "llamacpp_primary", "type": "llama.cpp", "model": "gpt-oss-20b-q4", "host": "127.0.0.1", "port": 8080},
+            _llamacpp_chat_provider(),
+            _llamacpp_chat_provider("llamacpp_fallback", "fallback-chat"),
         ],
     )
 
@@ -161,25 +166,25 @@ def test_chat_llamacpp_first_with_ollama_fallback():
     assert provider.model == "gpt-oss-20b-q4"
 
 
-def test_chat_falls_back_to_ollama_when_first_unavailable():
+def test_chat_falls_back_to_next_configured_llamacpp_provider():
     """When the first provider in primary is unavailable, the chain falls to
     the next entry.
 
     A provider name listed in the role but absent from ``agents.llm.providers``
     raises ``PROVIDER_NOT_FOUND`` during selection, so the chain moves on to the
-    next name and builds the Ollama provider.  (The llama.cpp builder is lazy —
+    next name and builds the llama.cpp fallback. (The provider is lazy —
     it connects only on use, so an unreachable server does not fail selection;
     this exercises the fallback chain a builder failure would trigger.)
     """
     manifest = _chat_manifest(
-        primary=["llamacpp_primary", "ollama_primary"],
-        providers=[_ollama_chat_provider()],
+        primary=["missing_provider", "llamacpp_fallback"],
+        providers=[_llamacpp_chat_provider("llamacpp_fallback", "fallback-chat")],
     )
 
     provider = get_provider_for_role("primary", manifest, _registry=DEFAULT_REGISTRY)
 
-    assert isinstance(provider, OllamaProvider)
-    assert provider.base_url == "http://localhost:11434"
+    assert isinstance(provider, LlamaCppProvider)
+    assert provider.model == "fallback-chat"
 
 
 # ---------------------------------------------------------------------------
@@ -212,42 +217,42 @@ def test_build_llamacpp_factory_returns_chat_provider():
 
 
 def test_chat_llamacpp_does_not_change_embedding():
-    """Switching chat to llama.cpp leaves the embedding provider as Ollama.
+    """Chat selection does not change the separately configured embedding.
 
     The two selections read disjoint config trees: chat uses
     ``agent.llm.roles.primary`` + ``agent.llm.providers``; embedding uses
     ``models.roles.embedding.type``.
     """
     manifest = _chat_manifest(
-        primary=["llamacpp_primary", "ollama_primary"],
+        primary=["llamacpp_primary", "llamacpp_fallback"],
         providers=[
-            {"name": "llamacpp_primary", "type": "llama.cpp", "model": "gpt-oss-20b-q4", "host": "127.0.0.1", "port": 8080},
-            _ollama_chat_provider(),
+            _llamacpp_chat_provider(),
+            _llamacpp_chat_provider("llamacpp_fallback", "fallback-chat"),
         ],
-        embedding_type="ollama",
-    )
-
-    provider = get_provider_for_role("primary", manifest, _registry=DEFAULT_REGISTRY)
-    service = build_embedding_service(manifest)
-
-    assert isinstance(provider, LlamaCppProvider)
-    assert isinstance(service, OllamaEmbedding)
-
-
-def test_embedding_llamacpp_does_not_change_chat():
-    """Switching the embedding to llama.cpp leaves chat as Ollama.
-
-    Embedding selection reads ``models.roles.embedding`` — the same tree the
-    runtime uses for ``build_embedding_service`` — independent of chat.
-    """
-    manifest = _chat_manifest(
-        primary=["ollama_primary", "ollama_fallback"],
-        providers=[_ollama_chat_provider(), _ollama_chat_provider("ollama_fallback")],
         embedding_type="llamacpp",
     )
 
     provider = get_provider_for_role("primary", manifest, _registry=DEFAULT_REGISTRY)
     service = build_embedding_service(manifest)
 
-    assert isinstance(provider, OllamaProvider)
+    assert isinstance(provider, LlamaCppProvider)
+    assert isinstance(service, LlamaCppEmbedding)
+
+
+def test_embedding_llamacpp_does_not_change_chat():
+    """Embedding selection does not change the llama.cpp chat provider.
+
+    Embedding selection reads ``models.roles.embedding`` — the same tree the
+    runtime uses for ``build_embedding_service`` — independent of chat.
+    """
+    manifest = _chat_manifest(
+        primary=["llamacpp_primary"],
+        providers=[_llamacpp_chat_provider()],
+        embedding_type="llamacpp",
+    )
+
+    provider = get_provider_for_role("primary", manifest, _registry=DEFAULT_REGISTRY)
+    service = build_embedding_service(manifest)
+
+    assert isinstance(provider, LlamaCppProvider)
     assert isinstance(service, LlamaCppEmbedding)

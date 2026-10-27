@@ -23,6 +23,8 @@ class GitTool(Tool):
         - git_branch: Create branch (requires approval)
     """
 
+    system_contract_path = "@project/tools/git/CONTRACT.md"
+
     def __init__(self):
         super().__init__(
             requires_approval=False,

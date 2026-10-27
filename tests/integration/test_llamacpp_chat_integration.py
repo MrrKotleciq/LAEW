@@ -139,7 +139,7 @@ def test_generate_stream_yields_delta_chunks_and_accumulates(llamacpp_server):
 
     # Token accounting from the final usage frame.
     assert provider._last_stream_response is not None
-    assert provider._last_stream_response["usage"]["total_tokens"] == 15
+    assert provider._last_stream_response.total_tokens == 15
 
 
 # ---------------------------------------------------------------------------
@@ -159,7 +159,7 @@ def test_generate_stream_terminates_after_done(llamacpp_server):
 
     chunks = list(provider.generate_stream(messages=_messages("hi"), model="gpt-oss-20b-q4"))
     assert chunks == ["hi"]
-    assert provider._last_stream_response["usage"]["total_tokens"] == 15
+    assert provider._last_stream_response.total_tokens == 15
 
 
 def test_tool_call_end_to_end_through_executor(llamacpp_server, tool):

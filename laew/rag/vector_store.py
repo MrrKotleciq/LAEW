@@ -1,5 +1,6 @@
 """In-memory vector store with similarity search."""
 
+import json
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -180,6 +181,20 @@ class VectorStore:
             return True
         return False
 
+    def delete_by_file_paths(self, file_paths: set[str]) -> int:
+        """Delete chunks whose stored file path exactly matches *file_paths*."""
+        normalized = {path.replace("\\", "/") for path in file_paths}
+        matching_ids = [
+            chunk_id
+            for chunk_id, chunk in self._chunks.items()
+            if chunk.file_path.replace("\\", "/") in normalized
+        ]
+        for chunk_id in matching_ids:
+            del self._chunks[chunk_id]
+        if matching_ids:
+            self._rebuild_index()
+        return len(matching_ids)
+
     def clear(self) -> None:
         """Clear all chunks from the store."""
         self._chunks.clear()
@@ -218,6 +233,7 @@ class ChromaVectorStore:
         collection_name: str = "laew_vectors",
         source: Optional[str] = None,
         timeout: int = 30,
+        embedding_model_id: Optional[str] = None,
     ):
         """
         Initialize ChromaVectorStore.
@@ -244,6 +260,7 @@ class ChromaVectorStore:
         self.port = port
         self.collection_name = collection_name
         self.source = source
+        self.embedding_model_id = embedding_model_id
 
         # Build the client, supporting both the modern HttpClient and the
         # settings-based client used by older chromadb versions.
@@ -252,9 +269,36 @@ class ChromaVectorStore:
         try:
             self._collection = self._client.get_or_create_collection(
                 name=collection_name,
-                metadata={"hnsw:space": "cosine"},
+                metadata={
+                    "hnsw:space": "cosine",
+                    **({"embedding_model_id": embedding_model_id} if embedding_model_id else {}),
+                },
             )
+            if embedding_model_id:
+                metadata = self._collection.metadata or {}
+                stored_model_id = metadata.get("embedding_model_id")
+                if self._collection.count() and stored_model_id != embedding_model_id:
+                    raise RuntimeError(
+                        f"Chroma collection '{collection_name}' contains vectors "
+                        "with a missing or incompatible embedding model identity. "
+                        "Re-embed that scope into a fresh collection before retrieval."
+                    )
+                if not self._collection.count() and stored_model_id != embedding_model_id:
+                    # ChromaDB 1.5 rejects ``hnsw:space`` in modify() because
+                    # the distance function is immutable after creation. The
+                    # collection metadata update is a replacement, so retain
+                    # user metadata while omitting that special creation-only
+                    # key. Chroma keeps its configured distance function.
+                    self._collection.modify(
+                        metadata={
+                            key: value
+                            for key, value in metadata.items()
+                            if key != "hnsw:space"
+                        } | {"embedding_model_id": embedding_model_id}
+                    )
         except Exception as e:
+            if isinstance(e, RuntimeError) and "embedding model identity" in str(e):
+                raise
             raise ConnectionError(
                 f"Failed to reach ChromaDB at {host}:{port}: {e}"
             ) from e
@@ -269,27 +313,7 @@ class ChromaVectorStore:
         Raises:
             ValueError: If chunk has no embedding
         """
-        if chunk.embedding is None:
-            raise ValueError(f"Chunk {chunk.chunk_id} has no embedding")
-
-        embedding = self._normalize(chunk.embedding)
-        metadata = {
-            "text": chunk.text,
-            "source": chunk.source,
-            "file_path": chunk.file_path,
-        }
-        # Merge additional chunk metadata (JSON-serializable values only).
-        for key, value in chunk.metadata.items():
-            if isinstance(value, (str, int, float, bool)) or value is None:
-                metadata[key] = str(value)
-            else:
-                metadata[key] = str(value)
-
-        self._collection.add(
-            embeddings=[embedding],
-            metadatas=[metadata],
-            ids=[chunk.chunk_id],
-        )
+        self.add_chunks([chunk])
 
     def add_chunks(self, chunks: List[DocumentChunk]) -> None:
         """
@@ -301,12 +325,36 @@ class ChromaVectorStore:
         Raises:
             ValueError: If any chunk has no embedding
         """
+        if not chunks:
+            return
         for chunk in chunks:
             if chunk.embedding is None:
                 raise ValueError(f"Chunk {chunk.chunk_id} has no embedding")
 
+        embeddings = []
+        metadatas = []
+        ids = []
         for chunk in chunks:
-            self.add_chunk(chunk)
+            embeddings.append(self._normalize(chunk.embedding))
+            metadata = {
+                "text": chunk.text,
+                "source": chunk.source,
+                "file_path": chunk.file_path,
+            }
+            # Chroma replaces records with matching IDs, making retries safe.
+            for key, value in chunk.metadata.items():
+                # Chroma metadata values must be scalar. JSON preserves the
+                # original type for list/dict values and is unambiguous for
+                # strings that happen to look like JSON scalars.
+                metadata[key] = json.dumps(value, ensure_ascii=False)
+            metadatas.append(metadata)
+            ids.append(chunk.chunk_id)
+
+        self._collection.upsert(
+            embeddings=embeddings,
+            metadatas=metadatas,
+            ids=ids,
+        )
 
     def search(
         self,
@@ -362,7 +410,7 @@ class ChromaVectorStore:
                 source=metadata.get("source", self.source or "project"),
                 file_path=metadata.get("file_path", ""),
                 metadata={
-                    k: v
+                    k: _decode_metadata_value(v)
                     for k, v in metadata.items()
                     if k not in ("text", "source", "file_path")
                 },
@@ -398,7 +446,7 @@ class ChromaVectorStore:
             source=metadata.get("source", self.source or "project"),
             file_path=metadata.get("file_path", ""),
             metadata={
-                k: v
+                k: _decode_metadata_value(v)
                 for k, v in metadata.items()
                 if k not in ("text", "source", "file_path")
             },
@@ -423,6 +471,27 @@ class ChromaVectorStore:
         except (ConnectionError, ValueError, RuntimeError) as e:
             logger.debug("Failed to delete chunk %s from ChromaDB: %s", chunk_id, e)
             return False
+
+    def delete_by_file_paths(self, file_paths: set[str]) -> int:
+        """Delete only records matching exact normalized paths and this store's scope."""
+        normalized = {path.replace("\\", "/") for path in file_paths}
+        try:
+            result = self._collection.get(include=["metadatas"])
+            ids = [
+                chunk_id
+                for chunk_id, metadata in zip(
+                    result.get("ids", []), result.get("metadatas", [])
+                )
+                if metadata
+                and (self.source is None or metadata.get("source") == self.source)
+                and metadata.get("file_path", "").replace("\\", "/") in normalized
+            ]
+            if ids:
+                self._collection.delete(ids=ids)
+            return len(ids)
+        except (ConnectionError, ValueError, RuntimeError, TypeError) as e:
+            logger.error("Failed to delete chunks by source path: %s", e)
+            raise
 
     def clear(self) -> None:
         """Clear all chunks from the store."""
@@ -474,6 +543,16 @@ class ChromaVectorStore:
         if norm == 0:
             return arr.tolist()
         return (arr / norm).tolist()
+
+
+def _decode_metadata_value(value: Any) -> Any:
+    """Decode JSON-serialized chunk metadata, retaining legacy plain values."""
+    if not isinstance(value, str):
+        return value
+    try:
+        return json.loads(value)
+    except (TypeError, ValueError):
+        return value
 
 
 def _build_chroma_client(chromadb, host: str, port: int, timeout: int):
