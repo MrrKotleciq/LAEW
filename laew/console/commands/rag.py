@@ -1,7 +1,7 @@
 """RAG command handlers for the LAEW testing console.
 
 Exercises the RAG pipeline against the manifest's memory configuration:
-``rag query`` runs retrieval, ``rag embed`` forces a knowledge load, and
+``rag query`` runs retrieval, ``rag embed`` synchronizes knowledge, and
 ``rag stats`` reports vector-store counts.  Offline-friendly: a dead embedding
 endpoint is surfaced as a visible ``[!]`` (the pipeline records the error on
 the result) rather than crashing the REPL.
@@ -124,14 +124,17 @@ def cmd_rag_query(args: list, state: SessionState) -> int:
 
 
 def cmd_rag_embed(args: list, state: SessionState) -> int:
-    """rag embed [force] — load project + global knowledge into the stores."""
+    """rag embed [force] — synchronize project and global knowledge."""
     force = bool(args) and args[0] == "force"
     try:
         pipeline = _build_pipeline(state)
-        pipeline.knowledge_base.load(force=force)
+        changes = pipeline.knowledge_base.synchronize(force=force)
     except Exception as e:
         return _err(f"embedding/load failed: {e}")
     stats = pipeline.knowledge_base.count_chunks()
+    for scope, categories in changes.items():
+        for category, counts in categories.items():
+            print(f"{scope} {category}: {counts['documents']} document(s), {counts['chunks']} chunk(s)")
     print(f"[OK] knowledge loaded (project+global: {stats} chunks)")
     return 0
 

@@ -112,7 +112,7 @@ def test_generate_and_list_models_resolve_identically(get_mock, post_mock):
 @patch("requests.post")
 def test_generate_parses_content_and_usage(post_mock):
     """generate returns LLMResponse content and token counts from the usage block."""
-    payload = _chat_completion_payload("Hello there", {"prompt_tokens": 10, "completion_tokens": 5, "total_tokens": 15})
+    payload = _chat_completion_payload("Zażółć gęślą jaźń — 25°C — 🐕 🧬 🤝 🐶", {"prompt_tokens": 10, "completion_tokens": 5, "total_tokens": 15})
     post_mock.return_value = Mock(json=lambda: payload, status_code=200)
 
     provider = LlamaCppProvider("model", base_url=DEFAULT_BASE_URL)
@@ -124,7 +124,7 @@ def test_generate_parses_content_and_usage(post_mock):
         stop=["\n"],
     )
 
-    assert response.content == "Hello there"
+    assert response.content == "Zażółć gęślą jaźń — 25°C — 🐕 🧬 🤝 🐶"
     assert response.model == "model"
     assert response.prompt_tokens == 10
     assert response.completion_tokens == 5
@@ -273,6 +273,21 @@ def _iter_lines(lines):
 
 
 @patch("requests.post")
+def test_stream_decodes_utf8_sse_across_byte_boundaries(post_mock):
+    sample = "LAEW UTF-8 test: Zażółć gęślą jaźń — 25°C — 🐕 🧬 🤝 🐶"
+    payload = ('data: ' + json.dumps({"choices": [{"delta": {"content": sample}}]}, ensure_ascii=False) + '\n\ndata: [DONE]\n\n').encode('utf-8')
+    dog = payload.index('🐕'.encode('utf-8'))
+    response = requests.Response()
+    response.status_code = 200
+    response.encoding = 'ISO-8859-1'
+    response.iter_content = MagicMock(return_value=iter([payload[:dog + 1], payload[dog + 1:dog + 3], payload[dog + 3:]]))
+    response.close = MagicMock()
+    post_mock.return_value = response
+    provider = LlamaCppProvider("model", base_url=DEFAULT_BASE_URL)
+    assert ''.join(provider.generate_stream([LLMMessage(role=MessageRole.USER, content="Hi")], model="model")) == sample
+
+
+@patch("requests.post")
 def test_generate_stream_yields_chunks_and_terminates(post_mock):
     """generate_stream yields each content chunk, accumulates it, and stops at [DONE]."""
     lines = [
@@ -292,6 +307,7 @@ def test_generate_stream_yields_chunks_and_terminates(post_mock):
     assert provider._last_stream_response.completion_tokens == 5
     assert provider._last_stream_response.total_tokens == 15
     assert provider._last_stream_response.finish_reason == "stop"
+    assert post_mock.call_args.kwargs["timeout"] == (30, 120)
 
 
 @patch("requests.post")
@@ -352,6 +368,35 @@ def test_generate_stream_ignores_non_data_lines(post_mock):
     assert provider._last_stream_response.prompt_tokens is None
     assert provider._last_stream_response.completion_tokens is None
     assert provider._last_stream_response.total_tokens is None
+
+
+@patch("requests.post")
+def test_generate_stream_rejects_incomplete_eof(post_mock):
+    response = Mock(iter_lines=MagicMock(return_value=iter([
+        'data: {"choices":[{"delta":{"content":"partial"}}]}',
+    ])))
+    post_mock.return_value = response
+    provider = LlamaCppProvider("model", base_url=DEFAULT_BASE_URL)
+    stream = provider.generate_stream([LLMMessage(role=MessageRole.USER, content="Hi")], model="model")
+    assert next(stream) == "partial"
+    with pytest.raises(LLMError, match="ended before completion"):
+        next(stream)
+    response.close.assert_called_once()
+
+
+@patch("requests.post")
+def test_generate_stream_reports_idle_timeout_clearly(post_mock):
+    response = Mock(iter_lines=MagicMock(side_effect=requests.exceptions.ReadTimeout("idle")))
+    post_mock.return_value = response
+    provider = LlamaCppProvider("model", base_url=DEFAULT_BASE_URL)
+
+    with pytest.raises(LLMError, match="no data for 120s") as exc_info:
+        list(provider.generate_stream(
+            [LLMMessage(role=MessageRole.USER, content="Hi")], model="model"
+        ))
+
+    assert exc_info.value.code == "TIMEOUT"
+    response.close.assert_called_once()
 
 
 # ---------------------------------------------------------------------------

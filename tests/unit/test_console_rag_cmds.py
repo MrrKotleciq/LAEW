@@ -132,7 +132,7 @@ def test_rag_embed_loads_knowledge(state, capsys):
     pipeline.knowledge_base.count_chunks.return_value = 42
     with patch("laew.console.commands.rag._build_pipeline", return_value=pipeline):
         assert cmd_rag_embed([], state) == 0
-    pipeline.knowledge_base.load.assert_called_once_with(force=False)
+    pipeline.knowledge_base.synchronize.assert_called_once_with(force=False)
     assert "42 chunks" in capsys.readouterr().out
 
 
@@ -142,7 +142,7 @@ def test_rag_embed_force_flag(state, capsys):
     pipeline.knowledge_base.count_chunks.return_value = 0
     with patch("laew.console.commands.rag._build_pipeline", return_value=pipeline):
         assert cmd_rag_embed(["force"], state) == 0
-    pipeline.knowledge_base.load.assert_called_once_with(force=True)
+    pipeline.knowledge_base.synchronize.assert_called_once_with(force=True)
 
 
 def test_rag_stats_reports_counts_and_backend(state, capsys):

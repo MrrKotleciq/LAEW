@@ -19,6 +19,7 @@ from typing import Any, Optional
 from urllib.parse import parse_qs, urlparse
 
 from laew.agent import Agent, AgentConfig, AgentExecutor
+from laew.agent.executor import StreamCancelled
 from laew.llm.base import LLMError
 from laew.manifest import ManifestError, load_manifest
 from laew.runtime import (
@@ -273,7 +274,9 @@ class WorkspaceService:
             steps = [
                 {"number": step.step_number, "tool": step.tool_name, "operation": step.operation,
                  "success": None if step.tool_result is None else step.tool_result.success,
-                 "error": None if step.tool_result is None else step.tool_result.error_message}
+                 "error": None if step.tool_result is None else step.tool_result.error_message,
+                 "sources": (step.tool_result.data or {}).get("sources", [])
+                 if step.tool_result and isinstance(step.tool_result.data, dict) else []}
                 for step in result.steps if step.tool_name or step.response
             ]
             if not result.success:
@@ -287,12 +290,83 @@ class WorkspaceService:
             self._error = str(exc)
             return HTTPStatus.SERVICE_UNAVAILABLE, {"error": self._error}
 
+    def stream_chat(
+        self,
+        message: str,
+        selection: object,
+        expected_project_id: Optional[str],
+        emit,
+    ) -> None:
+        """Run the existing Chief Agent and emit newline-delimited events."""
+        if not isinstance(message, str) or not message.strip():
+            emit({"type": "error", "error": "A non-empty message is required."})
+            return
+        try:
+            with self._lock:
+                if self._active_project_id is None:
+                    raise RuntimeError(
+                        "No project is active. Select a project folder from the Projects directory."
+                    )
+                if expected_project_id is not None and expected_project_id != self._active_project_id:
+                    emit({
+                        "type": "error",
+                        "error": "The active project changed before this message started. Review the selected project and retry.",
+                    })
+                    return
+                self._ensure_runtime(selection)
+                assert self._executor is not None
+                emit({
+                    "type": "start", "provider": self._provider_name,
+                    "model": self._model,
+                })
+                result = self._executor.run(
+                    message.strip(), stream=True,
+                    on_delta=lambda text: emit(
+                        {"type": "reset"} if text is None else {"type": "delta", "text": text}
+                    ),
+                    on_step=lambda step: emit({"type": "step", "step": {
+                        "number": step.step_number, "tool": step.tool_name,
+                        "operation": step.operation,
+                        "success": None if step.tool_result is None else step.tool_result.success,
+                        "error": None if step.tool_result is None else step.tool_result.error_message,
+                        "sources": (step.tool_result.data or {}).get("sources", [])
+                        if step.tool_result and isinstance(step.tool_result.data, dict) else [],
+                    }}),
+                )
+            steps = [
+                {"number": step.step_number, "tool": step.tool_name,
+                 "operation": step.operation,
+                 "success": None if step.tool_result is None else step.tool_result.success,
+                 "error": None if step.tool_result is None else step.tool_result.error_message,
+                 "sources": (step.tool_result.data or {}).get("sources", [])
+                 if step.tool_result and isinstance(step.tool_result.data, dict) else []}
+                for step in result.steps if step.tool_name or step.response
+            ]
+            if not result.success:
+                emit({"type": "error", "error": result.error or "The Chief Agent did not complete the run.", "steps": steps})
+                return
+            emit({
+                "type": "done", "response": result.final_response,
+                "provider": self._provider_name, "model": self._model,
+                "steps": steps,
+                "usage": {"prompt_tokens": result.prompt_tokens,
+                          "completion_tokens": result.completion_tokens,
+                          "total_tokens": result.total_tokens},
+            })
+        except StreamCancelled:
+            return
+        except (OSError, ManifestError, LLMError, RuntimeError, ValueError) as exc:
+            self._error = str(exc)
+            emit({"type": "error", "error": self._error})
+
 
 def make_handler(service: WorkspaceService):
     """Create a same-origin-only request handler bound to *service*."""
     static_root = Path(__file__).with_name("ui")
 
     class Handler(BaseHTTPRequestHandler):
+        protocol_version = "HTTP/1.1"
+
         def log_message(self, format: str, *args: object) -> None:
             return
 
@@ -312,7 +386,7 @@ def make_handler(service: WorkspaceService):
                 selection = parse_qs(parsed.query).get("provider", ["manifest"])[0]
                 self._json(HTTPStatus.OK, service.status(selection)); return
             requested = "index.html" if parsed.path in ("/", "/index.html") else parsed.path.lstrip("/")
-            if requested not in {"index.html", "app.js", "app.css"}:
+            if requested not in {"index.html", "app.js", "app.css", "markdown.js", "stream.js"}:
                 self.send_error(HTTPStatus.NOT_FOUND); return
             data = (static_root / requested).read_bytes()
             content_type = "text/html" if requested.endswith("html") else ("text/css" if requested.endswith("css") else "application/javascript")
@@ -341,8 +415,31 @@ def make_handler(service: WorkspaceService):
             if route == "/api/project":
                 status, response = service.select_project(body.get("project_id"))
                 self._json(status, response); return
-            status, response = service.chat(body.get("message"), body.get("provider", "manifest"), body.get("project_id"))
-            self._json(status, response)
+            self.send_response(HTTPStatus.OK)
+            self.send_header("Content-Type", "application/x-ndjson; charset=utf-8")
+            self.send_header("Transfer-Encoding", "chunked")
+            self.send_header("Cache-Control", "no-store, no-transform")
+            self.send_header("X-Accel-Buffering", "no")
+            self.end_headers()
+
+            def emit(event: dict[str, Any]) -> None:
+                payload = json.dumps(event, ensure_ascii=False).encode("utf-8") + b"\n"
+                try:
+                    self.wfile.write(f"{len(payload):X}\r\n".encode("ascii"))
+                    self.wfile.write(payload + b"\r\n")
+                    self.wfile.flush()
+                except (BrokenPipeError, ConnectionResetError, OSError) as exc:
+                    raise StreamCancelled() from exc
+
+            try:
+                service.stream_chat(
+                    body.get("message"), body.get("provider", "manifest"),
+                    body.get("project_id"), emit,
+                )
+                self.wfile.write(b"0\r\n\r\n")
+                self.wfile.flush()
+            except (BrokenPipeError, ConnectionResetError, OSError, StreamCancelled):
+                return
 
     return Handler
 

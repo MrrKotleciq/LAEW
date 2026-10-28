@@ -53,7 +53,7 @@ Milestones 1–16 are complete through Parallel Multi-Agent Execution & Semantic
 - **manifests/SYSTEM_MANIFEST.yaml** — System manifest v1.0 (workspace boundaries, model roles, tool policies, memory layers, RAG configuration)
 - **tools/** — Tool contracts for filesystem, git, terminal, web (each with CONTRACT.md and Python implementation)
 - **prompts/** — Layered prompt templates (core.md, chief-agent.md, architecture.md, research.md, code-review.md, debugging.md, documentation.md, rag.md)
-- **tests/** — Test specifications for security, agent, rag, workflow, multi-agent, console, CLI, web, benchmarking, and documentation validation (750 unit tests across 37 suites)
+- **tests/** — Test specifications for security, agent, rag, workflow, multi-agent, console, CLI, web, benchmarking, and documentation validation (757 unit tests across 37 suites)
 - **docs/** — Architecture, principles, decisions, context, status, history, roadmap, performance, security, and source reference material
 - **.claude/** — Agent SDK configuration, settings, prompts, and skills (project-sync, research, architecture-review)
 - **laew/** — Python package (tool runtime wrappers, CLI, LLM provider, prompt management, agent loop, multi-agent coordination, RAG, workflow, evaluation)
@@ -62,7 +62,7 @@ Milestones 1–16 are complete through Parallel Multi-Agent Execution & Semantic
 
 ## Test Suite Summary
 
-- **750 unit tests** collected across **37 test suites** (in `tests/unit`)
+- **757 unit tests** collected across **37 test suites** (in `tests/unit`)
 - Latest unit suite: 748 passed, 2 skipped. Full suite: 873 passed, 3 skipped; the 38 warnings are ChromaDB telemetry deprecations for `asyncio.iscoroutinefunction`.
 - Bandit SAST: 0 High, 0 Medium findings over `laew/`
 

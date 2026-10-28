@@ -7,13 +7,17 @@ import re
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 from laew.agent.base import Agent, AgentError
 from laew.llm.base import LLMError, LLMMessage, LLMProvider, LLMResponse, MessageRole
 from laew.tools.base import Tool, ToolResult
 
 logger = logging.getLogger("laew.agent.executor")
+
+
+class StreamCancelled(Exception):
+    """Raised by a stream consumer to stop provider generation promptly."""
 
 
 @dataclass
@@ -346,7 +350,12 @@ class AgentExecutor:
             return False
         return stream_method is not LLMProvider.generate_stream
 
-    def _generate(self, messages: list, stream: bool) -> LLMResponse:
+    def _generate(
+        self,
+        messages: list,
+        stream: bool,
+        on_delta: Optional[Callable[[Optional[str]], None]] = None,
+    ) -> LLMResponse:
         """
         Generate an LLM response, optionally via the provider's stream path.
 
@@ -375,13 +384,52 @@ class AgentExecutor:
             )
 
         chunks: list[str] = []
-        for chunk in self.agent.provider.generate_stream(
+        pending = ""
+        visible = False
+        suppressed = False
+        tool_marker = "```tool_call"
+        iterator = iter(self.agent.provider.generate_stream(
             messages=messages,
             model=model,
             temperature=self.agent.config.temperature,
             max_tokens=self.agent.config.max_tokens,
-        ):
-            chunks.append(chunk)
+        ))
+        try:
+            for chunk in iterator:
+                chunks.append(chunk)
+                if on_delta is None or suppressed:
+                    continue
+                pending += chunk
+                marker_at = pending.find(tool_marker)
+                if marker_at >= 0:
+                    # A model can preface a tool call with prose. Retract that
+                    # non-final preface and suppress the tool block; the next
+                    # response after execution will stream as the final answer.
+                    if visible:
+                        on_delta(None)
+                    pending = ""
+                    visible = False
+                    suppressed = True
+                    continue
+
+                # Hold a possible split tool marker at the chunk boundary.
+                # Everything before that suffix is safe to render now.
+                hold = 0
+                for size in range(1, min(len(tool_marker) - 1, len(pending)) + 1):
+                    if pending.endswith(tool_marker[:size]):
+                        hold = size
+                safe_length = len(pending) - hold
+                if safe_length:
+                    on_delta(pending[:safe_length])
+                    pending = pending[safe_length:]
+                    visible = True
+            if pending and on_delta is not None and not suppressed:
+                on_delta(pending)
+        except StreamCancelled:
+            close = getattr(iterator, "close", None)
+            if close:
+                close()
+            raise
 
         streamed = getattr(self.agent.provider, "_last_stream_response", None)
         return LLMResponse(
@@ -469,7 +517,13 @@ class AgentExecutor:
                 available,
             )
 
-    def run(self, user_prompt: str, stream: bool = False) -> ExecutionResult:
+    def run(
+        self,
+        user_prompt: str,
+        stream: bool = False,
+        on_delta: Optional[Callable[[Optional[str]], None]] = None,
+        on_step: Optional[Callable[[ExecutionStep], None]] = None,
+    ) -> ExecutionResult:
         """
         Execute the agent loop until completion or max iterations.
 
@@ -533,11 +587,20 @@ class AgentExecutor:
             while attempt < retry_config.max_attempts and remaining_tries > 0:
                 remaining_tries -= 1
                 try:
-                    llm_response = self._generate(messages, stream=stream)
+                    llm_response = self._generate(
+                        messages, stream=stream, on_delta=on_delta
+                    )
                     break  # Success, exit retry loop
+                except StreamCancelled:
+                    result.success = False
+                    result.error = "The client disconnected or cancelled the response stream."
+                    result.total_steps = iteration
+                    return result
                 except Exception as e:
                     last_error = e
                     attempt += 1
+                    if stream and on_delta is not None:
+                        on_delta(None)
 
                     if attempt >= retry_config.max_attempts:
                         # Exhausted retries for current provider; try fallback.
@@ -653,6 +716,8 @@ class AgentExecutor:
 
             step.tool_result = tool_res
             result.steps.append(step)
+            if on_step is not None:
+                on_step(step)
 
             # Record assistant call and tool observation in context
             messages.append(LLMMessage(role=MessageRole.ASSISTANT, content=response_content))
@@ -699,7 +764,14 @@ class AgentExecutor:
         messages.append(LLMMessage(role=MessageRole.USER, content=forced_prompt))
         self._trim_to_budget(messages, live_user_index)
         try:
-            llm_response = self._generate(messages, stream=stream)
+            llm_response = self._generate(
+                messages, stream=stream, on_delta=on_delta
+            )
+        except StreamCancelled:
+            result.success = False
+            result.error = "The client disconnected or cancelled the response stream."
+            result.total_steps = iteration
+            return result
         except Exception as e:
             result.success = False
             result.error = (

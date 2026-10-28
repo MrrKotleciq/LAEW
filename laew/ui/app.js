@@ -20,6 +20,9 @@
   let currentProjectId = null;
   let projectItems = [];
   let statusRequest = 0;
+  let activeController = null;
+  let activeAssistant = null;
+  let streamedResponse = '';
   const initialEmpty = q('.empty')?.cloneNode(true);
 
   const setState = (text, kind = '') => { state.textContent = text; state.className = kind; };
@@ -35,55 +38,6 @@
     render('context');
   };
 
-  const appendInline = (parent, text) => {
-    const pattern = /(`[^`]+`|\*\*[^*]+\*\*)/g;
-    let offset = 0;
-    for (const match of text.matchAll(pattern)) {
-      parent.append(document.createTextNode(text.slice(offset, match.index)));
-      const token = match[0];
-      const element = document.createElement(token.startsWith('`') ? 'code' : 'strong');
-      element.textContent = token.startsWith('`') ? token.slice(1, -1) : token.slice(2, -2);
-      parent.append(element);
-      offset = match.index + token.length;
-    }
-    parent.append(document.createTextNode(text.slice(offset)));
-  };
-  const renderMarkdown = (target, source) => {
-    const lines = String(source).split('\n');
-    let list = null;
-    const closeList = () => { list = null; };
-    for (let index = 0; index < lines.length;) {
-      const line = lines[index];
-      if (line.trimStart().startsWith('```')) {
-        closeList();
-        const code = [];
-        index++;
-        while (index < lines.length && !lines[index].trimStart().startsWith('```')) code.push(lines[index++]);
-        if (index < lines.length) index++;
-        const pre = document.createElement('pre');
-        const block = document.createElement('code'); block.textContent = code.join('\n');
-        pre.append(block); target.append(pre); continue;
-      }
-      const heading = /^(#{1,3})\s+(.+)$/.exec(line);
-      if (heading) {
-        closeList(); const element = document.createElement(`h${heading[1].length + 2}`);
-        appendInline(element, heading[2]); target.append(element); index++; continue;
-      }
-      const bullet = /^\s*[-*+]\s+(.+)$/.exec(line);
-      const numbered = /^\s*\d+[.)]\s+(.+)$/.exec(line);
-      if (bullet || numbered) {
-        const tag = bullet ? 'ul' : 'ol';
-        if (!list || list.tagName.toLowerCase() !== tag) { closeList(); list = document.createElement(tag); target.append(list); }
-        const item = document.createElement('li'); appendInline(item, (bullet || numbered)[1]); list.append(item); index++; continue;
-      }
-      closeList();
-      if (!line.trim()) { index++; continue; }
-      const paragraph = document.createElement('p');
-      const linesInParagraph = [line.trim()]; index++;
-      while (index < lines.length && lines[index].trim() && !/^\s*(?:```|#{1,3}\s|[-*+]\s|\d+[.)]\s)/.test(lines[index])) linesInParagraph.push(lines[index++].trim());
-      appendInline(paragraph, linesInParagraph.join(' ')); target.append(paragraph);
-    }
-  };
   const addMessage = (role, text, kind = '') => {
     const followOutput = conversation.scrollHeight - conversation.scrollTop - conversation.clientHeight < 48;
     q('.empty')?.remove();
@@ -93,11 +47,12 @@
     label.textContent = role === 'user' ? 'YOU' : 'CHIEF AGENT';
     const content = document.createElement(role === 'assistant' && !kind ? 'div' : 'pre');
     content.className = 'message-body';
-    if (role === 'assistant' && !kind) renderMarkdown(content, text);
+    if (role === 'assistant' && !kind) window.LAEWMarkdown.renderMarkdown(content, text);
     else content.textContent = text;
     article.append(label, content);
     conversation.append(article);
     if (followOutput) conversation.scrollTop = conversation.scrollHeight;
+    return { article, content };
   };
   const panelHeading = (title) => {
     const heading = document.createElement('h2'); heading.textContent = title; panel.append(heading);
@@ -135,7 +90,13 @@
       }
     } else {
       panelHeading('Sources');
-      panelNote('Source provenance is not exposed by the current runtime.');
+      const sources = [...new Set((latest.steps || []).flatMap((step) => step.sources || []))];
+      if (!sources.length) panelNote('No RAG sources were retrieved for this response.');
+      else {
+        const list = document.createElement('ul');
+        sources.forEach((source) => { const item = document.createElement('li'); item.textContent = source; list.append(item); });
+        panel.append(list);
+      }
     }
   }
   async function readJson(response) {
@@ -290,28 +251,61 @@
     event.preventDefault();
     const message = input.value.trim();
     if (!message || submitting || switchingProject || creatingProject || !currentProjectId) return;
-    submitting = true; send.disabled = true; provider.disabled = true; setProjectBusy(true);
-    setState('Chief Agent is working…', 'pending'); addMessage('user', message);
+    submitting = true; send.disabled = true; provider.disabled = true; input.disabled = true;
+    q('#cancel').disabled = false; setProjectBusy(true);
+    activeController = new AbortController(); activeAssistant = null; streamedResponse = '';
+    latest = { ...latest, steps: [], error: null };
+    setState('Starting Chief Agent…', 'pending'); addMessage('user', message);
     try {
       const response = await fetch('/api/chat', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message, provider: provider.value, project_id: currentProjectId }),
+        signal: activeController.signal,
       });
-      const payload = await readJson(response); latest = { ...latest, ...payload };
-      if (!response.ok) throw new Error(payload.error || `Request failed (${response.status}).`);
-      addMessage('assistant', payload.response || 'The Chief Agent returned no response.', payload.response ? '' : 'error');
-      input.value = '';
-      q('#runtime').textContent = `${payload.provider || latest.provider || 'Provider'} · ${payload.model || latest.model || 'model unavailable'}`;
-      q('#runtime').className = 'ready'; setState('Completed', 'success');
+      await window.LAEWStream.readEventStream(response, (event) => {
+        if (event.type === 'start') {
+          latest = { ...latest, provider: event.provider, model: event.model };
+          q('#runtime').textContent = `${event.provider || 'Provider'} · ${event.model || 'model unavailable'}`;
+          q('#runtime').className = 'ready'; setState('Generating response…', 'pending');
+        } else if (event.type === 'delta') {
+          streamedResponse += event.text;
+          if (!activeAssistant) activeAssistant = addMessage('assistant', '');
+          window.LAEWMarkdown.renderMarkdown(activeAssistant.content, streamedResponse);
+          setState('Generating response…', 'pending'); conversation.scrollTop = conversation.scrollHeight;
+        } else if (event.type === 'reset') {
+          streamedResponse = '';
+          if (activeAssistant) window.LAEWMarkdown.renderMarkdown(activeAssistant.content, '');
+          setState('Provider retrying…', 'pending');
+        } else if (event.type === 'step') {
+          latest = { ...latest, steps: [...(latest.steps || []), event.step] };
+          render();
+        } else if (event.type === 'done') {
+          latest = { ...latest, ...event };
+          if (!activeAssistant) activeAssistant = addMessage('assistant', event.response || 'The Chief Agent returned no response.', event.response ? '' : 'error');
+          else window.LAEWMarkdown.renderMarkdown(activeAssistant.content, event.response || streamedResponse);
+          input.value = '';
+          q('#runtime').textContent = `${event.provider || latest.provider || 'Provider'} · ${event.model || latest.model || 'model unavailable'}`;
+          q('#runtime').className = 'ready'; setState('Completed', 'success');
+        } else if (event.type === 'error') {
+          latest = { ...latest, error: event.error, steps: event.steps || latest.steps || [] };
+          if (activeAssistant) activeAssistant.article.classList.add('incomplete');
+          addMessage('assistant', `${event.error || 'The response failed.'} Check provider availability and retry.`, 'error');
+          setState('Run failed — revise and retry', 'error');
+        }
+      }, activeController.signal);
     } catch (error) {
-      latest = { ...latest, error: error.message, steps: latest.steps || [] };
-      addMessage('assistant', `${error.message} Check the provider status above, then revise and retry.`, 'error');
-      setState('Run failed — revise and retry', 'error');
+      const cancelled = error.name === 'AbortError';
+      latest = { ...latest, error: cancelled ? 'Response cancelled.' : error.message, steps: latest.steps || [] };
+      if (activeAssistant) activeAssistant.article.classList.add('incomplete');
+      addMessage('assistant', `${latest.error} ${cancelled ? 'The partial response is incomplete.' : 'Check provider availability and retry.'}`, 'error');
+      setState(cancelled ? 'Cancelled · partial response retained' : 'Run failed — revise and retry', 'error');
     } finally {
-      submitting = false; send.disabled = false; provider.disabled = false; setProjectBusy(false);
+      submitting = false; activeController = null; activeAssistant = null;
+      send.disabled = false; q('#cancel').disabled = true; provider.disabled = false; input.disabled = false; setProjectBusy(false);
       drawProjectList(); render('run'); input.focus();
     }
   }
+  q('#cancel').addEventListener('click', () => activeController?.abort());
   function closeSidebar() {
     q('#sidebar').classList.remove('open');
     q('#sidebar-toggle').setAttribute('aria-expanded', 'false');

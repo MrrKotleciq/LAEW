@@ -52,7 +52,7 @@
       </section>
       <form id="composer">
         <label class="sr-only" for="message">Message to the Chief Agent</label>
-        <div class="composer-box"><textarea id="message" required rows="3" placeholder="Describe the engineering task…" aria-describedby="composer-hint"></textarea><div class="composer-footer"><span id="composer-hint">Enter to send · Shift + Enter for a new line</span><div class="send-controls"><span id="state" role="status" aria-live="polite">Ready</span><button id="send" class="send-button" type="submit">Send <span aria-hidden="true">↵</span></button></div></div></div>
+        <div class="composer-box"><textarea id="message" required rows="3" placeholder="Describe the engineering task…" aria-describedby="composer-hint"></textarea><div class="composer-footer"><span id="composer-hint">Enter to send · Shift + Enter for a new line</span><div class="send-controls"><span id="state" role="status" aria-live="polite">Ready</span><button id="cancel" class="cancel-button" type="button" disabled>Stop</button><button id="send" class="send-button" type="submit">Send <span aria-hidden="true">↵</span></button></div></div></div>
       </form>
     </main>
 
@@ -70,6 +70,8 @@
     </form>
   </dialog>
 
+  <script src="/markdown.js" defer></script>
+  <script src="/stream.js" defer></script>
   <script src="/app.js" defer></script>
 </body>
 </html>

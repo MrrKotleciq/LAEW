@@ -1,6 +1,7 @@
 """Tests for agent orchestration and execution loop."""
 
 import json
+import threading
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -681,7 +682,7 @@ class TestHistoryPersistence:
         config = AgentConfig(name="persist", history_path=history_file)
         agent = Agent(config=config, providers=[provider])
         agent.add_message(MessageRole.USER, "Hello")
-        agent.add_message(MessageRole.ASSISTANT, "Hi there")
+        agent.add_message(MessageRole.ASSISTANT, "Zażółć gęślą jaźń — 25°C — 🐕 🧬 🤝 🐶")
         agent.save_history()
 
         # New agent loads the saved history
@@ -692,7 +693,7 @@ class TestHistoryPersistence:
         assert agent2.history[0].role == MessageRole.USER
         assert agent2.history[0].content == "Hello"
         assert agent2.history[1].role == MessageRole.ASSISTANT
-        assert agent2.history[1].content == "Hi there"
+        assert agent2.history[1].content == "Zażółć gęślą jaźń — 25°C — 🐕 🧬 🤝 🐶"
 
     def test_load_missing_history(self, tmp_path):
         """Test loading a non-existent history file yields empty history."""
@@ -825,6 +826,85 @@ class TestAgentExecutorStreamingAndBudget:
         assert resp.prompt_tokens == 3
         assert resp.completion_tokens == 5
         assert resp.total_tokens == 8
+
+    def test_generate_forwards_chunks_before_provider_finishes(self):
+        from laew.llm.base import LLMProvider
+        first_chunk = threading.Event()
+        allow_finish = threading.Event()
+
+        class DelayedStreamingLLM(LLMProvider):
+            def generate(self, messages, model, temperature=0.7, max_tokens=None, stop=None):
+                return LLMResponse(content="unused", model=model)
+            def list_models(self): return []
+            def is_available(self): return True
+            def generate_stream(self, messages, model, temperature=0.7, max_tokens=None, stop=None):
+                yield "Progressive "
+                first_chunk.set()
+                assert allow_finish.wait(2)
+                yield "answer"
+                self._last_stream_response = LLMResponse(content="", model=model)
+
+        provider = DelayedStreamingLLM()
+        executor = AgentExecutor(Agent(config=AgentConfig(model="q"), provider=provider))
+        seen = []
+        output = []
+        worker = threading.Thread(target=lambda: output.append(executor._generate(
+            [LLMMessage(role=MessageRole.USER, content="hi")], stream=True,
+            on_delta=seen.append,
+        )))
+        worker.start()
+        assert first_chunk.wait(1)
+        assert seen == ["Progressive "]
+        assert worker.is_alive()
+        allow_finish.set()
+        worker.join(2)
+        assert not worker.is_alive()
+        assert seen == ["Progressive ", "answer"]
+        assert output[0].content == "Progressive answer"
+
+    def test_generate_does_not_stream_tool_call_json_to_ui(self):
+        from laew.llm.base import LLMProvider
+
+        class ToolCallProvider(LLMProvider):
+            def generate(self, messages, model, temperature=0.7, max_tokens=None, stop=None):
+                return LLMResponse(content="", model=model)
+            def list_models(self): return []
+            def is_available(self): return True
+            def generate_stream(self, messages, model, temperature=0.7, max_tokens=None, stop=None):
+                yield "```tool_"
+                yield "call\\n{\\\"tool\\\": \\\"GitTool\\\"}\\n```"
+
+        provider = ToolCallProvider()
+        executor = AgentExecutor(Agent(config=AgentConfig(model="q"), provider=provider))
+        seen = []
+        response = executor._generate(
+            [LLMMessage(role=MessageRole.USER, content="hi")], stream=True,
+            on_delta=seen.append,
+        )
+        assert "```tool_call" in response.content
+        assert seen == []
+
+    def test_generate_retracts_preface_before_tool_call(self):
+        from laew.llm.base import LLMProvider
+
+        class PrefacedToolCallProvider(LLMProvider):
+            def generate(self, messages, model, temperature=0.7, max_tokens=None, stop=None):
+                return LLMResponse(content="", model=model)
+            def list_models(self): return []
+            def is_available(self): return True
+            def generate_stream(self, messages, model, temperature=0.7, max_tokens=None, stop=None):
+                yield "I'll inspect the workspace. "
+                yield "```tool_call\n{\"tool\": \"FilesystemTool\"}\n```"
+
+        provider = PrefacedToolCallProvider()
+        executor = AgentExecutor(Agent(config=AgentConfig(model="q"), provider=provider))
+        seen = []
+        response = executor._generate(
+            [LLMMessage(role=MessageRole.USER, content="hi")], stream=True,
+            on_delta=seen.append,
+        )
+        assert "```tool_call" in response.content
+        assert seen == ["I'll inspect the workspace. ", None]
 
     def test_generate_falls_back_to_generate_when_no_stream(self):
         """_generate uses generate() when the provider only has the default."""

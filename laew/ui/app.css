@@ -117,6 +117,13 @@ select { max-width: 165px; padding: 7px 26px 7px 10px; border: 1px solid var(--l
 .message-body ul, .message-body ol { padding-left: 24px; } .message-body li { padding: 2px 0; }
 .message-body pre { overflow: auto; margin: 10px 0; padding: 13px; border: 1px solid #d6dfeb; border-radius: 6px; background: #f5f7fb; color: #24344d; font: 11px/1.65 var(--mono); }
 .message-body code:not(pre code) { padding: 1px 4px; border: 1px solid #dde5ef; border-radius: 3px; background: #f0f4f9; color: #244e9c; font: 11px var(--mono); }
+.message-body a { color: var(--blue); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+.message-body .table-scroll { max-width: 100%; overflow-x: auto; margin: 12px 0; border: 1px solid var(--line); border-radius: 6px; }
+.message-body table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.message-body th, .message-body td { padding: 8px 10px; border-bottom: 1px solid var(--line-soft); text-align: left; vertical-align: top; }
+.message-body th { background: #f3f6fa; color: var(--text); font-weight: 650; }
+.message-body tr:last-child td { border-bottom: 0; }
+.message.incomplete .message-body { opacity: .82; }
 .message.error .message-body { padding: 11px 13px; border: 1px solid #f2c8cb; border-left: 3px solid var(--red); border-radius: 0 6px 6px 0; background: var(--red-wash); color: #9e2933; }
 #composer { padding: 12px 30px 18px; background: var(--surface); border-top: 1px solid var(--line-soft); }
 .composer-box { max-width: 920px; margin: auto; padding: 8px 10px 9px; border: 1px solid #cbd6e4; border-radius: 8px; background: var(--surface); box-shadow: 0 2px 8px #1d35570b; }
@@ -131,6 +138,8 @@ textarea::placeholder { color: #8b97a8; }
 .send-button { border: 1px solid var(--blue); border-radius: 6px; background: var(--blue); color: #fff; font-size: 11px; font-weight: 650; }
 .send-button:hover:not(:disabled) { border-color: var(--blue-hover); background: var(--blue-hover); }
 #send:disabled { opacity: .55; cursor: wait; }
+.cancel-button { min-height: 32px; padding: 0 10px; border: 1px solid #e2b5b8; border-radius: 6px; background: var(--red-wash); color: #9e2933; font-size: 11px; font-weight: 600; }
+.cancel-button:disabled { opacity: .45; cursor: not-allowed; }
 #context { min-height: 0; overflow: auto; padding: 0 16px; background: #fbfcfe; border-left: 1px solid var(--line-soft); }
 .panel-tabs { position: sticky; top: 0; z-index: 1; display: flex; gap: 3px; background: #fbfcfe; border-bottom: 1px solid var(--line); }
 .tab { padding: 12px 10px 10px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--muted); font-size: 10px; }

@@ -55,6 +55,16 @@ class VectorStore:
         self._embedding_matrix: Optional[np.ndarray] = None
         self._chunk_ids: List[str] = []
 
+    def sync_records(self, source: str) -> List[DocumentChunk]:
+        """Return indexed records belonging to one source scope."""
+        return [chunk for chunk in self._chunks.values() if chunk.source == source]
+
+    def delete_ids(self, ids: List[str]) -> None:
+        for chunk_id in ids:
+            self._chunks.pop(chunk_id, None)
+        if ids:
+            self._rebuild_index()
+
     def add_chunk(self, chunk: DocumentChunk) -> None:
         """
         Add a document chunk to the store.
@@ -302,6 +312,25 @@ class ChromaVectorStore:
             raise ConnectionError(
                 f"Failed to reach ChromaDB at {host}:{port}: {e}"
             ) from e
+
+    def sync_records(self, source: str) -> List[DocumentChunk]:
+        """Read scope records without hiding database errors."""
+        result = self._collection.get(include=["metadatas"])
+        records = []
+        for chunk_id, metadata in zip(result["ids"], result["metadatas"]):
+            if not metadata or metadata.get("source") != source:
+                continue
+            records.append(DocumentChunk(
+                chunk_id=chunk_id, text=metadata.get("text", ""), source=source,
+                file_path=metadata.get("file_path", ""),
+                metadata={k: _decode_metadata_value(v) for k, v in metadata.items()
+                          if k not in ("text", "source", "file_path")},
+            ))
+        return records
+
+    def delete_ids(self, ids: List[str]) -> None:
+        if ids:
+            self._collection.delete(ids=ids)
 
     def add_chunk(self, chunk: DocumentChunk) -> None:
         """

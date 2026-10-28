@@ -39,7 +39,7 @@ def test_chat_returns_executor_result_and_real_step_summary(tmp_path):
     service._executor = MagicMock(); service._executor.run.return_value = result
     status, body = service.chat("inspect")
     assert status == 200 and body["response"] == "Done"
-    assert body["steps"] == [{"number": 1, "tool": "filesystem", "operation": "view_file", "success": True, "error": None}]
+    assert body["steps"] == [{"number": 1, "tool": "filesystem", "operation": "view_file", "success": True, "error": None, "sources": []}]
 
 
 def test_chat_rejects_empty_messages(tmp_path):
@@ -189,6 +189,51 @@ def test_browser_client_posts_message_and_provider_to_chat_route():
     assert "fetch('/api/projects'" in client
     assert "showModal()" in client
     assert "renderMarkdown" in client
+    assert "readEventStream" in client
+    assert "activeController?.abort()" in client
+
+
+def test_chat_stream_emits_delta_before_generation_finishes(tmp_path):
+    service = make_service(tmp_path)
+    project_id = service.list_projects()["active_project"]
+    generation_started = threading.Event()
+    continue_generation = threading.Event()
+
+    class FakeExecutor:
+        def run(self, prompt, *, stream, on_delta, on_step):
+            assert stream is True
+            on_delta("Partial answer")
+            generation_started.set()
+            assert continue_generation.wait(3)
+            from types import SimpleNamespace
+            return SimpleNamespace(
+                success=True, final_response="Partial answer complete",
+                steps=[], prompt_tokens=1, completion_tokens=2, total_tokens=3,
+            )
+
+    service._ensure_runtime = lambda *_args: None
+    service._executor = FakeExecutor()
+    events = []
+    worker = threading.Thread(
+        target=service.stream_chat,
+        args=("analyze", "manifest", project_id, events.append),
+        daemon=True,
+    )
+    try:
+        worker.start()
+        assert generation_started.wait(2)
+        assert events[0]["type"] == "start"
+        assert events[1] == {"type": "delta", "text": "Partial answer"}
+        assert generation_started.is_set()
+        continue_generation.set()
+        worker.join(2)
+        assert not worker.is_alive()
+        assert events[-1]["type"] == "done"
+        assert events[-1]["response"] == "Partial answer complete"
+    finally:
+        continue_generation.set()
+        if worker.ident is not None:
+            worker.join(2)
 
 
 def test_project_create_builds_empty_folder_and_makes_it_active(tmp_path):

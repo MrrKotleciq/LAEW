@@ -53,6 +53,7 @@ class LlamaCppProvider(LLMProvider):
         model: str,
         base_url: str = "http://127.0.0.1:8080",
         timeout: int = 30,
+        stream_timeout: int = 120,
     ):
         """
         Initialize the llama.cpp provider.
@@ -65,6 +66,9 @@ class LlamaCppProvider(LLMProvider):
         self.model = model
         self.base_url = normalize_llamacpp_base_url(base_url)
         self._timeout = timeout
+        # Streaming allows longer idle generation phases while bounding an
+        # actually stalled server. Ordinary requests retain the shorter limit.
+        self._stream_timeout = stream_timeout
         # Carries the normalized final stream response for token accounting,
         # matching the contract exposed by OllamaProvider.
         self._last_stream_response: Optional[LLMResponse] = None
@@ -113,7 +117,7 @@ class LlamaCppProvider(LLMProvider):
         payload: dict,
         *,
         method: str = "post",
-        timeout: Optional[int] = None,
+        timeout: Optional[int | tuple[int, int]] = None,
         stream: bool = False,
     ) -> requests.Response:
         """
@@ -267,25 +271,32 @@ class LlamaCppProvider(LLMProvider):
         # parser finds nothing.
         payload["stream"] = True
 
-        response = self._request(url, payload, stream=True)
+        response = self._request(
+            url, payload, timeout=(self._timeout, self._stream_timeout), stream=True
+        )
 
         self._last_stream_response = None
         last_usage: Optional[dict] = None
         finish_reason: Optional[str] = "stop"
+        completed = False
         try:
-            for raw_line in response.iter_lines(decode_unicode=True):
+            for raw_line in response.iter_lines(decode_unicode=False):
                 if raw_line is None:
                     continue
-                # ``iter_lines`` yields bytes when the SSE stream arrives over a
-                # raw socket even with ``decode_unicode=True``; normalize so the
-                # handler is robust to either encoding.
+                # SSE is UTF-8. Requests may otherwise infer ISO-8859-1 for
+                # text/event-stream without a charset. iter_lines assembles
+                # byte fragments into complete lines before decoding.
                 if isinstance(raw_line, bytes):
                     raw_line = raw_line.decode("utf-8")
                 stripped = raw_line.strip()
+                if stripped == "[DONE]":
+                    completed = True
+                    break
                 if not stripped or not stripped.startswith("data:"):
                     continue
                 payload_line = stripped[len("data:"):].strip()
                 if payload_line == "[DONE]":
+                    completed = True
                     break
                 try:
                     data = json.loads(payload_line)
@@ -300,6 +311,7 @@ class LlamaCppProvider(LLMProvider):
                     yield delta["content"]
                 if choice.get("finish_reason") is not None:
                     finish_reason = choice["finish_reason"]
+                    completed = True
                 usage = data.get("usage")
                 if isinstance(usage, dict):
                     last_usage = usage
@@ -308,6 +320,11 @@ class LlamaCppProvider(LLMProvider):
                 f"Stream interrupted: {str(e)}",
                 code="STREAM_ERROR",
             ) from e
+        except requests.exceptions.Timeout as e:
+            raise LLMError(
+                f"llama.cpp stream produced no data for {self._stream_timeout}s",
+                code="TIMEOUT",
+            ) from e
         except requests.exceptions.RequestException as e:
             raise LLMError(
                 f"Stream request failed: {str(e)}",
@@ -315,6 +332,9 @@ class LlamaCppProvider(LLMProvider):
             ) from e
         finally:
             response.close()
+
+        if not completed:
+            raise LLMError("llama.cpp stream ended before completion; retry the request.", code="STREAM_ERROR")
 
         self._last_stream_response = LLMResponse(
             content="",

@@ -1,6 +1,8 @@
 """Knowledge base loader for project memory and global knowledge."""
 
 import logging
+import hashlib
+import json
 import os
 import re
 import warnings
@@ -262,6 +264,106 @@ class KnowledgeBase:
 
         return counts
 
+    def synchronize(self, force: bool = False) -> dict:
+        """Synchronize both scopes after scanning and embedding successfully.
+
+        A failed or unavailable scan leaves both stores untouched. Existing
+        records without fingerprints are compared with freshly chunked text.
+        """
+        if self._roots_overlap(self.project_root, self.knowledge_root):
+            raise ValueError("Project and knowledge roots overlap.")
+        if (self._vector_store_config or {}).get("enabled") and not all(
+            isinstance(store, ChromaVectorStore) for store in (self._project_store, self._global_store)
+        ):
+            raise RuntimeError("Persistent vector store is unavailable; synchronization was not started.")
+        plans = []
+        for root, source, store in ((self.project_root, "project", self._project_store),
+                                    (self.knowledge_root, "global", self._global_store)):
+            if not root.is_dir():
+                raise FileNotFoundError(f"{source} knowledge root is unavailable: {root}")
+            records = [r for r in store.sync_records(source)
+                       if r.chunk_id.startswith(source + ":") and r.file_path]
+            by_path = {}
+            for record in records:
+                by_path.setdefault(record.file_path.replace("\\", "/"), []).append(record)
+            files = {}
+            def scan_error(error):
+                raise error
+            for folder, dirs, names in os.walk(root, onerror=scan_error, followlinks=False):
+                dirs[:] = [d for d in dirs if not d.startswith(".") and d not in ("node_modules", "__pycache__", "venv")]
+                for name in names:
+                    if not name.endswith(".md") or name.startswith("."):
+                        continue
+                    path = Path(folder) / name
+                    relative = path.relative_to(root).as_posix()
+                    if source == "project" and self.project_source_allowlist is not None and not any(
+                        fnmatchcase(relative, pattern) for pattern in self.project_source_allowlist
+                    ):
+                        continue
+                    try:
+                        path.resolve(strict=True).relative_to(root.resolve())
+                    except (OSError, ValueError) as exc:
+                        raise RuntimeError(f"Cannot safely scan {path}: {exc}") from exc
+                    content = path.read_text(encoding="utf-8")
+                    fingerprint = hashlib.sha256(json.dumps(
+                        [content, self.chunk_size, self.chunk_overlap, self.embedding_model_id],
+                        ensure_ascii=False, separators=(",", ":"),
+                    ).encode("utf-8")).hexdigest()
+                    files[relative] = (path, content, fingerprint)
+            pending = []
+            obsolete = []
+            counts = {key: {"documents": 0, "chunks": 0} for key in ("added", "updated", "removed", "unchanged")}
+            for relative, (path, content, fingerprint) in files.items():
+                old = by_path.get(relative, [])
+                if old and not force and all(
+                    r.metadata.get("sync_fingerprint") == fingerprint
+                    and r.metadata.get("sync_chunk_count") == len(old) for r in old
+                ):
+                    counts["unchanged"]["documents"] += 1
+                    counts["unchanged"]["chunks"] += len(old)
+                    continue
+                if old and not force and all(
+                    r.metadata.get("sync_fingerprint") in (None, fingerprint) for r in old
+                ):
+                    expected = self._load_file(path, source, root, content=content, embed=False)
+                    old_by_id = {r.chunk_id: r for r in old}
+                    if len(expected) == len(old) and all(
+                        chunk.chunk_id in old_by_id
+                        and old_by_id[chunk.chunk_id].text == chunk.text
+                        and all(old_by_id[chunk.chunk_id].metadata.get(key) == value
+                                for key, value in chunk.metadata.items())
+                        for chunk in expected
+                    ):
+                        counts["unchanged"]["documents"] += 1
+                        counts["unchanged"]["chunks"] += len(old)
+                        continue
+                chunks = self._load_file(path, source, root, content=content)
+                for chunk in chunks:
+                    chunk.metadata["sync_fingerprint"] = fingerprint
+                    chunk.metadata["sync_chunk_count"] = len(chunks)
+                pending.extend(chunks)
+                new_ids = {chunk.chunk_id for chunk in chunks}
+                obsolete.extend(r.chunk_id for r in old if r.chunk_id not in new_ids)
+                category = "updated" if old else "added"
+                counts[category]["documents"] += 1
+                counts[category]["chunks"] += len(chunks)
+            for relative, old in by_path.items():
+                if relative not in files:
+                    obsolete.extend(r.chunk_id for r in old)
+                    counts["removed"]["documents"] += 1
+                    counts["removed"]["chunks"] += len(old)
+            counts["removed"]["chunks"] += len(obsolete) - sum(
+                len(old) for relative, old in by_path.items() if relative not in files
+            )
+            plans.append((source, store, pending, obsolete, counts))
+        results = {}
+        for source, store, pending, obsolete, counts in plans:
+            store.add_chunks(pending)
+            store.delete_ids(obsolete)
+            results[source] = counts
+        self._project_loaded = self._vault_loaded = self._loaded = True
+        return results
+
     def _load_directory(
         self,
         directory: Path,
@@ -316,6 +418,7 @@ class KnowledgeBase:
         file_path: Path,
         source: str,
         base_dir: Path,
+        *, content: Optional[str] = None, embed: bool = True,
     ) -> List[DocumentChunk]:
         """
         Load and chunk a markdown file.
@@ -328,10 +431,11 @@ class KnowledgeBase:
         Returns:
             List of DocumentChunks
         """
-        try:
-            content = file_path.read_text(encoding="utf-8")
-        except (OSError, UnicodeDecodeError):
-            return []
+        if content is None:
+            try:
+                content = file_path.read_text(encoding="utf-8")
+            except (OSError, UnicodeDecodeError):
+                return []
 
         # Extract Obsidian note metadata (tags, backlinks) once per file so it
         # is available for every chunk without re-parsing the frontmatter.
@@ -353,14 +457,17 @@ class KnowledgeBase:
         if not chunk_specs:
             return []
 
-        try:
-            embeddings = self.embedding_service.embed_batch(
-                [text for text, _, _, _ in chunk_specs]
-            )
-        except (ValueError, RuntimeError) as e:
-            message = f"Failed to embed {source} knowledge chunks from {file_path}: {e}"
-            logger.error(message, exc_info=True)
-            raise RuntimeError(message) from e
+        if embed:
+            try:
+                embeddings = self.embedding_service.embed_batch(
+                    [text for text, _, _, _ in chunk_specs]
+                )
+            except (ValueError, RuntimeError) as e:
+                message = f"Failed to embed {source} knowledge chunks from {file_path}: {e}"
+                logger.error(message, exc_info=True)
+                raise RuntimeError(message) from e
+        else:
+            embeddings = [None] * len(chunk_specs)
 
         if len(embeddings) != len(chunk_specs):
             raise RuntimeError(
