@@ -442,6 +442,9 @@ class TestEndToEndRetrieval:
             manifest=manifest,
             rag_embedding_service=MockEmbeddingService(),
         )
+        from laew.rag.sync import synchronize_scope
+        rag_tool = next(tool for tool in tools if tool.name == "RagTool")
+        synchronize_scope(rag_tool._pipeline.knowledge_base, "global")
         provider = MagicMock()
         provider.generate.side_effect = [
             LLMResponse(

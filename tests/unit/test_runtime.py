@@ -166,7 +166,7 @@ def test_missing_embedding_model_does_not_block_chat_tool_construction(tmp_path)
 
     assert result.success is False
     assert result.error_code == "ERR_RAG_FAILURE"
-    assert "model_name" in result.error_message
+    assert "freshness is unknown" in result.error_message
 
 
 def test_build_provider_uses_registry():

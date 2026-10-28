@@ -73,6 +73,26 @@
       });
       panel.append(details);
       panelNote('Runtime state reported by LAEW. Project files stay inside the selected workspace boundaries.');
+      panelHeading('Knowledge synchronization');
+      if (!latest.rag) panelNote('Checking synchronization status…');
+      else if (latest.rag.error) panelNote(latest.rag.error);
+      else ['project', 'global'].forEach((scope) => {
+        const status = latest.rag[scope];
+        if (!status) return;
+        panelNote(`${scope}: ${status.state} · last success: ${status.last_success || 'never'} · last failure: ${status.last_failure || 'never'}`);
+        if (status.error) panelNote(status.error);
+        const button = document.createElement('button');
+        button.type = 'button'; button.textContent = `Sync ${scope}`;
+        button.addEventListener('click', async () => {
+          try {
+            const response = await fetch('/api/rag/sync', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({scope})});
+            const payload = await readJson(response);
+            if (!response.ok) throw new Error(payload.error || 'Synchronization could not start.');
+            await refreshRag();
+          } catch (error) { panelNote(error.message); }
+        });
+        panel.append(button);
+      });
     } else if (tab === 'run') {
       panelHeading('Current run');
       const steps = Array.isArray(latest.steps) ? latest.steps : [];
@@ -104,6 +124,13 @@
     try { return text ? JSON.parse(text) : {}; }
     catch { throw new Error(`The local API returned invalid JSON (${response.status}).`); }
   }
+  async function refreshRag() {
+    try { latest.rag = await readJson(await fetch('/api/rag')); }
+    catch { latest.rag = {error: 'Synchronization status is unavailable.'}; }
+    if (activeTab === 'context') render('context');
+  }
+  refreshRag();
+  window.setInterval(refreshRag, 5000);
   function showProjectError(message) {
     projectError.textContent = message || '';
     projectError.hidden = !message;

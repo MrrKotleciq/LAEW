@@ -512,6 +512,13 @@ def cmd_chat(args) -> int:
         ]
 
     executor = AgentExecutor(agent)
+    from laew.rag.sync import SyncScheduler
+    rag_tool = agent.tools.get("RagTool")
+    scheduler = None
+    if rag_tool is not None:
+        kb = rag_tool._pipeline.knowledge_base
+        scheduler = SyncScheduler(lambda _root: kb)
+        scheduler.start(kb.project_root)
 
     print(f"Starting chat with {model_name} ({getattr(args, 'provider', None) or 'manifest provider'} at {provider.base_url})")
     if session_name:
@@ -554,6 +561,9 @@ def cmd_chat(args) -> int:
     except KeyboardInterrupt:
         print("\n\nSession interrupted.")
         return 1
+    finally:
+        if scheduler is not None:
+            scheduler.close()
 
     print("\nSession ended.")
     return 0
@@ -587,6 +597,21 @@ def cmd_console(args) -> int:
     from laew.console import run_console
 
     return run_console(manifest_path=args.manifest)
+
+
+def cmd_rag_migrate(args) -> int:
+    """Migrate only after the operator explicitly identifies the legacy owner."""
+    from laew.rag.migration import migrate_legacy_project
+    try:
+        manifest = load_manifest(Path(args.manifest))
+        config = manifest.get("rag", {}).get("vector_store", {})
+        result = migrate_legacy_project(config, args.project, confirmed_owner=args.confirm_owner)
+        print(f"[OK] {result['records']} records verified in {result['destination']}; "
+              f"{result['copied']} copied; {result['source']} preserved")
+        return 0
+    except Exception as exc:
+        print(f"[FAIL] Migration failed; the legacy collection was not changed: {exc}")
+        return 1
 
 
 def main() -> int:
@@ -744,6 +769,12 @@ def main() -> int:
         help="Path to system manifest (default: manifests/SYSTEM_MANIFEST.yaml)",
     )
     console_parser.set_defaults(func=cmd_console)
+
+    migrate_parser = subparsers.add_parser("rag-migrate", help="Copy a legacy project index without regenerating embeddings")
+    migrate_parser.add_argument("project", help="Absolute path of the legacy collection's owning project")
+    migrate_parser.add_argument("--confirm-owner", required=True, help="Repeat the verified owning project path")
+    migrate_parser.add_argument("--manifest", default="manifests/SYSTEM_MANIFEST.yaml")
+    migrate_parser.set_defaults(func=cmd_rag_migrate)
 
     # tool command
     tool_parser = subparsers.add_parser(

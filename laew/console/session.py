@@ -176,7 +176,14 @@ def run_console(manifest_path: Optional[str] = None) -> int:
 
     try:
         session = ConsoleSession(manifest_path=manifest_path)
-        session.cmdloop()
+        from laew.console.commands.rag import _build_pipeline
+        from laew.rag.sync import SyncScheduler
+        scheduler = SyncScheduler(lambda _root: _build_pipeline(session.state).knowledge_base)
+        scheduler.start("console")
+        try:
+            session.cmdloop()
+        finally:
+            scheduler.close()
         return 0
     except KeyboardInterrupt:
         print("\nSession interrupted.")

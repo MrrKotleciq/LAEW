@@ -87,7 +87,31 @@ class RAGPipeline:
         self.top_k = top_k
         self.similarity_threshold = similarity_threshold
 
-    def retrieve(
+    def retrieve(self, query: str, scope: KnowledgeScope = KnowledgeScope.PROJECT,
+                 top_k: Optional[int] = None) -> RAGResult:
+        """Retrieve under the same scope locks used by synchronization."""
+        locks = []
+        if getattr(self, "require_freshness", False):
+            from laew.rag.sync import acquire_fresh_scopes
+            scopes = ("project", "global") if scope == KnowledgeScope.HYBRID else (scope.value,)
+            locks, error = acquire_fresh_scopes(self.knowledge_base, scopes)
+            if error:
+                return RAGResult(context="", total_tokens=0, sources=[], scope=scope,
+                                 query=query, error=error)
+        try:
+            if locks:
+                try:
+                    for requested_scope in scopes:
+                        self.knowledge_base.ensure_store(requested_scope)
+                except Exception:
+                    return RAGResult(context="", total_tokens=0, sources=[], scope=scope,
+                                     query=query, error="Persistent knowledge store is unavailable. Check ChromaDB and retry synchronization.")
+            return self._retrieve(query, scope, top_k)
+        finally:
+            for lock in reversed(locks):
+                lock.release()
+
+    def _retrieve(
         self,
         query: str,
         scope: KnowledgeScope = KnowledgeScope.PROJECT,

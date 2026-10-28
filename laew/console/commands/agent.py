@@ -39,6 +39,9 @@ def _build_agent(state: SessionState):
         state.overrides.get("model"), state.manifest_model(), provider
     )
     allowlist = terminal_allowlist_from_manifest(manifest)
+    from laew.rag.config import manifest_base_dir, resolve_knowledge_root, resolve_project_root
+    project_root = resolve_project_root(manifest, base_dir=manifest_base_dir(state.manifest_path))
+    knowledge_root = resolve_knowledge_root(manifest, project_root=project_root)
     agent = Agent(
         config=AgentConfig(
             name="laew-console",
@@ -46,7 +49,8 @@ def _build_agent(state: SessionState):
             context_budget=context_budget_from_manifest(manifest),
         ),
         provider=provider,
-        tools=build_shared_tools(allowlist),
+        tools=build_shared_tools(allowlist, manifest=manifest, project_root=project_root,
+                                 knowledge_root=knowledge_root),
     )
     # Resume any saved conversation memory (Milestone 13). The stored turns are
     # memory/history — never treated as current project state (ADR-012), which

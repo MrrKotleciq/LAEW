@@ -26,6 +26,7 @@ from laew.runtime import (
     build_provider_for_role,
     build_explicit_provider,
     build_shared_tools,
+    build_rag_tool,
     context_budget_from_manifest,
     resolve_model_name,
     resolve_llamacpp_model,
@@ -54,6 +55,7 @@ class WorkspaceService:
         project_root: Optional[Path] = None,
         projects_root: Optional[Path] = None,
         workspace_root: Optional[Path] = None,
+        registered_projects: Optional[list[Path]] = None,
     ):
         self.manifest_path = manifest_path
         if workspace_root is None:
@@ -61,9 +63,13 @@ class WorkspaceService:
         self.workspace_root = Path(workspace_root).resolve()
         self.projects_root = Path(projects_root or self.workspace_root / "Projects").resolve()
         self.knowledge_root = (self.workspace_root / "Knowledge").resolve()
+        self.registered_projects = tuple(Path(path).expanduser().resolve() for path in (registered_projects or ()))
         app_root = Path(__file__).resolve().parents[1]
         self.default_project_root = Path(project_root).resolve() if project_root else app_root.resolve()
         self._lock = threading.Lock()
+        self._sync_lock = threading.Lock()
+        self._sync_bases = {}
+        self._scheduler = None
         self._agent: Optional[Agent] = None
         self._executor: Optional[AgentExecutor] = None
         self._provider_name: Optional[str] = None
@@ -78,8 +84,8 @@ class WorkspaceService:
         self._active_project_id = default_id if default_id in self._projects else None
 
     def _id_for_path(self, path: Path) -> str:
-        relative = path.resolve().relative_to(self.projects_root)
-        return hashlib.sha256(relative.as_posix().casefold().encode("utf-8")).hexdigest()[:16]
+        from laew.rag.identity import canonical_project_path
+        return hashlib.sha256(canonical_project_path(path).encode("utf-8")).hexdigest()[:16]
 
     def _discover_projects(self) -> dict[str, dict[str, str]]:
         """Discover all direct child directories under the trusted Projects root."""
@@ -88,22 +94,26 @@ class WorkspaceService:
         try:
             if not self.projects_root.is_dir():
                 self._projects_error = f"Projects directory is unavailable: {self.projects_root}"
-                return projects
-            candidates = list(self.projects_root.iterdir())
+                candidates = []
+            else:
+                candidates = list(self.projects_root.iterdir())
         except OSError as exc:
             self._projects_error = f"Could not read Projects directory: {exc}"
-            return projects
+            candidates = []
         for candidate in candidates:
             try:
                 if not candidate.is_dir():
                     continue
                 resolved = candidate.resolve(strict=True)
                 resolved.relative_to(self.projects_root)
-                relative = candidate.relative_to(self.projects_root).as_posix().casefold()
-                project_id = hashlib.sha256(relative.encode("utf-8")).hexdigest()[:16]
+                project_id = self._id_for_path(resolved)
             except (OSError, ValueError):
                 continue
             projects[project_id] = {"id": project_id, "name": resolved.name, "path": str(resolved)}
+        for candidate in self.registered_projects:
+            if candidate.is_dir():
+                project_id = self._id_for_path(candidate)
+                projects[project_id] = {"id": project_id, "name": candidate.name, "path": str(candidate)}
         return dict(sorted(projects.items(), key=lambda item: item[1]["name"].casefold()))
 
     @property
@@ -145,6 +155,47 @@ class WorkspaceService:
         self._model = None
         self._error = None
 
+    def _sync_base(self, project_root=None):
+        root = Path(project_root or self.default_project_root).resolve()
+        with self._sync_lock:
+            if root not in self._sync_bases:
+                manifest = load_manifest(self.manifest_path)
+                tool = build_rag_tool(manifest, project_root=root, projects_root=self.projects_root,
+                                      knowledge_root=self.knowledge_root)
+                self._sync_bases[root] = tool._pipeline.knowledge_base
+            return self._sync_bases[root]
+
+    def start_sync(self):
+        from laew.rag.sync import SyncScheduler
+        if self._scheduler is None:
+            self._scheduler = SyncScheduler(self._sync_base)
+            project = self._projects.get(self._active_project_id)
+            self._scheduler.start(project["path"] if project else None)
+
+    def close(self):
+        if self._scheduler is not None:
+            self._scheduler.close()
+
+    def sync_status(self):
+        from laew.rag.sync import sync_status
+        try:
+            project = self._projects.get(self._active_project_id)
+            kb = self._sync_base(project["path"] if project else None)
+            return {"project": sync_status(kb, "project"), "global": sync_status(kb, "global")}
+        except Exception:
+            return {"error": "Synchronization status unavailable. Check ChromaDB and configuration, then retry."}
+
+    def request_sync(self, scope):
+        if scope not in ("project", "global"):
+            return HTTPStatus.UNPROCESSABLE_ENTITY, {"error": "Choose project or global synchronization."}
+        project = self._projects.get(self._active_project_id)
+        if scope == "project" and project is None:
+            return HTTPStatus.CONFLICT, {"error": "Select a project first."}
+        if self._scheduler is None:
+            return HTTPStatus.SERVICE_UNAVAILABLE, {"error": "Synchronization service is unavailable."}
+        self._scheduler.request(scope, project["path"] if project else None)
+        return HTTPStatus.ACCEPTED, {"message": f"{scope} synchronization requested."}
+
     def create_project(self, name: object) -> tuple[int, dict[str, Any]]:
         try:
             safe_name = self.validate_project_name(name)
@@ -164,12 +215,14 @@ class WorkspaceService:
                 if resolved.parent != self.projects_root:
                     resolved.rmdir()
                     return HTTPStatus.UNPROCESSABLE_ENTITY, {"error": "Project must be created directly under the trusted Projects directory."}
-                project_id = hashlib.sha256(safe_name.casefold().encode("utf-8")).hexdigest()[:16]
+                project_id = self._id_for_path(resolved)
                 project = {"id": project_id, "name": safe_name, "path": str(resolved)}
                 self._projects[project_id] = project
                 self._projects = dict(sorted(self._projects.items(), key=lambda item: item[1]["name"].casefold()))
                 self._active_project_id = project_id
                 self._reset_runtime()
+                if self._scheduler is not None:
+                    self._scheduler.request("project", project["path"])
                 return HTTPStatus.CREATED, {"project": project, "active_project": project_id}
             except FileExistsError:
                 return HTTPStatus.CONFLICT, {"error": "A folder with that name already exists."}
@@ -187,6 +240,8 @@ class WorkspaceService:
                 self._active_project_id = project_id
                 # A fresh Agent starts a new conversation so context cannot leak across projects.
                 self._reset_runtime()
+            if self._scheduler is not None:
+                self._scheduler.request("project", self._projects[project_id]["path"])
             return HTTPStatus.OK, {"project": self._projects[project_id], "active_project": project_id}
 
     @staticmethod
@@ -385,6 +440,8 @@ def make_handler(service: WorkspaceService):
             if parsed.path == "/api/status":
                 selection = parse_qs(parsed.query).get("provider", ["manifest"])[0]
                 self._json(HTTPStatus.OK, service.status(selection)); return
+            if parsed.path == "/api/rag":
+                self._json(HTTPStatus.OK, service.sync_status()); return
             requested = "index.html" if parsed.path in ("/", "/index.html") else parsed.path.lstrip("/")
             if requested not in {"index.html", "app.js", "app.css", "markdown.js", "stream.js"}:
                 self.send_error(HTTPStatus.NOT_FOUND); return
@@ -395,7 +452,7 @@ def make_handler(service: WorkspaceService):
 
         def do_POST(self) -> None:
             route = urlparse(self.path).path
-            if route not in {"/api/chat", "/api/project", "/api/projects"}:
+            if route not in {"/api/chat", "/api/project", "/api/projects", "/api/rag/sync"}:
                 self.send_error(HTTPStatus.NOT_FOUND); return
             origin = self.headers.get("Origin")
             host = self.headers.get("Host", "")
@@ -414,6 +471,9 @@ def make_handler(service: WorkspaceService):
                 self._json(status, response); return
             if route == "/api/project":
                 status, response = service.select_project(body.get("project_id"))
+                self._json(status, response); return
+            if route == "/api/rag/sync":
+                status, response = service.request_sync(body.get("scope"))
                 self._json(status, response); return
             self.send_response(HTTPStatus.OK)
             self.send_header("Content-Type", "application/x-ndjson; charset=utf-8")
@@ -463,9 +523,12 @@ def serve(
         manifest_path = application_root / manifest_path
     service = WorkspaceService(manifest_path.resolve(), project_root, catalog_root, root)
     server = ThreadingHTTPServer(("127.0.0.1", port), make_handler(service))
+    service.start_sync()
     url = f"http://127.0.0.1:{server.server_port}"
     print(f"LAEW UI listening on {url} (loopback only). Press Ctrl+C to stop.")
     if open_browser: webbrowser.open(url)
     try: server.serve_forever()
     except KeyboardInterrupt: pass
-    finally: server.server_close()
+    finally:
+        server.server_close()
+        service.close()

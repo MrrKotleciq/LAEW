@@ -398,6 +398,7 @@ def build_rag_tool(
         max_context_tokens=int(pipeline_config.get("max_context_tokens", 8000)),
         similarity_threshold=float(pipeline_config.get("similarity_threshold", 0.3)),
     )
+    pipeline.require_freshness = True
     return RagTool(
         pipeline=pipeline,
         context_budget=context_budget_from_manifest(manifest) or ContextBudget(),

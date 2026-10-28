@@ -77,6 +77,7 @@ def _build_pipeline(state: SessionState) -> RAGPipeline:
         top_k=cfg["top_k"],
         max_context_tokens=cfg["max_context_tokens"],
     )
+    pipeline.require_freshness = True
     return pipeline
 
 
@@ -125,18 +126,30 @@ def cmd_rag_query(args: list, state: SessionState) -> int:
 
 def cmd_rag_embed(args: list, state: SessionState) -> int:
     """rag embed [force] — synchronize project and global knowledge."""
-    force = bool(args) and args[0] == "force"
+    force = "force" in args
+    if any(arg not in ("force", "project", "global") for arg in args):
+        return _err("usage: rag embed [project|global] [force]")
+    scopes = [arg for arg in args if arg in ("project", "global")] or ["project", "global"]
     try:
         pipeline = _build_pipeline(state)
-        changes = pipeline.knowledge_base.synchronize(force=force)
+        from laew.rag.sync import synchronize_scope
+        changes = {}
+        failed = False
+        for scope in scopes:
+            try:
+                changes.update(synchronize_scope(pipeline.knowledge_base, scope, force=force))
+            except Exception:
+                from laew.rag.sync import sync_status
+                print(f"[FAIL] {sync_status(pipeline.knowledge_base, scope)['error'] or 'Synchronization is already in progress.'}")
+                failed = True
     except Exception as e:
         return _err(f"embedding/load failed: {e}")
     stats = pipeline.knowledge_base.count_chunks()
     for scope, categories in changes.items():
         for category, counts in categories.items():
             print(f"{scope} {category}: {counts['documents']} document(s), {counts['chunks']} chunk(s)")
-    print(f"[OK] knowledge loaded (project+global: {stats} chunks)")
-    return 0
+    print(f"[{'FAIL' if failed else 'OK'}] synchronization finished (project+global: {stats} chunks)")
+    return 1 if failed else 0
 
 
 def cmd_rag_stats(args: list, state: SessionState) -> int:
@@ -147,6 +160,13 @@ def cmd_rag_stats(args: list, state: SessionState) -> int:
         return _err(f"could not build pipeline: {e}")
     stats = pipeline.get_stats()
     kb = pipeline.knowledge_base
+    from laew.rag.sync import sync_status
+    for scope in ("project", "global"):
+        status = sync_status(kb, scope)
+        print(f"{scope} sync: {status['state']} | last success: {status['last_success'] or 'never'} | "
+              f"last failure: {status['last_failure'] or 'never'}")
+        if status['error']:
+            print(f"[!] {status['error']}")
     print(f"pipeline top_k: {stats['top_k']}")
     print(f"max_context_tokens: {stats['max_context_tokens']}")
     print(f"similarity_threshold: {stats['similarity_threshold']}")
@@ -188,7 +208,19 @@ def _dispatch(args: list, state: SessionState) -> int:
         return cmd_rag_embed(args[1:], state)
     if sub == "stats":
         return cmd_rag_stats(args[1:], state)
-    return _err(f"unknown rag subcommand: {sub} (query|embed|stats)")
+    if sub == "migrate":
+        if len(args) != 3:
+            return _err('usage: rag migrate "PROJECT_PATH" "CONFIRMED_OWNER_PATH"; both paths must identify the legacy owner')
+        try:
+            from laew.rag.migration import migrate_legacy_project
+            config = state.load_manifest().get("rag", {}).get("vector_store", {})
+            result = migrate_legacy_project(config, args[1], confirmed_owner=args[2])
+            print(f"[OK] {result['records']} records verified in {result['destination']}; "
+                  f"{result['copied']} copied; legacy {result['source']} preserved")
+            return 0
+        except Exception as exc:
+            return _err(f"migration failed; legacy collection was not changed: {exc}")
+    return _err(f"unknown rag subcommand: {sub} (query|embed|stats|migrate)")
 
 
 # --------------------------------------------------------------------------- #

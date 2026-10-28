@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 from laew.config.constants import RAG_CHUNK_SIZE, RAG_CHUNK_OVERLAP
 from laew.rag.embedding import EmbeddingService, embedding_model_identity
+from laew.rag.identity import project_collection_name
 from laew.rag.obsidian import FRONTMATTER_RE, parse_note
 from laew.rag.vector_store import ChromaVectorStore, DocumentChunk, VectorStore
 
@@ -81,6 +82,10 @@ class KnowledgeBase:
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
         self._vector_store_config = vector_store_config
+        if ((vector_store_config or {}).get("enabled") and
+                project_collection_name(self.project_root) ==
+                (vector_store_config or {}).get("global_collection", "laew_global")):
+            raise ValueError("Project and global collection names must be distinct.")
         self.project_source_allowlist = (
             tuple(project_source_allowlist)
             if project_source_allowlist is not None
@@ -111,16 +116,18 @@ class KnowledgeBase:
                 return ChromaVectorStore(
                     host=config.get("host", "localhost"),
                     port=int(config.get("port", 8000)),
-                    collection_name=config.get(
-                        f"{scope}_collection", f"laew_{scope}"
-                    ),
+                    collection_name=(project_collection_name(self.project_root)
+                                     if scope == "project" else
+                                     config.get("global_collection", "laew_global")),
                     source=scope,
                     timeout=int(config.get("timeout", 30)),
                     embedding_model_id=self.embedding_model_id,
                 )
             except (ConnectionError, ConnectionRefusedError, TimeoutError, ValueError) as e:
+                collection = (project_collection_name(self.project_root) if scope == "project"
+                              else config.get("global_collection", "laew_global"))
                 message = (
-                    f"Persistent ChromaDB store '{config.get(f'{scope}_collection', f'laew_{scope}')}' "
+                    f"Persistent ChromaDB store '{collection}' "
                     f"for {scope} scope could not initialize at "
                     f"{config.get('host', 'localhost')}:{config.get('port', 8000)}: {e}. "
                     "Using in-memory storage for this run; check ChromaDB availability "
@@ -131,6 +138,17 @@ class KnowledgeBase:
                 return VectorStore()
 
         return VectorStore()
+
+    def ensure_store(self, scope: str) -> None:
+        """Reconnect a persistent scope after a temporary Chroma outage."""
+        if not (self._vector_store_config or {}).get("enabled"):
+            return
+        attribute = "_project_store" if scope == "project" else "_global_store"
+        if not isinstance(getattr(self, attribute), ChromaVectorStore):
+            store = self._create_store(scope)
+            if not isinstance(store, ChromaVectorStore):
+                raise RuntimeError(f"{scope} persistent index unavailable; check ChromaDB and retry synchronization.")
+            setattr(self, attribute, store)
 
     @staticmethod
     def _roots_overlap(a: Path, b: Path) -> bool:
@@ -264,7 +282,7 @@ class KnowledgeBase:
 
         return counts
 
-    def synchronize(self, force: bool = False) -> dict:
+    def synchronize(self, force: bool = False, scope: Optional[str] = None) -> dict:
         """Synchronize both scopes after scanning and embedding successfully.
 
         A failed or unavailable scan leaves both stores untouched. Existing
@@ -272,13 +290,17 @@ class KnowledgeBase:
         """
         if self._roots_overlap(self.project_root, self.knowledge_root):
             raise ValueError("Project and knowledge roots overlap.")
+        if scope not in (None, "project", "global"):
+            raise ValueError("Scope must be project or global.")
+        sources = ((self.project_root, "project", self._project_store),
+                   (self.knowledge_root, "global", self._global_store))
+        sources = tuple(item for item in sources if scope is None or item[1] == scope)
         if (self._vector_store_config or {}).get("enabled") and not all(
-            isinstance(store, ChromaVectorStore) for store in (self._project_store, self._global_store)
+            isinstance(store, ChromaVectorStore) for _, _, store in sources
         ):
             raise RuntimeError("Persistent vector store is unavailable; synchronization was not started.")
         plans = []
-        for root, source, store in ((self.project_root, "project", self._project_store),
-                                    (self.knowledge_root, "global", self._global_store)):
+        for root, source, store in sources:
             if not root.is_dir():
                 raise FileNotFoundError(f"{source} knowledge root is unavailable: {root}")
             records = [r for r in store.sync_records(source)
@@ -361,7 +383,11 @@ class KnowledgeBase:
             store.add_chunks(pending)
             store.delete_ids(obsolete)
             results[source] = counts
-        self._project_loaded = self._vault_loaded = self._loaded = True
+        if scope in (None, "project"):
+            self._project_loaded = True
+        if scope in (None, "global"):
+            self._vault_loaded = True
+        self._loaded = self._project_loaded and self._vault_loaded
         return results
 
     def _load_directory(
