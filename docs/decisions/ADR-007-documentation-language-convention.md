@@ -2,6 +2,12 @@
 type: adr
 id: ADR-007
 title: English Language for Repository Artifacts
+name: English Language for Repository Artifacts
+description: Uses English for repository documentation and artifacts to maximize accessibility and tooling support.
+tags:
+  - documentation
+  - language
+  - convention
 status: Accepted
 date: 2026-08-25
 purpose: Require in-repository documentation, manifests, tool contracts, test specifications, and prompt templates to be written in English for tokenization efficiency and parsing consistency.

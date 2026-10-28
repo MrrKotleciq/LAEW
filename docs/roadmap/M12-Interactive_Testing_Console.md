@@ -2,6 +2,13 @@
 type: roadmap
 id: M12
 title: Interactive Testing Console
+name: Interactive Testing Console
+description: Provide an interactive stdlib-only REPL (laew console) that drives every implemented surface in one persistent session with approval gates and history replay.
+scope: project
+tags:
+  - console
+  - testing
+  - repl
 status: completed
 purpose: Provide an interactive stdlib-only REPL (`laew console`) that drives every implemented surface in one persistent session with approval gates and history replay.
 read_when:

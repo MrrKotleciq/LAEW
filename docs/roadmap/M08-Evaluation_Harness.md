@@ -2,6 +2,13 @@
 type: roadmap
 id: M08
 title: Evaluation Harness
+name: Evaluation Harness
+description: Establish systematic, quantitative evaluation of agent and RAG quality to enable regression detection ahead of workflow automation work.
+scope: project
+tags:
+  - evaluation
+  - testing
+  - quality
 status: completed
 purpose: Establish systematic, quantitative evaluation of agent and RAG quality to enable regression detection ahead of workflow automation work.
 read_when:

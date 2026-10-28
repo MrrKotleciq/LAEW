@@ -19,9 +19,20 @@ class RagTool(Tool):
 
     description = (
         "Query the knowledge base using semantic search. "
-        "Supports project-scoped, global-scoped, and hybrid-scoped retrieval. "
-        "Returns relevant context with source attribution."
+        "Use scope=project for @project, scope=global for the shared @knowledge vault, "
+        "or scope=hybrid when both sources are needed. Returns only relevant context "
+        "with source type and note path; preserve that attribution when using retrieved facts. "
+        "An empty result means no relevant note was found, while an error means retrieval failed."
     )
+    # AgentExecutor discovers callable operations from explicit metadata or
+    # underscored wrapper methods. RagTool dispatches through execute(), so
+    # declare its public operation and parameters for the model prompt.
+    operations = {
+        "query": {
+            "description": "Search project or global Markdown knowledge.",
+            "params": ["query", "scope", "max_results"],
+        }
+    }
 
     def __init__(
         self,

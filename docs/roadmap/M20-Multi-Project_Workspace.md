@@ -2,7 +2,14 @@
 type: roadmap
 id: M20
 title: Multi-Project Workspace
-status: completed
+name: Multi-Project Workspace
+description: Scales LAEW to multiple projects from a single install with per-project RAG scope, shared global vault, and workspace switching.
+scope: project
+tags:
+  - workspace
+  - multi-project
+  - scaling
+status: in-progress
 purpose: Scale LAEW to multiple projects from a single install with per-project RAG scope, shared global vault, and workspace switching.
 read_when:
   - implementing multi-project workspace support

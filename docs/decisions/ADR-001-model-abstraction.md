@@ -2,6 +2,12 @@
 type: adr
 id: ADR-001
 title: Model Abstraction and Roles
+name: Model Abstraction and Roles
+description: Defines LAEW's abstract model roles (primary, embedding, reviewer) so the environment never depends on one specific LLM or provider.
+tags:
+  - model
+  - abstraction
+  - roles
 status: Accepted
 date: 2026-08-25
 purpose: Define LAEW's abstract model roles (primary, embedding, reviewer) so the environment never depends on one specific LLM or provider.

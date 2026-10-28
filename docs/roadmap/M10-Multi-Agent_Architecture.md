@@ -2,12 +2,21 @@
 type: roadmap
 id: M10
 title: Multi-Agent Architecture
+name: Multi-Agent Architecture
+description: Enable specialized agents (researcher, architect, reviewer, debugger, documenter, coder) to collaborate under chief-agent coordination with failure isolation and conflict detection.
+scope: project
+tags:
+  - agent
+  - multi-agent
+  - architecture
 status: completed
 purpose: Enable specialized agents (researcher, architect, reviewer, debugger, documenter, coder) to collaborate under chief-agent coordination with failure isolation and conflict detection.
 read_when:
   - implementing or changing multi-agent coordination
   - Milestone 10 (Multi-Agent Architecture)
   - Milestone 16 (parallel execution)
+implements:
+  - ADR-018
 ---
 
 ## [2026-09-14] Milestone 10: Multi-Agent Architecture Completed

@@ -6,6 +6,7 @@ import logging
 import re
 import time
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from laew.agent.base import Agent, AgentError
@@ -221,6 +222,7 @@ class AgentExecutor:
             return "No tools available."
 
         lines = ["Available tools:"]
+        filesystem_available = "FilesystemTool" in self.agent.tools
         for name, tool in self.agent.tools.items():
             # Use class-level description if set, otherwise use instance description
             # Class-level descriptions (like MockTool.description = "A mock tool for testing")
@@ -231,7 +233,42 @@ class AgentExecutor:
                 desc = ""
             lines.append(f"- {name}: {desc}")
             lines.append(f"  Operations: {self._operation_hints(tool)}")
+            contract_path = getattr(tool, "system_contract_path", None)
+            if contract_path:
+                if filesystem_available:
+                    lines.append(
+                        f"  Contract: {contract_path} (read with FilesystemTool.view_file when needed)"
+                    )
+                else:
+                    contract_text = self._read_tool_contract(contract_path)
+                    if contract_text:
+                        lines.append("  Contract instructions:\n" + contract_text)
+                    else:
+                        lines.append(f"  Contract: {contract_path}")
         return "\n".join(lines)
+
+    def _read_tool_contract(self, alias_path: str) -> str:
+        """Load only an active tool's contract when no filesystem tool can read it."""
+        relative = alias_path.removeprefix("@project/").replace("\\", "/")
+        if relative == alias_path or relative.startswith("../"):
+            return ""
+        project_root = None
+        for tool in self.agent.tools.values():
+            resolver = getattr(tool, "resolver", None)
+            project_root = getattr(resolver, "project_root", None)
+            if project_root is None:
+                project_root = getattr(tool, "repo_root", None) or getattr(
+                    tool, "workspace_root", None
+                )
+            if project_root is not None:
+                break
+        root = Path(project_root or Path.cwd()).resolve()
+        contract = (root / relative).resolve()
+        try:
+            contract.relative_to(root)
+            return contract.read_text(encoding="utf-8")
+        except (OSError, ValueError):
+            return ""
 
     def _build_system_prompt(self) -> str:
         """

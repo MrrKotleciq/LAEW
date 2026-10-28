@@ -6,6 +6,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
 from laew.config.constants import CHARS_PER_TOKEN_DEFAULT, RAG_MAX_CONTEXT_TOKENS
+from laew.rag.embedding import EmbeddingService, embedding_model_identity
 from laew.rag.knowledge_base import KnowledgeBase, KnowledgeScope
 from laew.rag.vector_store import DocumentChunk, VectorStore
 
@@ -103,8 +104,39 @@ class RAGPipeline:
         Returns:
             RAGResult with retrieved chunks and assembled context
         """
-        # Load knowledge if not already loaded
-        self.knowledge_base.load()
+        # Load only the requested source where possible. Global retrieval must
+        # never depend on (or index) project memory, and vice versa.
+        current_model_id = embedding_model_identity(self.embedding_service)
+        if current_model_id != self.knowledge_base.embedding_model_id:
+            return RAGResult(
+                context="",
+                total_tokens=0,
+                sources=[],
+                scope=scope,
+                query=query,
+                error=(
+                    "Embedding model configuration changed after indexing; "
+                    "rebuild the knowledge index before retrieval."
+                ),
+            )
+        try:
+            if scope == KnowledgeScope.PROJECT:
+                self.knowledge_base.load_project()
+            elif scope == KnowledgeScope.GLOBAL:
+                self.knowledge_base.load_vault()
+            else:
+                self.knowledge_base.load_project()
+                self.knowledge_base.load_vault()
+        except Exception as e:
+            logger.error("Knowledge source loading failed: %s", e, exc_info=True)
+            return RAGResult(
+                context="",
+                total_tokens=0,
+                sources=[],
+                scope=scope,
+                query=query,
+                error=f"Knowledge source unavailable: {e}",
+            )
 
         # Generate query embedding
         try:
@@ -132,8 +164,15 @@ class RAGPipeline:
         # Build context within token budget
         context, used_chunks, total_tokens = self._build_context(reranked)
 
-        # Collect unique sources
-        sources = list(set(chunk.file_path for chunk, _ in used_chunks))
+        # Return stable, logical-root paths so provenance remains meaningful
+        # when the runtime serves more than one project.
+        sources = []
+        for chunk, _ in used_chunks:
+            alias = "@knowledge" if chunk.source == "global" else "@project"
+            relative_path = chunk.file_path.replace("\\", "/")
+            source = f"{alias}/{relative_path}" if relative_path else alias
+            if source not in sources:
+                sources.append(source)
 
         return RAGResult(
             chunks=used_chunks,
@@ -229,6 +268,24 @@ class RAGPipeline:
         CHARS_PER_TOKEN: float = CHARS_PER_TOKEN_DEFAULT
 
         for chunk, score in chunks:
+            header = chunk.metadata.get("section_header", "")
+            header_str = f" > {header}" if header else ""
+            tags = chunk.metadata.get("tags") or []
+            backlinks = chunk.metadata.get("backlinks") or []
+            tags_str = f" > {', '.join(tags)}" if tags else ""
+            backlinks_str = (
+                f" | backlinks: {', '.join(backlinks)}" if backlinks else ""
+            )
+            source_label = (
+                "GLOBAL KNOWLEDGE @knowledge"
+                if chunk.source == "global"
+                else "PROJECT MEMORY @project"
+            )
+            attribution = (
+                f"[{source_label}: {chunk.file_path}"
+                f"{header_str}{tags_str}{backlinks_str}]"
+            )
+
             # Estimate tokens for this chunk
             chunk_tokens = len(chunk.text) // CHARS_PER_TOKEN + 1
 
@@ -240,18 +297,13 @@ class RAGPipeline:
                     remaining_chars = (self.max_context_tokens - total_tokens) * CHARS_PER_TOKEN
                     if remaining_chars > 100:
                         partial_text = chunk.text[:remaining_chars]
-                        context_parts.append(
-                            f"[{chunk.source.upper()}: {chunk.file_path}]\n{partial_text}..."
-                        )
+                        context_parts.append(f"{attribution}\n{partial_text}...")
                         used_chunks.append((chunk, score))
                         total_tokens += remaining_chars // CHARS_PER_TOKEN
                 break
 
-            # Add chunk with source attribution
-            header = chunk.metadata.get("section_header", "")
-            header_str = f" > {header}" if header else ""
-            attribution = f"[{chunk.source.upper()}: {chunk.file_path}{header_str}]"
-
+            # Obsidian note metadata (section, tags, backlinks) remains
+            # visible with the precise project/global logical-root provenance.
             context_parts.append(f"{attribution}\n{chunk.text}")
             used_chunks.append((chunk, score))
             total_tokens += chunk_tokens

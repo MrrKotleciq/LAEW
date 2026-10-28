@@ -10,13 +10,17 @@ from unittest.mock import patch, MagicMock
 import pytest
 
 from laew.runtime import (
+    build_explicit_provider,
     provider_cfg_from_manifest,
     terminal_allowlist_from_manifest,
     build_shared_tools,
     build_provider,
+    build_embedding_service,
     context_budget_from_manifest,
     resolve_model_name,
+    resolve_llamacpp_model,
 )
+from laew.llm.base import LLMError
 
 
 MANIFEST_WITH_PROVIDERS = {
@@ -75,6 +79,96 @@ def test_build_shared_tools_contains_four_registry_tools():
     assert names == {"FilesystemTool", "GitTool", "TerminalTool", "WebTool"}
 
 
+def test_build_shared_tools_adds_project_scoped_rag_tool_when_manifest_supplied(tmp_path):
+    project = tmp_path / "Projects" / "LAEW"
+    project.mkdir(parents=True)
+    vault = tmp_path / "Knowledge"
+    vault.mkdir()
+    embedding = MagicMock()
+    manifest = {
+        "memory": {"second_brain": {"path": "@knowledge"}},
+        "rag": {"pipeline": {"top_k": 3, "max_context_tokens": 400},
+                "vector_store": {"enabled": False},
+                "project_sources": {"allowlist": ["README.md", "knowledge/**/*.md"]}},
+    }
+
+    tools = build_shared_tools(
+        ["python"],
+        project_root=project,
+        projects_root=project.parent,
+        knowledge_root=vault,
+        manifest=manifest,
+        rag_embedding_service=embedding,
+    )
+
+    names = {tool.name for tool in tools}
+    assert names == {"FilesystemTool", "GitTool", "TerminalTool", "WebTool", "RagTool"}
+    rag = next(tool for tool in tools if tool.name == "RagTool")
+    assert rag._pipeline.knowledge_base.project_root == project.resolve()
+    assert rag._pipeline.knowledge_base.knowledge_root == vault.resolve()
+    assert rag._pipeline.knowledge_base.project_source_allowlist == (
+        "README.md", "knowledge/**/*.md"
+    )
+    assert rag._pipeline.top_k == 3
+    assert rag._pipeline.max_context_tokens == 400
+    assert rag._context_budget is not None
+
+
+def test_build_embedding_service_requires_explicit_llamacpp_configuration():
+    with pytest.raises(ValueError, match="type='llamacpp'"):
+        build_embedding_service({})
+
+    manifest = {"models": {"roles": {"embedding": {
+        "type": "llamacpp", "base_url": "http://127.0.0.1:8081",
+        "model_name": "embed-model", "target_dimensions": 1024, "timeout": 19,
+    }}}}
+    service = build_embedding_service(manifest)
+    assert service.model == "embed-model"
+    assert service.base_url == "http://127.0.0.1:8081/v1"
+    assert service.dimensions == 1024
+    assert service.timeout == 19
+
+
+def test_build_embedding_service_does_not_infer_chat_endpoint_or_model():
+    manifest = {"models": {"roles": {"embedding": {
+        "type": "llamacpp",
+    }}}}
+    with pytest.raises(ValueError, match="model_name"):
+        build_embedding_service(manifest)
+
+    manifest["models"]["roles"]["embedding"]["model_name"] = "dedicated-model"
+    manifest["models"]["roles"]["embedding"]["base_url"] = "http://127.0.0.1:8081"
+    with pytest.raises(LLMError, match="target_dimensions"):
+        build_embedding_service(manifest)
+
+
+def test_missing_embedding_model_does_not_block_chat_tool_construction(tmp_path):
+    project = tmp_path / "project"
+    vault = tmp_path / "global"
+    project.mkdir()
+    vault.mkdir()
+    manifest = {
+        "memory": {"second_brain": {"path": "@knowledge"}},
+        "models": {"roles": {"embedding": {
+            "type": "llamacpp", "base_url": "http://127.0.0.1:8081",
+            "target_dimensions": 1024,
+        }}},
+    }
+    tools = build_shared_tools(
+        project_root=project,
+        projects_root=tmp_path,
+        knowledge_root=vault,
+        manifest=manifest,
+    )
+    rag = next(tool for tool in tools if tool.name == "RagTool")
+
+    result = rag.execute("query", query="hello", scope="project")
+
+    assert result.success is False
+    assert result.error_code == "ERR_RAG_FAILURE"
+    assert "model_name" in result.error_message
+
+
 def test_build_provider_uses_registry():
     """build_provider delegates to the provider registry with overrides."""
     fake = MagicMock()
@@ -89,6 +183,52 @@ def test_build_provider_uses_registry():
         timeout=42,
     )
     assert provider is fake
+
+
+def test_build_explicit_provider_does_not_require_manifest_entry():
+    """An explicit provider type is sent directly to the registry."""
+    fake = MagicMock()
+    with patch("laew.runtime.create_provider", return_value=fake) as factory:
+        assert build_explicit_provider(
+            "llama.cpp", model="server-model", base_url="http://127.0.0.1:8080", timeout=42
+        ) is fake
+    factory.assert_called_once_with(
+        {"type": "llama.cpp", "model": "server-model"},
+        base_url="http://127.0.0.1:8080",
+        timeout=42,
+    )
+
+
+def test_resolve_llamacpp_model_discovers_first_server_id():
+    provider = MagicMock(base_url="http://127.0.0.1:8080/v1")
+    provider.list_models.return_value = ["C:/models/local.gguf"]
+
+    assert resolve_llamacpp_model(None, provider) == "C:/models/local.gguf"
+    assert provider.model == "C:/models/local.gguf"
+
+
+def test_resolve_llamacpp_model_explicit_value_skips_discovery():
+    provider = MagicMock()
+    assert resolve_llamacpp_model("selected", provider) == "selected"
+    provider.list_models.assert_not_called()
+
+
+def test_resolve_llamacpp_model_reports_unavailable_models_endpoint():
+    provider = MagicMock(base_url="http://127.0.0.1:8080/v1")
+    provider.list_models.side_effect = LLMError("connection refused", code="CONNECTION_ERROR")
+
+    with pytest.raises(LLMError, match=r"GET /v1/models") as exc_info:
+        resolve_llamacpp_model(None, provider)
+    assert exc_info.value.code == "CONNECTION_ERROR"
+
+
+def test_resolve_llamacpp_model_rejects_empty_models_response():
+    provider = MagicMock(base_url="http://127.0.0.1:8080/v1")
+    provider.list_models.return_value = []
+
+    with pytest.raises(LLMError, match="no usable model IDs") as exc_info:
+        resolve_llamacpp_model(None, provider)
+    assert exc_info.value.code == "MODEL_DISCOVERY_FAILED"
 
 
 def test_resolve_model_name_explicit_cli_wins():

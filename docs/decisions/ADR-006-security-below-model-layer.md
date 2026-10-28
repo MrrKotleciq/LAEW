@@ -2,6 +2,12 @@
 type: adr
 id: ADR-006
 title: Programmatic Security Below Model Layer
+name: Programmatic Security Below Model Layer
+description: Enforces security restrictions programmatically below the model layer rather than relying solely on model behavior.
+tags:
+  - security
+  - model
+  - boundaries
 status: Accepted
 date: 2026-08-25
 purpose: Enforce security (allowlists, approval gates, path boundaries, blocked operations) in code below the model layer, never by relying on model behavior.

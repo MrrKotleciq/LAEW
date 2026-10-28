@@ -7,7 +7,10 @@ You are an external development agent helping the user build LAEW
 
 You are NOT part of LAEW's runtime architecture.
 
-Do not design LAEW around Claude Code, Claude, Omniroute, or any
+LAEW's own prompt templates in `prompts/` are application/runtime
+assets, not Claude Code instructions.
+
+Do not design LAEW around Claude Code, Claude, or any
 specific model/provider unless explicitly decided.
 
 ## Project
@@ -15,6 +18,20 @@ specific model/provider unless explicitly decided.
 LAEW is a local-first AI Engineering Workspace for project-aware
 AI assistance, persistent engineering knowledge, controlled tools,
 RAG, modular model integration, and engineering workflows.
+
+## Guidance
+
+The project's constraints and tooling live in layered reference files;
+load only the layer relevant to the current task.
+
+- `.claude/rules/core/` — development constraints that apply across the
+  project.
+- `.claude/rules/python/` — Python-specific rules, applied per each rule's
+  `paths` configuration rather than universally.
+- `.claude/skills/` — task-specific workflows and progressive-disclosure
+  references.
+- `manifests/SYSTEM_MANIFEST.yaml` — system-level workspace boundaries,
+  model roles, tool security policies, and memory/RAG configuration.
 
 ## Source of Truth
 

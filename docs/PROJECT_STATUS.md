@@ -1,7 +1,9 @@
 ---
+name: Current Project Status
+description: Summary of LAEW's current implementation state, milestones, and progress.
 type: status
-title: Current Project Status
-scope: implementation state summary
+scope: project
+status: active
 read_when:
   - understanding what is currently implemented
   - verifying repository state matches documentation
@@ -17,7 +19,7 @@ Implementation: Milestone 16 (Parallel Multi-Agent Execution & Semantic Conflict
 
 ## Current Focus
 
-Milestones 1–16 are complete through Parallel Multi-Agent Execution & Semantic Conflict Detection. Milestones 17–21 are in progress. The current work focus is **Milestone 17** (Second Brain & Global Knowledge Integration): realizing the `@knowledge` scope with Obsidian vault integration, building on the durable knowledge system established in Milestone 4.
+Milestones 1–16 are complete through Parallel Multi-Agent Execution & Semantic Conflict Detection. Milestones 17–21 are in progress. The current work includes the first local web-workbench vertical slice: a loopback-only browser UI that reuses the Chief Agent runtime. Knowledge/RAG provenance, project switching, activity, and service management are not yet implemented in that UI.
 
 ## Milestone Summary
 
@@ -51,7 +53,7 @@ Milestones 1–16 are complete through Parallel Multi-Agent Execution & Semantic
 - **manifests/SYSTEM_MANIFEST.yaml** — System manifest v1.0 (workspace boundaries, model roles, tool policies, memory layers, RAG configuration)
 - **tools/** — Tool contracts for filesystem, git, terminal, web (each with CONTRACT.md and Python implementation)
 - **prompts/** — Layered prompt templates (core.md, chief-agent.md, architecture.md, research.md, code-review.md, debugging.md, documentation.md, rag.md)
-- **tests/** — Test specifications for security, agent, rag, workflow, multi-agent, console, CLI, benchmarking, and documentation validation (609 unit tests across 30 suites)
+- **tests/** — Test specifications for security, agent, rag, workflow, multi-agent, console, CLI, web, benchmarking, and documentation validation (750 unit tests across 37 suites)
 - **docs/** — Architecture, principles, decisions, context, status, history, roadmap, performance, security, and source reference material
 - **.claude/** — Agent SDK configuration, settings, prompts, and skills (project-sync, research, architecture-review)
 - **laew/** — Python package (tool runtime wrappers, CLI, LLM provider, prompt management, agent loop, multi-agent coordination, RAG, workflow, evaluation)
@@ -60,11 +62,13 @@ Milestones 1–16 are complete through Parallel Multi-Agent Execution & Semantic
 
 ## Test Suite Summary
 
-- **609 unit tests** collected across **30 test suites** (in `tests/unit`)
-- Full test suite: 701 passed, 2 skipped, 0 failed (the previously environmental failures — Ollama and ChromaDB unreachable — are now passing; see Test Suite Summary)
+- **750 unit tests** collected across **37 test suites** (in `tests/unit`)
+- Latest unit suite: 748 passed, 2 skipped. Full suite: 873 passed, 3 skipped; the 38 warnings are ChromaDB telemetry deprecations for `asyncio.iscoroutinefunction`.
 - Bandit SAST: 0 High, 0 Medium findings over `laew/`
 
 ## What Is Implemented
+
+- **Local web workbench MVP**: `laew ui` serves a loopback-only browser workspace with real provider/model status, Chief Agent message submission, and executor step summaries. See [ADR-020](decisions/ADR-020-local-web-application.md), [ADR-021](decisions/ADR-021-project-centric-engineering-workbench.md), and [UI Architecture](architecture/UI_ARCHITECTURE.md).
 
 LAEW v1.0 implements:
 

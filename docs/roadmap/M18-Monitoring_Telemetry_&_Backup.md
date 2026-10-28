@@ -2,7 +2,14 @@
 type: roadmap
 id: M18
 title: Monitoring, Telemetry & Backup
-status: completed
+name: Monitoring, Telemetry & Backup
+description: "Surround the system with observability and backup layers: structured run telemetry, health/status summary, crash-safe session and vault backup/restore, and retention policy."
+scope: project
+tags:
+  - observability
+  - telemetry
+  - backup
+status: in-progress
 purpose: Surround the system with observability and backup layers: structured run telemetry, health/status summary, crash-safe session and vault backup/restore, and retention policy.
 read_when:
   - implementing monitoring or backup

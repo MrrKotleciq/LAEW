@@ -1,3 +1,18 @@
+---
+name: LAEW — Project Context
+description: Canonical project identity, goals, architectural philosophy, and knowledge/RAG principles for the LAEW workspace.
+type: docs
+scope: project
+status: active
+tags:
+  - context
+  - rag
+  - knowledge
+  - second-brain
+related:
+  - PROJECT_STATUS
+---
+
 # LAEW — Project Context
 
 ## 1. Project

@@ -2,6 +2,12 @@
 type: adr
 id: ADR-008
 title: Modular Tool Contracts Structure
+name: Modular Tool Contracts Structure
+description: Defines a modular, type-safe tool contract structure for controlled, replaceable tool implementations.
+tags:
+  - tools
+  - contracts
+  - architecture
 status: Accepted
 date: 2026-08-25
 purpose: Define each tool (filesystem, git, terminal, web) as an independent, modular contract with explicit operations, parameters, and a security policy.

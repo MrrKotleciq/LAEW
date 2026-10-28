@@ -1,7 +1,9 @@
 ---
+name: LAEW Installation Guide
+description: Installation and configuration instructions for the LAEW CLI across Windows, macOS, and Linux.
 type: docs
-title: Installation Guide
-scope: installation and configuration instructions
+scope: project
+status: active
 read_when:
   - setting up LAEW on a new system
 ---

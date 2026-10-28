@@ -2,11 +2,20 @@
 type: roadmap
 id: M15
 title: Multi-Model Routing & Provider Fallback
+name: Multi-Model Routing & Provider Fallback
+description: Route model roles across multiple providers with ordered fallback chains, manifest-driven dispatch, and typed error handling (ADR-019).
+scope: project
+tags:
+  - provider
+  - routing
+  - fallback
 status: completed
 purpose: Route model roles across multiple providers with ordered fallback chains, manifest-driven dispatch, and typed error handling (ADR-019).
 read_when:
   - implementing multi-model routing
   - Milestone 15 (Multi-Model Routing & Provider Fallback)
+implements:
+  - ADR-019
 ---
 
 ### Milestone 15: Multi-Model Routing & Provider Fallback — ✅ Completed

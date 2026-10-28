@@ -3,7 +3,9 @@
 import logging
 import os
 import re
-from dataclasses import dataclass
+import warnings
+from fnmatch import fnmatchcase
+from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 from typing import List, Optional
@@ -11,7 +13,8 @@ from typing import List, Optional
 logger = logging.getLogger(__name__)
 
 from laew.config.constants import RAG_CHUNK_SIZE, RAG_CHUNK_OVERLAP
-from laew.rag.embedding import EmbeddingService
+from laew.rag.embedding import EmbeddingService, embedding_model_identity
+from laew.rag.obsidian import FRONTMATTER_RE, parse_note
 from laew.rag.vector_store import ChromaVectorStore, DocumentChunk, VectorStore
 
 
@@ -32,6 +35,11 @@ class ChunkMetadata:
     section_header: str = ""
     chunk_index: int = 0
     total_chunks: int = 0
+    # Obsidian note metadata (Milestone 17). Preserved per chunk so that
+    # frontmatter tags and [[backlinks]] survive chunking and are surfaced
+    # in retrieved context. Empty when the source has no Obsidian metadata.
+    tags: List[str] = field(default_factory=list)
+    backlinks: List[str] = field(default_factory=list)
 
 
 class KnowledgeBase:
@@ -49,6 +57,7 @@ class KnowledgeBase:
         chunk_size: int = RAG_CHUNK_SIZE,
         chunk_overlap: int = RAG_CHUNK_OVERLAP,
         vector_store_config: Optional[dict] = None,
+        project_source_allowlist: Optional[List[str]] = None,
     ):
         """
         Initialize knowledge base.
@@ -66,13 +75,21 @@ class KnowledgeBase:
         self.project_root = Path(project_root)
         self.knowledge_root = Path(knowledge_root)
         self.embedding_service = embedding_service
+        self.embedding_model_id = embedding_model_identity(embedding_service)
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
         self._vector_store_config = vector_store_config
+        self.project_source_allowlist = (
+            tuple(project_source_allowlist)
+            if project_source_allowlist is not None
+            else None
+        )
 
         self._project_store = self._create_store("project")
         self._global_store = self._create_store("global")
         self._loaded = False
+        self._project_loaded = False
+        self._vault_loaded = False
 
     def _create_store(self, scope: str) -> VectorStore:
         """
@@ -97,14 +114,36 @@ class KnowledgeBase:
                     ),
                     source=scope,
                     timeout=int(config.get("timeout", 30)),
+                    embedding_model_id=self.embedding_model_id,
                 )
             except (ConnectionError, ConnectionRefusedError, TimeoutError, ValueError) as e:
-                # Graceful fallback to in-memory store when ChromaDB is unavailable
-                # (includes import errors, connection errors, version mismatches, etc.).
-                logger.debug("ChromaDB unavailable, falling back to in-memory store: %s", e)
+                message = (
+                    f"Persistent ChromaDB store '{config.get(f'{scope}_collection', f'laew_{scope}')}' "
+                    f"for {scope} scope could not initialize at "
+                    f"{config.get('host', 'localhost')}:{config.get('port', 8000)}: {e}. "
+                    "Using in-memory storage for this run; check ChromaDB availability "
+                    "and collection configuration before indexing."
+                )
+                logger.warning(message, exc_info=True)
+                warnings.warn(message, RuntimeWarning, stacklevel=2)
                 return VectorStore()
 
         return VectorStore()
+
+    @staticmethod
+    def _roots_overlap(a: Path, b: Path) -> bool:
+        """
+        Return True if two knowledge roots overlap.
+
+        Two roots overlap when they are equal or one is nested inside the
+        other. ``load``/``load_vault`` scan each root with ``rglob`` into its
+        own store, so an overlap would index the same ``.md`` into both stores
+        and duplicate it — exactly what ADR-011 forbids. Rejecting the overlap
+        keeps ``@project`` and ``@knowledge`` as disjoint sibling directories.
+        """
+        a = Path(a).resolve()
+        b = Path(b).resolve()
+        return a == b or a.is_relative_to(b) or b.is_relative_to(a)
 
     def load(self, force: bool = False) -> None:
         """
@@ -116,15 +155,112 @@ class KnowledgeBase:
         if self._loaded and not force:
             return
 
-        # Load project memory
-        if self.project_root.exists():
-            self._load_directory(self.project_root, "project", self._project_store)
+        # Project and global knowledge must be disjoint sibling roots; otherwise
+        # rglob over one root would reach the other and double-index the vault
+        # into both stores, breaking the @project/@knowledge separation.
+        if self._roots_overlap(self.project_root, self.knowledge_root):
+            raise ValueError(
+                "Project and knowledge roots overlap; configure them as "
+                "disjoint sibling directories so @project and @knowledge stay "
+                "separate."
+            )
 
-        # Load global knowledge
-        if self.knowledge_root.exists():
-            self._load_directory(self.knowledge_root, "global", self._global_store)
+        # The combined maintenance operation remains tolerant of absent roots
+        # for legacy callers; scoped retrieval uses the strict loaders below.
+        self.load_project(force=force, missing_ok=True)
+        self.load_vault(force=force, missing_ok=True)
 
-        self._loaded = True
+        self._loaded = self._project_loaded and self._vault_loaded
+
+    def load_project(self, force: bool = False, *, missing_ok: bool = True) -> None:
+        """Load only project memory, never the shared global vault."""
+        if not self.project_root.is_dir():
+            if missing_ok:
+                return
+            raise FileNotFoundError(f"Project memory root is unavailable: {self.project_root}")
+        if self._project_loaded and not force:
+            return
+        if self._roots_overlap(self.project_root, self.knowledge_root):
+            raise ValueError(
+                "Project and knowledge roots overlap; configure them as "
+                "disjoint roots so @project and @knowledge stay separate."
+            )
+        if (
+            not force
+            and isinstance(self._project_store, ChromaVectorStore)
+            and self._project_store.count()
+        ):
+            # Persistent vectors are already available to retrieval. Re-embedding
+            # every file for each newly constructed pipeline is wasteful; use
+            # ``rag embed force`` to refresh a populated persistent index.
+            self._project_loaded = True
+            return
+        self._load_directory(self.project_root, "project", self._project_store)
+        self._project_loaded = True
+
+    def load_vault(self, force: bool = False, *, missing_ok: bool = False) -> None:
+        """
+        (Re)load only the global-knowledge Obsidian vault into its store.
+
+        Unlike :meth:`load`, this does not touch project memory; it is used to
+        (re)index the Second Brain vault on its own.
+
+        Args:
+            force: Force reload even if already loaded
+        """
+        # The vault must not overlap the project root, or rglob over the vault
+        # root would reach project notes and double-index them into @knowledge.
+        if self._roots_overlap(self.project_root, self.knowledge_root):
+            raise ValueError(
+                "Project and knowledge roots overlap; configure them as "
+                "disjoint sibling directories so @project and @knowledge stay "
+                "separate."
+            )
+
+        if not self.knowledge_root.is_dir():
+            if missing_ok:
+                return
+            raise FileNotFoundError(f"Global knowledge vault is unavailable: {self.knowledge_root}")
+        if self._vault_loaded and not force:
+            return
+        if (
+            not force
+            and isinstance(self._global_store, ChromaVectorStore)
+            and self._global_store.count()
+        ):
+            self._vault_loaded = True
+            return
+        self._load_directory(self.knowledge_root, "global", self._global_store)
+
+        self._vault_loaded = True
+
+    def structure(self) -> Dict[str, int]:
+        """
+        Inspect the Obsidian vault directory tree.
+
+        Returns:
+            Ordered dict mapping each immediate subfolder name to the number
+            of ``.md`` notes it contains (0 for empty folders). Hidden folders
+            and non-note directories are excluded.
+        """
+        counts: Dict[str, int] = {}
+
+        if not self.knowledge_root.exists():
+            return counts
+
+        root = self.knowledge_root.resolve()
+        for folder in sorted(self.knowledge_root.iterdir()):
+            if not folder.is_dir():
+                continue
+            if any(part.startswith(".") for part in folder.name.split(os.sep)):
+                continue
+            try:
+                folder.resolve(strict=True).relative_to(root)
+            except (OSError, ValueError):
+                continue
+            counts[folder.name] = sum(1 for _ in folder.rglob("*.md"))
+
+        return counts
 
     def _load_directory(
         self,
@@ -141,13 +277,32 @@ class KnowledgeBase:
             store: Vector store to populate
         """
         chunks = []
+        root = directory.resolve()
 
         for md_file in directory.rglob("*.md"):
+            relative_path = md_file.relative_to(directory).as_posix()
+            if (
+                source == "project"
+                and self.project_source_allowlist is not None
+                and not any(
+                    fnmatchcase(relative_path, pattern)
+                    for pattern in self.project_source_allowlist
+                )
+            ):
+                continue
             # Skip hidden directories and common non-doc directories
             if any(
                 part.startswith(".") or part in ("node_modules", "__pycache__", "venv")
                 for part in md_file.relative_to(directory).parts
             ):
+                continue
+
+            # Do not let a symlinked note read content outside its selected
+            # project or global-knowledge root.
+            try:
+                md_file.resolve(strict=True).relative_to(root)
+            except (OSError, ValueError):
+                logger.warning("Skipping note outside or missing from %s: %s", source, md_file)
                 continue
 
             file_chunks = self._load_file(md_file, source, directory)
@@ -175,41 +330,84 @@ class KnowledgeBase:
         """
         try:
             content = file_path.read_text(encoding="utf-8")
-        except (UnicodeDecodeError, PermissionError):
+        except (OSError, UnicodeDecodeError):
             return []
 
-        # Extract sections based on headers
-        sections = self._extract_sections(content)
+        # Extract Obsidian note metadata (tags, backlinks) once per file so it
+        # is available for every chunk without re-parsing the frontmatter.
+        obsidian_metadata = self._obsidian_metadata(content)
 
-        chunks = []
-        for section_content, section_header in sections:
+        # Strip frontmatter before section extraction so chunk text stays clean
+        # of YAML and reflects only the note body.
+        body = self._strip_frontmatter(content)
+        sections = self._extract_sections(body)
+
+        chunk_specs = []
+        for section_index, (section_content, section_header) in enumerate(sections):
             # Chunk the section content
             section_chunks = self._chunk_text(section_content)
 
             for i, chunk_text in enumerate(section_chunks):
-                # Generate embedding
-                try:
-                    embedding = self.embedding_service.embed(chunk_text)
-                except (ValueError, RuntimeError) as e:
-                    # Skip chunks that fail to embed (e.g., embedding model error)
-                    logger.debug("Failed to embed chunk text: %s", e)
-                    continue
+                chunk_specs.append((chunk_text, section_header, section_index, i))
 
-                chunk_id = f"{source}:{file_path.relative_to(base_dir)}:{i}"
-                chunk = DocumentChunk(
-                    chunk_id=chunk_id,
-                    text=chunk_text,
-                    embedding=embedding,
-                    source=source,
-                    file_path=str(file_path.relative_to(base_dir)),
-                    metadata={
-                        "section_header": section_header,
-                        "chunk_index": i,
-                    },
-                )
-                chunks.append(chunk)
+        if not chunk_specs:
+            return []
+
+        try:
+            embeddings = self.embedding_service.embed_batch(
+                [text for text, _, _, _ in chunk_specs]
+            )
+        except (ValueError, RuntimeError) as e:
+            message = f"Failed to embed {source} knowledge chunks from {file_path}: {e}"
+            logger.error(message, exc_info=True)
+            raise RuntimeError(message) from e
+
+        if len(embeddings) != len(chunk_specs):
+            raise RuntimeError(
+                f"Embedding service returned {len(embeddings)} vector(s) for "
+                f"{len(chunk_specs)} chunks from {file_path}."
+            )
+
+        chunks = []
+        for (chunk_text, section_header, section_index, i), embedding in zip(chunk_specs, embeddings):
+            chunk_id = f"{source}:{file_path.relative_to(base_dir)}:{section_index}:{i}"
+            chunk = DocumentChunk(
+                chunk_id=chunk_id,
+                text=chunk_text,
+                embedding=embedding,
+                source=source,
+                file_path=str(file_path.relative_to(base_dir)),
+                metadata={
+                    "section_header": section_header,
+                    "section_index": section_index,
+                    "chunk_index": i,
+                    **obsidian_metadata,
+                },
+            )
+            chunks.append(chunk)
 
         return chunks
+
+    def _strip_frontmatter(self, content: str) -> str:
+        """Remove a leading YAML frontmatter block from an Obsidian note."""
+        match = FRONTMATTER_RE.search(content)
+        return content[match.end():] if match else content
+
+    def _obsidian_metadata(self, content: str) -> Dict[str, List[str]]:
+        """
+        Extract Obsidian note metadata for RAG indexing.
+
+        Args:
+            content: Note text (frontmatter + body).
+
+        Returns:
+            Dict with ``tags`` and ``backlinks`` lists (empty when absent).
+        """
+        note = parse_note(content)
+        return {
+            "tags": list(note["tags"]),
+            "backlinks": list(note["backlinks"]),
+        }
 
     def _extract_sections(self, content: str) -> List[tuple[str, str]]:
         """

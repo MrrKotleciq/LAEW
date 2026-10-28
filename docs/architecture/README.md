@@ -1,7 +1,10 @@
 ---
+name: Architecture
+description: Current architectural intent, principles, and design direction for LAEW.
 type: index
 title: Architecture
-scope: current architectural intent and principles
+scope: project
+status: active
 read_when:
   - understanding the current architectural direction
   - evaluating new architectural changes
@@ -35,6 +38,7 @@ This directory contains documents describing LAEW's current architectural intent
 | [Single-Agent First](ADR-017-single-agent-stability-before-multi-agent.md) | Single-agent stability before multi-agent |
 | [Multi-Agent Protocol](ADR-018-multi-agent-communication-protocol.md) | Multi-agent communication protocol |
 | [Provider Registry](ADR-019-provider-registry-and-factory.md) | Provider registry and factory |
+| [UI Architecture](UI_ARCHITECTURE.md) | Local browser workbench MVP specification |
 
 ## Principles
 

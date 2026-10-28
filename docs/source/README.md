@@ -1,7 +1,10 @@
 ---
+name: Source and Reference Material
+description: External reference material and source chapters used during LAEW development.
 type: index
 title: Source and Reference Material
-scope: external reference material and source chapters
+scope: project
+status: active
 read_when:
   - researching a topic outside LAEW
   - finding reference material

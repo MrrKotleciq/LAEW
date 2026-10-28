@@ -21,6 +21,7 @@ from laew.cli import (
 from laew.runtime import resolve_model_name
 from laew.tools import ToolResult, ErrorCode
 from laew.manifest import ManifestError
+from laew.llm.base import LLMError
 
 
 @pytest.fixture
@@ -497,6 +498,55 @@ class TestChatCommand:
         _, kwargs = mock_build.call_args
         assert kwargs.get("base_url") == "http://custom:11434"
 
+    def test_chat_explicit_llamacpp_bypasses_manifest_role_and_discovers_model(self, chat_manifest, capsys):
+        """--provider llama.cpp is usable without a llama.cpp manifest entry."""
+        args = chats_args(chat_manifest)
+        args.provider = "llama.cpp"
+        provider = MagicMock(base_url="http://127.0.0.1:8080/v1")
+        run_result = MagicMock(success=True, final_response="ok", error=None, total_tokens=None)
+
+        with (
+            patch("laew.cli.build_explicit_provider", return_value=provider) as explicit_build,
+            patch("laew.cli.resolve_llamacpp_model", return_value="server-model") as discover,
+            patch("laew.cli.build_provider_for_role") as role_build,
+            patch("laew.cli.Agent"),
+            patch("laew.cli.AgentConfig"),
+            patch("laew.cli.AgentExecutor") as mock_executor,
+            patch("builtins.input", side_effect=["hello", "exit"]),
+        ):
+            mock_executor.return_value.run.return_value = run_result
+            assert cmd_chat(args) == 0
+
+        explicit_build.assert_called_once_with(
+            "llama.cpp", model=None, base_url=None, timeout=None
+        )
+        discover.assert_called_once_with(None, provider)
+        role_build.assert_not_called()
+
+    def test_chat_unknown_explicit_provider_fails_without_manifest_fallback(self, chat_manifest, capsys):
+        args = chats_args(chat_manifest)
+        args.provider = "not-a-provider"
+        with (
+            patch("laew.cli.build_explicit_provider", side_effect=LLMError("unknown", code="UNSUPPORTED_PROVIDER")),
+            patch("laew.cli.build_provider_for_role") as role_build,
+        ):
+            assert cmd_chat(args) == 1
+        assert "UNSUPPORTED_PROVIDER" in capsys.readouterr().out
+        role_build.assert_not_called()
+
+    def test_chat_llamacpp_discovery_failure_is_nonzero_and_does_not_fallback(self, chat_manifest, capsys):
+        args = chats_args(chat_manifest)
+        args.provider = "llama.cpp"
+        provider = MagicMock(base_url="http://127.0.0.1:8080/v1")
+        with (
+            patch("laew.cli.build_explicit_provider", return_value=provider),
+            patch("laew.cli.resolve_llamacpp_model", side_effect=LLMError("GET /v1/models unavailable", code="CONNECTION_ERROR")),
+            patch("laew.cli.build_provider_for_role") as role_build,
+        ):
+            assert cmd_chat(args) == 1
+        assert "GET /v1/models unavailable" in capsys.readouterr().out
+        role_build.assert_not_called()
+
     def test_multiagent_run_builds_provider_via_registry(self, chat_manifest, tmp_path):
         """cmd_multiagent_run must use build_provider_for_role for the shared provider."""
         plan_path = tmp_path / "plan.yaml"
@@ -527,6 +577,32 @@ class TestChatCommand:
         mock_build.assert_called_once()
         args, _ = mock_build.call_args
         assert args[1] == "primary"
+
+    def test_multiagent_explicit_llamacpp_bypasses_manifest_role(self, chat_manifest, tmp_path):
+        plan_path = tmp_path / "plan.yaml"
+        plan_path.write_text(
+            "name: P\nobjective: O\nsynthesize: false\nsubtasks:\n"
+            "  - id: t1\n    role: RESEARCHER\n    prompt: T\n    deliverable: D\n",
+            encoding="utf-8",
+        )
+        args = multiagent_args(plan_path, chat_manifest)
+        args.provider = "llama.cpp"
+        provider = MagicMock(base_url="http://127.0.0.1:8080/v1")
+        result = MagicMock(success=True, delegations=[], conflicts=[], error=None, final_response=None)
+
+        with (
+            patch("laew.cli.build_explicit_provider", return_value=provider) as explicit_build,
+            patch("laew.cli.resolve_llamacpp_model", return_value="server-model"),
+            patch("laew.cli.build_provider_for_role") as role_build,
+            patch("laew.cli.MultiAgentCoordinator") as coordinator,
+            patch("laew.cli.Agent"),
+            patch("laew.cli.AgentConfig"),
+        ):
+            coordinator.return_value.run.return_value = result
+            assert cmd_multiagent_run(args) == 0
+
+        explicit_build.assert_called_once_with("llama.cpp", model=None, base_url=None, timeout=None)
+        role_build.assert_not_called()
 
     # -- Session persistence (Milestone 13) --------------------------------- #
 

@@ -2,8 +2,10 @@
 
 The registry is the provider-selection seam, shared by the CLI and the
 multi-agent coordinator.  Adding a future provider is additive: implement
-an ``LLMProvider`` subclass and register a builder.  Only ``"ollama"`` is
-registered now (YAGNI).
+an ``LLMProvider`` subclass and register a builder.  ``"ollama"`` (Ollama
+server) and ``"llama.cpp"`` (llama.cpp OpenAI-compatible server) are
+registered now; chat selection stays Ollama by default and opts into
+llama.cpp via ``agent.llm.providers[].type: "llama.cpp"``.
 """
 
 from __future__ import annotations
@@ -11,8 +13,9 @@ from __future__ import annotations
 import os
 from typing import Callable, Optional
 
-from laew.llm.base import LLMError, LLMProvider
+from laew.llm.base import LLMError, LLMProvider, normalize_llamacpp_base_url
 from laew.llm.ollama import OllamaProvider
+from laew.llm.llamacpp import LlamaCppProvider
 
 # --------------------------------------------------------------------------- #
 # Builder type: (cfg, *, base_url, timeout) → LLMProvider
@@ -40,6 +43,29 @@ def build_ollama(
     return OllamaProvider(
         base_url=base_url or "http://localhost:11434",
         timeout=timeout or 120,
+    )
+
+
+def build_llamacpp(
+    cfg: dict,
+    *,
+    base_url: Optional[str] = None,
+    timeout: Optional[int] = None,
+) -> LlamaCppProvider:
+    """Create a :class:`LlamaCppProvider` from *cfg* and resolved overrides.
+
+    The *type* string is ``"llama.cpp"`` — a distinct value from the embedding
+    role's ``"llamacpp"`` so chat and embedding selection stay independent.
+    ``base_url`` is normalized to end in ``/v1`` (llama.cpp's OpenAI-compatible
+    routes), unlike the Ollama convention.  ``model`` is the explicit llama.cpp
+    server model ID (a ``.gguf`` server model), never an Ollama tag.
+    """
+    raw_base_url = base_url or cfg.get("base_url") or "http://127.0.0.1:8080"
+    resolved_base_url = normalize_llamacpp_base_url(raw_base_url)
+    return LlamaCppProvider(
+        model=cfg.get("model", "default"),
+        base_url=resolved_base_url,
+        timeout=timeout or 30,
     )
 
 
@@ -193,6 +219,7 @@ class ProviderRegistry:
 
 DEFAULT_REGISTRY = ProviderRegistry()
 DEFAULT_REGISTRY.register("ollama", build_ollama)
+DEFAULT_REGISTRY.register("llama.cpp", build_llamacpp)
 
 
 # --------------------------------------------------------------------------- #

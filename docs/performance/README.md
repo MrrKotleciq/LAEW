@@ -1,7 +1,10 @@
 ---
+name: Performance Measurements and Baselines
+description: Performance measurements, benchmarks, and baselines for LAEW runtime.
 type: index
 title: Performance Measurements and Baselines
-scope: performance data, benchmarks, and measurements
+scope: project
+status: active
 read_when:
   - evaluating a performance change
   - comparing implementations

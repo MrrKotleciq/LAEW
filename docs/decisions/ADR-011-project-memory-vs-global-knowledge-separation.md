@@ -2,10 +2,16 @@
 type: adr
 id: ADR-011
 title: Separation of Project Memory and Global Knowledge
+name: Separation of Project Memory and Global Knowledge
+description: Keeps project-scoped memory inside the project repository and cross-project domain knowledge in the single global vault, with no duplication between them.
+tags:
+  - knowledge
+  - memory
+  - scope
 status: Accepted
 date: 2026-09-03
 purpose: Keep project-scoped memory inside the project repository and cross-project domain knowledge in the single global vault, with no duplication between them.
-scope: @project vs @knowledge, memory separation, scoping
+scope: "@project vs @knowledge, memory separation, scoping"
 read_when:
   - designing RAG scope separation
   - placing project vs. global knowledge
@@ -29,10 +35,10 @@ Conflating these memory tiers causes repository clutter, redundant duplication o
 Formally decouple project memory from global knowledge across storage, provenance, and retrieval scopes:
 
 1. **Project Memory (`@project`)**:
-   - Resides directly within the project Git repository (`docs/`, `manifests/`, `tools/`, `prompts/`, `tests/`).
+   - Resides directly within the project Git repository, including its project-local `Knowledge/` directory.
    - Captures repository ground truth, architecture decisions (ADRs), status, and contracts specific to LAEW.
 2. **Global Knowledge (`@knowledge`)**:
-   - Resides in the single global Obsidian Vault (`~/Projects/knowledge/`).
+   - Resides in the single global Obsidian Vault, reached through the configured `@knowledge` root. For the current LAEW workspace, that root is `C:\ROOT\Knowledge`.
    - Captures general engineering knowledge, research notes, hardware specs, and reusable templates.
 3. **Retrieval & Attribution Scoping**:
    - Agents and RAG pipelines must explicitly scope queries: `project-scoped` for implementation tasks, `global-scoped` for conceptual research, or `hybrid-scoped` when combining domain patterns with local state.

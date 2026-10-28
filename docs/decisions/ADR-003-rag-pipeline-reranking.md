@@ -2,6 +2,12 @@
 type: adr
 id: ADR-003
 title: RAG Retrieval and Reranking Pipeline
+name: RAG Retrieval and Reranking Pipeline
+description: Specifies the RAG pipeline — retrieval, candidate results, reranking, and small relevant context — with structured source attribution.
+tags:
+  - rag
+  - retrieval
+  - reranking
 status: Accepted
 date: 2026-08-25
 purpose: Specify the RAG pipeline — retrieval, candidate results, reranking, and a small relevant context — with structured source attribution, so the model is never fed a whole knowledge base.

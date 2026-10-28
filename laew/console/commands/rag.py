@@ -10,13 +10,18 @@ the result) rather than crashing the REPL.
 from typing import Callable, Dict, Optional
 
 from laew.console.state import SessionState
+from laew.rag.config import manifest_base_dir, resolve_knowledge_root, resolve_project_root
 from laew.rag.knowledge_base import KnowledgeBase, KnowledgeScope
 from laew.rag.pipeline import RAGPipeline
+from laew.rag.vector_store import ChromaVectorStore
 
 #: ``scope=`` values accepted by ``rag query`` (mirror KnowledgeScope values).
+#: ``knowledge`` is an alias for ``global`` — the ADRs (ADR-002/ADR-011) name
+#: the global store ``@knowledge`` while the enum calls it ``global``.
 SCOPE_ALIASES = {
     "project": KnowledgeScope.PROJECT,
     "global": KnowledgeScope.GLOBAL,
+    "knowledge": KnowledgeScope.GLOBAL,
     "hybrid": KnowledgeScope.HYBRID,
 }
 
@@ -26,54 +31,45 @@ def _err(msg: str) -> int:
     return 1
 
 
-def _manifest_rag_config(state: SessionState) -> dict:
+def _manifest_rag_config(manifest: dict, state: SessionState) -> dict:
     """Collect the RAG configuration the manifest declares (best-effort)."""
-    manifest = state.load_manifest()
-
-    project_root = (
-        manifest.get("workspace", {}).get("root", ".") or "."
+    project_root = resolve_project_root(
+        manifest, base_dir=manifest_base_dir(state.manifest_path)
     )
-
-    knowledge_root = (
-        manifest.get("memory", {})
-        .get("second_brain", {})
-        .get("path", "knowledge")
+    knowledge_root = resolve_knowledge_root(
+        manifest, project_root=project_root
     )
 
     pipeline_cfg = manifest.get("rag", {}).get("pipeline", {})
     top_k = int(pipeline_cfg.get("top_k", 5))
     max_context_tokens = int(pipeline_cfg.get("max_context_tokens", 8000))
 
-    embedding_model = (
-        manifest.get("models", {})
-        .get("roles", {})
-        .get("embedding", {})
-        .get("model_name")
-    ) or "nomic-embed-text"
-
     vector_store_config = manifest.get("rag", {}).get("vector_store", {})
+    project_sources = manifest.get("rag", {}).get("project_sources", {}) or {}
 
     return {
-        "project_root": project_root,
-        "knowledge_root": knowledge_root,
-        "embedding_model": embedding_model,
+        "project_root": str(project_root),
+        "knowledge_root": str(knowledge_root),
         "top_k": top_k,
         "max_context_tokens": max_context_tokens,
         "vector_store_config": vector_store_config,
+        "project_source_allowlist": project_sources.get("allowlist"),
     }
 
 
 def _build_pipeline(state: SessionState) -> RAGPipeline:
     """Build the session RAG pipeline from the manifest config."""
-    from laew.rag.embedding import OllamaEmbedding
+    from laew.runtime import build_embedding_service
 
-    cfg = _manifest_rag_config(state)
-    embedding = OllamaEmbedding(model=cfg["embedding_model"])
+    manifest = state.load_manifest()
+    cfg = _manifest_rag_config(manifest, state)
+    embedding = build_embedding_service(manifest)
     kb = KnowledgeBase(
         project_root=cfg["project_root"],
         knowledge_root=cfg["knowledge_root"],
         embedding_service=embedding,
         vector_store_config=cfg["vector_store_config"],
+        project_source_allowlist=cfg["project_source_allowlist"],
     )
     pipeline = RAGPipeline(
         knowledge_base=kb,
@@ -94,7 +90,7 @@ def cmd_rag_query(args: list, state: SessionState) -> int:
             alias = item.split("=", 1)[1].lower()
             scope = SCOPE_ALIASES.get(alias)
             if scope is None:
-                return _err(f"unknown scope '{alias}' (project|global|hybrid)")
+                return _err(f"unknown scope '{alias}' (project|global|knowledge|hybrid)")
         elif item.startswith("k="):
             try:
                 top_k = max(1, int(item.split("=", 1)[1]))
@@ -103,7 +99,7 @@ def cmd_rag_query(args: list, state: SessionState) -> int:
         else:
             query_parts.append(item)
     if not query_parts:
-        return _err('usage: rag query "<query>" [scope=project|global|hybrid] [k=5]')
+        return _err('usage: rag query "<query>" [scope=project|global|knowledge|hybrid] [k=5]')
     query = " ".join(query_parts)
 
     try:
@@ -153,9 +149,20 @@ def cmd_rag_stats(args: list, state: SessionState) -> int:
     print(f"similarity_threshold: {stats['similarity_threshold']}")
     print(f"project store: {stats['project_chunks']} chunk(s)")
     print(f"global store: {stats['global_chunks']} chunk(s)")
-    store_type = type(kb.project_store).__name__
-    persistent = bool(kb._vector_store_config and kb._vector_store_config.get("enabled"))
-    print(f"backend: {store_type} (persistent: {persistent})")
+    project_type = type(kb.project_store).__name__
+    global_type = type(kb.global_store).__name__
+    project_persistent = isinstance(kb.project_store, ChromaVectorStore)
+    global_persistent = isinstance(kb.global_store, ChromaVectorStore)
+    if project_type == global_type:
+        print(
+            f"backend: {project_type} "
+            f"(persistent: {project_persistent and global_persistent})"
+        )
+    else:
+        print(
+            f"backend: project={project_type}, global={global_type} "
+            f"(persistent: project={project_persistent}, global={global_persistent})"
+        )
     return 0
 
 

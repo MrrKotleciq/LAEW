@@ -2,11 +2,21 @@
 type: roadmap
 id: M04
 title: Knowledge System & RAG Pipeline
+name: Knowledge System & RAG Pipeline
+description: Implements the knowledge retrieval subsystem — embeddings, in-memory vector store, knowledge base, RAG pipeline with reranking, and the RAG tool.
+scope: project
+tags:
+  - knowledge
+  - rag
+  - retrieval
 status: completed
 purpose: Implement the knowledge retrieval subsystem — embeddings, in-memory vector store, knowledge base, RAG pipeline with reranking, and the RAG tool.
 read_when:
   - working on RAG, the vector store, or the knowledge base
   - understanding retrieval, reranking, or context injection
+implements:
+  - ADR-003
+  - ADR-002
 ---
 ## [2026-09-06] Milestone 4: Knowledge System & RAG Pipeline Completed
 

@@ -1,7 +1,10 @@
 ---
+name: Roadmap and Milestones
+description: Planned work, milestones, and the project timeline for LAEW.
 type: index
 title: Roadmap and Milestones
-scope: planned work and milestones
+scope: project
+status: active
 read_when:
   - planning new work
   - understanding the project's direction

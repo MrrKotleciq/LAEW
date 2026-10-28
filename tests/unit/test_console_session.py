@@ -25,6 +25,7 @@ def test_command_handler_registry_flat():
         "tool", "agent", "chat", "trace",
         "rag",
         "workflow", "multiagent", "eval", "session",
+        "knowledge",
     }
 
 

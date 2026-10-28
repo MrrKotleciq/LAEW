@@ -2,14 +2,22 @@
 type: roadmap
 id: M05
 title: Documentation Synchronization & Integration Scaffold
+name: Documentation Synchronization & Integration Scaffold
+description: Synchronize documentation with actual repository state; add documentation validation tests; establish project-sync skill.
+scope: project
+tags:
+  - documentation
+  - sync
+  - project-sync
 status: completed
 purpose: Synchronize documentation with actual repository state; add documentation validation tests; establish project-sync skill.
 read_when:
   - updating documentation
   - adding documentation validation tests
   - establishing the project-sync workflow
-related:
+implements:
   - ADR-009
+related:
   - ADR-013
 ---
 

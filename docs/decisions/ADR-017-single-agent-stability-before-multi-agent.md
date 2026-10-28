@@ -2,6 +2,12 @@
 type: adr
 id: ADR-017
 title: Single-Agent Stability Before Multi-Agent
+name: Single-Agent Stability Before Multi-Agent
+description: Establishes a stable, reliably-behaved single-agent baseline before introducing multi-agent coordination.
+tags:
+  - agent
+  - stability
+  - multi-agent
 status: Accepted
 date: 2026-09-03
 purpose: Establish a stable, reliably-behaved single-agent baseline (Thought→Action→Observation→Response) before introducing multi-agent coordination.

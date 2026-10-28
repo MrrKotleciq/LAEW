@@ -2,14 +2,23 @@
 type: roadmap
 id: M06
 title: Audit Remediation & Technical Debt Refactoring
+name: Audit Remediation & Technical Debt Refactoring
+description: Remediate all critical, high, medium, and low severity findings from the full technical audit; refactor duplicated code; fix bugs; add regression tests.
+scope: project
+tags:
+  - audit
+  - refactoring
+  - technical-debt
 status: completed
 purpose: Remediate all critical, high, medium, and low severity findings from the full technical audit; refactor duplicated code; fix bugs; add regression tests.
 read_when:
   - reviewing audit findings
   - understanding technical debt remediation
   - verifying audit fixes
-related:
+implements:
+  - ADR-016
   - ADR-014
+related:
   - M07
 ---
 

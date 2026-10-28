@@ -2,6 +2,12 @@
 type: adr
 id: ADR-018
 title: Multi-Agent Communication Protocol
+name: Multi-Agent Communication Protocol
+description: Defines how the chief agent and specialist agents communicate via typed messages plus a shared-context journal for delegation and synthesis.
+tags:
+  - multi-agent
+  - protocol
+  - coordination
 status: Accepted
 date: 2026-09-14
 purpose: Define how the chief agent and specialist agents communicate — typed messages plus a shared-context journal — for delegation and synthesis.

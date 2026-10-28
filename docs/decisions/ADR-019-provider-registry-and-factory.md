@@ -2,6 +2,12 @@
 type: adr
 id: ADR-019
 title: Provider Registry and Factory
+name: Provider Registry and Factory
+description: Dispatches model roles across providers through a registry and factory with an ordered fallback chain, keeping provider selection manifest-driven.
+tags:
+  - providers
+  - registry
+  - routing
 status: Accepted
 date: 2026-09-15
 purpose: Dispatch model roles across providers through a registry and factory with an ordered fallback chain, keeping provider selection manifest-driven.

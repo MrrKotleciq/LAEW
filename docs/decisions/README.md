@@ -1,7 +1,10 @@
 ---
+name: Architecture Decision Records
+description: Index of accepted and proposed Architecture Decision Records (ADRs) governing LAEW design.
 type: index
 title: Architecture Decision Records
-scope: architectural decisions
+scope: project
+status: active
 read_when:
   - implementing a feature that requires an architectural decision
   - reviewing a design change
@@ -37,6 +40,8 @@ Each ADR is a standalone document. Use the table below to find the relevant deci
 | [ADR-017](ADR-017-single-agent-stability-before-multi-agent.md) | Single-Agent Stability Before Multi-Agent | Accepted | When considering multi-agent scaling |
 | [ADR-018](ADR-018-multi-agent-communication-protocol.md) | Multi-Agent Communication Protocol | Accepted | When designing multi-agent coordination |
 | [ADR-019](ADR-019-provider-registry-and-factory.md) | Provider Registry and Factory | Accepted | When adding or changing model providers |
+| [ADR-020](ADR-020-local-web-application.md) | Local Web Application Architecture | Accepted | When changing the browser/API boundary |
+| [ADR-021](ADR-021-project-centric-engineering-workbench.md) | Project-Centric Engineering Workbench | Accepted | When changing workspace UX |
 
 ## ADR Process
 

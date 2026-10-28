@@ -18,8 +18,8 @@ Perform a thorough scan of the LAEW repository to identify bugs, duplicated code
 
 ## Prerequisites (Run First)
 ```bash
-# 1. Verify test suite passes
-cd C:\ROOT\Projects\LAEW && python -m pytest tests/unit -q
+# 1. Verify test suite passes (run from the repository root)
+python -m pytest tests/unit -q
 
 # 2. Run security audit
 python -m bandit -r laew -lll
@@ -67,7 +67,7 @@ grep -r "except Exception:" --include="*.py" laew/  # Too broad
 - **God classes** — classes doing too much
 - **Violated abstractions** — e.g., concrete classes imported where protocols expected
 - **Missing error handling** — especially in I/O, network, external calls
-- **Inconsistent patterns** — e.g., some tools use `ToolResult`, others return tuples
+- **Return-type contract** — every `execute()` implementation must return `ToolResult` (`laew/tools/base.py`). Flag any implementation whose `execute()` returns something else (e.g., a tuple or raw string).
 
 ### 6. Test Quality
 - Tests that don't actually assert anything

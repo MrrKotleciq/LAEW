@@ -2,6 +2,12 @@
 type: adr
 id: ADR-012
 title: Agent Memory vs Current State Separation
+name: Agent Memory vs Current State Separation
+description: Keeps agent memory distinct from filesystem current state; current state is verified from Git/filesystem, not assumed from memory.
+tags:
+  - memory
+  - state
+  - verification
 status: Accepted
 date: 2026-09-03
 purpose: Keep agent memory distinct from filesystem current state; current state is verified from Git/filesystem, not assumed from memory.

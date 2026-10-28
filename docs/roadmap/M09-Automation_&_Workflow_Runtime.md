@@ -2,6 +2,13 @@
 type: roadmap
 id: M09
 title: Automation & Workflow Runtime
+name: Automation & Workflow Runtime
+description: Execute multi-step engineering workflows with human oversight, approval gates, compensating rollback, and manual/disabled fallback modes (ADR-015).
+scope: project
+tags:
+  - automation
+  - workflow
+  - orchestration
 status: completed
 purpose: Execute multi-step engineering workflows with human oversight, approval gates, compensating rollback, and manual/disabled fallback modes (ADR-015).
 read_when:

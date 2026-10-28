@@ -7,10 +7,12 @@ from pathlib import Path
 
 from laew.manifest import load_manifest, ManifestError
 from laew.runtime import (
+    build_explicit_provider,
     build_provider_for_role,
     build_shared_tools,
     context_budget_from_manifest,
     resolve_model_name,
+    resolve_llamacpp_model,
     terminal_allowlist_from_manifest,
 )
 from laew.tools import (
@@ -32,7 +34,7 @@ from laew.console.session_store import (
     session_store_from_manifest,
     validate_conversation,
 )
-from laew.llm.base import LLMMessage, MessageRole
+from laew.llm.base import LLMError, LLMMessage, MessageRole
 from laew.multiagent import (
     MultiAgentCoordinator,
     SpecialistRole,
@@ -313,18 +315,36 @@ def cmd_multiagent_run(args) -> int:
         manifest_model = providers_cfg[0].get("model")
 
     terminal_allowlist = terminal_allowlist_from_manifest(manifest)
-    provider = build_provider_for_role(
-        manifest,
-        "primary",
-        base_url=args.base_url,
-        timeout=args.timeout,
-    )
-    model_name = resolve_model_name(args.model, manifest_model, provider)
+    try:
+        provider_type = getattr(args, "provider", None)
+        if provider_type:
+            provider = build_explicit_provider(
+                provider_type,
+                model=args.model,
+                base_url=args.base_url,
+                timeout=args.timeout,
+            )
+            model_name = (
+                resolve_llamacpp_model(args.model, provider)
+                if provider_type == "llama.cpp"
+                else resolve_model_name(args.model, manifest_model, provider)
+            )
+        else:
+            provider = build_provider_for_role(
+                manifest,
+                "primary",
+                base_url=args.base_url,
+                timeout=args.timeout,
+            )
+            model_name = resolve_model_name(args.model, manifest_model, provider)
+    except LLMError as e:
+        print(f"[FAIL] Could not initialize provider: {e}")
+        return 1
 
     # One shared tool set for every agent (chief + specialists), honouring the
     # workspace's terminal allowlist. Mutation approval gates remain active, so
     # read/inspect operations work and mutating tools stay protected (P8).
-    shared_tools = build_shared_tools(terminal_allowlist)
+    shared_tools = build_shared_tools(terminal_allowlist, manifest=manifest)
 
     def build_agent(name: str, system_prompt: str) -> Agent:
         """Build an agent on the resolved model + provider."""
@@ -413,13 +433,31 @@ def cmd_chat(args) -> int:
     if providers_cfg:
         manifest_model = providers_cfg[0].get("model")
 
-    provider = build_provider_for_role(
-        manifest,
-        "primary",
-        base_url=args.base_url,
-        timeout=args.timeout,
-    )
-    model_name = resolve_model_name(args.model, manifest_model, provider)
+    try:
+        provider_type = getattr(args, "provider", None)
+        if provider_type:
+            provider = build_explicit_provider(
+                provider_type,
+                model=args.model,
+                base_url=args.base_url,
+                timeout=args.timeout,
+            )
+            model_name = (
+                resolve_llamacpp_model(args.model, provider)
+                if provider_type == "llama.cpp"
+                else resolve_model_name(args.model, manifest_model, provider)
+            )
+        else:
+            provider = build_provider_for_role(
+                manifest,
+                "primary",
+                base_url=args.base_url,
+                timeout=args.timeout,
+            )
+            model_name = resolve_model_name(args.model, manifest_model, provider)
+    except LLMError as e:
+        print(f"[FAIL] Could not initialize provider: {e}")
+        return 1
 
     # Session persistence (Milestone 13): load or prepare a session store
     session_store = None
@@ -459,7 +497,7 @@ def cmd_chat(args) -> int:
             config=config,
             provider=provider,
             tools=build_shared_tools(
-                terminal_allowlist_from_manifest(manifest)
+                terminal_allowlist_from_manifest(manifest), manifest=manifest
             ),
         )
     except RuntimeError as e:
@@ -475,7 +513,7 @@ def cmd_chat(args) -> int:
 
     executor = AgentExecutor(agent)
 
-    print(f"Starting chat with {model_name} (Ollama at {provider.base_url})")
+    print(f"Starting chat with {model_name} ({getattr(args, 'provider', None) or 'manifest provider'} at {provider.base_url})")
     if session_name:
         print(f"Session: {session_name}  (use --no-persist to disable)")
     print("Type 'exit' or 'quit' to end the session.")
@@ -518,6 +556,24 @@ def cmd_chat(args) -> int:
         return 1
 
     print("\nSession ended.")
+    return 0
+
+
+def cmd_ui(args) -> int:
+    """Start the loopback-only browser workspace."""
+    from laew.web import serve
+
+    try:
+        serve(
+            args.manifest,
+            args.port,
+            open_browser=not args.no_browser,
+            projects_root=args.projects_root,
+            workspace_root=args.workspace_root,
+        )
+    except OSError as e:
+        print(f"[FAIL] Could not start LAEW UI: {e}")
+        return 1
     return 0
 
 
@@ -594,16 +650,16 @@ def main() -> int:
     ma_run_parser.add_argument("plan", help="Path to the multi-agent plan YAML file")
     ma_run_parser.add_argument(
         "--model",
-        help="Ollama model name (overrides the manifest model role)",
+        help="Model name (overrides the manifest model role)",
     )
     ma_run_parser.add_argument(
         "--base-url",
         default=None,
-        help="Ollama API base URL (default: None, uses manifest)",
+        help="Provider API base URL (default: None, uses manifest/provider default)",
     )
     ma_run_parser.add_argument(
         "--provider",
-        help="LLM provider type (e.g., ollama, openai)",
+        help="Explicit LLM provider type (e.g., ollama, llama.cpp)",
     )
     ma_run_parser.add_argument(
         "--timeout",
@@ -624,16 +680,16 @@ def main() -> int:
     )
     chat_parser.add_argument(
         "--model",
-        help="Ollama model name (overrides the manifest model role)",
+        help="Model name (overrides the manifest model role)",
     )
     chat_parser.add_argument(
         "--base-url",
         default=None,
-        help="Ollama API base URL (default: None, uses manifest)",
+        help="Provider API base URL (default: None, uses manifest/provider default)",
     )
     chat_parser.add_argument(
         "--provider",
-        help="LLM provider type (e.g., ollama, openai)",
+        help="Explicit LLM provider type (e.g., ollama, llama.cpp)",
     )
     chat_parser.add_argument(
         "--timeout",
@@ -668,6 +724,14 @@ def main() -> int:
         help="Disable streaming; collect the full response before printing",
     )
     chat_parser.set_defaults(func=cmd_chat)
+
+    ui_parser = subparsers.add_parser("ui", help="Start the local browser workspace")
+    ui_parser.add_argument("--manifest", default="manifests/SYSTEM_MANIFEST.yaml", help="Path to system manifest")
+    ui_parser.add_argument("--port", type=int, default=8765, help="Loopback port (default: 8765)")
+    ui_parser.add_argument("--workspace-root", help="Trusted workspace root (default: inferred from the LAEW repository layout or LAEW_WORKSPACE_ROOT)")
+    ui_parser.add_argument("--projects-root", help="Override the Projects directory under the workspace root")
+    ui_parser.add_argument("--no-browser", action="store_true", help="Do not open a browser automatically")
+    ui_parser.set_defaults(func=cmd_ui)
 
     # console command
     console_parser = subparsers.add_parser(

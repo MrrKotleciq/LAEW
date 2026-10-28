@@ -1,7 +1,10 @@
 ---
+name: Documentation Index
+description: Navigation entry point to LAEW's architecture, decisions, roadmap, history, performance, security, and source material.
 type: index
 title: Documentation
-scope: architecture, decisions, roadmap, history, performance, security, source
+scope: project
+status: active
 read_when:
   - navigating the documentation tree
   - understanding the project structure

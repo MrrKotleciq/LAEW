@@ -2,6 +2,12 @@
 type: adr
 id: ADR-013
 title: Sequential Deployment Stages with Independent Verification
+name: Sequential Deployment Stages with Independent Verification
+description: Deploys LAEW in sequential stages, each independently verified before the next, so the foundation is proven before features are added.
+tags:
+  - deployment
+  - milestones
+  - verification
 status: Accepted
 date: 2026-09-03
 purpose: Deploy LAEW in sequential stages, each independently verified before the next stage proceeds, so the foundation is proven before features are added.
