@@ -1,11 +1,15 @@
 """Filesystem tool wrapper (ADR-010, CONTRACT.md)."""
 
 import os
+import hashlib
+import re
+import tempfile
+from collections import Counter
 from pathlib import Path
 from typing import Optional
 
 from laew.security import PathResolver, PathResolverError
-from laew.tools.base import ErrorCode, Tool, ToolResult
+from laew.tools.base import ErrorCode, Tool, ToolResult, has_scoped_approval
 
 
 def coerce_line_number(value, param_name: str) -> int:
@@ -52,7 +56,11 @@ class FilesystemTool(Tool):
         - replace_file_content: Modify file in place (requires approval)
     """
 
-    description = "Read and write project files (list, view, find, grep, write)"
+    description = ("Read project files and shared @knowledge notes. For profile requests, "
+                   "inspect @knowledge/profile first; distinguish education, skills, interests "
+                   "and goals, and do not infer skills. Ask one question at a time. "
+                   "Propose edits before writing; write_knowledge_note requires explicit approval. "
+                   "Only claim a write after the tool confirms success.")
     system_contract_path = "@project/tools/filesystem/CONTRACT.md"
     operations = {
         "view_file": {
@@ -90,10 +98,48 @@ class FilesystemTool(Tool):
             "description": "Delete file (requires approval)",
             "read_only": False,
         },
+        "write_knowledge_note": {
+            "params": ["file_path", "content", "expected_sha256"],
+            "description": "Write a global Markdown note after explicit approval; use an empty expected_sha256 only for a new file. Preserve metadata and links. Notes are normally Polish.",
+            "read_only": False,
+        },
     }
 
     READ_OPS = {"view_file", "list_dir", "find_by_name", "grep_search"}
-    WRITE_OPS = {"write_file", "replace_file_content", "delete_file"}
+    WRITE_OPS = {"write_file", "replace_file_content", "delete_file", "write_knowledge_note"}
+
+    def knowledge_note_path(self, value: str) -> Path:
+        """Resolve a note within the vault and reject hidden paths and links."""
+        if not isinstance(value, str) or not value:
+            raise PathResolverError("A knowledge note path is required.")
+        root = self.resolver.knowledge_root.resolve(strict=True)
+        if value.startswith("@knowledge/"):
+            candidate = root / value[len("@knowledge/"):]
+        elif Path(value).is_absolute():
+            candidate = Path(value)
+        else:
+            raise PathResolverError("Use @knowledge/ or an absolute vault path.")
+        try:
+            relative = candidate.absolute().relative_to(root)
+        except ValueError:
+            raise PathResolverError("Knowledge path is outside the vault.") from None
+        if not relative.parts or any(p in (".", "..") or p.startswith(".") for p in relative.parts):
+            raise PathResolverError("Hidden paths and traversal are forbidden.")
+        if candidate.suffix.lower() != ".md":
+            raise PathResolverError("Only Markdown knowledge notes can be written.")
+        current = root
+        for part in relative.parts:
+            current = current / part
+            if current.is_symlink() or (hasattr(current, "is_junction") and current.is_junction()):
+                raise PathResolverError("Symlinks and junctions are forbidden for knowledge writes.")
+        resolved = candidate.resolve()
+        try:
+            resolved.relative_to(root)
+        except ValueError:
+            raise PathResolverError("Knowledge path escapes the vault.") from None
+        if not resolved.parent.is_dir():
+            raise PathResolverError("The target directory must already exist.")
+        return resolved
 
     def __init__(self, resolver: Optional[PathResolver] = None):
         """
@@ -104,6 +150,12 @@ class FilesystemTool(Tool):
         """
         super().__init__(requires_approval=False)
         self.resolver = resolver or PathResolver()
+        if self.resolver.project_root is None:
+            self.description = ("Read shared @knowledge notes. Global note writes require explicit approval. "
+                                "Project paths and ordinary filesystem mutations are unavailable.")
+            self.system_contract_path = None
+            self.operations = {key: value for key, value in self.operations.items()
+                               if key in self.READ_OPS or key == "write_knowledge_note"}
         # Track explicit approval for mutating operations
         self._mutation_approved = False
 
@@ -113,7 +165,7 @@ class FilesystemTool(Tool):
 
     def is_approved(self) -> bool:
         """Check if mutating operations are approved."""
-        return self._mutation_approved
+        return self._mutation_approved or has_scoped_approval(self)
 
     def _validate_mutation_operation(self, operation: str, file_path: str) -> tuple[Optional[ToolResult], Optional[Path]]:
         """
@@ -158,7 +210,12 @@ class FilesystemTool(Tool):
 
         # Validate write operation parameters
         if operation in self.WRITE_OPS:
-            if operation == "write_file":
+            if operation == "write_knowledge_note":
+                if not all(k in kwargs for k in ("file_path", "content", "expected_sha256")):
+                    return False, "file_path, content and expected_sha256 are required"
+                if not isinstance(kwargs["content"], str) or not isinstance(kwargs["expected_sha256"], str):
+                    return False, "content and expected_sha256 must be strings"
+            elif operation == "write_file":
                 if "file_path" not in kwargs:
                     return False, "Missing required parameter: file_path"
                 if "content" not in kwargs:
@@ -207,6 +264,8 @@ class FilesystemTool(Tool):
                 return self._replace_file_content(**kwargs)
             elif operation == "delete_file":
                 return self._delete_file(**kwargs)
+            elif operation == "write_knowledge_note":
+                return self._write_knowledge_note(**kwargs)
             else:
                 return ToolResult.error(ErrorCode.ERR_INVALID_INPUT, f"Unknown operation: {operation}")
 
@@ -220,12 +279,24 @@ class FilesystemTool(Tool):
             return ToolResult.error(ErrorCode.ERR_DIR_NOT_FOUND, "Path is a file, not a directory")
         except PermissionError as e:
             return ToolResult.error(ErrorCode.ERR_PATH_DENIED, str(e))
+        except UnicodeError:
+            return ToolResult.error(ErrorCode.ERR_INVALID_INPUT, "The note must be valid UTF-8.")
         except Exception as e:
             return ToolResult.error(ErrorCode.ERR_INVALID_INPUT, str(e))
 
     def _resolve_path(self, path: str) -> Path:
         """Resolve aliased path to absolute path."""
         return self.resolver.resolve(path)
+
+    def _safe_general_entry(self, path: Path) -> bool:
+        if self.resolver.project_root is not None:
+            return True
+        try:
+            return (not path.is_symlink()
+                    and not (hasattr(path, "is_junction") and path.is_junction())
+                    and self.resolver.is_within_root(path, "@knowledge"))
+        except OSError:
+            return False
 
     def view_file(self, file_path: str, start_line: int = 1, end_line: Optional[int] = None) -> ToolResult:
         """Public interface for view_file operation."""
@@ -288,7 +359,69 @@ class FilesystemTool(Tool):
             "content": content,
             "total_lines": total_lines,
             "size_bytes": resolved.stat().st_size,
+            "sha256": hashlib.sha256(resolved.read_bytes()).hexdigest(),
         })
+
+    def _write_knowledge_note(self, file_path: str, content: str, expected_sha256: str) -> ToolResult:
+        """Validate content independently of the broker's one-operation approval."""
+        import yaml
+        from laew.rag.obsidian import FRONTMATTER_RE
+
+        if not has_scoped_approval(self):
+            return ToolResult.error(ErrorCode.ERR_UNAUTHORIZED, "Knowledge writes require a broker approval.")
+        path = self.knowledge_note_path(file_path)
+        encoded = content.encode("utf-8")
+        if len(encoded) > 1024 * 1024:
+            return ToolResult.error(ErrorCode.ERR_INVALID_INPUT, "Knowledge note exceeds 1 MiB.")
+        def metadata(text):
+            match = FRONTMATTER_RE.match(text.replace("\r\n", "\n"))
+            if not match:
+                raise ValueError("A YAML frontmatter block is required.")
+            try:
+                data = yaml.safe_load(match.group(1))
+            except yaml.YAMLError:
+                raise ValueError("Invalid YAML frontmatter.") from None
+            if not isinstance(data, dict) or data.get("scope") != "global" or not data.get("type"):
+                raise ValueError("Frontmatter must include type and global scope.")
+            if not isinstance(data["type"], str) or ("tags" in data and not isinstance(data["tags"], list)):
+                raise ValueError("Frontmatter type must be a string and tags must be a list.")
+            return data
+        new_metadata = metadata(content)
+        exists = path.exists()
+        if exists:
+            old_bytes = path.read_bytes()
+            if not expected_sha256 or hashlib.sha256(old_bytes).hexdigest() != expected_sha256:
+                return ToolResult.error(ErrorCode.ERR_TARGET_NOT_FOUND, "Note changed or expected hash is missing; read it again.")
+            old = old_bytes.decode("utf-8")
+            old_metadata = metadata(old)
+            if any(new_metadata.get(k) != v for k, v in old_metadata.items()):
+                return ToolResult.error(ErrorCode.ERR_INVALID_INPUT, "Existing frontmatter must be preserved.")
+            links = r"!?\[\[[^\]]+\]\]"
+            if Counter(re.findall(links, old)) - Counter(re.findall(links, content)):
+                return ToolResult.error(ErrorCode.ERR_INVALID_INPUT, "Existing wikilinks must be preserved.")
+        elif expected_sha256:
+            return ToolResult.error(ErrorCode.ERR_TARGET_NOT_FOUND, "Expected existing note does not exist.")
+        if not exists:
+            if self.knowledge_note_path(file_path) != path:
+                return ToolResult.error(ErrorCode.ERR_PATH_DENIED, "Knowledge target changed during approval.")
+            with path.open("xb") as handle:
+                handle.write(encoded)
+        else:
+            temp_name = None
+            try:
+                with tempfile.NamedTemporaryFile(dir=path.parent, prefix=".laew-note-", delete=False) as handle:
+                    temp_name = handle.name
+                    handle.write(encoded)
+                    handle.flush()
+                    os.fsync(handle.fileno())
+                if self.knowledge_note_path(file_path) != path or hashlib.sha256(path.read_bytes()).hexdigest() != expected_sha256:
+                    return ToolResult.error(ErrorCode.ERR_TARGET_NOT_FOUND, "Note changed during approval; retry.")
+                os.replace(temp_name, path)
+            finally:
+                if temp_name and os.path.exists(temp_name):
+                    os.unlink(temp_name)
+        return ToolResult.ok({"status": "updated" if exists else "created", "sha256": hashlib.sha256(encoded).hexdigest(),
+                              "sync_required": True, "message": "Synchronize global knowledge before retrieval; excluded folders remain excluded."})
 
     def list_dir(self, directory_path: str = "@project", depth: int = 1) -> ToolResult:
         """Public interface for list_dir operation."""
@@ -312,6 +445,8 @@ class FilesystemTool(Tool):
                 return
             try:
                 for entry in path.iterdir():
+                    if not self._safe_general_entry(entry):
+                        continue
                     stat = entry.stat()
                     entries.append({
                         "name": entry.name,
@@ -357,6 +492,8 @@ class FilesystemTool(Tool):
 
         try:
             for match in resolved.rglob(pattern):
+                if not self._safe_general_entry(match):
+                    continue
                 if entry_type == "file" and not match.is_file():
                     continue
                 if entry_type == "directory" and not match.is_dir():
@@ -432,7 +569,7 @@ class FilesystemTool(Tool):
             search_file(resolved)
         elif resolved.is_dir():
             for file_path in resolved.rglob("*"):
-                if file_path.is_file():
+                if self._safe_general_entry(file_path) and file_path.is_file():
                     search_file(file_path)
 
         return ToolResult.ok({"results": results})

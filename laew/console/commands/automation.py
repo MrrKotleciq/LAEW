@@ -95,12 +95,6 @@ def cmd_workflow(args: list, state: SessionState) -> int:
         tools = build_shared_tools(allowlist)
         tool_registry = {tool.name: tool for tool in tools}
 
-        # Pre-approve tools when approval mode is 'auto' so the engine does
-        # not pause at P8 gates during automated console runs.
-        if state.approval == "auto":
-            for tool in tools:
-                tool.approve()
-
         print(f"Running workflow '{definition.name}' ({definition.mode.value})...")
         engine = WorkflowEngine(definition, tool_registry=tool_registry)
         try:

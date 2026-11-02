@@ -22,3 +22,7 @@ read_when:
 **Dependencies:** Milestones 13 (sessions to back up) and 17 (vault to backup).
 **Tests:** Telemetry event integrity, `laew status` accuracy, backup/restore round-trips, retention enforcement.
 **Definition of Done:** Every run produces inspectable telemetry; sessions and vault can be backed up and restored; operators can answer "what happened on run X."
+
+Workbench permission classifications and approval decisions are logged, but
+this does not implement M18 run-level telemetry or its backup and retention
+requirements. A one-off legacy RAG export is not an automated backup system.

@@ -6,7 +6,7 @@ import time
 from pathlib import Path
 from typing import Optional
 
-from laew.tools.base import ErrorCode, Tool, ToolResult
+from laew.tools.base import ErrorCode, Tool, ToolResult, has_scoped_approval
 
 # Named constant for terminal command timeout (30 seconds)
 DEFAULT_COMMAND_TIMEOUT_MS: int = 30000
@@ -85,7 +85,7 @@ class TerminalTool(Tool):
 
     def is_approved(self) -> bool:
         """Check if approved."""
-        return self._command_approved
+        return self._command_approved or has_scoped_approval(self)
 
     def validate(self, operation: str, **kwargs) -> tuple[bool, Optional[str]]:
         """Validate command execution."""

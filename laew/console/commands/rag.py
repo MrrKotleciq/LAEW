@@ -10,7 +10,8 @@ the result) rather than crashing the REPL.
 from typing import Callable, Dict, Optional
 
 from laew.console.state import SessionState
-from laew.rag.config import manifest_base_dir, resolve_knowledge_root, resolve_project_root
+from laew.project_config import load_project_settings
+from laew.rag.config import manifest_base_dir, resolve_knowledge_root, resolve_project_root, manifest_global_exclusions
 from laew.rag.knowledge_base import KnowledgeBase, KnowledgeScope
 from laew.rag.pipeline import RAGPipeline
 from laew.rag.vector_store import ChromaVectorStore
@@ -53,7 +54,10 @@ def _manifest_rag_config(manifest: dict, state: SessionState) -> dict:
         "top_k": top_k,
         "max_context_tokens": max_context_tokens,
         "vector_store_config": vector_store_config,
-        "project_source_allowlist": project_sources.get("allowlist"),
+        "project_source_allowlist": load_project_settings(project_root).get(
+            "rag_source_allowlist", project_sources.get("allowlist")
+        ),
+        "global_source_exclusions": manifest_global_exclusions(manifest),
     }
 
 
@@ -70,6 +74,7 @@ def _build_pipeline(state: SessionState) -> RAGPipeline:
         embedding_service=embedding,
         vector_store_config=cfg["vector_store_config"],
         project_source_allowlist=cfg["project_source_allowlist"],
+        global_source_exclusions=cfg["global_source_exclusions"],
     )
     pipeline = RAGPipeline(
         knowledge_base=kb,

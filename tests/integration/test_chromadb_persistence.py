@@ -4,10 +4,19 @@ import uuid
 import chromadb
 from laew.rag.vector_store import ChromaVectorStore, DocumentChunk
 
-def test_chromadb_persistence():
+
+@pytest.fixture
+def isolated_chroma(tmp_path, monkeypatch):
+    """Use a real disposable database, never the configured production server."""
+    client = chromadb.PersistentClient(path=str(tmp_path / "chroma"))
+    monkeypatch.setattr("laew.rag.vector_store._build_chroma_client", lambda *args: client)
+    return client
+
+
+def test_chromadb_persistence(isolated_chroma):
     # Use an isolated collection so this integration test never clears or
     # changes an existing user collection.
-    client = chromadb.HttpClient(host="localhost", port=8000)
+    client = isolated_chroma
     collection_name = "laew_test_persistence_" + uuid.uuid4().hex
     existing = {collection.name for collection in client.list_collections()}
     assert collection_name not in existing
@@ -43,9 +52,9 @@ def test_chromadb_persistence():
             client.delete_collection(collection_name)
 
 
-def test_delete_by_file_paths_removes_only_exact_project_records():
+def test_delete_by_file_paths_removes_only_exact_project_records(isolated_chroma):
     """Path cleanup preserves project knowledge, ADRs, and other scopes."""
-    client = chromadb.HttpClient(host="localhost", port=8000)
+    client = isolated_chroma
     collection_name = "laew_test_path_cleanup_" + uuid.uuid4().hex
     created = False
     excluded = {

@@ -32,14 +32,14 @@ def test_default_project_id_matches_case_insensitive_catalog_id(tmp_path):
 
 def test_chat_returns_executor_result_and_real_step_summary(tmp_path):
     service = make_service(tmp_path)
-    step = MagicMock(step_number=1, tool_name="filesystem", operation="view_file")
+    step = MagicMock(step_number=1, tool_name="filesystem", operation="view_file", call_id="fixture-call")
     step.tool_result = MagicMock(success=True, error_message=None)
     result = MagicMock(success=True, final_response="Done", steps=[step], prompt_tokens=3, completion_tokens=2, total_tokens=5)
     service._ensure_runtime = MagicMock()
     service._executor = MagicMock(); service._executor.run.return_value = result
     status, body = service.chat("inspect")
     assert status == 200 and body["response"] == "Done"
-    assert body["steps"] == [{"number": 1, "tool": "filesystem", "operation": "view_file", "success": True, "error": None, "sources": []}]
+    assert body["steps"] == [{"number": 1, "tool": "filesystem", "operation": "view_file", "call_id": "fixture-call", "success": True, "error": None, "sources": []}]
 
 
 def test_chat_rejects_empty_messages(tmp_path):
@@ -181,7 +181,7 @@ def test_browser_client_posts_message_and_provider_to_chat_route():
     assert "fetch('/api/chat'" in client
     assert "method: 'POST'" in client
     assert "project_id: currentProjectId" in client
-    assert "JSON.stringify({ message, provider: provider.value, project_id: currentProjectId })" in client
+    assert "run_id: activeRunId" in client
     assert "finally {" in client
     assert "send.disabled = false" in client
     assert "provider.disabled = false" in client
@@ -190,7 +190,8 @@ def test_browser_client_posts_message_and_provider_to_chat_route():
     assert "showModal()" in client
     assert "renderMarkdown" in client
     assert "readEventStream" in client
-    assert "activeController?.abort()" in client
+    assert "fetch('/api/chat/cancel'" in client
+    assert "controller.abort()" in client
 
 
 def test_chat_stream_emits_delta_before_generation_finishes(tmp_path):
@@ -200,7 +201,7 @@ def test_chat_stream_emits_delta_before_generation_finishes(tmp_path):
     continue_generation = threading.Event()
 
     class FakeExecutor:
-        def run(self, prompt, *, stream, on_delta, on_step):
+        def run(self, prompt, *, stream, on_delta, on_step, on_tool_call):
             assert stream is True
             on_delta("Partial answer")
             generation_started.set()

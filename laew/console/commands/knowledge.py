@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Callable, Dict
 
 from laew.console.state import SessionState
-from laew.rag.config import manifest_base_dir, resolve_knowledge_root, resolve_project_root
+from laew.rag.config import manifest_base_dir, resolve_knowledge_root, resolve_project_root, manifest_global_exclusions
 
 
 def _err(msg: str) -> int:
@@ -57,6 +57,7 @@ def _cmd_list(args: list, state: SessionState) -> int:
         project_root=cfg["project_root"],
         knowledge_root=cfg["knowledge_root"],
         embedding_service=_noop_embedding(),
+        global_source_exclusions=manifest_global_exclusions(manifest),
     )
     vault_root = Path(cfg["knowledge_root"])
     if not vault_root.is_dir():
@@ -148,6 +149,7 @@ def _cmd_stats(args: list, state: SessionState) -> int:
         project_root=cfg["project_root"],
         knowledge_root=cfg["knowledge_root"],
         embedding_service=embedding,
+        global_source_exclusions=manifest_global_exclusions(manifest),
     )
 
     structure = kb.structure()

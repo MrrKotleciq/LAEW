@@ -39,3 +39,16 @@ test('UTF-8 split inside emoji survives NDJSON streaming', async () => {
   const events = []; await readEventStream(response, event => events.push(event));
   assert.equal(events[0].text, sample); assert.equal(events[1].response, sample);
 });
+
+test('long Markdown and Polish text survive byte-by-byte UTF-8 streaming', async () => {
+  const sample = ('# Zażółć\n\nąćęłńóśźż – — „cytat” “quotation” 🧬\n\n**Markdown** `kod`\n\n').repeat(30);
+  const bytes = new TextEncoder().encode(JSON.stringify({type:'delta', text:sample}) + '\n' + JSON.stringify({type:'done', response:sample}) + '\n');
+  const response = new Response(new ReadableStream({start(controller) {
+    for (const byte of bytes) controller.enqueue(Uint8Array.of(byte));
+    controller.close();
+  }}));
+  const events = []; await readEventStream(response, event => events.push(event));
+  assert.equal(events[0].text, sample);
+  assert.equal(events[1].response, sample);
+  assert.equal(events[0].text.includes('\ufffd'), false);
+});

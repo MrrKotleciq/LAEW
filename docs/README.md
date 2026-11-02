@@ -69,3 +69,4 @@ Start with `security/` and relevant ADRs.
 
 ### Performance
 Start with `performance/`.
+Cloud provider configuration and troubleshooting: [Unified model providers](CLOUD_CHAT.md).

@@ -222,6 +222,15 @@ DEFAULT_REGISTRY.register("ollama", build_ollama)
 DEFAULT_REGISTRY.register("llama.cpp", build_llamacpp)
 
 
+def build_cloud(cfg, *, base_url=None, timeout=None):
+    from laew.cloud_chat import CloudChatService
+    return CloudChatService().provider(cfg["type"], cfg.get("account_id"), timeout or 120)
+
+
+for _cloud_type in ("openai-api", "chatgpt", "gemini"):
+    DEFAULT_REGISTRY.register(_cloud_type, build_cloud)
+
+
 # --------------------------------------------------------------------------- #
 # Public convenience factory
 # --------------------------------------------------------------------------- #

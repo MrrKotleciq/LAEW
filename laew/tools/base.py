@@ -1,6 +1,8 @@
 """Base class for LAEW tool runtime wrappers (P8 - Security Below Model Layer)."""
 
 import json
+import contextvars
+from contextlib import contextmanager
 import logging
 import time
 from abc import ABC, abstractmethod
@@ -9,6 +11,22 @@ from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, Optional, IO
+
+_scoped_tool_approval = contextvars.ContextVar("laew_scoped_tool_approval", default=None)
+
+
+def has_scoped_approval(tool):
+    return _scoped_tool_approval.get() is tool
+
+
+@contextmanager
+def authorized_once(tool):
+    """Keep a broker decision local to the current execution context."""
+    token = _scoped_tool_approval.set(tool)
+    try:
+        yield
+    finally:
+        _scoped_tool_approval.reset(token)
 
 
 class ToolError(Exception):
@@ -153,6 +171,8 @@ class ToolLogger:
 
         # Sanitize arguments (remove potentially sensitive data)
         sanitized_args = self._sanitize_arguments(arguments)
+        if operation == "write_knowledge_note":
+            sanitized_args["content"] = "[REDACTED]"
 
         # Create log entry
         log_entry = ToolInvocationLog(

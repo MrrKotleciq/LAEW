@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f3f6fa">
   <title>LAEW · Engineering Workbench</title>
+  <script src="/theme.js"></script>
   <link rel="stylesheet" href="/app.css">
 </head>
 <body>
@@ -13,50 +14,69 @@
       <button id="sidebar-toggle" class="icon-button menu-toggle" aria-label="Open workspace navigation" aria-expanded="false"><span aria-hidden="true">☰</span></button>
       <a class="brand" href="/" aria-label="LAEW Engineering Workbench"><span class="brand-mark">L</span><span class="brand-name">LAEW</span><span class="brand-product">Engineering Workbench</span></a>
       <div class="topbar-workspace"><span class="topbar-label">WORKSPACE</span><strong id="active-project-name">Loading projects…</strong><code id="workspace">Resolving project…</code></div>
-      <div class="runtime-controls">
-        <label for="provider">Provider</label>
-        <select id="provider"><option value="manifest">Manifest default</option><option value="llama.cpp">llama.cpp</option></select>
-        <span id="runtime" role="status" aria-live="polite">Checking runtime…</span>
-      </div>
+      <div class="runtime-controls"><span id="runtime" role="status" aria-live="polite">Checking runtime…</span></div>
+      <label class="theme-control">Theme <select id="theme"><option value="system">System</option><option value="dark">Dark</option><option value="light">Light</option></select></label>
       <button id="context-toggle" class="text-button context-toggle" aria-label="Toggle context panel" aria-expanded="true">Details</button>
     </header>
 
     <aside id="sidebar" class="sidebar" aria-label="Workspace navigation">
-      <section class="projects-section" aria-labelledby="projects-title">
-        <div class="section-heading"><div><p class="eyebrow">WORKSPACE</p><h2 id="projects-title">Projects</h2></div><span id="project-count" class="count-badge">0</span></div>
-        <div class="project-actions"><button id="new-project" class="primary-button" type="button"><span aria-hidden="true">＋</span> New project</button><button id="refresh-projects" class="icon-button refresh-button" type="button" aria-label="Refresh project list" title="Refresh projects"><span aria-hidden="true">↻</span></button></div>
-        <p id="project-root" class="root-caption">Discovering projects…</p>
-        <div id="project-error" class="inline-error" role="status" hidden></div>
-        <nav id="project-list" class="project-list" aria-label="Projects" aria-live="polite"><p class="muted-note">Loading project folders…</p></nav>
+      <button id="sidebar-new-chat" class="sidebar-new-chat" type="button"><span aria-hidden="true">＋</span> New Chat</button>
+      <section class="projects-section projects-tree" aria-labelledby="projects-title">
+        <div class="section-heading projects-heading"><h2 id="projects-title"><button id="projects-toggle" class="projects-toggle" type="button" aria-expanded="true" aria-controls="projects-content"><span class="projects-chevron" aria-hidden="true">▾</span> Projects</button></h2><span id="project-count" class="count-badge">0</span></div>
+        <div id="projects-content" class="projects-content">
+          <div class="project-actions"><button id="new-project" class="primary-button" type="button"><span aria-hidden="true">＋</span> New project</button><button id="refresh-projects" class="icon-button refresh-button" type="button" aria-label="Refresh project list" title="Refresh projects"><span aria-hidden="true">↻</span></button></div>
+          <p id="project-root" class="root-caption">Discovering projects…</p>
+          <div id="project-error" class="inline-error" role="status" hidden></div>
+          <nav id="project-list" class="project-list" aria-label="Projects" aria-live="polite"><p class="muted-note">Loading project folders…</p></nav>
+        </div>
       </section>
       <div class="sidebar-divider"></div>
       <section class="nav-section" aria-label="Workspace tools">
         <p class="eyebrow">WORKSPACE</p>
-        <button class="nav-item active" aria-current="page"><span class="nav-glyph">W</span>Workbench</button>
+        <button id="nav-chat" class="nav-item active" aria-current="page"><span class="nav-glyph">W</span>Workbench</button>
         <p class="eyebrow nav-subheading">TOOLS</p>
         <button class="nav-item unavailable" disabled><span class="nav-glyph">K</span>Knowledge <small>Not yet available</small></button>
         <button class="nav-item unavailable" disabled><span class="nav-glyph">A</span>Activity <small>Not yet available</small></button>
-        <button class="nav-item unavailable" disabled><span class="nav-glyph">M</span>Models &amp; Services <small>Not yet available</small></button>
-        <button class="nav-item unavailable" disabled><span class="nav-glyph">S</span>Settings <small>Not yet available</small></button>
+        <button id="nav-models" class="nav-item"><span class="nav-glyph">M</span>Models &amp; Services</button>
+        <button class="nav-item unavailable settings-item" disabled><span class="nav-glyph">S</span>Settings <small>Not yet available</small></button>
       </section>
       <div class="sidebar-foot"><span class="local-indicator"></span><span>Local workspace</span></div>
+      <div id="sidebar-resize" class="sidebar-resize" role="separator" aria-label="Resize navigation" aria-orientation="vertical" tabindex="0"></div>
     </aside>
+    <div id="conversation-menu" class="conversation-menu" role="menu" hidden><button type="button" role="menuitem" data-action="rename">Rename</button><button type="button" role="menuitem" data-action="delete">Delete</button></div>
 
-    <main class="main-panel">
+    <main id="chat-view" class="main-panel">
       <section class="task-heading">
-        <div class="heading-copy"><p class="eyebrow accent">CHIEF AGENT <span class="heading-dot">·</span> ENGINEERING SESSION</p><h1 id="task-title">Workspace</h1><p class="subtitle">Investigate, reason, and work with this project through LAEW’s controlled runtime.</p><code class="active-project-path" id="active-project-path">Resolving active project…</code></div>
-        <span class="runtime-badge"><span class="local-indicator"></span>LOCAL SESSION</span>
+        <div class="heading-copy"><p class="eyebrow accent" id="conversation-mode">CHIEF AGENT · ENGINEERING SESSION</p><h1 id="task-title">Workspace</h1><p class="subtitle" id="conversation-description">Investigate, reason, and work with this project through LAEW’s controlled runtime.</p><code class="active-project-path" id="active-project-path">Resolving active project…</code></div>
+        <span class="runtime-badge" id="session-mode">LOCAL SESSION</span>
       </section>
       <section id="conversation" aria-label="Conversation" aria-live="polite" aria-relevant="additions text">
         <div class="empty"><div class="empty-mark">L</div><h2>Start with the project at hand</h2><p>Ask the Chief Agent to inspect, explain, or work with this project. Tool operations stay within LAEW’s existing restrictions and approval boundaries.</p><div class="suggestions"><button data-prompt="Summarize the current project structure.">Summarize the project structure <span>↗</span></button><button data-prompt="What should I inspect before making this change?">Plan a safe investigation <span>↗</span></button></div></div>
       </section>
       <form id="composer">
         <label class="sr-only" for="message">Message to the Chief Agent</label>
-        <div class="composer-box"><textarea id="message" required rows="3" placeholder="Describe the engineering task…" aria-describedby="composer-hint"></textarea><div class="composer-footer"><span id="composer-hint">Enter to send · Shift + Enter for a new line</span><div class="send-controls"><span id="state" role="status" aria-live="polite">Ready</span><button id="cancel" class="cancel-button" type="button" disabled>Stop</button><button id="send" class="send-button" type="submit">Send <span aria-hidden="true">↵</span></button></div></div></div>
+        <div class="composer-box"><textarea id="message" required rows="2" placeholder="Describe the engineering task…" aria-describedby="composer-hint"></textarea><div class="model-row"><label class="sr-only" for="active-model">Active model</label><select id="active-model"><option value="">Manifest default</option></select></div><div hidden><select id="provider"><option value="manifest">Manifest default</option><option value="llama.cpp">llama.cpp</option><option value="openai-api">OpenAI API</option><option value="chatgpt">ChatGPT OAuth</option><option value="gemini">Google AI Studio</option></select><input id="cloud-model"><select id="cloud-account"><option value=""></option></select></div><div class="composer-footer"><span id="composer-hint">Enter to send · Shift + Enter for a new line</span><div class="send-controls"><span id="state" role="status" aria-live="polite">Ready</span><button id="cancel" class="cancel-button composer-action" type="button" aria-label="Stop response" title="Stop response" hidden disabled><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></svg></button><button id="send" class="send-button composer-action" type="submit" aria-label="Send message" title="Send message"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5m-6 6 6-6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div></div>
       </form>
     </main>
 
-    <aside id="context" aria-label="Execution details"><nav class="panel-tabs" aria-label="Execution detail tabs"><button class="tab active" data-tab="context" aria-selected="true">Context</button><button class="tab" data-tab="run" aria-selected="false">Run</button><button class="tab" data-tab="sources" aria-selected="false">Sources</button></nav><section id="panel" aria-live="polite"></section></aside>
+    <main id="services-view" class="services-view" hidden aria-labelledby="services-title">
+      <div class="page-heading"><div><p class="eyebrow accent">WORKSPACE CONNECTIONS</p><h1 id="services-title">Models &amp; Services</h1><p>Connect a provider here. Choose your reasoning model in the composer.</p></div><button id="services-refresh" type="button">Refresh status</button></div>
+      <div id="provider-cards" class="provider-grid"></div>
+      <section id="cloud-settings" class="service-editor" aria-labelledby="manage-title">
+        <h2 id="manage-title">Manage connection</h2>
+        <div class="cloud-controls">
+          <label>Provider <select id="service-provider"><option value="manifest">Local · Manifest default</option><option value="llama.cpp">Local · llama.cpp</option><option value="openai-api">OpenAI · API key</option><option value="chatgpt">OpenAI · ChatGPT OAuth</option><option value="gemini">Google AI Studio</option></select></label>
+          <label id="manage-account-label" hidden>ChatGPT account <select id="manage-account"><option value="">Choose or add an account</option></select></label>
+          <button id="cloud-login" type="button" hidden>Continue with ChatGPT</button><button id="cloud-auth-cancel" type="button" hidden>Cancel sign-in</button><button id="cloud-logout" type="button" hidden>Sign out</button>
+        </div>
+        <form id="key-form" class="key-form" hidden><label for="api-key">API key</label><input id="api-key" type="password" autocomplete="new-password" spellcheck="false" placeholder="Enter a new key"><button type="submit">Save API key</button><p>Saved as a Windows user environment variable and applied to this backend. The saved key is never displayed.</p></form>
+        <p id="cloud-auth-state" role="status"></p>
+        <p id="local-endpoint-note" hidden>Local endpoints use the backend manifest and LAEW_BASE_URL. Endpoint editing is not exposed by this backend.</p>
+        <div class="cloud-controls"><label>Model ID <input id="service-model" list="cloud-models" autocomplete="off" placeholder="Load models or enter an exact ID"><datalist id="cloud-models"></datalist></label><button id="cloud-refresh-models" type="button">Test connection &amp; load models</button><button id="use-model" class="primary-button" type="button">Use in chat</button></div>
+        <p id="services-message" role="status"></p><ul id="model-catalog" class="model-catalog"></ul>
+      </section>
+    </main>
+    <aside id="context" aria-label="Execution details"><nav class="panel-tabs" role="tablist" aria-label="Execution detail tabs"><button class="tab active" id="tab-context" role="tab" aria-controls="panel" tabindex="0" data-tab="context" aria-selected="true">Context</button><button class="tab" id="tab-run" role="tab" aria-controls="panel" tabindex="-1" data-tab="run" aria-selected="false">Run</button><button class="tab" id="tab-sources" role="tab" aria-controls="panel" tabindex="-1" data-tab="sources" aria-selected="false">Sources</button></nav><section id="panel" role="tabpanel" aria-labelledby="tab-context" tabindex="0" aria-live="polite"></section></aside>
   </div>
 
   <dialog id="project-dialog" class="project-dialog" aria-labelledby="dialog-title">
@@ -72,6 +92,7 @@
 
   <script src="/markdown.js" defer></script>
   <script src="/stream.js" defer></script>
+  <script src="/ui-state.js" defer></script>
   <script src="/app.js" defer></script>
 </body>
 </html>

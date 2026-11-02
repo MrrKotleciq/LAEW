@@ -171,7 +171,26 @@ Example — chat with a slow CPU model and a longer timeout:
 $ laew chat --provider ollama --timeout 600 --model llama3.1
 ```
 
+## Cloud Chat
+
+Workbench offers text-only **OpenAI API** and **ChatGPT** modes alongside the
+local Chief Agent. API mode reads `OPENAI_API_KEY` only from the backend process
+environment. For ChatGPT account sign-in, install `python -m pip install ".[cloud]"`
+and use **Continue with ChatGPT**. Choose an exact model before sending a message.
+These cloud conversations have no local tools, files, profile or RAG access.
+See [Cloud Chat configuration and security](CLOUD_CHAT.md) for credential storage,
+account eligibility, conversation isolation, usage limits and Stop behavior.
+
 ## Troubleshooting
+
+### Local web search
+
+Run `python scripts/setup_searxng.py` once to create the Git-ignored local secret,
+then `docker compose up -d --no-deps searxng`. The UI and JSON API are bound to
+`127.0.0.1:8888`; the container has a separate persistent cache. Do not put the
+secret in version control. Search requests leave the host through external search
+engines; local SearXNG does not make web search offline. Search results are
+untrusted input. Restart existing LAEW processes to load the updated WebTool.
 
 - **`Connection refused` on `localhost:11434`** — Ollama is not running; start it
   with `ollama serve` (or the desktop app) first.
@@ -179,4 +198,5 @@ $ laew chat --provider ollama --timeout 600 --model llama3.1
   models are slow; raise the request timeout via `LAEW_TIMEOUT`, `--timeout`, or a
   manifest `timeout` entry.
 - **`Unsupported provider type`** — the manifest declares a provider `type` that is
-  not registered; only `ollama` ships today.
+  not registered; local chat supports `ollama` and `llama.cpp`. Cloud Chat is
+  selected separately in Workbench and is not an agent-provider manifest entry.

@@ -61,3 +61,28 @@ The bandit SAST scan is now part of the CI pipeline (`.github/workflows/ci.yml`)
 ## Conclusion
 
 No HIGH or CRITICAL security issues found. The automated SAST gate is in place and the security posture is consistent with Milestone 11 scope.
+# Workbench permission boundary
+
+The Workbench applies deterministic permission classification before tool
+invocation. Project file writes are scoped by the existing path resolver;
+ordinary writes may run in Auto mode, while deletion and security-sensitive
+files require approval. Restricted blocks writes, Manual asks for approval,
+and an approval request is tied to its pending invocation and browser session.
+Session grants apply only to the same operation, resolved path, and overwrite
+mode, and are discarded with the project runtime. The terminal is limited to
+narrowly recognized inspection commands in Workbench. It is not an OS sandbox.
+
+The console tool command and Chief Agent use the same broker with a terminal
+prompt; non-interactive approval is denied. Console workflow execution retains
+its own conservative tool gates and does not yet use this approval flow.
+Approval and cancellation behavior in a
+real browser, OS-level path races, and broad command support need further
+verification. Operators must not assume that model text proves an action ran.
+
+## Permission validation backlog
+
+Exercise Auto, Manual, and Restricted in a real browser, including allow once,
+allow for session, deny, cancellation, session boundaries, and timeout. Check
+the approved terminal diagnostic and denial paths separately. M17's successful
+read-only RAG invocation in Auto mode does not establish those behaviors; this
+broader acceptance work belongs to the Workbench permission boundary.

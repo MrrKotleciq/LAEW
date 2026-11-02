@@ -1,5 +1,14 @@
 # LAEW Tool Contract — Filesystem
 
+`write_knowledge_note` is the sole vault mutation operation. It requires a
+one-time PermissionBroker approval in Auto and Manual modes and is denied in
+Restricted mode. Supply `file_path`, complete UTF-8 `content`, and the
+`expected_sha256` obtained from `view_file` (empty only for creation). Existing
+frontmatter and wikilinks must be preserved. Hidden paths, symlinks, junctions,
+non-Markdown files and vault escapes are denied. A successful write still needs
+global synchronization and subsequent retrieval verification. Normal project
+write approvals do not authorize this operation.
+
 ## 1. Overview
 - **Category**: `filesystem`
 - **Domain**: Workspace file inspection, search, navigation, logical root resolution, and modification.
@@ -23,7 +32,7 @@ All filesystem tool operations MUST be wrapped in a deterministic security bound
    - Access to any filesystem path outside the explicitly declared logical roots (e.g., `~/.ssh/`, `~/.config/`, root system files) is strictly **DENIED** (`ERR_PATH_DENIED`).
 4. **Access Policies per Logical Root**:
    - `@project`: Read-only allowed; mutating operations (`write_file`, `replace_file_content`, `delete_file`) REQUIRE explicit user confirmation.
-   - `@knowledge`: Strictly **Read-Only** by default to protect shared cross-project knowledge.
+   - `@knowledge`: Read-only through general mutation operations. The dedicated `write_knowledge_note` operation requires one-time approval and validation.
    - `@projects`: Controlled inspection (read-only listing/viewing of neighboring project files).
 5. **Restricted Paths & Ignored Patterns**:
    - Direct access to `.git/`, `secrets/`, and matching ignored patterns (`**/.env*`, `**/*.gguf`, `**/*.safetensors`) is blocked without explicit authorization.
@@ -142,3 +151,11 @@ Performs targeted text replacement in an existing file within `@project`.
 - **Error Codes**:
   - `ERR_TARGET_NOT_FOUND`: Target content does not match existing file lines.
   - `ERR_UNAUTHORIZED`: User rejected modification.
+# Engineering Workbench approval
+
+Workbench applies a project-specific permission policy before invoking this
+tool. Auto permits ordinary project writes; deletion and security-sensitive
+files require explicit approval. Manual requests approval for writes and
+Restricted blocks them. The tool's existing path validation and mutation gate
+remain in force. These Workbench decisions do not authorize other tools or
+arbitrary filesystem locations.

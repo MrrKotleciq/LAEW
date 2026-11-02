@@ -119,10 +119,12 @@
         type: "obsidian_vault"
         path: "@knowledge"
         structure:
-          - "Knowledge"
-          - "Decisions"
-          - "Research"
-          - "Templates"
+          - "profile"
+          - "topics"
+          - "research"
+          - "decisions"
+          - "inbox"
+          - "templates"
   
     # ------------------------------------------------------------------------------       
     # 5. Podsystem RAG (Retrieval-Augmented Generation)
@@ -145,6 +147,7 @@
           - "docs/architecture/README.md"
           - "docs/architecture/PRINCIPLES.md"
           - "docs/architecture/UI_ARCHITECTURE.md"
+          - "docs/architecture/KNOWLEDGE_ORGANIZATION.md"
           - "docs/decisions/README.md"
           - "docs/decisions/ADR-001-model-abstraction.md"
           - "docs/decisions/ADR-002-obsidian-second-brain.md"
@@ -173,6 +176,15 @@
           - "docs/roadmap/M17-Second_Brain_&_Global_Knowledge_Integration.md"
           - "docs/roadmap/M20-Multi-Project_Workspace.md"
           - "knowledge/**/*.md"
+      global_sources:
+        # Additional exclusions extend the default non-knowledge folder rules.
+        # The vault README is intentionally indexed as knowledge organization guidance.
+        exclude_patterns:
+          - "inbox/**"
+          - "templates/**"
+          - "assets/**"
+          - "backups/**"
+          - "temp/**"
       vector_store:
         enabled: true
         host: "localhost"

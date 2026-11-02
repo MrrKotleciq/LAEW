@@ -19,9 +19,10 @@ from typing import List, Optional
 logger = logging.getLogger(__name__)
 
 from laew.llm.base import LLMError, LLMProvider
+from laew.project_config import load_project_settings
 from laew.prompts.context_budget import ContextBudget
 from laew.rag.embedding import EmbeddingService
-from laew.rag.config import resolve_knowledge_root
+from laew.rag.config import resolve_knowledge_root, manifest_global_exclusions
 from laew.rag.knowledge_base import KnowledgeBase
 from laew.rag.pipeline import RAGPipeline
 from laew.rag.rag_tool import RagTool
@@ -145,6 +146,10 @@ def resolve_model_name(
         The resolved model name, or None if no model is specified.
     """
     requested: Optional[str] = cli_model or manifest_model
+    if (getattr(provider, "native_tools", False) is True):
+        if not requested:
+            raise LLMError("Choose an exact cloud model ID; automatic model selection is disabled.", code="MODEL_REQUIRED")
+        return requested
 
     # Explicit choice: trust it and let Ollama report a missing model.
     if cli_model:
@@ -358,12 +363,14 @@ def build_rag_tool(
     projects_root: Optional[Path | str] = None,
     knowledge_root: Optional[Path | str] = None,
     embedding_service=None,
+    general: bool = False,
 ) -> RagTool:
     """Build the read-only, manifest-configured RAG tool for the Chief Agent."""
     resolver = PathResolver(
         project_root=project_root,
         projects_root=projects_root,
         knowledge_root=knowledge_root,
+        general=general,
     )
     scoped_project_root = resolver.project_root
     scoped_knowledge_root = resolve_knowledge_root(
@@ -384,12 +391,18 @@ def build_rag_tool(
             embedding = _UnavailableEmbeddingService(str(e))
     rag_config = manifest.get("rag", {}) or {}
     pipeline_config = rag_config.get("pipeline", {}) or {}
+    project_settings = load_project_settings(scoped_project_root) if scoped_project_root is not None else {}
+    source_allowlist = project_settings.get(
+        "rag_source_allowlist",
+        (rag_config.get("project_sources", {}) or {}).get("allowlist"),
+    )
     knowledge_base = KnowledgeBase(
-        project_root=str(scoped_project_root),
+        project_root=str(scoped_project_root) if scoped_project_root is not None else None,
         knowledge_root=str(scoped_knowledge_root),
         embedding_service=embedding,
         vector_store_config=rag_config.get("vector_store", {}) or {},
-        project_source_allowlist=(rag_config.get("project_sources", {}) or {}).get("allowlist"),
+        project_source_allowlist=source_allowlist,
+        global_source_exclusions=manifest_global_exclusions(manifest),
     )
     pipeline = RAGPipeline(
         knowledge_base=knowledge_base,
@@ -402,6 +415,7 @@ def build_rag_tool(
     return RagTool(
         pipeline=pipeline,
         context_budget=context_budget_from_manifest(manifest) or ContextBudget(),
+        global_only=general,
     )
 
 
@@ -413,6 +427,7 @@ def build_shared_tools(
     knowledge_root: Optional[Path | str] = None,
     manifest: Optional[dict] = None,
     rag_embedding_service=None,
+    general: bool = False,
 ) -> List[object]:
     """
     Build the standard shared tool suite for an agent session.
@@ -429,19 +444,23 @@ def build_shared_tools(
     Returns:
         The workspace tools, plus read-only RAG when a manifest is supplied.
     """
-    resolver = PathResolver(project_root=project_root, projects_root=projects_root, knowledge_root=knowledge_root)
+    resolver = PathResolver(project_root=project_root, projects_root=projects_root, knowledge_root=knowledge_root, general=general)
     tools = [
         FilesystemTool(resolver=resolver),
-        GitTool(repo_root=project_root),
-        TerminalTool(workspace_root=project_root, allowlist=terminal_allowlist),
         WebTool(),
     ]
-    if manifest is not None:
+    if not general:
+        tools[1:1] = [GitTool(repo_root=project_root), TerminalTool(workspace_root=project_root, allowlist=terminal_allowlist)]
+    categories = (manifest or {}).get("tools", {}).get("categories", {})
+    category_by_name = {"FilesystemTool": "filesystem", "GitTool": "git", "TerminalTool": "terminal", "WebTool": "web"}
+    tools = [tool for tool in tools if categories.get(category_by_name[tool.name], {}).get("enabled", True)]
+    if manifest is not None and categories.get("rag", {}).get("enabled", True):
         tools.append(build_rag_tool(
             manifest,
             project_root=resolver.project_root,
             projects_root=resolver.projects_root,
             knowledge_root=resolver.knowledge_root,
             embedding_service=rag_embedding_service,
+            general=general,
         ))
     return tools

@@ -29,12 +29,11 @@ def _build_agent(state: SessionState):
     from laew.agent.base import Agent, AgentConfig
 
     manifest = state.load_manifest()
-    provider = build_provider_for_role(
-        manifest,
-        "primary",
-        base_url=state.overrides.get("base-url"),
-        timeout=int(state.overrides["timeout"]) if state.overrides.get("timeout") else None,
-    )
+    from laew.runtime import build_explicit_provider
+    options = dict(base_url=state.overrides.get("base-url"),
+                   timeout=int(state.overrides["timeout"]) if state.overrides.get("timeout") else None)
+    provider = (build_explicit_provider(state.overrides["provider"], **options)
+                if state.overrides.get("provider") else build_provider_for_role(manifest, "primary", **options))
     model_name = resolve_model_name(
         state.overrides.get("model"), state.manifest_model(), provider
     )
@@ -42,10 +41,12 @@ def _build_agent(state: SessionState):
     from laew.rag.config import manifest_base_dir, resolve_knowledge_root, resolve_project_root
     project_root = resolve_project_root(manifest, base_dir=manifest_base_dir(state.manifest_path))
     knowledge_root = resolve_knowledge_root(manifest, project_root=project_root)
+    from laew.project_config import load_project_settings
     agent = Agent(
         config=AgentConfig(
             name="laew-console",
             model=model_name,
+            documentation_language=load_project_settings(project_root)["documentation_language"],
             context_budget=context_budget_from_manifest(manifest),
         ),
         provider=provider,
@@ -124,7 +125,10 @@ def cmd_agent_run(args: list, state: SessionState) -> int:
     print(f"Running agent on '{model_name}'...")
     start = time.perf_counter()
     try:
-        result = executor.run(prompt)
+        from laew.console.permissions import console_broker, console_call
+        fs = agent.tools.get("FilesystemTool")
+        broker = console_broker(state, fs.resolver.project_root)
+        result = executor.run(prompt, on_tool_call=lambda tool, op, args: console_call(broker, tool, op, args, f"console-{id(state)}"))
     except Exception as e:
         return _err(f"execution failed: {e}")
     elapsed = time.perf_counter() - start
@@ -163,6 +167,9 @@ def cmd_agent_chat(args: list, state: SessionState) -> int:
     from laew.agent.executor import AgentExecutor
 
     executor = AgentExecutor(agent)
+    from laew.console.permissions import console_broker, console_call
+    fs = agent.tools.get("FilesystemTool")
+    broker = console_broker(state, fs.resolver.project_root)
     print(f"Chatting with '{model_name}'. Type 'exit' or 'quit' to end.")
     while True:
         try:
@@ -174,7 +181,7 @@ def cmd_agent_chat(args: list, state: SessionState) -> int:
         if user_input.lower() in ("exit", "quit"):
             break
 
-        result = executor.run(user_input, stream=True)
+        result = executor.run(user_input, stream=True, on_tool_call=lambda tool, op, args: console_call(broker, tool, op, args, f"console-{id(state)}"))
         _print_trace(result, state)
         if result.success:
             tokens = (

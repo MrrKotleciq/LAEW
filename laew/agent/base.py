@@ -57,6 +57,8 @@ class AgentConfig:
     context_budget: ContextBudget = field(default_factory=ContextBudget)
     token_ratio: Optional[float] = None
     system_prompt: Optional[LayeredPrompt | str] = None
+    documentation_language: str = "en"
+    project_scope: bool = True
     retry: RetryConfig = field(default_factory=RetryConfig)
     history_path: Optional[str] = None
 
@@ -164,13 +166,7 @@ class Agent:
         import json
         from pathlib import Path
 
-        history_data = [
-            {
-                "role": msg.role.value,
-                "content": msg.content
-            }
-            for msg in self.history
-        ]
+        history_data = [msg.to_dict() for msg in self.history]
 
         Path(self.config.history_path).parent.mkdir(parents=True, exist_ok=True)
         with open(self.config.history_path, 'w', encoding='utf-8') as f:
@@ -193,10 +189,7 @@ class Agent:
                 history_data = json.load(f)
 
             self.history = [
-                LLMMessage(
-                    role=MessageRole(item["role"]),
-                    content=item["content"]
-                )
+                LLMMessage.from_dict(item)
                 for item in history_data
             ]
         except (json.JSONDecodeError, KeyError, ValueError) as e:

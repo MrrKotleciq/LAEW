@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 from laew.config.constants import RAG_CHUNK_SIZE, RAG_CHUNK_OVERLAP
 from laew.rag.embedding import EmbeddingService, embedding_model_identity
+from laew.rag.config import global_source_exclusions as resolve_global_exclusions
 from laew.rag.identity import project_collection_name
 from laew.rag.obsidian import FRONTMATTER_RE, parse_note
 from laew.rag.vector_store import ChromaVectorStore, DocumentChunk, VectorStore
@@ -54,13 +55,14 @@ class KnowledgeBase:
 
     def __init__(
         self,
-        project_root: str,
+        project_root: Optional[str],
         knowledge_root: str,
         embedding_service: EmbeddingService,
         chunk_size: int = RAG_CHUNK_SIZE,
         chunk_overlap: int = RAG_CHUNK_OVERLAP,
         vector_store_config: Optional[dict] = None,
         project_source_allowlist: Optional[List[str]] = None,
+        global_source_exclusions: Optional[List[str] | tuple[str, ...]] = None,
     ):
         """
         Initialize knowledge base.
@@ -74,15 +76,17 @@ class KnowledgeBase:
             vector_store_config: Optional configuration for persistent vector store.
                 If provided and enabled, uses ChromaVectorStore; otherwise falls back
                 to in-memory VectorStore.
+            global_source_exclusions: Additional vault-relative glob exclusions;
+                Inbox, templates and auxiliary folders are excluded by default.
         """
-        self.project_root = Path(project_root)
+        self.project_root = Path(project_root) if project_root is not None else None
         self.knowledge_root = Path(knowledge_root)
         self.embedding_service = embedding_service
         self.embedding_model_id = embedding_model_identity(embedding_service)
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
         self._vector_store_config = vector_store_config
-        if ((vector_store_config or {}).get("enabled") and
+        if (self.project_root is not None and (vector_store_config or {}).get("enabled") and
                 project_collection_name(self.project_root) ==
                 (vector_store_config or {}).get("global_collection", "laew_global")):
             raise ValueError("Project and global collection names must be distinct.")
@@ -91,8 +95,9 @@ class KnowledgeBase:
             if project_source_allowlist is not None
             else None
         )
+        self.global_source_exclusions = resolve_global_exclusions(global_source_exclusions)
 
-        self._project_store = self._create_store("project")
+        self._project_store = self._create_store("project") if self.project_root is not None else None
         self._global_store = self._create_store("global")
         self._loaded = False
         self._project_loaded = False
@@ -141,6 +146,8 @@ class KnowledgeBase:
 
     def ensure_store(self, scope: str) -> None:
         """Reconnect a persistent scope after a temporary Chroma outage."""
+        if scope == "project" and self.project_root is None:
+            raise ValueError("Project scope is unavailable.")
         if not (self._vector_store_config or {}).get("enabled"):
             return
         attribute = "_project_store" if scope == "project" else "_global_store"
@@ -161,6 +168,8 @@ class KnowledgeBase:
         and duplicate it — exactly what ADR-011 forbids. Rejecting the overlap
         keeps ``@project`` and ``@knowledge`` as disjoint sibling directories.
         """
+        if a is None or b is None:
+            return False
         a = Path(a).resolve()
         b = Path(b).resolve()
         return a == b or a.is_relative_to(b) or b.is_relative_to(a)
@@ -194,6 +203,8 @@ class KnowledgeBase:
 
     def load_project(self, force: bool = False, *, missing_ok: bool = True) -> None:
         """Load only project memory, never the shared global vault."""
+        if self.project_root is None:
+            raise ValueError("Project scope is unavailable.")
         if not self.project_root.is_dir():
             if missing_ok:
                 return
@@ -288,6 +299,8 @@ class KnowledgeBase:
         A failed or unavailable scan leaves both stores untouched. Existing
         records without fingerprints are compared with freshly chunked text.
         """
+        if self.project_root is None and scope != "global":
+            raise ValueError("Project scope is unavailable.")
         if self._roots_overlap(self.project_root, self.knowledge_root):
             raise ValueError("Project and knowledge roots overlap.")
         if scope not in (None, "project", "global"):
@@ -318,9 +331,7 @@ class KnowledgeBase:
                         continue
                     path = Path(folder) / name
                     relative = path.relative_to(root).as_posix()
-                    if source == "project" and self.project_source_allowlist is not None and not any(
-                        fnmatchcase(relative, pattern) for pattern in self.project_source_allowlist
-                    ):
+                    if not self._source_selected(relative, source):
                         continue
                     try:
                         path.resolve(strict=True).relative_to(root.resolve())
@@ -409,14 +420,7 @@ class KnowledgeBase:
 
         for md_file in directory.rglob("*.md"):
             relative_path = md_file.relative_to(directory).as_posix()
-            if (
-                source == "project"
-                and self.project_source_allowlist is not None
-                and not any(
-                    fnmatchcase(relative_path, pattern)
-                    for pattern in self.project_source_allowlist
-                )
-            ):
+            if not self._source_selected(relative_path, source):
                 continue
             # Skip hidden directories and common non-doc directories
             if any(
@@ -438,6 +442,15 @@ class KnowledgeBase:
 
         if chunks:
             store.add_chunks(chunks)
+
+    def _source_selected(self, relative_path: str, source: str) -> bool:
+        """Select knowledge consistently for both ingestion and reconciliation."""
+        if source == "global":
+            return not any(fnmatchcase(relative_path.casefold(), pattern.casefold())
+                           for pattern in self.global_source_exclusions)
+        return self.project_source_allowlist is None or any(
+            fnmatchcase(relative_path, pattern) for pattern in self.project_source_allowlist
+        )
 
     def _load_file(
         self,

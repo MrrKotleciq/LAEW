@@ -161,3 +161,27 @@ def test_default_initialization_uses_cwd():
     resolver = PathResolver()
     assert resolver.project_root == Path.cwd().resolve()
     assert resolver.projects_root == Path.cwd().parent.resolve()
+
+
+def test_general_scope_only_resolves_explicit_knowledge_paths(tmp_roots):
+    resolver = PathResolver(
+        general=True, projects_root=tmp_roots["projects"],
+        knowledge_root=tmp_roots["knowledge"],
+    )
+    assert resolver.project_root is None
+    assert resolver.resolve("@knowledge/AI/RAG.md") == tmp_roots["knowledge"] / "AI" / "RAG.md"
+    for value in ("@project", "@project/README.md", "@projects/test-project/README.md",
+                  "README.md", str(tmp_roots["project"] / "README.md"),
+                  "@knowledge/../projects/test-project/README.md"):
+        with pytest.raises(PathResolverError):
+            resolver.resolve(value)
+    assert not resolver.is_within_root(tmp_roots["project"], "@project")
+    assert resolver.get_alias_for_path(tmp_roots["project"]) is None
+
+
+def test_general_scope_requires_explicit_roots(tmp_roots):
+    with pytest.raises(ValueError):
+        PathResolver(general=True)
+    with pytest.raises(ValueError):
+        PathResolver(general=True, project_root=tmp_roots["project"],
+                     projects_root=tmp_roots["projects"], knowledge_root=tmp_roots["knowledge"])

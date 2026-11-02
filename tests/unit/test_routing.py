@@ -22,6 +22,13 @@ from laew.llm.registry import ProviderRegistry, build_ollama
 from laew.runtime import build_provider_for_role
 
 
+@pytest.fixture(autouse=True)
+def isolate_background_synchronization():
+    """Provider routing tests exercise dispatch, not production index writers."""
+    with patch("laew.rag.sync.SyncScheduler") as scheduler, patch("laew.cli.build_shared_tools", return_value=[]):
+        yield scheduler
+
+
 # --------------------------------------------------------------------------- #
 # Test provider builders
 # --------------------------------------------------------------------------- #

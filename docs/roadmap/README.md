@@ -35,7 +35,7 @@ This directory contains milestone documents describing planned work for LAEW.
 | M14 | ✅ Completed | [M14-Performance_&_Context-Efficiency_Audit.md](M14-Performance_&_Context-Efficiency_Audit.md) |
 | M15 | ✅ Completed | [M15-Multi-Model_Routing_&_Provider_Fallback.md](M15-Multi-Model_Routing_&_Provider_Fallback.md) |
 | M16 | ✅ Completed | [M16-Parallel_Multi-Agent_Execution_&_Semantic_Conflict_Detection.md](M16-Parallel_Multi-Agent_Execution_&_Semantic_Conflict_Detection.md) |
-| M17 | 🚧 In Progress | [M17-Second_Brain_&_Global_Knowledge_Integration.md](M17-Second_Brain_&_Global_Knowledge_Integration.md) |
+| M17 | ✅ Completed | [M17-Second_Brain_&_Global_Knowledge_Integration.md](M17-Second_Brain_&_Global_Knowledge_Integration.md) |
 | M18 | 🚧 In Progress | [M18-Monitoring_Telemetry_&_Backup.md](M18-Monitoring_Telemetry_&_Backup.md) |
 | M19 | 🚧 In Progress | [M19-MCP_Tools_Layer.md](M19-MCP_Tools_Layer.md) |
 | M20 | 🚧 In Progress | [M20-Multi-Project_Workspace.md](M20-Multi-Project_Workspace.md) |

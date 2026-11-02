@@ -2,10 +2,8 @@
 
 Drives the four security-gated :class:`Tool` wrappers (filesystem, git,
 terminal, web) through ``tool <name> <op> [k=v ...]``, honouring the session's
-approval-gate mode (``ask`` | ``auto`` | ``deny``) so the P8 boundary can be
-demonstrated from one session: **auto** approves before mutating, **ask**
-prompts interactively, **deny** lets mutating operations return their
-``ERR_UNAUTHORIZED`` result untouched.
+approval-gate mode (``ask`` | ``auto`` | ``deny``) through the shared broker.
+Auto permits classified safe actions; ask prompts; deny blocks gated actions.
 """
 
 import json
@@ -69,9 +67,9 @@ def cmd_tool(args: list, state: SessionState) -> int:
       tool web search_web query=LAEW
 
     Approval gates (set approval auto|ask|deny):
-      auto  — grants before each mutation so it passes.
-      ask   — approvals are prompted only when the tool's own gate denies.
-      deny  — the gate stays armed and mutating operations refuse.
+      auto  — executes classified safe actions without prompting.
+      ask   — prompts before actions requiring approval.
+      deny  — blocks actions requiring approval.
     Use <name>=<value> arguments; exact operation names differ from shell
     commands (use 'tool terminal run_command command=ls', not 'tool ls').
     """
@@ -84,9 +82,9 @@ def cmd_tool(args: list, state: SessionState) -> int:
         print("tool <name> <op> [k=v ...] — execute a security-gated tool operation.\n")
         print(_OP_TABLE())
         print("Approval gates (set approval auto|ask|deny):")
-        print("  auto  — grants before each mutation so it passes.")
-        print("  ask   — prompts approvals only when the tool's own gate denies.")
-        print("  deny  — the gate stays armed; mutating operations refuse.")
+        print("  auto  — executes classified safe actions without prompting.")
+        print("  ask   — prompts before actions requiring approval.")
+        print("  deny  — blocks actions requiring approval.")
         return 0
 
     name, operation = args[0], args[1] if len(args) > 1 else None
@@ -110,31 +108,11 @@ def cmd_tool(args: list, state: SessionState) -> int:
         return _err(e)
     tool = TOOL_FACTORIES[name](allowlist)
 
-    # Authorization mode drives the P8 gate:
-    #   auto  — grant before the call so mutations pass (demonstrates approval).
-    #   ask   — call first and defer to the tool's own gate; prompt for
-    #           approval only if the operation was actually denied. Reads that
-    #           don't require approval therefore never prompt.
-    #   deny  — never grant; the tool's gate refuses the mutation untouched.
-    if state.approval == "auto":
-        tool.approve()
-
-    result = tool.call(operation, **tool_kwargs)
-
-    if (
-        state.approval == "ask"
-        and not result.success
-        and result.error_code == ErrorCode.ERR_UNAUTHORIZED
-    ):
-        try:
-            answer = input(f"Approve {tool.name}.{operation}? [y/N]: ").strip().lower()
-        except EOFError:
-            answer = ""
-        if answer != "y":
-            print("[!] not approved")
-            return 1
-        tool.approve()
-        result = tool.call(operation, **tool_kwargs)
+    from pathlib import Path
+    from laew.console.permissions import console_broker, console_call
+    project_root = getattr(getattr(tool, "resolver", None), "project_root", None) or getattr(tool, "workspace_root", None) or Path.cwd()
+    broker = console_broker(state, Path(project_root))
+    result = console_call(broker, tool, operation, tool_kwargs, f"console-{id(state)}")
 
     if result.success:
         print("[OK] operation succeeded")

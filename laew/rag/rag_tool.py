@@ -31,6 +31,10 @@ class RagTool(Tool):
         "query": {
             "description": "Search project or global Markdown knowledge.",
             "params": ["query", "scope", "max_results"],
+            "required": ["query"],
+            "properties": {"query": {"type": "string"}, "scope": {"type": "string", "enum": ["project", "global", "hybrid"]},
+                           "max_results": {"type": "integer"}},
+            "read_only": True,
         }
     }
 
@@ -38,6 +42,8 @@ class RagTool(Tool):
         self,
         pipeline: RAGPipeline,
         context_budget: ContextBudget,
+        *,
+        global_only: bool = False,
     ):
         """
         Initialize RAG tool.
@@ -49,6 +55,12 @@ class RagTool(Tool):
         super().__init__()
         self._pipeline = pipeline
         self._context_budget = context_budget
+        self._global_only = global_only
+        if global_only:
+            import copy
+            self.operations = copy.deepcopy(self.operations)
+            self.operations["query"]["properties"]["scope"]["enum"] = ["global"]
+            self.description = "Search the shared Global Knowledge vault. Only global scope is available."
 
     def validate(self, operation: str, **kwargs) -> tuple[bool, Optional[str]]:
         """
@@ -68,7 +80,9 @@ class RagTool(Tool):
         if not query or not isinstance(query, str):
             return False, "Query must be a non-empty string"
 
-        scope_str = kwargs.get("scope", "project")
+        scope_str = kwargs.get("scope", "global" if self._global_only else "project")
+        if self._global_only and scope_str != "global":
+            return False, "Project scope is unavailable."
         try:
             KnowledgeScope(scope_str)
         except ValueError:
@@ -99,8 +113,11 @@ class RagTool(Tool):
                 message=f"Unsupported operation: {operation}",
             )
 
+        valid, error = self.validate(operation, **kwargs)
+        if not valid:
+            return ToolResult.error(code="ERR_INVALID_INPUT", message=error)
         query = kwargs["query"]
-        scope_str = kwargs.get("scope", "project")
+        scope_str = kwargs.get("scope", "global" if self._global_only else "project")
         max_results = kwargs.get("max_results")
 
         try:

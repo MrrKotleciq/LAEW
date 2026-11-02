@@ -26,6 +26,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+cloud = ["authlib>=1.9.1,<2", "keyring>=25,<26"]
 dev = [
     "pytest>=7.4.0",
     "html2text>=2020.1.16",
@@ -52,6 +53,7 @@ skips = ["B101"]
 
 [tool.pytest.ini_options]
 markers = [
+    "live: explicitly opted-in real model/service validation",
     "integration: tests that exercise multiple LAEW components or a live local service",
     "ollama: tests that call a live Ollama HTTP API",
 ]

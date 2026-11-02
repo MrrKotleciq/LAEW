@@ -172,11 +172,14 @@ def test_help_unknown_topic(session, capsys):
 
 def test_run_console_boots_and_exits(capsys):
     """run_console returns 0 when the session exits normally via queued input."""
-    with patch("builtins.input", return_value="exit"):
+    with patch("builtins.input", return_value="exit"), patch("laew.rag.sync.SyncScheduler") as scheduler:
         assert run_console(manifest_path="manifests/SYSTEM_MANIFEST.yaml") == 0
+    scheduler.return_value.start.assert_called_once_with("console")
+    scheduler.return_value.close.assert_called_once()
 
 
 def test_run_console_interruption_returns_1(capsys):
     """Ctrl+C inside the loop yields a clean exit code 1."""
-    with patch("builtins.input", side_effect=KeyboardInterrupt):
+    with patch("builtins.input", side_effect=KeyboardInterrupt), patch("laew.rag.sync.SyncScheduler") as scheduler:
         assert run_console(manifest_path="manifests/SYSTEM_MANIFEST.yaml") == 1
+    scheduler.return_value.close.assert_called_once()

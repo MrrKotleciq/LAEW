@@ -39,6 +39,8 @@ This directory contains documents describing LAEW's current architectural intent
 | [Multi-Agent Protocol](ADR-018-multi-agent-communication-protocol.md) | Multi-agent communication protocol |
 | [Provider Registry](ADR-019-provider-registry-and-factory.md) | Provider registry and factory |
 | [UI Architecture](UI_ARCHITECTURE.md) | Local browser workbench MVP specification |
+| [Knowledge Organization](KNOWLEDGE_ORGANIZATION.md) | Memory ownership, approved promotion, profiles and flexible academic projects |
+| [Persistent conversation history](CONVERSATION_HISTORY.md) | Shared session storage, tool events, scope and recovery |
 
 ## Principles
 

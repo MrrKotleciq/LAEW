@@ -129,7 +129,7 @@ def test_search_web_no_network_error(tool):
 
     # Check that we get either success or a proper error code
     if not result.success:
-        assert result.error_code in {ErrorCode.ERR_FETCH_FAILED, ErrorCode.ERR_INVALID_INPUT}
+        assert result.error_code in {ErrorCode.ERR_FETCH_FAILED, ErrorCode.ERR_INVALID_INPUT, ErrorCode.ERR_TIMEOUT}
     else:
         # On success, should have results
         assert "results" in result.data
@@ -142,7 +142,7 @@ def test_read_url_content_with_domain_filter(tool):
 
     # Check that we get either success or a proper error code
     if not result.success:
-        assert result.error_code in {ErrorCode.ERR_FETCH_FAILED, ErrorCode.ERR_INVALID_INPUT}
+        assert result.error_code in {ErrorCode.ERR_FETCH_FAILED, ErrorCode.ERR_INVALID_INPUT, ErrorCode.ERR_TIMEOUT}
     else:
         assert result.data.get("domain_filter") == "docs.rs"
 

@@ -24,6 +24,13 @@ from laew.manifest import ManifestError
 from laew.llm.base import LLMError
 
 
+@pytest.fixture(autouse=True)
+def isolate_background_synchronization():
+    """CLI unit tests must not start a scheduler against the shipped workspace."""
+    with patch("laew.rag.sync.SyncScheduler") as scheduler:
+        yield scheduler
+
+
 @pytest.fixture
 def temp_manifest():
     """Create a temporary manifest file for testing."""

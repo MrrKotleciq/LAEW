@@ -325,7 +325,7 @@ Let me check the file.'''
         assert result is None
 
     def test_parse_tool_call_json_block(self):
-        """Test parsing tool call in generic json block."""
+        """Ordinary JSON is data; only the explicit local protocol executes."""
         provider = MockProvider()
         agent = Agent(config=AgentConfig(), provider=provider)
         executor = AgentExecutor(agent)
@@ -335,8 +335,7 @@ Let me check the file.'''
 ```'''
 
         result = executor._parse_tool_call(text)
-        assert result is not None
-        assert result["tool"] == "git"
+        assert result is None
 
     def test_format_tools_description_empty(self):
         """Test tool description when no tools available."""

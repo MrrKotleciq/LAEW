@@ -119,6 +119,7 @@ class LlamaCppProvider(LLMProvider):
         method: str = "post",
         timeout: Optional[int | tuple[int, int]] = None,
         stream: bool = False,
+        session=None,
     ) -> requests.Response:
         """
         Perform a llama.cpp HTTP request with error handling.
@@ -133,7 +134,7 @@ class LlamaCppProvider(LLMProvider):
         Raises:
             LLMError: If the request fails
         """
-        http_method = getattr(requests, method)
+        http_method = getattr(session or requests, method)
         try:
             response = http_method(
                 url,
@@ -239,6 +240,7 @@ class LlamaCppProvider(LLMProvider):
         temperature: float = 0.7,
         max_tokens: Optional[int] = None,
         stop: Optional[list[str]] = None,
+        cancellation=None,
     ) -> Iterator[dict]:
         """
         Stream a completion via llama.cpp SSE (``/v1/chat/completions``).
@@ -271,10 +273,19 @@ class LlamaCppProvider(LLMProvider):
         # parser finds nothing.
         payload["stream"] = True
 
-        response = self._request(
-            url, payload, timeout=(self._timeout, self._stream_timeout), stream=True
-        )
+        from laew.llm.cancellation import cancellable_session
+        session = cancellable_session(cancellation) if cancellation else None
+        try:
+            response = self._request(
+                url, payload, timeout=(self._timeout, self._stream_timeout), stream=True,
+                **({"session": session} if session else {})
+            )
+        except Exception:
+            if session:
+                session.close()
+            raise
 
+        interrupt = cancellation.register_response(response) if cancellation else None
         self._last_stream_response = None
         last_usage: Optional[dict] = None
         finish_reason: Optional[str] = "stop"
@@ -331,7 +342,11 @@ class LlamaCppProvider(LLMProvider):
                 code="STREAM_ERROR",
             ) from e
         finally:
+            if cancellation:
+                cancellation.unregister(interrupt)
             response.close()
+            if session:
+                session.close()
 
         if not completed:
             raise LLMError("llama.cpp stream ended before completion; retry the request.", code="STREAM_ERROR")

@@ -882,7 +882,8 @@ class TestKnowledgeBaseWithManifestConfig:
         assert isinstance(kb._project_store, VectorStore)
         assert isinstance(kb._global_store, VectorStore)
         assert len(caught) == 2
-        assert "project_test" in str(caught[0].message)
+        from laew.rag.identity import project_collection_name
+        assert project_collection_name(kb.project_root) in str(caught[0].message)
         assert "in-memory storage" in str(caught[0].message)
 
 

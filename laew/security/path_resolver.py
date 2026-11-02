@@ -34,6 +34,8 @@ class PathResolver:
         project_root: Optional[Path | str] = None,
         projects_root: Optional[Path | str] = None,
         knowledge_root: Optional[Path | str] = None,
+        *,
+        general: bool = False,
     ):
         """
         Initialize path resolver with logical root mappings.
@@ -42,8 +44,15 @@ class PathResolver:
             project_root: PROJECT_ROOT path (defaults to cwd)
             projects_root: PROJECTS_ROOT path (defaults to ../)
             knowledge_root: GLOBAL_KNOWLEDGE_ROOT path (defaults to ../../KNOWLEDGE)
+            general: Disable project aliases and require explicitly supplied roots.
         """
-        if project_root is None:
+        if general and project_root is not None:
+            raise ValueError("General scope cannot have a project root")
+        if general and (projects_root is None or knowledge_root is None):
+            raise ValueError("General scope requires explicit projects and knowledge roots")
+        if general:
+            self._project_root = None
+        elif project_root is None:
             self._project_root = Path.cwd().resolve()
         else:
             self._project_root = Path(project_root).resolve()
@@ -58,17 +67,23 @@ class PathResolver:
         else:
             self._knowledge_root = Path(knowledge_root).resolve()
 
-        self._alias_map = {
-            self.ALIAS_PROJECT: self._project_root,
-            self.ALIAS_PROJECTS: self._projects_root,
-            self.ALIAS_KNOWLEDGE: self._knowledge_root,
-        }
+        if general and (self._knowledge_root.is_relative_to(self._projects_root)
+                        or self._projects_root.is_relative_to(self._knowledge_root)):
+            raise ValueError("General knowledge and projects roots must not overlap")
+
+        self._alias_map = {self.ALIAS_KNOWLEDGE: self._knowledge_root}
+        if not general:
+            self._alias_map = {
+                self.ALIAS_PROJECT: self._project_root,
+                self.ALIAS_PROJECTS: self._projects_root,
+                **self._alias_map,
+            }
 
         self._restricted_paths = {".git", "secrets"}
         self._ignored_patterns = {".env", ".gguf", ".safetensors"}
 
     @property
-    def project_root(self) -> Path:
+    def project_root(self) -> Optional[Path]:
         return self._project_root
 
     @property
@@ -119,7 +134,9 @@ class PathResolver:
             relative = aliased_path
 
         # Get root for this alias
-        root = self._alias_map[alias]
+        root = self._alias_map.get(alias)
+        if root is None:
+            raise PathResolverError(f"Path scope is unavailable: {alias}")
 
         # Resolve the path
         resolved = (root / relative).resolve()

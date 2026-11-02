@@ -50,7 +50,10 @@ Relying on arbitrary relative path navigation (`../`, `../../`) is fragile, secu
    - `@knowledge`: Maps to `GLOBAL_KNOWLEDGE_ROOT` (e.g., `@knowledge/AI/RAG.md`).
 3. Enforce access control programmatically in the filesystem tool layer:
    - Access to `@project` is standard read/write (with approval for mutations).
-   - Access to `@knowledge` is strictly read-only by default.
+   - Access to `@knowledge` is read-only by default. A dedicated Markdown-note
+     operation may write within that root only after an explicit, one-operation
+     PermissionBroker decision. It validates the resolved target and note content;
+     normal filesystem mutations remain restricted to `@project`.
    - Access to `@projects` is controlled inspection only.
    - All unmapped paths outside these roots (such as `~/.ssh/`, `~/.config/`, system directories) are strictly **DENIED BY DEFAULT**.
 

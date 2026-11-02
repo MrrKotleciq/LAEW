@@ -1,7 +1,7 @@
 """Base LLM provider interface (ADR-001: Model Abstraction and Roles)."""
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field, asdict
 from enum import Enum
 from typing import Any, Generator, Optional
 
@@ -43,6 +43,16 @@ class MessageRole(str, Enum):
     SYSTEM = "system"
     USER = "user"
     ASSISTANT = "assistant"
+    TOOL = "tool"
+
+
+@dataclass
+class ToolCall:
+    """A completed protocol call. Arguments stay raw until executor validation."""
+
+    id: str
+    name: str
+    arguments: str
 
 
 @dataclass
@@ -57,10 +67,35 @@ class LLMMessage:
 
     role: MessageRole
     content: str
+    tool_calls: list[ToolCall] = field(default_factory=list)
+    tool_call_id: Optional[str] = None
+    provider_data: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, str]:
         """Convert to dictionary format."""
-        return {"role": self.role.value, "content": self.content}
+        result = {"role": self.role.value, "content": self.content}
+        if self.tool_calls:
+            result["tool_calls"] = [asdict(call) for call in self.tool_calls]
+        if self.tool_call_id:
+            result["tool_call_id"] = self.tool_call_id
+        if self.provider_data:
+            result["provider_data"] = self.provider_data
+        return result
+
+    @classmethod
+    def from_dict(cls, item):
+        return cls(MessageRole(item["role"]), item["content"],
+                   [ToolCall(**call) for call in item.get("tool_calls", [])],
+                   item.get("tool_call_id"), item.get("provider_data", {}))
+
+    def to_text_dict(self):
+        """Render completed native tool history for legacy local text protocols."""
+        import json
+        content = self.content
+        if self.tool_calls:
+            content += "\nTool requests: " + json.dumps([asdict(c) for c in self.tool_calls])
+        role = "user" if self.role == MessageRole.TOOL else self.role.value
+        return {"role": role, "content": content}
 
 
 @dataclass
@@ -83,6 +118,8 @@ class LLMResponse:
     completion_tokens: Optional[int] = None
     total_tokens: Optional[int] = None
     finish_reason: Optional[str] = None
+    tool_calls: list[ToolCall] = field(default_factory=list)
+    provider_data: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary format."""

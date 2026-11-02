@@ -42,6 +42,7 @@ Each ADR is a standalone document. Use the table below to find the relevant deci
 | [ADR-019](ADR-019-provider-registry-and-factory.md) | Provider Registry and Factory | Accepted | When adding or changing model providers |
 | [ADR-020](ADR-020-local-web-application.md) | Local Web Application Architecture | Accepted | When changing the browser/API boundary |
 | [ADR-021](ADR-021-project-centric-engineering-workbench.md) | Project-Centric Engineering Workbench | Accepted | When changing workspace UX |
+| [ADR-022](ADR-022-persistent-conversation-history.md) | Shared Persistent Conversation History | Accepted | When changing conversation persistence or recovery |
 
 ## ADR Process
 

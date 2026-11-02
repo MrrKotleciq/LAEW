@@ -11,6 +11,8 @@ import hashlib
 import os
 import re
 import threading
+import time
+import uuid
 import webbrowser
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -21,7 +23,11 @@ from urllib.parse import parse_qs, urlparse
 from laew.agent import Agent, AgentConfig, AgentExecutor
 from laew.agent.executor import StreamCancelled
 from laew.llm.base import LLMError
+from laew.llm.cancellation import Cancellation
+from laew.cloud_chat import CLOUD_PROVIDERS, CloudChatService, CloudError
 from laew.manifest import ManifestError, load_manifest
+from laew.project_config import load_project_settings, save_project_language, save_project_settings
+from laew.security.permissions import PermissionBroker
 from laew.runtime import (
     build_provider_for_role,
     build_explicit_provider,
@@ -32,6 +38,8 @@ from laew.runtime import (
     resolve_llamacpp_model,
     terminal_allowlist_from_manifest,
 )
+
+_UNSPECIFIED_SCOPE = object()
 
 
 def resolve_workspace_root(configured_root: Optional[str | Path] = None) -> Path:
@@ -67,15 +75,24 @@ class WorkspaceService:
         app_root = Path(__file__).resolve().parents[1]
         self.default_project_root = Path(project_root).resolve() if project_root else app_root.resolve()
         self._lock = threading.Lock()
+        self._runs_lock = threading.Lock()
+        self._runs = {}
+        self._early_cancellations = {}
         self._sync_lock = threading.Lock()
         self._sync_bases = {}
         self._scheduler = None
+        self._cloud = None
         self._agent: Optional[Agent] = None
+        self._permissions = None
         self._executor: Optional[AgentExecutor] = None
         self._provider_name: Optional[str] = None
         self._model: Optional[str] = None
         self._error: Optional[str] = None
         self._selection = "manifest"
+        self._account_id = None
+        self._session_id = None
+        self._conversations = {}
+        self._conversation_store = None
         self._projects = self._discover_projects()
         try:
             default_id = self._id_for_path(self.default_project_root)
@@ -86,6 +103,51 @@ class WorkspaceService:
     def _id_for_path(self, path: Path) -> str:
         from laew.rag.identity import canonical_project_path
         return hashlib.sha256(canonical_project_path(path).encode("utf-8")).hexdigest()[:16]
+
+    @staticmethod
+    def _run_key(session_id, run_id):
+        pattern = r"[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}"
+        if not isinstance(session_id, str) or not isinstance(run_id, str):
+            return None
+        if not re.fullmatch(pattern, session_id) or not re.fullmatch(pattern, run_id):
+            return None
+        return session_id, run_id
+
+    def register_run(self, session_id, run_id):
+        key = self._run_key(session_id, run_id)
+        if key is None:
+            return None
+        token = Cancellation()
+        with self._runs_lock:
+            if key in self._runs:
+                raise ValueError("Run ID is already active.")
+            self._runs[key] = token
+            cancelled = self._early_cancellations.pop(key, 0) > time.monotonic()
+        if cancelled:
+            token.cancel()
+        return token
+
+    def cancel_run(self, session_id, run_id):
+        key = self._run_key(session_id, run_id)
+        if key is None:
+            return False
+        with self._runs_lock:
+            token = self._runs.get(key)
+            if token is None:
+                now = time.monotonic()
+                self._early_cancellations = {k: expiry for k, expiry in self._early_cancellations.items() if expiry > now}
+                if len(self._early_cancellations) >= 512:
+                    return False
+                self._early_cancellations[key] = now + 60
+        if token is not None:
+            token.cancel()
+        return True
+
+    def unregister_run(self, session_id, run_id, token):
+        key = self._run_key(session_id, run_id)
+        with self._runs_lock:
+            if self._runs.get(key) is token:
+                self._runs.pop(key, None)
 
     def _discover_projects(self) -> dict[str, dict[str, str]]:
         """Discover all direct child directories under the trusted Projects root."""
@@ -126,6 +188,8 @@ class WorkspaceService:
         with self._lock:
             self._projects = self._discover_projects()
             if self._active_project_id not in self._projects:
+                if self._active_project_id is not None:
+                    self._reset_runtime()
                 self._active_project_id = None
             return {"projects_root": str(self.projects_root), "projects": list(self._projects.values()),
                     "active_project": self._active_project_id,
@@ -150,18 +214,31 @@ class WorkspaceService:
 
     def _reset_runtime(self) -> None:
         self._agent = None
+        self._permissions = None
         self._executor = None
         self._provider_name = None
         self._model = None
         self._error = None
 
+    def conversation_store(self):
+        if self._conversation_store is None:
+            from laew.console.session_store import conversation_store_from_manifest
+            self._conversation_store = conversation_store_from_manifest(load_manifest(self.manifest_path), self.manifest_path)
+        return self._conversation_store
+
+    def create_conversation(self, scope, project_id):
+        from laew.console.session_store import SessionStoreError
+        if scope == "project" and project_id not in self._discover_projects():
+            raise SessionStoreError("Project is unavailable.")
+        return self.conversation_store().create_conversation(scope, project_id)
+
     def _sync_base(self, project_root=None):
-        root = Path(project_root or self.default_project_root).resolve()
+        root = Path(project_root).resolve() if project_root is not None else None
         with self._sync_lock:
             if root not in self._sync_bases:
                 manifest = load_manifest(self.manifest_path)
                 tool = build_rag_tool(manifest, project_root=root, projects_root=self.projects_root,
-                                      knowledge_root=self.knowledge_root)
+                                      knowledge_root=self.knowledge_root, general=root is None)
                 self._sync_bases[root] = tool._pipeline.knowledge_base
             return self._sync_bases[root]
 
@@ -173,15 +250,72 @@ class WorkspaceService:
             self._scheduler.start(project["path"] if project else None)
 
     def close(self):
+        if self._cloud is not None:
+            self._cloud.close()
         if self._scheduler is not None:
             self._scheduler.close()
+
+    @property
+    def cloud(self):
+        with self._runs_lock:
+            if self._cloud is None: self._cloud = CloudChatService()
+            return self._cloud
+
+    def cloud_request(self, route, body):
+        try:
+            for field in ("provider", "model", "account_id", "project_id", "attempt_id"):
+                if body.get(field) is not None and not isinstance(body[field], str):
+                    raise CloudError("INVALID_REQUEST", "Invalid cloud request field.")
+            session = body.get("session_id")
+            if not isinstance(session, str) or not 16 <= len(session) <= 128:
+                raise CloudError("INVALID_REQUEST", "A browser session is required.")
+            if route == "/api/cloud/status":
+                return HTTPStatus.OK, self.cloud.status(session)
+            if route == "/api/cloud/key":
+                from laew.api_credentials import save_api_key
+                if not self._lock.acquire(blocking=False):
+                    raise CloudError("BUSY", "Wait for the active run before changing credentials.")
+                try:
+                    save_api_key(body.get("provider"), body.get("api_key"))
+                    return HTTPStatus.OK, {"configured": True, "message": "Saved to the Windows user environment and applied to this backend."}
+                finally:
+                    self._lock.release()
+            if route == "/api/cloud/models":
+                if body.get("provider") not in CLOUD_PROVIDERS:
+                    manifest = load_manifest(self.manifest_path)
+                    provider = (build_explicit_provider("llama.cpp") if body.get("provider") == "llama.cpp"
+                                else build_provider_for_role(manifest, "primary"))
+                    return HTTPStatus.OK, {"models": [{"id": m, "label": m} for m in provider.list_models()]}
+                credential, _ = self.cloud.credential(body.get("provider"), body.get("account_id"))
+                return HTTPStatus.OK, {"models": self.cloud.transport.models(credential, body.get("provider"))}
+            if route in {"/api/cloud/history", "/api/cloud/new"}:
+                if not self._lock.acquire(blocking=False):
+                    raise CloudError("BUSY", "Wait for the active run before changing conversation history.")
+                try:
+                    agent = self._conversations.get((session, body.get("project_id")), {}).get("agent")
+                    if route.endswith("/new") and agent:
+                        agent.reset_history()
+                    history = [{"role": m.role.value, "content": m.content} for m in (agent.history if agent else [])
+                               if m.role.value in {"user", "assistant"} and not m.tool_calls]
+                    return HTTPStatus.OK, {"messages": history}
+                finally:
+                    self._lock.release()
+            if route == "/api/cloud/auth/start":
+                return HTTPStatus.OK, self.cloud.auth.start(session, body.get("account_id") or None)
+            if route == "/api/cloud/auth/cancel":
+                return HTTPStatus.OK, self.cloud.auth.cancel_attempt(session, body.get("attempt_id"))
+            if route == "/api/cloud/auth/logout":
+                return HTTPStatus.OK, self.cloud.logout(body.get("account_id"))
+            return HTTPStatus.NOT_FOUND, {"error": "Unknown cloud operation."}
+        except (CloudError, LLMError, ManifestError) as exc:
+            return HTTPStatus.UNPROCESSABLE_ENTITY, {"error": str(exc), "code": getattr(exc, "code", "CONFIGURATION")}
 
     def sync_status(self):
         from laew.rag.sync import sync_status
         try:
             project = self._projects.get(self._active_project_id)
             kb = self._sync_base(project["path"] if project else None)
-            return {"project": sync_status(kb, "project"), "global": sync_status(kb, "global")}
+            return {"project": sync_status(kb, "project") if project else None, "global": sync_status(kb, "global")}
         except Exception:
             return {"error": "Synchronization status unavailable. Check ChromaDB and configuration, then retry."}
 
@@ -195,6 +329,65 @@ class WorkspaceService:
             return HTTPStatus.SERVICE_UNAVAILABLE, {"error": "Synchronization service is unavailable."}
         self._scheduler.request(scope, project["path"] if project else None)
         return HTTPStatus.ACCEPTED, {"message": f"{scope} synchronization requested."}
+
+    def _call_tool(self, tool, operation, args, emit, session_id=None, cancellation=None):
+        options = {"cancellation": cancellation} if cancellation is not None else {}
+        result = self._permissions.call(tool, operation, args, emit, session_id, **options)
+        if result.success and tool.name == "FilesystemTool" and operation == "view_file" and isinstance(result.data, dict):
+            path = tool.resolver.resolve(args["file_path"])
+            alias = tool.resolver.get_alias_for_path(path)
+            if alias in {"@knowledge", "@project"}:
+                root = tool.resolver.knowledge_root if alias == "@knowledge" else tool.resolver.project_root
+                result.data["sources"] = [f"{alias}/{path.relative_to(root).as_posix()}"]
+        if result.success and operation == "write_knowledge_note":
+            status, detail = self.request_sync("global")
+            result.data["synchronization"] = "requested" if status == HTTPStatus.ACCEPTED else "not requested"
+            result.data["synchronization_detail"] = detail
+        return result
+
+    def project_settings(self):
+        with self._lock:
+            try:
+                project = self.active_project
+                settings = load_project_settings(project["path"])
+                mode = settings.get("permission_mode", "auto")
+                if mode not in {"auto", "manual", "restricted"}:
+                    raise ValueError("Invalid permission mode")
+                return HTTPStatus.OK, {"project_id": project["id"], **settings, "permission_mode": mode}
+            except (OSError, ValueError, RuntimeError):
+                return HTTPStatus.SERVICE_UNAVAILABLE, {"error": "Project settings are unavailable or invalid. Check the project settings file."}
+
+    def update_project_settings(self, project_id, language):
+        with self._lock:
+            try:
+                project = self.active_project
+                if project_id != project["id"]:
+                    return HTTPStatus.CONFLICT, {"error": "The active project changed. Refresh settings and retry."}
+                settings = save_project_language(project["path"], language)
+                if self._agent is not None:
+                    self._agent.config.documentation_language = settings["documentation_language"]
+                if self._executor is not None:
+                    self._executor._system_prompt_cache = None
+                return HTTPStatus.OK, {"project_id": project["id"], **settings}
+            except ValueError as exc:
+                return HTTPStatus.UNPROCESSABLE_ENTITY, {"error": str(exc)}
+            except (OSError, RuntimeError):
+                return HTTPStatus.SERVICE_UNAVAILABLE, {"error": "Could not save project settings. Check project directory permissions."}
+
+    def update_permission_mode(self, project_id, mode):
+        with self._lock:
+            try:
+                project = self.active_project
+                if project_id != project["id"]:
+                    return HTTPStatus.CONFLICT, {"error": "The active project changed."}
+                if mode not in ("auto", "manual", "restricted"):
+                    return HTTPStatus.UNPROCESSABLE_ENTITY, {"error": "Invalid permission mode."}
+                save_project_settings(project["path"], {"permission_mode": mode})
+                if self._permissions is not None:
+                    self._permissions.mode = mode
+                return HTTPStatus.OK, {"project_id": project_id, "permission_mode": mode}
+            except (OSError, ValueError, RuntimeError):
+                return HTTPStatus.SERVICE_UNAVAILABLE, {"error": "Could not save project permissions."}
 
     def create_project(self, name: object) -> tuple[int, dict[str, Any]]:
         try:
@@ -233,7 +426,14 @@ class WorkspaceService:
         with self._lock:
             self._projects = self._discover_projects()
             if self._active_project_id not in self._projects:
+                if self._active_project_id is not None:
+                    self._reset_runtime()
                 self._active_project_id = None
+            if project_id is None:
+                if self._active_project_id is not None:
+                    self._active_project_id = None
+                    self._reset_runtime()
+                return HTTPStatus.OK, {"project": None, "active_project": None}
             if not isinstance(project_id, str) or project_id not in self._projects:
                 return HTTPStatus.NOT_FOUND, {"error": "That project is unavailable. Refresh the project list and choose a listed project."}
             if project_id != self._active_project_id:
@@ -248,62 +448,111 @@ class WorkspaceService:
     def _validate_selection(selection: object) -> str:
         if selection in (None, "", "manifest"):
             return "manifest"
-        if selection == "llama.cpp":
-            return "llama.cpp"
-        raise ValueError("Unsupported provider selection. Choose Manifest default or llama.cpp.")
+        if isinstance(selection, str) and selection in {"llama.cpp", *CLOUD_PROVIDERS}:
+            return selection
+        raise ValueError("Unsupported provider selection.")
 
-    def _ensure_runtime(self, selection: object = "manifest") -> None:
-        selection = self._validate_selection(selection)
-        if self._executor is not None and self._selection == selection:
+    def _activate_session(self, session_id, conversation_id=None):
+        key = (session_id, self._active_project_id, conversation_id) if conversation_id else (session_id, self._active_project_id)
+        saved = self._conversations.get(key)
+        if self._session_id == key:
+            return
+        if self._session_id is None and self._executor is not None:
+            self._session_id = key
             return
         self._reset_runtime()
+        self._session_id = key
+        if saved:
+            self._agent, self._executor, self._permissions = saved["agent"], saved["executor"], saved["permissions"]
+            self._selection, self._model = saved["selection"], saved["model"]
+            self._provider_name, self._account_id = saved["provider"], saved["account_id"]
+
+    def _ensure_runtime(self, selection: object = "manifest", model=None, account_id=None) -> None:
+        selection = self._validate_selection(selection)
+        if (self._executor is not None and self._selection == selection
+                and (model is None or self._model == model) and self._account_id == account_id):
+            return
         manifest = load_manifest(self.manifest_path)
         providers = manifest.get("agent", {}).get("llm", {}).get("providers", [])
         manifest_model = providers[0].get("model") if providers else None
-        if selection == "llama.cpp":
+        if selection in CLOUD_PROVIDERS:
+            if not isinstance(model, str) or not model.strip() or len(model) > 200:
+                raise CloudError("MODEL_REQUIRED", "Choose an exact cloud model ID first.")
+            model = model.strip()
+            provider = self.cloud.provider(selection, account_id)
+            provider_name = selection
+        elif selection == "llama.cpp":
             provider = build_explicit_provider("llama.cpp")
-            model = resolve_llamacpp_model(None, provider)
+            model = resolve_llamacpp_model(model, provider)
             provider_name = "llama.cpp"
         else:
             provider = build_provider_for_role(manifest, "primary")
-            model = resolve_model_name(None, manifest_model, provider)
+            model = resolve_model_name(model, manifest_model, provider)
             provider_name = providers[0].get("type", "ollama") if providers else "ollama"
         if not provider.is_available():
             raise LLMError(
                 f"{provider_name} is unavailable. Check that its local service is running.",
                 code="PROVIDER_UNAVAILABLE",
             )
-        agent = Agent(
-            config=AgentConfig(
-                name="laew-web-chief", model=model,
-                context_budget=context_budget_from_manifest(manifest),
-            ),
-            provider=provider,
-            tools=build_shared_tools(
-                terminal_allowlist_from_manifest(manifest),
-                project_root=Path(self.active_project["path"]),
-                projects_root=self.projects_root,
-                knowledge_root=self.knowledge_root,
-                manifest=manifest,
-            ),
-        )
-        self._agent = agent
-        self._executor = AgentExecutor(agent)
+        if self._agent is not None:
+            self._agent.providers = [provider]
+            self._agent._current_provider_index = 0
+            self._agent.config.model = model
+            self._executor._system_prompt_cache = None
+        else:
+            project = self._projects.get(self._active_project_id)
+            general = project is None
+            if general:
+                for registered in self.registered_projects:
+                    if (registered.is_relative_to(self.knowledge_root)
+                            or self.knowledge_root.is_relative_to(registered)):
+                        raise ValueError("Global Knowledge overlaps a registered project.")
+            settings = load_project_settings(project["path"]) if project else {}
+            agent = Agent(
+                config=AgentConfig(
+                    name="laew-web-chief", model=model,
+                    documentation_language=settings.get("documentation_language", "en"),
+                    project_scope=not general,
+                    context_budget=context_budget_from_manifest(manifest),
+                ),
+                provider=provider,
+                tools=build_shared_tools(
+                    terminal_allowlist_from_manifest(manifest),
+                    project_root=Path(project["path"]) if project else None,
+                    projects_root=self.projects_root,
+                    knowledge_root=self.knowledge_root,
+                    manifest=manifest,
+                    general=general,
+                ),
+            )
+            self._agent = agent
+            mode = settings.get("permission_mode", "auto")
+            if mode not in {"auto", "manual", "restricted"}:
+                raise ValueError("Invalid project permission mode.")
+            self._permissions = PermissionBroker(Path(project["path"]) if project else None, mode)
+            self._executor = AgentExecutor(agent)
         self._provider_name = provider_name
         self._model = model
         self._selection = selection
+        self._account_id = account_id
         self._error = None
+        self._conversations[self._session_id or (None, self._active_project_id)] = {
+            "agent": self._agent, "executor": self._executor, "permissions": self._permissions,
+            "selection": selection, "model": model, "provider": provider_name, "account_id": account_id}
 
-    def status(self, selection: object = "manifest") -> dict[str, Any]:
+    def status(self, selection: object = "manifest", model=None, session_id=None) -> dict[str, Any]:
         try:
             with self._lock:
-                if self._active_project_id is None:
-                    raise RuntimeError("No project is active. Select a project folder from the Projects directory.")
-                self._ensure_runtime(selection)
-                current = self.active_project
+                if session_id is not None:
+                    self._activate_session(session_id)
+                if model:
+                    self._ensure_runtime(selection, model)
+                else:
+                    self._ensure_runtime(selection)
+                current = self._projects.get(self._active_project_id)
                 return {"available": True, "provider": self._provider_name, "model": self._model,
-                        "selection": self._selection, "project": current["name"],
-                        "project_path": current["path"], "projects_root": str(self.projects_root),
+                        "selection": self._selection, "project": current["name"] if current else None,
+                        "project_path": current["path"] if current else None, "projects_root": str(self.projects_root),
                         "knowledge_root": str(self.knowledge_root), "error": None}
         except (OSError, ManifestError, LLMError, RuntimeError, ValueError) as exc:
             with self._lock:
@@ -314,20 +563,19 @@ class WorkspaceService:
                         "project_path": current["path"] if current else None, "projects_root": str(self.projects_root),
                         "knowledge_root": str(self.knowledge_root), "error": self._error}
 
-    def chat(self, message: str, selection: object = "manifest", expected_project_id: Optional[str] = None) -> tuple[int, dict[str, Any]]:
+    def chat(self, message: str, selection: object = "manifest", expected_project_id: object = _UNSPECIFIED_SCOPE) -> tuple[int, dict[str, Any]]:
         if not isinstance(message, str) or not message.strip():
             return HTTPStatus.UNPROCESSABLE_ENTITY, {"error": "A non-empty message is required."}
         try:
             with self._lock:
-                if self._active_project_id is None:
-                    raise RuntimeError("No project is active. Select a project folder from the Projects directory.")
-                if expected_project_id is not None and expected_project_id != self._active_project_id:
+                if expected_project_id is not _UNSPECIFIED_SCOPE and expected_project_id != self._active_project_id:
                     return HTTPStatus.CONFLICT, {"error": "The active project changed before this message started. Review the selected project and retry."}
                 self._ensure_runtime(selection)
                 assert self._executor is not None
-                result = self._executor.run(message.strip(), stream=False)
+                result = self._executor.run(message.strip(), stream=False,
+                    on_tool_call=lambda tool, op, args: self._call_tool(tool, op, args, None))
             steps = [
-                {"number": step.step_number, "tool": step.tool_name, "operation": step.operation,
+                {"number": step.step_number, "tool": step.tool_name, "operation": step.operation, "call_id": step.call_id,
                  "success": None if step.tool_result is None else step.tool_result.success,
                  "error": None if step.tool_result is None else step.tool_result.error_message,
                  "sources": (step.tool_result.data or {}).get("sources", [])
@@ -346,34 +594,106 @@ class WorkspaceService:
             return HTTPStatus.SERVICE_UNAVAILABLE, {"error": self._error}
 
     def stream_chat(
+        self, message, selection, expected_project_id, emit, session_id=None,
+        cancellation=None, model=None, account_id=None, conversation_id=None,
+    ):
+        if conversation_id is None:
+            return self._stream_chat(message, selection, expected_project_id, emit, session_id,
+                                     cancellation, model, account_id)
+        from laew.console.session_store import SessionStoreError
+        if not isinstance(message, str) or not message.strip():
+            emit({"type": "error", "error": "A non-empty message is required."})
+            return
+        try:
+            store = self.conversation_store()
+            with store.conversation_run(conversation_id):
+                conversation = store.load_conversation(conversation_id)
+                if (conversation["project_id"] != self._active_project_id
+                        or expected_project_id != conversation["project_id"]):
+                    emit({"type": "error", "error": "Conversation scope does not match the active scope."})
+                    return
+                store.recover_interrupted_runs(conversation_id)
+                history = store.conversation_messages(conversation_id)
+                run_id = uuid.uuid4().hex
+                def persist(event):
+                    store.append_conversation_event(conversation_id, {**event, "run_id": run_id})
+                persist({"id": uuid.uuid4().hex, "kind": "run", "status": "running", "content": ""})
+                from laew.llm.base import LLMMessage, MessageRole
+                user_message = LLMMessage(MessageRole.USER, message.strip())
+                persist({"id": uuid.uuid4().hex, "kind": "user", "status": "completed",
+                         "content": user_message.content, "message": user_message.to_dict()})
+                first_user = {"pending": True}
+                def persist_agent_event(event):
+                    if first_user["pending"] and event.get("kind") == "user" and not event.get("generated"):
+                        first_user["pending"] = False
+                        return
+                    persist(event)
+                state = {"status": "failed", "finalized": False}
+                def finalize(status, reason=""):
+                    persist({"id": uuid.uuid4().hex, "kind": "run", "status": status, "content": reason})
+                    state.update(status=status, finalized=True)
+                def send(event):
+                    if event.get("type") == "done":
+                        finalize("completed")
+                    elif event.get("type") == "error":
+                        finalize("cancelled" if cancellation and cancellation.is_set() else "failed", str(event.get("error") or "Run failed."))
+                    emit(event)
+                try:
+                    self._stream_chat(message, selection, expected_project_id, send, session_id,
+                                      cancellation, model, account_id, conversation_id,
+                                      history, persist_agent_event)
+                finally:
+                    if not state["finalized"]:
+                        finalize("cancelled" if cancellation and cancellation.is_set() else state["status"])
+        except (SessionStoreError, FileNotFoundError, OSError, ValueError) as exc:
+            emit({"type": "error", "error": str(exc)})
+
+    def _stream_chat(
         self,
         message: str,
         selection: object,
         expected_project_id: Optional[str],
         emit,
+        session_id: Optional[str] = None,
+        cancellation=None,
+        model=None,
+        account_id=None,
+        conversation_id=None,
+        stored_history=None,
+        on_event=None,
     ) -> None:
         """Run the existing Chief Agent and emit newline-delimited events."""
+        original_emit = emit
+        def emit(event):
+            if cancellation and cancellation.is_set():
+                raise StreamCancelled()
+            original_emit(event)
         if not isinstance(message, str) or not message.strip():
             emit({"type": "error", "error": "A non-empty message is required."})
             return
         try:
             with self._lock:
-                if self._active_project_id is None:
-                    raise RuntimeError(
-                        "No project is active. Select a project folder from the Projects directory."
-                    )
-                if expected_project_id is not None and expected_project_id != self._active_project_id:
+                if expected_project_id is not _UNSPECIFIED_SCOPE and expected_project_id != self._active_project_id:
                     emit({
                         "type": "error",
                         "error": "The active project changed before this message started. Review the selected project and retry.",
                     })
                     return
-                self._ensure_runtime(selection)
+                self._activate_session(session_id, conversation_id) if conversation_id else self._activate_session(session_id)
+                if selection in CLOUD_PROVIDERS or model is not None:
+                    self._ensure_runtime(selection, model, account_id)
+                else:
+                    self._ensure_runtime(selection)
                 assert self._executor is not None
+                if stored_history is not None:
+                    self._agent.history = stored_history
                 emit({
                     "type": "start", "provider": self._provider_name,
                     "model": self._model,
                 })
+                run_options = {"cancellation": cancellation} if cancellation is not None else {}
+                if on_event is not None:
+                    run_options["on_event"] = on_event
                 result = self._executor.run(
                     message.strip(), stream=True,
                     on_delta=lambda text: emit(
@@ -381,16 +701,18 @@ class WorkspaceService:
                     ),
                     on_step=lambda step: emit({"type": "step", "step": {
                         "number": step.step_number, "tool": step.tool_name,
-                        "operation": step.operation,
+                        "operation": step.operation, "call_id": step.call_id,
                         "success": None if step.tool_result is None else step.tool_result.success,
                         "error": None if step.tool_result is None else step.tool_result.error_message,
                         "sources": (step.tool_result.data or {}).get("sources", [])
                         if step.tool_result and isinstance(step.tool_result.data, dict) else [],
                     }}),
+                    on_tool_call=lambda tool, op, args: self._call_tool_checked(tool, op, args, emit, session_id, cancellation),
+                    **run_options,
                 )
             steps = [
                 {"number": step.step_number, "tool": step.tool_name,
-                 "operation": step.operation,
+                 "operation": step.operation, "call_id": step.call_id,
                  "success": None if step.tool_result is None else step.tool_result.success,
                  "error": None if step.tool_result is None else step.tool_result.error_message,
                  "sources": (step.tool_result.data or {}).get("sources", [])
@@ -414,6 +736,11 @@ class WorkspaceService:
             self._error = str(exc)
             emit({"type": "error", "error": self._error})
 
+    def _call_tool_checked(self, tool, operation, args, emit, session_id, cancellation):
+        if cancellation and cancellation.is_set():
+            raise StreamCancelled()
+        return self._call_tool(tool, operation, args, emit, session_id, cancellation)
+
 
 def make_handler(service: WorkspaceService):
     """Create a same-origin-only request handler bound to *service*."""
@@ -434,16 +761,38 @@ def make_handler(service: WorkspaceService):
             self.end_headers(); self.wfile.write(data)
 
         def do_GET(self) -> None:
+            if not self._local_host(): return
             parsed = urlparse(self.path)
+            if parsed.path in {"/api/conversations", "/api/conversation"}:
+                from laew.console.session_store import SessionStoreError
+                try:
+                    store = service.conversation_store()
+                    if parsed.path == "/api/conversations":
+                        self._json(HTTPStatus.OK, {"conversations": store.list_conversations()})
+                    else:
+                        params = parse_qs(parsed.query)
+                        self._json(HTTPStatus.OK, store.load_conversation(params.get("id", [""])[0]))
+                except (SessionStoreError, OSError, ValueError) as exc:
+                    self._json(HTTPStatus.BAD_REQUEST, {"error": str(exc)})
+                return
+            if parsed.path in {"/api/cloud/status", "/api/cloud/models", "/api/cloud/history"}:
+                params = parse_qs(parsed.query, keep_blank_values=True)
+                status, data = service.cloud_request(parsed.path, {key: value[0] for key, value in params.items()})
+                self._json(status, data); return
             if parsed.path == "/api/projects":
                 self._json(HTTPStatus.OK, service.list_projects()); return
             if parsed.path == "/api/status":
-                selection = parse_qs(parsed.query).get("provider", ["manifest"])[0]
-                self._json(HTTPStatus.OK, service.status(selection)); return
+                params = parse_qs(parsed.query)
+                selection = params.get("provider", ["manifest"])[0]
+                self._json(HTTPStatus.OK, service.status(selection, params.get("model", [None])[0],
+                                                       params.get("session_id", [None])[0])); return
             if parsed.path == "/api/rag":
                 self._json(HTTPStatus.OK, service.sync_status()); return
+            if parsed.path == "/api/project/settings":
+                status, response = service.project_settings()
+                self._json(status, response); return
             requested = "index.html" if parsed.path in ("/", "/index.html") else parsed.path.lstrip("/")
-            if requested not in {"index.html", "app.js", "app.css", "markdown.js", "stream.js"}:
+            if requested not in {"index.html", "app.js", "app.css", "markdown.js", "stream.js", "theme.js", "ui-state.js"}:
                 self.send_error(HTTPStatus.NOT_FOUND); return
             data = (static_root / requested).read_bytes()
             content_type = "text/html" if requested.endswith("html") else ("text/css" if requested.endswith("css") else "application/javascript")
@@ -451,13 +800,16 @@ def make_handler(service: WorkspaceService):
             self.send_header("Content-Length", str(len(data))); self.send_header("Cache-Control", "no-store"); self.end_headers(); self.wfile.write(data)
 
         def do_POST(self) -> None:
+            if not self._local_host(): return
             route = urlparse(self.path).path
-            if route not in {"/api/chat", "/api/project", "/api/projects", "/api/rag/sync"}:
+            if route not in {"/api/chat", "/api/chat/cancel", "/api/project", "/api/projects", "/api/rag/sync", "/api/project/settings", "/api/approval", "/api/project/permissions", "/api/cloud/new", "/api/cloud/key", "/api/cloud/auth/start", "/api/cloud/auth/cancel", "/api/cloud/auth/logout", "/api/conversations", "/api/conversation/rename", "/api/conversation/delete"}:
                 self.send_error(HTTPStatus.NOT_FOUND); return
             origin = self.headers.get("Origin")
             host = self.headers.get("Host", "")
             if origin and origin not in {f"http://{host}", f"http://127.0.0.1:{host.rsplit(':', 1)[-1]}"}:
                 self._json(HTTPStatus.FORBIDDEN, {"error": "Cross-origin requests are not allowed."}); return
+            if route == "/api/cloud/key" and (not origin or self.headers.get("Content-Type", "").split(";")[0] != "application/json"):
+                self._json(HTTPStatus.FORBIDDEN, {"error": "API key configuration requires a same-origin JSON request."}); return
             try:
                 length = int(self.headers.get("Content-Length", "0"))
                 if length > 1_000_000: raise ValueError("Message is too large.")
@@ -466,6 +818,26 @@ def make_handler(service: WorkspaceService):
                 self._json(HTTPStatus.BAD_REQUEST, {"error": "Invalid JSON request."}); return
             if not isinstance(body, dict):
                 self._json(HTTPStatus.BAD_REQUEST, {"error": "Request body must be a JSON object."}); return
+            if route in {"/api/conversations", "/api/conversation/rename", "/api/conversation/delete"}:
+                from laew.console.session_store import SessionStoreError
+                try:
+                    store = service.conversation_store()
+                    if route == "/api/conversations":
+                        result = service.create_conversation(body.get("scope_type"), body.get("project_id"))
+                    elif route.endswith("rename"):
+                        result = store.rename_conversation(body.get("id"), body.get("title"))
+                    else:
+                        result = {"deleted": store.delete_conversation(body.get("id"))}
+                    self._json(HTTPStatus.OK, result)
+                except (SessionStoreError, OSError, ValueError, TypeError) as exc:
+                    self._json(HTTPStatus.BAD_REQUEST, {"error": str(exc)})
+                return
+            if route.startswith("/api/cloud/"):
+                status, data = service.cloud_request(route, body)
+                self._json(status, data); return
+            if route == "/api/chat/cancel":
+                accepted = service.cancel_run(body.get("session_id"), body.get("run_id"))
+                self._json(HTTPStatus.OK if accepted else HTTPStatus.BAD_REQUEST, {"accepted": accepted}); return
             if route == "/api/projects":
                 status, response = service.create_project(body.get("name"))
                 self._json(status, response); return
@@ -475,12 +847,35 @@ def make_handler(service: WorkspaceService):
             if route == "/api/rag/sync":
                 status, response = service.request_sync(body.get("scope"))
                 self._json(status, response); return
-            self.send_response(HTTPStatus.OK)
-            self.send_header("Content-Type", "application/x-ndjson; charset=utf-8")
-            self.send_header("Transfer-Encoding", "chunked")
-            self.send_header("Cache-Control", "no-store, no-transform")
-            self.send_header("X-Accel-Buffering", "no")
-            self.end_headers()
+            if route == "/api/project/settings":
+                status, response = service.update_project_settings(body.get("project_id"), body.get("documentation_language"))
+                self._json(status, response); return
+            if route == "/api/project/permissions":
+                status, response = service.update_permission_mode(body.get("project_id"), body.get("permission_mode"))
+                self._json(status, response); return
+            if route == "/api/approval":
+                broker = service._permissions
+                accepted = broker is not None and broker.decide(body.get("id"), body.get("decision"), body.get("session_id"))
+                self._json(HTTPStatus.OK if accepted else HTTPStatus.CONFLICT,
+                           {"accepted": accepted}); return
+            if (isinstance(body.get("provider"), str) and body["provider"] in CLOUD_PROVIDERS
+                    and service._run_key(body.get("session_id"), body.get("run_id")) is None):
+                self._json(HTTPStatus.UNPROCESSABLE_ENTITY, {"error": "Cloud Chat requires valid session and run IDs for Stop."}); return
+            try:
+                cancellation = service.register_run(body.get("session_id"), body.get("run_id"))
+            except ValueError:
+                self._json(HTTPStatus.CONFLICT, {"error": "Run ID is already active."}); return
+            try:
+                self.send_response(HTTPStatus.OK)
+                self.send_header("Content-Type", "application/x-ndjson; charset=utf-8")
+                self.send_header("Transfer-Encoding", "chunked")
+                self.send_header("Cache-Control", "no-store, no-transform")
+                self.send_header("X-Accel-Buffering", "no")
+                self.end_headers()
+            except (BrokenPipeError, ConnectionResetError, OSError):
+                if cancellation is not None:
+                    service.unregister_run(body.get("session_id"), body.get("run_id"), cancellation)
+                return
 
             def emit(event: dict[str, Any]) -> None:
                 payload = json.dumps(event, ensure_ascii=False).encode("utf-8") + b"\n"
@@ -494,12 +889,26 @@ def make_handler(service: WorkspaceService):
             try:
                 service.stream_chat(
                     body.get("message"), body.get("provider", "manifest"),
-                    body.get("project_id"), emit,
+                    body.get("project_id", _UNSPECIFIED_SCOPE), emit, body.get("session_id"), cancellation,
+                    **({"model": body.get("model"), "account_id": body.get("account_id")}
+                       if body.get("model") is not None or body.get("provider") in CLOUD_PROVIDERS else {}),
+                    **({"conversation_id": body["conversation_id"]} if "conversation_id" in body else {}),
                 )
                 self.wfile.write(b"0\r\n\r\n")
                 self.wfile.flush()
             except (BrokenPipeError, ConnectionResetError, OSError, StreamCancelled):
                 return
+            finally:
+                if cancellation is not None:
+                    if cancellation.is_set():
+                        self.close_connection = True
+                    service.unregister_run(body.get("session_id"), body.get("run_id"), cancellation)
+
+        def _local_host(self):
+            if self.headers.get("Host") not in {f"127.0.0.1:{self.server.server_port}", f"localhost:{self.server.server_port}"}:
+                self._json(HTTPStatus.FORBIDDEN, {"error": "Use the loopback Workbench address."})
+                return False
+            return True
 
     return Handler
 

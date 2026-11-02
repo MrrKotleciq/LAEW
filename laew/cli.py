@@ -196,16 +196,15 @@ def cmd_tool(args) -> int:
         else:
             tool = tools_map[tool_name]()
 
-        # Auto-approve if not requiring approval
-        if not args.require_approval:
-            tool.approve()
-
         # Execute operation
         print(f"Executing: {tool_name}.{operation}")
         if tool_args:
             print(f"Arguments: {tool_args}")
 
-        result = tool.call(operation, **tool_args)
+        from laew.security.permissions import PermissionBroker
+        from laew.console.permissions import console_call
+        broker = PermissionBroker(Path.cwd(), "manual" if args.require_approval else "auto")
+        result = console_call(broker, tool, operation, tool_args, "cli-tool")
 
         # Output result
         if result.success:
@@ -417,11 +416,43 @@ def cmd_chat(args) -> int:
     Returns:
         0 if session ended normally, 1 if setup failed
     """
+    general = getattr(args, "general", False)
+    if general and (args.resume or args.session):
+        print("[FAIL] General chat does not support named sessions yet; use an ephemeral conversation.")
+        return 1
     try:
         manifest = load_manifest(Path(args.manifest))
     except (FileNotFoundError, ManifestError) as e:
         print(f"[FAIL] Could not load manifest: {e}")
         return 1
+
+    conversation_store = None
+    conversation_record = None
+    conversation_id = getattr(args, "conversation", None)
+    new_conversation = getattr(args, "new_conversation", False)
+    if conversation_id and new_conversation:
+        print("[FAIL] Choose either --conversation or --new-conversation.")
+        return 1
+    from laew.console.session_store import conversation_store_from_manifest
+    if getattr(args, "list_conversations", False):
+        for item in conversation_store_from_manifest(manifest, args.manifest).list_conversations():
+            print(f"{item['id']}  {item['scope_type']}  {item['title']}")
+        return 0
+    if (conversation_id or new_conversation) and (args.no_persist or args.resume or args.session):
+        print("[FAIL] Conversation options cannot be combined with legacy sessions or --no-persist.")
+        return 1
+    if conversation_id or new_conversation:
+        conversation_store = conversation_store_from_manifest(manifest, args.manifest)
+        if conversation_id:
+            try:
+                conversation_record = conversation_store.load_conversation(conversation_id)
+            except (SessionStoreError, OSError) as exc:
+                print(f"[FAIL] Could not open conversation: {exc}")
+                return 1
+            if general and conversation_record["scope_type"] != "general":
+                print("[FAIL] --general does not match the conversation scope.")
+                return 1
+            general = conversation_record["scope_type"] == "general"
 
     # Default model requested by the manifest primary provider, if any.
     manifest_model = None
@@ -487,9 +518,27 @@ def cmd_chat(args) -> int:
         session_name = args.session
         print(f"[OK] Session '{session_name}' will be saved after each exchange")
 
+    from laew.project_config import load_project_settings
+    from laew.rag.config import resolve_project_root, manifest_base_dir
+    project_root = None if general else resolve_project_root(manifest, base_dir=manifest_base_dir(args.manifest))
+    if conversation_store is not None:
+        import hashlib
+        from laew.rag.identity import canonical_project_path
+        project_id = hashlib.sha256(canonical_project_path(project_root).encode("utf-8")).hexdigest()[:16] if project_root else None
+        if conversation_record is not None and conversation_record["project_id"] != project_id:
+            print("[FAIL] Conversation project does not match the configured project.")
+            return 1
+        if new_conversation:
+            conversation_record = conversation_store.create_conversation("general" if general else "project", project_id)
+            conversation_id = conversation_record["id"]
+        print(f"Conversation: {conversation_id}")
+    from laew.web import resolve_workspace_root
+    workspace_root = resolve_workspace_root(getattr(args, "workspace_root", None)) if general else None
     config = AgentConfig(
         name="laew-cli",
         model=model_name,
+        documentation_language=load_project_settings(project_root)["documentation_language"] if project_root else "en",
+        project_scope=not general,
         context_budget=context_budget_from_manifest(manifest),
     )
     try:
@@ -497,7 +546,10 @@ def cmd_chat(args) -> int:
             config=config,
             provider=provider,
             tools=build_shared_tools(
-                terminal_allowlist_from_manifest(manifest), manifest=manifest
+                terminal_allowlist_from_manifest(manifest), manifest=manifest, project_root=project_root,
+                projects_root=workspace_root / "Projects" if general else None,
+                knowledge_root=workspace_root / "Knowledge" if general else None,
+                general=general,
             ),
         )
     except RuntimeError as e:
@@ -512,6 +564,14 @@ def cmd_chat(args) -> int:
         ]
 
     executor = AgentExecutor(agent)
+    from laew.security.permissions import PermissionBroker
+    from laew.console.permissions import console_call
+    from laew.project_config import load_project_settings
+    permission_mode = load_project_settings(project_root).get("permission_mode", "auto") if project_root else "auto"
+    if permission_mode not in {"auto", "manual", "restricted"}:
+        print("[FAIL] Invalid project permission mode.")
+        return 1
+    permission_broker = PermissionBroker(project_root, permission_mode)
     from laew.rag.sync import SyncScheduler
     rag_tool = agent.tools.get("RagTool")
     scheduler = None
@@ -537,7 +597,33 @@ def cmd_chat(args) -> int:
             if user_input.lower() in ("exit", "quit"):
                 break
 
-            result = executor.run(user_input, stream=not args.no_stream)
+            run_options = {"on_tool_call": lambda tool, op, kwargs: console_call(permission_broker, tool, op, kwargs, "cli-chat")}
+            if conversation_store is None:
+                result = executor.run(user_input, stream=not args.no_stream, **run_options)
+            else:
+                import uuid
+                try:
+                    with conversation_store.conversation_run(conversation_id):
+                        conversation_store.recover_interrupted_runs(conversation_id)
+                        agent.history = conversation_store.conversation_messages(conversation_id)
+                        run_id = uuid.uuid4().hex
+                        def persist(event):
+                            conversation_store.append_conversation_event(conversation_id, {**event, "run_id": run_id})
+                        persist({"id": uuid.uuid4().hex, "kind": "run", "status": "running", "content": ""})
+                        state, reason = "failed", "Run failed."
+                        try:
+                            result = executor.run(user_input, stream=not args.no_stream, on_event=persist, **run_options)
+                            state = "completed" if result.success else "failed"
+                            reason = "" if result.success else (result.error or "Run failed.")
+                        except KeyboardInterrupt:
+                            state = "cancelled"
+                            reason = "Run cancelled."
+                            raise
+                        finally:
+                            persist({"id": uuid.uuid4().hex, "kind": "run", "status": state, "content": reason})
+                except SessionStoreError as exc:
+                    print(f"[FAIL] Conversation storage: {exc}")
+                    continue
             if result.success:
                 print(f"\nAgent: {result.final_response}")
                 if result.total_tokens:
@@ -707,6 +793,11 @@ def main() -> int:
         "--model",
         help="Model name (overrides the manifest model role)",
     )
+    chat_parser.add_argument("--general", action="store_true", help="Chat without an active project")
+    chat_parser.add_argument("--workspace-root", help="Workspace containing Projects and Knowledge (General Chat)")
+    chat_parser.add_argument("--conversation", metavar="ID", help="Resume a persistent conversation")
+    chat_parser.add_argument("--new-conversation", action="store_true", help="Create a persistent conversation")
+    chat_parser.add_argument("--list-conversations", action="store_true", help="List persistent conversations")
     chat_parser.add_argument(
         "--base-url",
         default=None,

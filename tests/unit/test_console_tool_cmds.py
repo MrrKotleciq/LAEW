@@ -140,6 +140,9 @@ class StubTool:
     def approve(self):
         self.approved = True
 
+    def validate(self, operation, **kwargs):
+        return True, None
+
     def call(self, operation, **kwargs):
         self.calls.append((operation, kwargs))
         if self._results is not None:
@@ -147,16 +150,14 @@ class StubTool:
         return self._result
 
 
-def test_tool_auto_mode_approves_and_succeeds(state, capsys):
-    """auto mode approves before the mutation and surfaces result data."""
-    stub = StubTool(_success_result())
-    with patch("laew.console.commands.tool.TOOL_FACTORIES", {"filesystem": lambda a: stub}):
+def test_tool_auto_mode_approves_and_succeeds(state, capsys, tmp_path):
+    from laew.tools.filesystem import FilesystemTool
+    from laew.security.path_resolver import PathResolver
+    tool = FilesystemTool(PathResolver(project_root=tmp_path))
+    with patch("laew.console.commands.tool.TOOL_FACTORIES", {"filesystem": lambda a: tool}):
         state.approval = "auto"
-        code = cmd_tool(["filesystem", "write_file", "path=x.txt", "content=hi"], state)
-    assert code == 0
-    assert stub.approved is True
-    assert stub.calls == [("write_file", {"path": "x.txt", "content": "hi"})]
-    assert "ok" in capsys.readouterr().out
+        assert cmd_tool(["filesystem", "write_file", "file_path=x.txt", "content=hi"], state) == 0
+    assert (tmp_path / "x.txt").read_text() == "hi"
 
 
 def test_tool_ask_mode_no_prompt_for_read(state, capsys):
@@ -173,47 +174,48 @@ def test_tool_ask_mode_no_prompt_for_read(state, capsys):
     assert stub.calls == [("list_dir", {"directory_path": "@project"})]
 
 
-def test_tool_ask_mode_yes_approves_after_denial(state, capsys):
-    """ask mode: mutation denied ungated, 'y' approves and re-runs it."""
-    stub = StubTool(_denied_result(), results=[_denied_result(), _success_result()])
-    factories = {"filesystem": lambda allowlist: stub}
-    with patch("laew.console.commands.tool.TOOL_FACTORIES", factories), \
-         patch("builtins.input", return_value="y"):
+def test_tool_ask_mode_yes_approves_after_denial(state, capsys, tmp_path):
+    from laew.tools.filesystem import FilesystemTool
+    from laew.security.path_resolver import PathResolver
+    tool = FilesystemTool(PathResolver(project_root=tmp_path))
+    with patch("laew.console.commands.tool.TOOL_FACTORIES", {"filesystem": lambda a: tool}), \
+         patch("sys.stdin.isatty", return_value=True), patch("builtins.input", return_value="y"):
         state.approval = "ask"
-        code = cmd_tool(["filesystem", "write_file", "path=x.txt", "content=hi"], state)
-    assert code == 0
-    assert stub.approved is True
-    assert stub.calls == [
-        ("write_file", {"path": "x.txt", "content": "hi"}),
-        ("write_file", {"path": "x.txt", "content": "hi"}),
-    ]
+        assert cmd_tool(["filesystem", "write_file", "file_path=x.txt", "content=hi"], state) == 0
+    assert (tmp_path / "x.txt").read_text() == "hi"
 
 
-def test_tool_ask_mode_no_refuses_denied_mutation(state, capsys):
-    """ask mode: 'n' on a denied mutation returns 1 and does not re-run."""
-    stub = StubTool(_denied_result())
-    factories = {"filesystem": lambda allowlist: stub}
-    with patch("laew.console.commands.tool.TOOL_FACTORIES", factories), \
-         patch("builtins.input", return_value="n"):
+def test_tool_ask_mode_no_refuses_denied_mutation(state, capsys, tmp_path):
+    from laew.tools.filesystem import FilesystemTool
+    from laew.security.path_resolver import PathResolver
+    tool = FilesystemTool(PathResolver(project_root=tmp_path))
+    with patch("laew.console.commands.tool.TOOL_FACTORIES", {"filesystem": lambda a: tool}), \
+         patch("sys.stdin.isatty", return_value=True), patch("builtins.input", return_value="n"):
         state.approval = "ask"
-        code = cmd_tool(["filesystem", "write_file", "path=x.txt", "content=hi"], state)
-    assert code == 1
-    assert stub.approved is False
-    assert len(stub.calls) == 1  # ungated call only; no re-run after refusal
-    assert "not approved" in capsys.readouterr().out
+        assert cmd_tool(["filesystem", "write_file", "file_path=x.txt", "content=hi"], state) == 1
+    assert not (tmp_path / "x.txt").exists()
 
 
-def test_tool_deny_mode_leaves_gate_armed(state, capsys):
-    """deny mode never approves; the tool's own gate rejects the mutation."""
-    stub = StubTool(_denied_result())
-    factories = {"filesystem": lambda allowlist: stub}
-    with patch("laew.console.commands.tool.TOOL_FACTORIES", factories):
+def test_tool_deny_mode_leaves_gate_armed(state, capsys, tmp_path):
+    from laew.tools.filesystem import FilesystemTool
+    from laew.security.path_resolver import PathResolver
+    tool = FilesystemTool(PathResolver(project_root=tmp_path))
+    with patch("laew.console.commands.tool.TOOL_FACTORIES", {"filesystem": lambda a: tool}):
         state.approval = "deny"
-        code = cmd_tool(["filesystem", "write_file", "path=x.txt", "content=hi"], state)
-    assert code == 1
-    assert stub.approved is False
-    assert len(stub.calls) == 1  # gate armed -> call still made, fails
+        assert cmd_tool(["filesystem", "write_file", "file_path=x.txt", "content=hi"], state) == 1
+    assert not (tmp_path / "x.txt").exists()
     assert "ERR_UNAUTHORIZED" in capsys.readouterr().out
+
+
+def test_manual_without_tty_denies_without_prompt(state, tmp_path):
+    from laew.tools.filesystem import FilesystemTool
+    from laew.security.path_resolver import PathResolver
+    tool = FilesystemTool(PathResolver(project_root=tmp_path))
+    with patch("laew.console.commands.tool.TOOL_FACTORIES", {"filesystem": lambda a: tool}), \
+         patch("sys.stdin.isatty", return_value=False), patch("builtins.input", side_effect=AssertionError("must not prompt")):
+        state.approval = "ask"
+        assert cmd_tool(["filesystem", "write_file", "file_path=x.txt", "content=hi"], state) == 1
+    assert not (tmp_path / "x.txt").exists()
 
 
 def test_tool_failure_surfaces_error_code(state, capsys):

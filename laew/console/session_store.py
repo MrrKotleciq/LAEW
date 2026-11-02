@@ -22,6 +22,8 @@ import json
 import os
 import re
 import tempfile
+import uuid
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -48,6 +50,62 @@ _VALID_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 
 #: Multi-turn conversation roles persisted in a session.
 CONVERSATION_ROLES = ("user", "assistant")
+
+_SENSITIVE_KEY = re.compile(r"(?:password|secret|token|api[_-]?key|authorization|credential|private[_-]?key|passphrase)", re.I)
+_SENSITIVE_TEXT = re.compile(
+    r"(?i)(\b(?:authorization|password|secret|token|api[_-]?key|credential|passphrase)\b[\"']?\s*[:=]\s*[\"']?)(?:bearer\s+)?[^\s,;\"']+"
+    r"|\b(?:sk-[A-Za-z0-9_-]{16,}|AIza[A-Za-z0-9_-]{20,})\b"
+)
+
+
+def _redact_conversation_value(value):
+    """Remove recognizable credentials recursively before persistence."""
+    if isinstance(value, str):
+        return _SENSITIVE_TEXT.sub(lambda match: (match.group(1) or "") + "[REDACTED]", value)
+    if isinstance(value, list):
+        return [_redact_conversation_value(item) for item in value]
+    if isinstance(value, dict):
+        result = {}
+        for key, item in value.items():
+            if key == "provider_data":
+                result[key] = _safe_provider_data(item)
+            else:
+                result[key] = "[REDACTED]" if _SENSITIVE_KEY.search(str(key)) else _redact_conversation_value(item)
+        return result
+    if value is None or isinstance(value, (bool, int, float)):
+        return value
+    raise SessionStoreError("conversation event contains unsupported data")
+
+
+def _safe_provider_data(value):
+    """Retain only Gemini continuation signatures, never raw transport payloads."""
+    if not isinstance(value, dict) or not isinstance(value.get("scope"), str):
+        return {}
+    scope = value["scope"]
+    if not re.fullmatch(r"gemini:[0-9a-f]{64}:[A-Za-z0-9._/-]{1,200}", scope):
+        return {}
+    message = value.get("message")
+    if not isinstance(message, dict) or message.get("role") != "assistant":
+        return {}
+    safe_message = {"role": "assistant", "content": _redact_conversation_value(message.get("content") or "")}
+    calls = []
+    for call in message.get("tool_calls", []):
+        if not isinstance(call, dict) or not isinstance(call.get("function"), dict):
+            return {}
+        function = call["function"]
+        if not all(isinstance(value, str) for value in (call.get("id"), function.get("name"), function.get("arguments"))):
+            return {}
+        safe_call = {"id": call["id"], "type": "function", "function": {
+            "name": function["name"], "arguments": _redact_conversation_value(function["arguments"])}}
+        extra = call.get("extra_content")
+        google = extra.get("google", {}) if isinstance(extra, dict) else {}
+        signature = google.get("thought_signature") if isinstance(google, dict) else None
+        if isinstance(signature, str) and len(signature) <= 65536:
+            safe_call["extra_content"] = {"google": {"thought_signature": signature}}
+        calls.append(safe_call)
+    if calls:
+        safe_message["tool_calls"] = calls
+    return {"scope": scope, "message": safe_message}
 
 
 class SessionStoreError(Exception):
@@ -212,6 +270,216 @@ class SessionStore:
     def __init__(self, directory: str | Path):
         self.directory = Path(directory)
 
+    # Versioned conversation records share this store's directory but never
+    # overwrite legacy named sessions. The legacy reader remains unchanged.
+    @staticmethod
+    def _conversation_id(value):
+        try:
+            parsed = uuid.UUID(value)
+        except (TypeError, ValueError, AttributeError):
+            raise SessionStoreError("invalid conversation ID") from None
+        if str(parsed) != value:
+            raise SessionStoreError("invalid conversation ID")
+        return value
+
+    def _conversation_path(self, conversation_id):
+        return self.directory / f"conversation-{self._conversation_id(conversation_id)}.json"
+
+    @contextmanager
+    def _conversation_lock(self, conversation_id):
+        from laew.rag.process_lock import CollectionLock
+        self._conversation_id(conversation_id)
+        lock = CollectionLock("conversation:" + conversation_id)
+        lock.path = self.directory / ".locks" / f"{conversation_id}.write.lock"
+        lock.acquire()
+        try:
+            yield
+        finally:
+            lock.release()
+
+    @contextmanager
+    def conversation_run(self, conversation_id):
+        """Hold a process-wide exclusive lease while a run is executing."""
+        from laew.rag.process_lock import CollectionLock
+        self._conversation_id(conversation_id)
+        lock = CollectionLock("conversation-run:" + conversation_id, timeout=0)
+        lock.path = self.directory / ".locks" / f"{conversation_id}.run.lock"
+        try:
+            lock.acquire()
+        except TimeoutError:
+            raise SessionStoreError("conversation is busy") from None
+        try:
+            yield
+        finally:
+            lock.release()
+
+    def _write_conversation(self, document):
+        self.directory.mkdir(parents=True, exist_ok=True)
+        _harden_dir(self.directory)
+        path = self._conversation_path(document["id"])
+        tmp_path = None
+        try:
+            with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=self.directory,
+                                             prefix=".conversation-", suffix=".tmp", delete=False) as tmp:
+                tmp_path = Path(tmp.name)
+                json.dump(document, tmp, ensure_ascii=False, indent=2)
+                tmp.write("\n")
+                tmp.flush()
+                os.fsync(tmp.fileno())
+            _harden_file(tmp_path)
+            os.replace(tmp_path, path)
+        finally:
+            if tmp_path is not None:
+                tmp_path.unlink(missing_ok=True)
+
+    @staticmethod
+    def _validate_conversation_record(doc, expected_id):
+        if (not isinstance(doc, dict) or doc.get("schema") != "laew.conversation"
+                or doc.get("version") != 1 or doc.get("id") != expected_id):
+            raise SessionStoreError("invalid conversation record")
+        scope, project = doc.get("scope_type"), doc.get("project_id")
+        if not ((scope == "general" and project is None) or
+                (scope == "project" and isinstance(project, str) and bool(re.fullmatch(r"[A-Za-z0-9_-]{1,128}", project)))):
+            raise SessionStoreError("invalid conversation scope")
+        if (not isinstance(doc.get("title"), str) or not doc["title"].strip() or len(doc["title"]) > 200
+                or not isinstance(doc.get("events"), list) or doc.get("status") != "active"
+                or not isinstance(doc.get("created_at"), str) or not isinstance(doc.get("updated_at"), str)):
+            raise SessionStoreError("invalid conversation content")
+        seen = set()
+        for index, event in enumerate(doc["events"]):
+            if (not isinstance(event, dict) or type(event.get("sequence")) is not int or event.get("sequence") != index
+                    or not isinstance(event.get("id"), str) or not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", event["id"])
+                    or event["id"] in seen or event.get("kind") not in {"user", "assistant", "tool_call", "tool_result", "run"}
+                    or event.get("status") not in {"pending", "running", "completed", "failed", "cancelled", "denied"}
+                    or not isinstance(event.get("content"), str) or not isinstance(event.get("created_at"), str)):
+                raise SessionStoreError("invalid conversation event sequence")
+            seen.add(event["id"])
+        return doc
+
+    def create_conversation(self, scope_type, project_id, title="New conversation"):
+        conversation_id = str(uuid.uuid4())
+        now = utc_now()
+        if not isinstance(title, str) or not title.strip() or len(title) > 200:
+            raise SessionStoreError("invalid conversation title")
+        document = {"schema": "laew.conversation", "version": 1, "id": conversation_id,
+                    "title": _redact_conversation_value(title.strip()), "scope_type": scope_type, "project_id": project_id,
+                    "created_at": now, "updated_at": now, "status": "active", "events": []}
+        self._validate_conversation_record(document, conversation_id)
+        with self._conversation_lock(conversation_id):
+            if self._conversation_path(conversation_id).exists():
+                raise SessionStoreError("conversation ID already exists")
+            self._write_conversation(document)
+        return document
+
+    def load_conversation(self, conversation_id):
+        path = self._conversation_path(conversation_id)
+        if path.is_symlink() or (hasattr(path, "is_junction") and path.is_junction()):
+            raise SessionStoreError("conversation path cannot be a link")
+        if not path.is_file():
+            raise FileNotFoundError(f"conversation {conversation_id!r} not found")
+        doc = self._read_raw(path)
+        return self._validate_conversation_record(doc, conversation_id)
+
+    def list_conversations(self):
+        records = []
+        for path in self.directory.glob("conversation-*.json"):
+            try:
+                doc = self.load_conversation(path.stem.removeprefix("conversation-"))
+                records.append({key: value for key, value in doc.items() if key != "events"})
+            except (OSError, SessionStoreError):
+                continue
+        return sorted(records, key=lambda item: item["updated_at"], reverse=True)
+
+    def conversation_messages(self, conversation_id):
+        """Rehydrate events and pair interrupted calls without executing them."""
+        from laew.llm.base import LLMMessage, MessageRole
+        document = self.load_conversation(conversation_id)
+        messages = []
+        pending = {}
+        def finish_pending():
+            for call_id, native in pending.items():
+                text = "Execution was interrupted; the tool outcome is unknown. Do not repeat it automatically."
+                messages.append(LLMMessage(MessageRole.TOOL if native else MessageRole.USER,
+                                           text, tool_call_id=call_id if native else None))
+            pending.clear()
+        for event in document["events"]:
+            kind = event.get("kind")
+            if kind == "run":
+                finish_pending()
+            elif kind == "tool_call":
+                call_id = event.get("call_id")
+                if call_id and call_id not in pending:
+                    pending[call_id] = False
+            elif kind in {"user", "assistant", "tool_result"} and isinstance(event.get("message"), dict):
+                try:
+                    message = LLMMessage.from_dict(event["message"])
+                except (ValueError, KeyError, TypeError):
+                    raise SessionStoreError("invalid stored provider-neutral message") from None
+                if kind in {"user", "assistant"}:
+                    finish_pending()
+                messages.append(message)
+                if kind == "assistant":
+                    pending.update({call.id: True for call in message.tool_calls})
+                elif kind == "tool_result":
+                    pending.pop(event.get("call_id"), None)
+        finish_pending()
+        return messages
+
+    def recover_interrupted_runs(self, conversation_id):
+        """Mark abandoned runs after their exclusive lease has been acquired."""
+        document = self.load_conversation(conversation_id)
+        running = {}
+        for event in document["events"]:
+            if event.get("kind") != "run" or not event.get("run_id"):
+                continue
+            if event["status"] in {"pending", "running"}:
+                running[event["run_id"]] = True
+            else:
+                running.pop(event["run_id"], None)
+        for run_id in running:
+            self.append_conversation_event(conversation_id, {
+                "id": uuid.uuid4().hex, "kind": "run", "status": "failed", "run_id": run_id,
+                "content": "Run interrupted; unfinished tool outcomes may be unknown."})
+
+    def append_conversation_event(self, conversation_id, event):
+        if (not isinstance(event, dict) or not isinstance(event.get("id"), str)
+                or not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", event["id"])
+                or event.get("kind") not in {"user", "assistant", "tool_call", "tool_result", "run"}
+                or event.get("status") not in {"pending", "running", "completed", "failed", "cancelled", "denied"}
+                or not isinstance(event.get("content"), str) or "sequence" in event):
+            raise SessionStoreError("invalid conversation event")
+        event = _redact_conversation_value(event)
+        with self._conversation_lock(conversation_id):
+            document = self.load_conversation(conversation_id)
+            for existing in document["events"]:
+                if existing["id"] == event["id"]:
+                    if {k: v for k, v in existing.items() if k not in {"sequence", "created_at"}} != {k: v for k, v in event.items() if k != "created_at"}:
+                        raise SessionStoreError("event ID already has different content")
+                    return existing
+            stored = {**event, "created_at": event.get("created_at", utc_now()), "sequence": len(document["events"])}
+            document["events"].append(stored)
+            document["updated_at"] = utc_now()
+            self._write_conversation(document)
+            return stored
+
+    def rename_conversation(self, conversation_id, title):
+        if not isinstance(title, str) or not title.strip() or len(title) > 200:
+            raise SessionStoreError("invalid conversation title")
+        with self.conversation_run(conversation_id), self._conversation_lock(conversation_id):
+            document = self.load_conversation(conversation_id)
+            document["title"] = _redact_conversation_value(title.strip())
+            document["updated_at"] = utc_now()
+            self._write_conversation(document)
+            return document
+
+    def delete_conversation(self, conversation_id):
+        with self.conversation_run(conversation_id), self._conversation_lock(conversation_id):
+            path = self._conversation_path(conversation_id)
+            if not path.is_file():
+                return False
+            path.unlink()
+            return True
+
     # ------------------------------------------------------------------ #
     # Naming & paths
     # ------------------------------------------------------------------ #
@@ -244,6 +512,8 @@ class SessionStore:
             SessionStoreError: Payload fails :func:`validate_payload`.
         """
         validate_session_name(name)
+        if re.fullmatch(r"conversation-[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}", name):
+            raise InvalidSessionName("session name is reserved for conversation records")
         validate_payload(payload)
         self.directory.mkdir(parents=True, exist_ok=True)
         _harden_dir(self.directory)
@@ -408,6 +678,16 @@ def session_store_from_manifest(manifest: dict) -> SessionStore:
     if not isinstance(storage, str) or not storage:
         storage = DEFAULT_SESSION_STORAGE
     return SessionStore(storage)
+
+
+def conversation_store_from_manifest(manifest: dict, manifest_path: str | Path) -> SessionStore:
+    """Resolve the same session directory for every application surface."""
+    from laew.rag.config import manifest_base_dir
+    existing = session_store_from_manifest(manifest)
+    directory = existing.directory.expanduser()
+    if not directory.is_absolute():
+        directory = manifest_base_dir(manifest_path) / directory
+    return SessionStore(directory.resolve())
 
 
 def _safe_isfile(path: Path) -> bool:

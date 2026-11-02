@@ -156,6 +156,7 @@ class OllamaProvider(LLMProvider):
         temperature: float = 0.7,
         max_tokens: Optional[int] = None,
         stop: Optional[list[str]] = None,
+        cancellation=None,
     ) -> Iterator[str]:
         """
         Stream a completion as content chunks via Ollama's NDJSON streaming.
@@ -194,8 +195,10 @@ class OllamaProvider(LLMProvider):
         if stop is not None:
             payload["options"]["stop"] = stop
 
+        from laew.llm.cancellation import cancellable_session
+        session = cancellable_session(cancellation) if cancellation else None
         try:
-            response = requests.post(
+            response = (session or requests).post(
                 url,
                 json=payload,
                 timeout=self._timeout,
@@ -203,26 +206,31 @@ class OllamaProvider(LLMProvider):
             )
             response.raise_for_status()
         except requests.exceptions.ConnectionError as e:
+            if session: session.close()
             raise LLMError(
                 f"Failed to connect to Ollama at {self.base_url}. Is Ollama running?",
                 code="CONNECTION_ERROR",
             ) from e
         except requests.exceptions.Timeout as e:
+            if session: session.close()
             raise LLMError(
                 f"Ollama request timed out after {self._timeout}s",
                 code="TIMEOUT",
             ) from e
         except requests.exceptions.HTTPError as e:
+            if session: session.close()
             raise LLMError(
                 f"Ollama API error: {e.response.status_code} - {e.response.text}",
                 code="HTTP_ERROR",
             ) from e
         except requests.exceptions.RequestException as e:
+            if session: session.close()
             raise LLMError(
                 f"Request failed: {str(e)}",
                 code="REQUEST_ERROR",
             ) from e
 
+        interrupt = cancellation.register_response(response) if cancellation else None
         # Accumulate token counts from the stream; exposed via
         # ``self._last_stream_response`` after the generator is consumed.
         prompt_tokens: int | None = None
@@ -259,7 +267,11 @@ class OllamaProvider(LLMProvider):
                 code="STREAM_ERROR",
             ) from e
         finally:
+            if cancellation:
+                cancellation.unregister(interrupt)
             response.close()
+            if session:
+                session.close()
 
         # Attach the final LLMResponse so callers can read token counts
         # without requiring a separate generate() call.

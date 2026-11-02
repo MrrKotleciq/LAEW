@@ -14,12 +14,25 @@ read_when:
 
 ## Status
 
+Workbench Cloud Chat supports OpenAI API keys and official ChatGPT account
+sign-in as isolated text-only conversations. It includes model selection,
+streaming, Stop, token usage and protected OAuth sessions; it does not enable
+cloud agents or local tools. See [configuration and limitations](CLOUD_CHAT.md).
+Offline regression during implementation: **909 passed, 3 skipped, 1 deselected**;
+additional targeted cloud/Workbench verification: **60 passed**. Browser checks
+used a disposable fixture. Live account inference remains unverified because
+no API key or LAEW ChatGPT login was configured.
+
 Architecture: LAEW v1.0 documented
-Implementation: Milestone 16 (Parallel Multi-Agent Execution & Semantic Conflict Detection) completed
+Implementation: Milestone 17 (Second Brain & Global Knowledge Integration) completed
 
 ## Current Focus
 
-Milestones 1–16 are complete through Parallel Multi-Agent Execution & Semantic Conflict Detection. Milestones 17–21 are in progress. The current work includes the first local web-workbench vertical slice: a loopback-only browser UI that reuses the Chief Agent runtime. Knowledge/RAG provenance, project switching, activity, and service management are not yet implemented in that UI.
+Milestones 1–17 are complete. Milestones 18–21 remain in progress. The local
+workbench reuses the Chief Agent with project selection and scoped RAG sources.
+The approved Polish Global Knowledge vault is populated, indexed and verified
+against actual content. Operational monitoring, backup/retention and later
+roadmap work remain outside M17 completion.
 
 ## Milestone Summary
 
@@ -41,7 +54,7 @@ Milestones 1–16 are complete through Parallel Multi-Agent Execution & Semantic
 | M14 — Performance & Context-Efficiency Audit | ✅ Completed | 2026-09-16 |
 | M15 — Multi-Model Routing & Provider Fallback | ✅ Completed | 2026-09-16 |
 | M16 — Parallel Multi-Agent Execution & Semantic Conflict Detection | ✅ Completed | 2026-09-16 |
-| M17 — Second Brain & Global Knowledge Integration | 🚧 In Progress | — |
+| M17 — Second Brain & Global Knowledge Integration | ✅ Completed | 2026-10-29 |
 | M18 — Monitoring, Telemetry & Backup | 🚧 In Progress | — |
 | M19 — MCP Tools Layer | 🚧 In Progress | — |
 | M20 — Multi-Project Workspace | 🚧 In Progress | — |
@@ -53,7 +66,7 @@ Milestones 1–16 are complete through Parallel Multi-Agent Execution & Semantic
 - **manifests/SYSTEM_MANIFEST.yaml** — System manifest v1.0 (workspace boundaries, model roles, tool policies, memory layers, RAG configuration)
 - **tools/** — Tool contracts for filesystem, git, terminal, web (each with CONTRACT.md and Python implementation)
 - **prompts/** — Layered prompt templates (core.md, chief-agent.md, architecture.md, research.md, code-review.md, debugging.md, documentation.md, rag.md)
-- **tests/** — Test specifications for security, agent, rag, workflow, multi-agent, console, CLI, web, benchmarking, and documentation validation (757 unit tests across 37 suites)
+- **tests/** — Test specifications for security, agent, rag, workflow, multi-agent, console, CLI, web, benchmarking, and documentation validation (803 unit tests across 43 suites)
 - **docs/** — Architecture, principles, decisions, context, status, history, roadmap, performance, security, and source reference material
 - **.claude/** — Agent SDK configuration, settings, prompts, and skills (project-sync, research, architecture-review)
 - **laew/** — Python package (tool runtime wrappers, CLI, LLM provider, prompt management, agent loop, multi-agent coordination, RAG, workflow, evaluation)
@@ -62,11 +75,62 @@ Milestones 1–16 are complete through Parallel Multi-Agent Execution & Semantic
 
 ## Test Suite Summary
 
-- **757 unit tests** collected across **37 test suites** (in `tests/unit`)
-- Latest unit suite: 748 passed, 2 skipped. Full suite: 873 passed, 3 skipped; the 38 warnings are ChromaDB telemetry deprecations for `asyncio.iscoroutinefunction`.
+- 2026-10-31 vault reorganization (M17 stays completed): the same vault now has
+  ten Markdown files and eight indexed documents/35 chunks. Global ingestion
+  excludes Inbox, templates and auxiliary folders; the Polish README remains
+  searchable. Eight concept questions and three live Chief answers used the
+  expected new sources. The dedicated global validator did not synchronize
+  project collections; subsequent regression exposed an unintended LAEW index
+  refresh (321 to 329 chunks) through insufficiently isolated CLI boot tests.
+  Those scheduler paths are now isolated; the incident is recorded in the report.
+  See [the reorganization verification](roadmap/M17-Vault-Reorganization-2026-10-31.md).
+  Final regression: **937 passed, 2 skipped, 1 deselected**; **9 UI tests passed**.
+  Obsidian configuration/link checks passed statically; no GUI/plugin run is claimed.
+
+- 2026-10-29 production acceptance: **M17 completed** after explicit content
+  approval. The actual global vault contains nine Polish documents/31 chunks
+  (six reusable materials, two approved profile notes, one preserved test note).
+  Seven topic queries and two live Chief global/hybrid cases used expected
+  production sources. A real document update synchronized correctly; unchanged
+  synchronization generated zero embeddings. All indexed chunk texts/metadata
+  matched the actual files. Broad paraphrases can still miss the most relevant
+  source; the evidence and limitation are recorded in
+  [the verification matrix](roadmap/M17-Knowledge-Preparation-2026-10-29.md).
+  Post-deployment documentation/configuration/ingestion regression: **58 passed**;
+  JavaScript syntax and `git diff --check` passed. The earlier 924-test broad
+  regression remains the unchanged application-code baseline.
+
+- Earlier 2026-10-29 knowledge organization preparation: standard academic project Studia,
+  optional per-project RAG source selection, documented promotion/profile policy,
+  six proposed shared materials and two profile drafts. Isolated real embeddings
+  retrieved all six expected topic sources; two live Chief runs used the expected
+  project/global citations. At that stage actual global content approval and
+  deployment were pending; the production acceptance above supersedes that gate. See
+  [the preparation verification](roadmap/M17-Knowledge-Preparation-2026-10-29.md).
+  Final offline/component regression: **924 passed, 2 skipped, 1 deselected**;
+  UI regression: **9 passed**. Studia's separate production collection contains
+  two documents/five chunks; unchanged synchronization embedded zero chunks.
+  Existing LAEW and global collection records/vectors were unchanged.
+
+- **803 unit tests** collected across **43 test suites** (in `tests/unit`)
+- Earlier offline unit and component verification for M17: 887 passed, 2 skipped. Separate isolated live tests exercised ChromaDB, embeddings, the Chief Agent and a browser; M17 was still in progress at that stage.
+- 2026-10-28/29 final verification: 826 passed, 2 skipped, 1 deselected for
+  `tests/unit tests/integration -m "not ollama"`; a focused RAG, process,
+  provider and Workbench run passed 137 tests, including a new partial-upsert
+  crash test using an isolated HTTP Chroma server. Live project/global/hybrid
+  retrieval evidence is in `runtime/m17-validation-e1e30ef7467f/report.json`.
+  At that stage M17 remained in progress because the target global vault contained only a
+  synthetic test note, not the populated curated vault its Definition of Done
+  requires. That content gate is now satisfied by the production acceptance above.
+- Earlier unit suite: 748 passed, 2 skipped. Earlier full suite: 873 passed, 3 skipped; the 38 warnings are ChromaDB telemetry deprecations for `asyncio.iscoroutinefunction`. See the dated result above for the current broader run.
 - Bandit SAST: 0 High, 0 Medium findings over `laew/`
 
 ## What Is Implemented
+
+- **Workbench permissions:** project-scoped Auto, Manual and Restricted modes,
+  streaming approval requests, one-time and narrowly scoped session decisions.
+  Terminal execution is intentionally limited to narrowly recognized inspection
+  commands in Workbench and does not provide an OS sandbox.
 
 - **Local web workbench MVP**: `laew ui` serves a loopback-only browser workspace with real provider/model status, Chief Agent message submission, and executor step summaries. See [ADR-020](decisions/ADR-020-local-web-application.md), [ADR-021](decisions/ADR-021-project-centric-engineering-workbench.md), and [UI Architecture](architecture/UI_ARCHITECTURE.md).
 
@@ -77,6 +141,7 @@ LAEW v1.0 implements:
 - **LLM provider abstraction**: Model-agnostic interface with Ollama implementation, context budgeting, layered prompts.
 - **Chief agent loop**: Thought → Action → Observation → Response with structured JSON tool calling, repetition guards, and forced final-answer fallback.
 - **Knowledge system & RAG**: Embedding service, in-memory vector store, knowledge base with scope separation (@project vs @knowledge), RAG pipeline with reranking and context synthesis.
+- **Curated Global Knowledge and academic projects**: Approved Polish shared notes and minimal user profile; standard Studia project, per-project source selection, incremental synchronization and verified project/global/hybrid retrieval. Native-language source documents may retain their original language.
 - **Evaluation harness**: Metrics, tasks, runner, and benchmark datasets.
 - **Workflow automation**: YAML workflow definitions, sequential execution engine, approval gates, compensating rollback.
 - **Multi-agent architecture**: Message protocol, shared context journal, specialist roles, chief coordinator, YAML plan schema.
@@ -88,9 +153,8 @@ LAEW v1.0 implements:
 
 ## What Is Planned
 
-Milestones 17–21 extend LAEW with:
+Milestones 18–21 extend LAEW with:
 
-- **M17** (Second Brain & Global Knowledge Integration): Obsidian vault integration, @knowledge scope realization.
 - **M18** (Monitoring, Telemetry & Backup): Session observability, metrics collection, automated backups.
 - **M19** (MCP Tools Layer): Model Context Protocol tool definitions and integration.
 - **M20** (Multi-Project Workspace): Multi-root workspace management, cross-project knowledge discovery.

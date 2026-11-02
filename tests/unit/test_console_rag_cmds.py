@@ -201,7 +201,8 @@ def test_manifest_project_source_allowlist_keeps_scopes_separate(state):
             continue
         selected.add(relative)
 
-    assert len(selected) == 44
+    assert len(selected) == 45
+    assert "docs/architecture/KNOWLEDGE_ORGANIZATION.md" in selected
     assert "README.md" in selected
     assert "knowledge/Knowledge/02-Database-Indexing.md" in selected
     assert not any(path.startswith(("docs/history/", "docs/source/", "prompts/", "tests/")) for path in selected)

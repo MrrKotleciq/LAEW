@@ -49,3 +49,18 @@ Executes a terminal command within the workspace environment.
   - `ERR_UNAUTHORIZED`: User rejected command execution.
   - `ERR_TIMEOUT`: Process exceeded maximum execution time.
   - `ERR_NON_ZERO_EXIT`: Process exited with non-zero code.
+# Engineering Workbench boundary
+
+Workbench and console use the shared broker for Chief Agent tool calls. It
+permits only narrowly recognized inspection commands; the exact command
+`git diff --stat --no-ext-diff --no-textconv` requires one-time approval.
+Other terminal commands remain denied because arbitrary subprocess effects
+cannot be confined by this wrapper. The wrapper is not an operating-system
+sandbox; `shell=False` and a working-directory check do not confine subprocess
+arguments or effects.
+
+## Validation backlog
+
+Verify the Workbench terminal inspection allowlist, one-time approved diagnostic,
+denial behavior, and timeout handling independently of M17 RAG acceptance. Any
+request for broader command support requires its own security design and scope.

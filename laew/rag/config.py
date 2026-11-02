@@ -6,6 +6,39 @@ from typing import Any, Optional
 from laew.security.path_resolver import PathResolver
 
 
+DEFAULT_GLOBAL_EXCLUSIONS = (
+    "inbox/**", "templates/**", "assets/**", "backups/**", "temp/**",
+    "*.tmp.md", "**/*.tmp.md", "*.bak.md", "**/*.bak.md",
+)
+
+
+def global_source_exclusions(patterns: Optional[list[str] | tuple[str, ...]] = None) -> tuple[str, ...]:
+    """Add validated relative glob patterns to the default non-knowledge roots.
+
+    This is one global-scope selection policy shared by initial ingestion and
+    incremental reconciliation. Matching is case-insensitive for reserved vault
+    folders, including legacy ``Templates`` on case-sensitive filesystems.
+    """
+    if patterns is None:
+        patterns = []
+    if not isinstance(patterns, (list, tuple)):
+        raise ValueError("Global source exclusions must be a list of relative patterns.")
+    for pattern in patterns:
+        if (not isinstance(pattern, str) or not pattern.strip()
+                or "\\" in pattern or ":" in pattern or pattern.startswith("/")
+                or any(part in ("", ".", "..") for part in pattern.split("/"))):
+            raise ValueError("Global source exclusions require relative POSIX patterns without traversal.")
+    return tuple(dict.fromkeys((*DEFAULT_GLOBAL_EXCLUSIONS, *patterns)))
+
+
+def manifest_global_exclusions(manifest: dict) -> tuple[str, ...]:
+    """Read the optional global selection settings without accepting bad shapes."""
+    sources = (manifest.get("rag", {}) or {}).get("global_sources", {})
+    if not isinstance(sources, dict):
+        raise ValueError("rag.global_sources must be a mapping.")
+    return global_source_exclusions(sources.get("exclude_patterns"))
+
+
 def manifest_base_dir(manifest_path: str | Path) -> Path:
     """Return the project directory that anchors a relative manifest path."""
     path = Path(manifest_path).expanduser()
@@ -36,7 +69,7 @@ def resolve_project_root(
 def resolve_knowledge_root(
     manifest: dict[str, Any],
     *,
-    project_root: str | Path,
+    project_root: Optional[str | Path],
     projects_root: Optional[str | Path] = None,
     knowledge_root: Optional[str | Path] = None,
 ) -> Path:
@@ -51,6 +84,7 @@ def resolve_knowledge_root(
         project_root=project_root,
         projects_root=projects_root,
         knowledge_root=knowledge_root,
+        general=project_root is None,
     )
     second_brain = (manifest.get("memory", {}) or {}).get("second_brain", {}) or {}
     configured = second_brain.get("path") or "@knowledge"
