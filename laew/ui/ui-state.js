@@ -45,11 +45,16 @@
       revealConversation(key, restoring) { if (!restoring || !Object.hasOwn(groups,key)) this.setGroup(key,true); }
     };
   }
+  function memoryModelSelection(value) {
+    if (!value) return null;
+    const [provider,model,account_id]=JSON.parse(value);
+    return {provider,model,account_id:account_id || null};
+  }
   function sidebarWidth(width, viewport, contextWidth=330) {
     const max=Math.max(210, Math.min(480, viewport-contextWidth-360));
     return Math.max(210, Math.min(max, Number.isFinite(Number(width)) ? Number(width) : 260));
   }
-  const api = {createPanelState, modelGroups, conversationGroups, createExpansionState, sidebarWidth};
+  const api = {createPanelState, modelGroups, conversationGroups, createExpansionState, sidebarWidth, memoryModelSelection};
   if (typeof module !== 'undefined') module.exports = api;
   else root.LAEWUI = api;
 })(typeof window === 'undefined' ? globalThis : window);

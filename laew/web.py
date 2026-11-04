@@ -7,6 +7,7 @@ slice needs no second runtime, external service, or permissive CORS policy.
 from __future__ import annotations
 
 import json
+import logging
 import hashlib
 import os
 import re
@@ -93,6 +94,12 @@ class WorkspaceService:
         self._session_id = None
         self._conversations = {}
         self._conversation_store = None
+        self._memory_lock = threading.RLock()
+        self._memory = None
+        self._memory_worker = None
+        self._knowledge = None
+        self._knowledge_worker = None
+        self._knowledge_lock = threading.RLock()
         self._projects = self._discover_projects()
         try:
             default_id = self._id_for_path(self.default_project_root)
@@ -226,6 +233,176 @@ class WorkspaceService:
             self._conversation_store = conversation_store_from_manifest(load_manifest(self.manifest_path), self.manifest_path)
         return self._conversation_store
 
+    def memory(self):
+        with self._memory_lock: return self._get_memory()
+
+    def _get_memory(self):
+        if self._memory is None:
+            from laew.memory.integration import build_memory, MemoryWorker, extraction_provider
+            manifest=load_manifest(self.manifest_path)
+            self._memory=build_memory(manifest,self.manifest_path)
+            self._memory_worker=MemoryWorker(self._memory,self.conversation_store(),
+                lambda selection: extraction_provider(manifest,selection,self.cloud))
+        return self._memory
+
+    def memory_selection(self):
+        return {"provider":self._selection,"model":self._model,"account_id":self._account_id}
+
+    def knowledge(self):
+        with self._knowledge_lock:
+            if self._knowledge is None:
+                from laew.knowledge.integration import build_knowledge, KnowledgeWorker
+                from laew.memory.integration import extraction_provider
+                from laew.rag.sync import synchronize_scope
+                manifest = load_manifest(self.manifest_path)
+                def broker(project_id):
+                    project = self._discover_projects().get(project_id) if project_id else None
+                    if project_id and project is None:
+                        raise ValueError('Proposal project is unavailable.')
+                    root = project['path'] if project else None
+                    mode = load_project_settings(root).get('permission_mode', 'auto') if root else 'auto'
+                    return PermissionBroker(root, mode)
+                def sync(path):
+                    kb = self._sync_base()
+                    if not (kb._vector_store_config or {}).get('enabled'):
+                        raise RuntimeError('Persistent Global RAG is disabled.')
+                    return synchronize_scope(kb, 'global')
+                self._knowledge = build_knowledge(manifest,
+                    self.conversation_store(), projects_root=self.projects_root,
+                    knowledge_root=self.knowledge_root, broker_factory=broker, sync_callback=sync,
+                    discovery_base=lambda: next(iter(self._sync_bases.copy().values()), None))
+                self._knowledge_worker = KnowledgeWorker(self._knowledge, self.conversation_store(),
+                    lambda selection: extraction_provider(manifest, selection, self.cloud))
+            return self._knowledge
+
+    def knowledge_selection(self, project_id=None):
+        if self.knowledge().settings()['model_source'] == 'active':
+            return self.memory_selection() if project_id == self._active_project_id and self._model else None
+        return self.memory().store.settings(project_id)['extraction_model']
+
+    def knowledge_request(self, action, body):
+        import sqlite3
+        from laew.console.session_store import SessionStoreError
+        try:
+            project_id = body.get('project_id') or None
+            if project_id is not None and project_id not in self._discover_projects():
+                raise ValueError('Project is unavailable.')
+            service = self.knowledge()
+            if action == 'state':
+                return 200, {'settings': service.settings(),
+                    'proposals': service.list_proposals(project_id), 'status': service.status(project_id),
+                    'extraction_model': self.knowledge_selection(project_id)}
+            if action == 'settings':
+                return 200, service.save_settings(body.get('settings'))
+            if action == 'preview':
+                return 200, service.preview(body.get('id'), project_id)
+            if action == 'edit':
+                return 200, service.edit(body.get('id'), project_id, body.get('version'), body.get('content'),
+                    target=body.get('target'), kind=body.get('kind'))
+            if action == 'decide':
+                result = service.decide(body.get('id'), project_id, body.get('version'), body.get('action'))
+                self._knowledge_worker.request()
+                return 200, result
+            if action == 'analyze':
+                conversation = self.conversation_store().load_conversation(body.get('conversation_id'))
+                if conversation['project_id'] != project_id:
+                    raise ValueError('Conversation scope does not match selection.')
+                selection = self.knowledge_selection(project_id)
+                if selection is None:
+                    raise ValueError('Choose an extraction model or start a chat with the active model option enabled.')
+                key = service.enqueue(conversation, selection, manual=True)
+                self._knowledge_worker.request()
+                return 200, {'queued': key, 'message': 'Analysis queued.' if key else 'No new completed turns or analysis already queued.'}
+            if action == 'sync':
+                self._knowledge_worker.request()
+                return 200, {'message': 'Pending knowledge indexing queued.'}
+            raise ValueError('Unknown knowledge operation.')
+        except (ValueError, TypeError, KeyError, FileNotFoundError, SessionStoreError) as exc:
+            return 400, {'error': str(exc)}
+        except (OSError, sqlite3.Error):
+            return 503, {'error': 'Knowledge storage is unavailable.'}
+
+    def defaults(self):
+        from laew.settings import settings_path, read_defaults
+        return read_defaults(settings_path(load_manifest(self.manifest_path) if Path(self.manifest_path).exists() else {},self.manifest_path))
+
+    def memory_request(self, action, body):
+        import sqlite3
+        from laew.memory.categories import CATEGORY_DESCRIPTIONS, InvalidMemoryCategory
+        try:
+            memory=self.memory(); store=memory.store
+            project_id=body.get('project_id')
+            if project_id is not None and project_id not in self._discover_projects():
+                raise ValueError('Project is unavailable.')
+            def authorized(record):
+                if record['scope']=='project' and record['project_id']!=project_id:
+                    raise ValueError('Memory is outside the selected project scope.')
+                return record
+            if action=='state':
+                return 200, {'settings':store.settings(),'categories':dict(CATEGORY_DESCRIPTIONS),'memories':store.list_memories(project_id),
+                    'proposals':memory.proposals(project_id),'status':memory.status()}
+            if action=='get': return 200,authorized(store.get(body.get('id')))
+            if action=='settings':
+                result=store.save_settings(body.get('settings')); self._memory_worker.request(); return 200,result
+            if action=='add': return 200,store.remember(body.get('content'),body.get('scope'),project_id if body.get('scope')=='project' else None,body.get('category'))
+            if action in ('update','delete'):
+                authorized(store.get(body.get('id')))
+                if action=='update': return 200,store.update(body.get('id'),body.get('content'),body.get('version'),body.get('category'))
+                store.delete(body.get('id'),body.get('version')); return 200,{'deleted':True}
+            if action=='decide':
+                with store.connection() as db:
+                    row=db.execute('SELECT * FROM memory_proposals WHERE id=?',(body.get('id'),)).fetchone()
+                if not row: raise ValueError('Proposal not found.')
+                authorized(row)
+                if type(body.get('approve')) is not bool: raise ValueError('Choose approve or reject.')
+                result=memory.decide(body['id'],body['approve'],body.get('content')); self._memory_worker.request(); return 200,result
+            if action=='analyze':
+                conversation=self.conversation_store().load_conversation(body.get('conversation_id'))
+                if conversation['project_id']!=project_id: raise ValueError('Conversation scope does not match selection.')
+                selection=body.get('selection') or self.memory_selection()
+                key=memory.enqueue(conversation,selection,manual=True)
+                self._memory_worker.request()
+                return 200,{'queued':key,'message':'Analysis queued.' if key else 'No new completed turns, or analysis already pending.'}
+            if action in ('sync','rebuild'):
+                self._memory_worker.request(rebuild=action=='rebuild')
+                return 200,{'message':'Memory synchronization queued.'}
+            raise ValueError('Unknown memory operation.')
+        except InvalidMemoryCategory as exc:
+            return 400,{'error':str(exc),'error_code':'ERR_INVALID_INPUT',**exc.details()}
+        except (ValueError,TypeError,KeyError,FileNotFoundError) as exc: return 400,{'error':str(exc)}
+        except (OSError,sqlite3.Error): return 503,{'error':'SQLite memory storage is unavailable.'}
+
+    def application_settings(self, body=None):
+        if not self._lock.acquire(blocking=False): return 409, {'error':'Wait for the active run to finish.'}
+        try: return self._application_settings(body)
+        finally: self._lock.release()
+
+    def _application_settings(self, body=None):
+        import sqlite3
+        from laew.settings import settings_path,read_defaults,save_defaults
+        from laew.project_config import project_overrides
+        try:
+            path=settings_path(load_manifest(self.manifest_path),self.manifest_path)
+            if body is None: return 200,{'defaults':read_defaults(path)}
+            if 'defaults' in body:
+                result=save_defaults(path,body['defaults'])
+                self._conversations.clear(); self._session_id=None; self._reset_runtime()
+                return 200,{'defaults':result}
+            project=self._discover_projects().get(body.get('project_id'))
+            if not project: raise ValueError('Project is unavailable.')
+            if 'memory_overrides' in body:
+                self.memory().store.save_project_settings(project['id'],body['memory_overrides'])
+            if 'overrides' in body:
+                updates=body['overrides']
+                if not isinstance(updates,dict) or set(updates)-{'documentation_language'}: raise ValueError('Unknown project setting.')
+                save_project_settings(project['path'],updates)
+                if project['id']==self._active_project_id: self._conversations.clear(); self._session_id=None; self._reset_runtime()
+            overrides=project_overrides(project['path'])
+            return 200,{'project_id':project['id'],'name':project['name'],'defaults':read_defaults(path),'overrides':overrides,
+                'effective':load_project_settings(project['path'],read_defaults(path)), 'memory_defaults':self.memory().store.settings(), 'memory_overrides':self.memory().store.project_settings(project['id']), 'memory_effective':self.memory().store.settings(project['id'])}
+        except (OSError,ValueError,TypeError,KeyError) as exc: return 400,{'error':str(exc)}
+        except sqlite3.Error: return 503,{'error':'SQLite memory settings are unavailable.'}
+
     def create_conversation(self, scope, project_id):
         from laew.console.session_store import SessionStoreError
         if scope == "project" and project_id not in self._discover_projects():
@@ -243,6 +420,12 @@ class WorkspaceService:
             return self._sync_bases[root]
 
     def start_sync(self):
+        try:
+            self.knowledge(); self._knowledge_worker.start()
+        except Exception: logging.getLogger(__name__).exception('Knowledge worker unavailable')
+        try:
+            self.memory(); self._memory_worker.start()
+        except Exception: logging.getLogger(__name__).exception('Memory worker unavailable')
         from laew.rag.sync import SyncScheduler
         if self._scheduler is None:
             self._scheduler = SyncScheduler(self._sync_base)
@@ -250,6 +433,10 @@ class WorkspaceService:
             self._scheduler.start(project["path"] if project else None)
 
     def close(self):
+        if self._knowledge_worker is not None:
+            self._knowledge_worker.close()
+        if self._memory_worker is not None:
+            self._memory_worker.close()
         if self._cloud is not None:
             self._cloud.close()
         if self._scheduler is not None:
@@ -349,7 +536,7 @@ class WorkspaceService:
         with self._lock:
             try:
                 project = self.active_project
-                settings = load_project_settings(project["path"])
+                settings = load_project_settings(project["path"], self.defaults())
                 mode = settings.get("permission_mode", "auto")
                 if mode not in {"auto", "manual", "restricted"}:
                     raise ValueError("Invalid permission mode")
@@ -507,7 +694,7 @@ class WorkspaceService:
                     if (registered.is_relative_to(self.knowledge_root)
                             or self.knowledge_root.is_relative_to(registered)):
                         raise ValueError("Global Knowledge overlaps a registered project.")
-            settings = load_project_settings(project["path"]) if project else {}
+            settings = load_project_settings(project["path"], self.defaults()) if project else {}
             agent = Agent(
                 config=AgentConfig(
                     name="laew-web-chief", model=model,
@@ -572,8 +759,11 @@ class WorkspaceService:
                     return HTTPStatus.CONFLICT, {"error": "The active project changed before this message started. Review the selected project and retry."}
                 self._ensure_runtime(selection)
                 assert self._executor is not None
-                result = self._executor.run(message.strip(), stream=False,
-                    on_tool_call=lambda tool, op, args: self._call_tool(tool, op, args, None))
+                from laew.knowledge.routing import KnowledgeTurn
+                turn = KnowledgeTurn(lambda tool, op, args: self._call_tool(tool, op, args, None))
+                turn.prepare(self._executor, message.strip(), self._active_project_id, self.memory,
+                             self._agent.tools.get("RagTool") if self._agent else None)
+                result = self._executor.run(message.strip(), stream=False, on_tool_call=turn.call)
             steps = [
                 {"number": step.step_number, "tool": step.tool_name, "operation": step.operation, "call_id": step.call_id,
                  "success": None if step.tool_result is None else step.tool_result.success,
@@ -585,7 +775,7 @@ class WorkspaceService:
             if not result.success:
                 return HTTPStatus.BAD_GATEWAY, {"error": result.error or "The Chief Agent did not complete the run.", "steps": steps}
             return HTTPStatus.OK, {"response": result.final_response, "provider": self._provider_name,
-                                   "model": self._model, "steps": steps,
+                                   "model": self._model, "steps": steps, "routing": turn.diagnostics,
                                    "usage": {"prompt_tokens": result.prompt_tokens,
                                              "completion_tokens": result.completion_tokens,
                                              "total_tokens": result.total_tokens}}
@@ -612,6 +802,10 @@ class WorkspaceService:
                         or expected_project_id != conversation["project_id"]):
                     emit({"type": "error", "error": "Conversation scope does not match the active scope."})
                     return
+                try: self.knowledge().baseline(conversation)
+                except Exception: logging.getLogger(__name__).exception('Knowledge enrollment failed')
+                try: self.memory().baseline(conversation)
+                except Exception: logging.getLogger(__name__).exception('Memory enrollment failed')
                 store.recover_interrupted_runs(conversation_id)
                 history = store.conversation_messages(conversation_id)
                 run_id = uuid.uuid4().hex
@@ -620,7 +814,8 @@ class WorkspaceService:
                 persist({"id": uuid.uuid4().hex, "kind": "run", "status": "running", "content": ""})
                 from laew.llm.base import LLMMessage, MessageRole
                 user_message = LLMMessage(MessageRole.USER, message.strip())
-                persist({"id": uuid.uuid4().hex, "kind": "user", "status": "completed",
+                user_event_id=uuid.uuid4().hex
+                persist({"id": user_event_id, "kind": "user", "status": "completed",
                          "content": user_message.content, "message": user_message.to_dict()})
                 first_user = {"pending": True}
                 def persist_agent_event(event):
@@ -635,13 +830,25 @@ class WorkspaceService:
                 def send(event):
                     if event.get("type") == "done":
                         finalize("completed")
+                        try:
+                            self.knowledge().enqueue(store.load_conversation(conversation_id),
+                                self.knowledge_selection(expected_project_id))
+                            self._knowledge_worker.request()
+                        except Exception:
+                            logging.getLogger(__name__).exception('Knowledge analysis could not be scheduled')
+                        try:
+                            memory=self.memory()
+                            memory.enqueue(store.load_conversation(conversation_id),self.memory_selection())
+                            self._memory_worker.request()
+                        except Exception:
+                            logging.getLogger(__name__).exception("Memory extraction could not be scheduled")
                     elif event.get("type") == "error":
                         finalize("cancelled" if cancellation and cancellation.is_set() else "failed", str(event.get("error") or "Run failed."))
                     emit(event)
                 try:
                     self._stream_chat(message, selection, expected_project_id, send, session_id,
                                       cancellation, model, account_id, conversation_id,
-                                      history, persist_agent_event)
+                                      history, persist_agent_event, user_event_id)
                 finally:
                     if not state["finalized"]:
                         finalize("cancelled" if cancellation and cancellation.is_set() else state["status"])
@@ -661,6 +868,7 @@ class WorkspaceService:
         conversation_id=None,
         stored_history=None,
         on_event=None,
+        source_event_id=None,
     ) -> None:
         """Run the existing Chief Agent and emit newline-delimited events."""
         original_emit = emit
@@ -691,6 +899,28 @@ class WorkspaceService:
                     "type": "start", "provider": self._provider_name,
                     "model": self._model,
                 })
+                try:
+                    from laew.knowledge.tool import KnowledgeProposalTool
+                    self._agent.tools.pop('KnowledgeProposalTool', None)
+                    self._executor._system_prompt_cache = None
+                    self._agent.register_tool(KnowledgeProposalTool(self.knowledge(), self._active_project_id,
+                        conversation_id, source_event_id))
+                except Exception:
+                    logging.getLogger(__name__).exception('Knowledge proposal tool unavailable')
+                try:
+                    from laew.memory.tool import MemoryTool
+                    self._agent.register_tool(MemoryTool(self.memory(), self._active_project_id,
+                                                         conversation_id, source_event_id))
+                except Exception:
+                    logging.getLogger(__name__).debug("Memory proposal tool unavailable")
+                from laew.knowledge.routing import KnowledgeTurn
+                turn = KnowledgeTurn(
+                    lambda tool, op, args: self._call_tool_checked(tool, op, args, emit, session_id, cancellation),
+                    notify=lambda diagnostics: emit({"type": "routing", "routing": diagnostics}),
+                )
+                used_memories = turn.prepare(self._executor, message.strip(), self._active_project_id,
+                                             self.memory, self._agent.tools.get("RagTool") if self._agent else None)
+                emit({"type": "memory", "memories": used_memories, "mode": turn.diagnostics["memory"]})
                 run_options = {"cancellation": cancellation} if cancellation is not None else {}
                 if on_event is not None:
                     run_options["on_event"] = on_event
@@ -707,7 +937,7 @@ class WorkspaceService:
                         "sources": (step.tool_result.data or {}).get("sources", [])
                         if step.tool_result and isinstance(step.tool_result.data, dict) else [],
                     }}),
-                    on_tool_call=lambda tool, op, args: self._call_tool_checked(tool, op, args, emit, session_id, cancellation),
+                    on_tool_call=turn.call,
                     **run_options,
                 )
             steps = [
@@ -725,7 +955,7 @@ class WorkspaceService:
             emit({
                 "type": "done", "response": result.final_response,
                 "provider": self._provider_name, "model": self._model,
-                "steps": steps,
+                "steps": steps, "routing": turn.diagnostics,
                 "usage": {"prompt_tokens": result.prompt_tokens,
                           "completion_tokens": result.completion_tokens,
                           "total_tokens": result.total_tokens},
@@ -763,6 +993,16 @@ def make_handler(service: WorkspaceService):
         def do_GET(self) -> None:
             if not self._local_host(): return
             parsed = urlparse(self.path)
+            if parsed.path == "/api/knowledge/state":
+                params=parse_qs(parsed.query)
+                status,data=service.knowledge_request('state',{key:values[0] for key,values in params.items()})
+                self._json(status,data); return
+            if parsed.path in {"/api/memory/state", "/api/memory/get"}:
+                params=parse_qs(parsed.query)
+                status,data=service.memory_request(parsed.path.rsplit('/',1)[-1],{key:values[0] for key,values in params.items()})
+                self._json(status,data); return
+            if parsed.path == "/api/settings":
+                status,data=service.application_settings(); self._json(status,data); return
             if parsed.path in {"/api/conversations", "/api/conversation"}:
                 from laew.console.session_store import SessionStoreError
                 try:
@@ -792,7 +1032,7 @@ def make_handler(service: WorkspaceService):
                 status, response = service.project_settings()
                 self._json(status, response); return
             requested = "index.html" if parsed.path in ("/", "/index.html") else parsed.path.lstrip("/")
-            if requested not in {"index.html", "app.js", "app.css", "markdown.js", "stream.js", "theme.js", "ui-state.js"}:
+            if requested not in {"index.html", "app.js", "app.css", "markdown.js", "stream.js", "theme.js", "ui-state.js", "settings.js", "knowledge.js"}:
                 self.send_error(HTTPStatus.NOT_FOUND); return
             data = (static_root / requested).read_bytes()
             content_type = "text/html" if requested.endswith("html") else ("text/css" if requested.endswith("css") else "application/javascript")
@@ -802,14 +1042,14 @@ def make_handler(service: WorkspaceService):
         def do_POST(self) -> None:
             if not self._local_host(): return
             route = urlparse(self.path).path
-            if route not in {"/api/chat", "/api/chat/cancel", "/api/project", "/api/projects", "/api/rag/sync", "/api/project/settings", "/api/approval", "/api/project/permissions", "/api/cloud/new", "/api/cloud/key", "/api/cloud/auth/start", "/api/cloud/auth/cancel", "/api/cloud/auth/logout", "/api/conversations", "/api/conversation/rename", "/api/conversation/delete"}:
+            if route not in {"/api/knowledge/settings", "/api/knowledge/analyze", "/api/knowledge/preview", "/api/knowledge/edit", "/api/knowledge/decide", "/api/knowledge/sync", "/api/settings", "/api/project/config", "/api/memory/settings", "/api/memory/add", "/api/memory/update", "/api/memory/delete", "/api/memory/decide", "/api/memory/analyze", "/api/memory/sync", "/api/memory/rebuild", "/api/chat", "/api/chat/cancel", "/api/project", "/api/projects", "/api/rag/sync", "/api/project/settings", "/api/approval", "/api/project/permissions", "/api/cloud/new", "/api/cloud/key", "/api/cloud/auth/start", "/api/cloud/auth/cancel", "/api/cloud/auth/logout", "/api/conversations", "/api/conversation/rename", "/api/conversation/delete"}:
                 self.send_error(HTTPStatus.NOT_FOUND); return
             origin = self.headers.get("Origin")
             host = self.headers.get("Host", "")
             if origin and origin not in {f"http://{host}", f"http://127.0.0.1:{host.rsplit(':', 1)[-1]}"}:
                 self._json(HTTPStatus.FORBIDDEN, {"error": "Cross-origin requests are not allowed."}); return
-            if route == "/api/cloud/key" and (not origin or self.headers.get("Content-Type", "").split(";")[0] != "application/json"):
-                self._json(HTTPStatus.FORBIDDEN, {"error": "API key configuration requires a same-origin JSON request."}); return
+            if (route == "/api/cloud/key" or route.startswith("/api/knowledge/")) and (not origin or self.headers.get("Content-Type", "").split(";")[0] != "application/json"):
+                self._json(HTTPStatus.FORBIDDEN, {"error": "This operation requires a same-origin JSON request."}); return
             try:
                 length = int(self.headers.get("Content-Length", "0"))
                 if length > 1_000_000: raise ValueError("Message is too large.")
@@ -818,6 +1058,12 @@ def make_handler(service: WorkspaceService):
                 self._json(HTTPStatus.BAD_REQUEST, {"error": "Invalid JSON request."}); return
             if not isinstance(body, dict):
                 self._json(HTTPStatus.BAD_REQUEST, {"error": "Request body must be a JSON object."}); return
+            if route.startswith('/api/knowledge/'):
+                status,data=service.knowledge_request(route.rsplit('/',1)[-1],body); self._json(status,data); return
+            if route.startswith('/api/memory/'):
+                status,data=service.memory_request(route.rsplit('/',1)[-1],body); self._json(status,data); return
+            if route in {'/api/settings','/api/project/config'}:
+                status,data=service.application_settings(body); self._json(status,data); return
             if route in {"/api/conversations", "/api/conversation/rename", "/api/conversation/delete"}:
                 from laew.console.session_store import SessionStoreError
                 try:

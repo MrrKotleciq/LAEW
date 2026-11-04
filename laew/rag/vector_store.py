@@ -1,12 +1,15 @@
 """In-memory vector store with similarity search."""
 
 import json
+import logging
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
 from laew.config.constants import DEFAULT_VECTOR_STORE_PORT
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -429,7 +432,10 @@ class ChromaVectorStore:
 
         chunks = []
         for chunk_id, metadata, distance in zip(stored_ids, metadatas, distances):
-            if metadata is None:
+            if not metadata:
+                continue
+            stored_source = metadata.get("source")
+            if any(expected and stored_source != expected for expected in (self.source, source_filter)):
                 continue
             similarity = 1.0 - float(distance)
             chunk = DocumentChunk(

@@ -126,3 +126,58 @@ def test_delete_by_file_paths_removes_only_exact_project_records(isolated_chroma
     finally:
         if created:
             client.delete_collection(collection_name)
+
+def test_obsidian_properties_round_trip_after_legacy_sync(tmp_path, isolated_chroma):
+    from laew.rag.knowledge_base import KnowledgeBase, KnowledgeScope
+    from laew.rag.pipeline import RAGPipeline
+
+    class Embedding:
+        dimensions = 2
+
+        def embed(self, text):
+            return [1.0, 0.0]
+
+        def embed_batch(self, texts):
+            return [self.embed(text) for text in texts]
+
+    root = tmp_path / "vault"
+    root.mkdir()
+    note = root / "note.md"
+    content = """---
+name: Pomiar
+title: Drift
+description: "Quoted, with punctuation: yes."
+type: research
+scope: global
+status: draft
+tags: ["thermal, drift", ARX]
+read_when:
+  - Comparing sensors
+up:
+  - "[[Parent#Anchor|Display]]"
+---
+## Measurement
+Unverified thermal hypothesis. See [[Raw Results]].
+"""
+    note.write_text(content, encoding="utf8")
+    (root / "plain.md").write_text("## Legacy\nNo frontmatter.", encoding="utf8")
+    (root / "partial.md").write_text("---\nstatus: unverified\n---\nPartial note.", encoding="utf8")
+    embedding = Embedding()
+    kb = KnowledgeBase(None, str(root), embedding,
+        vector_store_config={"enabled": True, "global_collection": "laew_fixture_metadata"})
+    kb.global_store.add_chunk(DocumentChunk("global:note.md:0:0", "legacy", [1., 0.], "global", "note.md"))
+    kb.synchronize(scope="global")
+    result = RAGPipeline(kb, embedding).retrieve("thermal hypothesis", KnowledgeScope.GLOBAL)
+    assert not result.error
+    metadata = {row["source"]: row for row in result.source_metadata()}
+    assert metadata["@knowledge/note.md"]["frontmatter"] == {
+        "name": "Pomiar", "title": "Drift", "description": "Quoted, with punctuation: yes.",
+        "type": "research", "scope": "global", "status": "draft",
+        "tags": ["thermal, drift", "ARX"], "read_when": ["Comparing sensors"],
+    }
+    assert metadata["@knowledge/note.md"]["backlinks"] == ["Parent#Anchor|Display", "Raw Results"]
+    assert metadata["@knowledge/plain.md"]["frontmatter"] == {}
+    assert metadata["@knowledge/partial.md"]["frontmatter"] == {"status": "unverified"}
+    assert "status: draft" in result.context
+    assert kb.synchronize(scope="global")["global"]["updated"]["documents"] == 0
+    assert note.read_text(encoding="utf8") == content

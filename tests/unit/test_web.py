@@ -224,7 +224,7 @@ def test_chat_stream_emits_delta_before_generation_finishes(tmp_path):
         worker.start()
         assert generation_started.wait(2)
         assert events[0]["type"] == "start"
-        assert events[1] == {"type": "delta", "text": "Partial answer"}
+        assert [event for event in events if event["type"] == "delta"][0] == {"type": "delta", "text": "Partial answer"}
         assert generation_started.is_set()
         continue_generation.set()
         worker.join(2)

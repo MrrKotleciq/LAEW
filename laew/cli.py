@@ -521,6 +521,11 @@ def cmd_chat(args) -> int:
     from laew.project_config import load_project_settings
     from laew.rag.config import resolve_project_root, manifest_base_dir
     project_root = None if general else resolve_project_root(manifest, base_dir=manifest_base_dir(args.manifest))
+    import hashlib
+    from laew.rag.identity import canonical_project_path
+    project_id=hashlib.sha256(canonical_project_path(project_root).encode('utf-8')).hexdigest()[:16] if project_root else None
+    if conversation_store is None and not args.no_persist and not args.session and not args.resume:
+        conversation_store=conversation_store_from_manifest(manifest,args.manifest)
     if conversation_store is not None:
         import hashlib
         from laew.rag.identity import canonical_project_path
@@ -531,13 +536,15 @@ def cmd_chat(args) -> int:
         if new_conversation:
             conversation_record = conversation_store.create_conversation("general" if general else "project", project_id)
             conversation_id = conversation_record["id"]
-        print(f"Conversation: {conversation_id}")
+        if conversation_id: print(f"Conversation: {conversation_id}")
     from laew.web import resolve_workspace_root
     workspace_root = resolve_workspace_root(getattr(args, "workspace_root", None)) if general else None
+    from laew.settings import read_defaults,settings_path
+    defaults=read_defaults(settings_path(manifest,args.manifest))
     config = AgentConfig(
         name="laew-cli",
         model=model_name,
-        documentation_language=load_project_settings(project_root)["documentation_language"] if project_root else "en",
+        documentation_language=load_project_settings(project_root,defaults)["documentation_language"] if project_root else defaults["documentation_language"],
         project_scope=not general,
         context_budget=context_budget_from_manifest(manifest),
     )
@@ -564,6 +571,17 @@ def cmd_chat(args) -> int:
         ]
 
     executor = AgentExecutor(agent)
+    memory=None; memory_worker=None
+    try:
+        from laew.memory.integration import build_memory, MemoryWorker, extraction_provider
+        from laew.memory.tool import MemoryTool
+        memory=build_memory(manifest,args.manifest)
+        agent.register_tool(MemoryTool(memory,project_id,conversation_id))
+        if conversation_store is not None:
+            memory_worker=MemoryWorker(memory,conversation_store,lambda selection:extraction_provider(manifest,selection))
+            memory_worker.start()
+    except Exception as exc:
+        print(f'[WARN] Memory is unavailable: {type(exc).__name__}')
     from laew.security.permissions import PermissionBroker
     from laew.console.permissions import console_call
     from laew.project_config import load_project_settings
@@ -572,6 +590,28 @@ def cmd_chat(args) -> int:
         print("[FAIL] Invalid project permission mode.")
         return 1
     permission_broker = PermissionBroker(project_root, permission_mode)
+    knowledge=None; knowledge_worker=None
+    if conversation_store is not None and agent.tools.get('FilesystemTool') is not None:
+        try:
+            from laew.knowledge.integration import build_knowledge, KnowledgeWorker
+            from laew.knowledge.tool import KnowledgeProposalTool
+            from laew.memory.integration import extraction_provider
+            from laew.rag.sync import synchronize_scope
+            filesystem=agent.tools['FilesystemTool']
+            def knowledge_sync(path):
+                tool=agent.tools.get('RagTool')
+                if tool is None or not (tool._pipeline.knowledge_base._vector_store_config or {}).get('enabled'):
+                    raise RuntimeError('Persistent Global RAG is disabled.')
+                return synchronize_scope(tool._pipeline.knowledge_base,'global')
+            knowledge=build_knowledge(manifest,conversation_store,
+                projects_root=filesystem.resolver.projects_root,knowledge_root=filesystem.resolver.knowledge_root,
+                broker_factory=lambda scope: permission_broker,sync_callback=knowledge_sync,
+                discovery_base=lambda: agent.tools['RagTool']._pipeline.knowledge_base if 'RagTool' in agent.tools else None)
+            agent.register_tool(KnowledgeProposalTool(knowledge,project_id,conversation_id))
+            knowledge_worker=KnowledgeWorker(knowledge,conversation_store,lambda selection:extraction_provider(manifest,selection))
+            knowledge_worker.start()
+        except Exception as exc:
+            print(f'[WARN] Knowledge curation is unavailable: {type(exc).__name__}')
     from laew.rag.sync import SyncScheduler
     rag_tool = agent.tools.get("RagTool")
     scheduler = None
@@ -597,17 +637,35 @@ def cmd_chat(args) -> int:
             if user_input.lower() in ("exit", "quit"):
                 break
 
-            run_options = {"on_tool_call": lambda tool, op, kwargs: console_call(permission_broker, tool, op, kwargs, "cli-chat")}
+            from laew.knowledge.routing import KnowledgeTurn
+            turn = KnowledgeTurn(lambda tool, op, kwargs: console_call(permission_broker, tool, op, kwargs, "cli-chat"))
+            turn.prepare(executor, user_input, project_id, lambda: memory, agent.tools.get("RagTool"))
+            for search in turn.diagnostics["prefetch"]:
+                print(f"[RAG] {search['scope']}: {search['status']} ({search['chunks']} fragments)")
+                if search.get("error"):
+                    print(f"[RAG] {search['error']}")
+            run_options = {"on_tool_call": turn.call}
             if conversation_store is None:
                 result = executor.run(user_input, stream=not args.no_stream, **run_options)
             else:
                 import uuid
                 try:
+                    if conversation_id is None:
+                        conversation_record=conversation_store.create_conversation('project' if project_id else 'general',project_id)
+                        conversation_id=conversation_record['id']
+                        if memory: agent.tools['MemoryTool'].conversation_id=conversation_id
+                        if knowledge: agent.tools['KnowledgeProposalTool'].conversation_id=conversation_id
+                    if memory: memory.baseline(conversation_store.load_conversation(conversation_id))
+                    if knowledge: knowledge.baseline(conversation_store.load_conversation(conversation_id))
                     with conversation_store.conversation_run(conversation_id):
                         conversation_store.recover_interrupted_runs(conversation_id)
                         agent.history = conversation_store.conversation_messages(conversation_id)
                         run_id = uuid.uuid4().hex
                         def persist(event):
+                            if memory and event.get('kind')=='user' and not event.get('generated'):
+                                agent.tools['MemoryTool'].event_id=event['id']
+                            if knowledge and event.get('kind')=='user' and not event.get('generated'):
+                                agent.tools['KnowledgeProposalTool'].event_id=event['id']
                             conversation_store.append_conversation_event(conversation_id, {**event, "run_id": run_id})
                         persist({"id": uuid.uuid4().hex, "kind": "run", "status": "running", "content": ""})
                         state, reason = "failed", "Run failed."
@@ -621,6 +679,20 @@ def cmd_chat(args) -> int:
                             raise
                         finally:
                             persist({"id": uuid.uuid4().hex, "kind": "run", "status": state, "content": reason})
+                            if state=='completed' and knowledge is not None:
+                                try:
+                                    if knowledge.settings()['model_source'] == 'active':
+                                        selection = {'provider': getattr(args, 'provider', None) or 'manifest', 'model': model_name}
+                                    else:
+                                        selection = memory.store.settings(project_id)['extraction_model'] if memory else None
+                                    knowledge.enqueue(conversation_store.load_conversation(conversation_id),selection)
+                                    knowledge_worker.request()
+                                except Exception: print('[WARN] Knowledge analysis could not be scheduled.')
+                            if state=='completed' and memory is not None:
+                                try:
+                                    memory.enqueue(conversation_store.load_conversation(conversation_id),{'provider':getattr(args,'provider',None) or 'manifest','model':model_name})
+                                    memory_worker.request()
+                                except Exception: print('[WARN] Memory analysis could not be scheduled.')
                 except SessionStoreError as exc:
                     print(f"[FAIL] Conversation storage: {exc}")
                     continue
@@ -648,11 +720,45 @@ def cmd_chat(args) -> int:
         print("\n\nSession interrupted.")
         return 1
     finally:
+        if knowledge_worker is not None: knowledge_worker.close()
+        if memory_worker is not None: memory_worker.close()
         if scheduler is not None:
             scheduler.close()
 
     print("\nSession ended.")
     return 0
+
+
+def cmd_memory(args):
+    """Small management entry point for the shared MemoryService."""
+    from laew.memory.integration import build_memory,extraction_provider
+    from laew.console.session_store import conversation_store_from_manifest
+    from laew.rag.config import resolve_project_root,manifest_base_dir
+    from laew.rag.identity import canonical_project_path
+    import hashlib
+    try:
+        manifest=load_manifest(Path(args.manifest)); memory=build_memory(manifest,args.manifest)
+        root=resolve_project_root(manifest,base_dir=manifest_base_dir(args.manifest))
+        project=None if args.general else hashlib.sha256(canonical_project_path(root).encode()).hexdigest()[:16]
+        if args.action=='list': result=memory.store.list_memories(project)
+        elif args.action=='add': result=memory.store.remember(args.content,args.scope,project if args.scope=='project' else None,args.category)
+        elif args.action=='delete':
+            row=memory.store.get(args.id)
+            if row['scope']=='project' and row['project_id']!=project: raise ValueError('Memory is outside the current scope.')
+            memory.store.delete(args.id,args.version); result={'deleted':True}
+        elif args.action=='analyze':
+            sessions=conversation_store_from_manifest(manifest,args.manifest); conversation=sessions.load_conversation(args.conversation)
+            if conversation['project_id']!=project: raise ValueError('Conversation is outside the current scope.')
+            selection=memory.store.settings(project)['extraction_model'] or {'provider':args.provider,'model':args.model}
+            if not selection.get('model'): raise ValueError('Provide --model for analysis without an active chat model.')
+            memory.enqueue(conversation,selection,manual=True)
+            memory.process_extraction(sessions,lambda value:extraction_provider(manifest,value))
+            result={'proposals':memory.proposals(project),'status':memory.status()}
+        elif args.action=='sync': result=memory.sync_index()
+        else: result=memory.status()
+        print(json.dumps(result,ensure_ascii=False,indent=2));return 1 if isinstance(result,dict) and (result.get('error') or (args.action=='analyze' and result.get('status',{}).get('error'))) else 0
+    except Exception as exc:
+        print(f'[FAIL] Memory: {exc}');return 1
 
 
 def cmd_ui(args) -> int:
@@ -715,6 +821,21 @@ def main() -> int:
     )
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
+
+    memory_parser=subparsers.add_parser('memory',help='Manage long-term memory')
+    memory_parser.add_argument('action',choices=['list','add','delete','analyze','status','sync'])
+    memory_parser.add_argument('--manifest',default='manifests/SYSTEM_MANIFEST.yaml')
+    memory_parser.add_argument('--general',action='store_true')
+    memory_parser.add_argument('--scope',choices=['user','project'],default='user')
+    from laew.memory.categories import category_guidance
+    memory_parser.add_argument('--category',default='fact',help=category_guidance())
+    memory_parser.add_argument('--content')
+    memory_parser.add_argument('--id')
+    memory_parser.add_argument('--version',type=int)
+    memory_parser.add_argument('--conversation')
+    memory_parser.add_argument('--provider',default='manifest')
+    memory_parser.add_argument('--model')
+    memory_parser.set_defaults(func=cmd_memory)
 
     # check command
     check_parser = subparsers.add_parser(

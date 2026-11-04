@@ -25,9 +25,10 @@ from laew.llm.base import LLMError
 
 
 @pytest.fixture(autouse=True)
-def isolate_background_synchronization():
+def isolate_background_synchronization(tmp_path):
     """CLI unit tests must not start a scheduler against the shipped workspace."""
-    with patch("laew.rag.sync.SyncScheduler") as scheduler:
+    from laew.console.session_store import SessionStore
+    with patch("laew.rag.sync.SyncScheduler") as scheduler, patch("laew.console.session_store.conversation_store_from_manifest", return_value=SessionStore(tmp_path/'conversations')):
         yield scheduler
 
 

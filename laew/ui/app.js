@@ -70,6 +70,7 @@
     if (saved) { conversation.append(...saved.nodes); latest = {...saved.latest, ...latest}; }
     else conversation.append(emptyForScope());
     render();
+    knowledgeUI.refresh();
   }
   const services = q('#services-view');
   const manageProvider = q('#service-provider');
@@ -80,9 +81,9 @@
   let credentialStatus = {};
   let catalogRequest = 0;
   function showPage(name) {
-    q('#chat-view').hidden = name !== 'chat'; services.hidden = name !== 'models';
-    q('.shell').classList.toggle('services-open', name === 'models');
-    for (const page of ['chat','models']) {
+    q('#chat-view').hidden = name !== 'chat'; services.hidden = name !== 'models'; q('#settings-view').hidden = name !== 'settings';
+    q('.shell').classList.toggle('services-open', name !== 'chat');
+    for (const page of ['chat','models','settings']) {
       const button = q('#nav-' + page), selected = name === page;
       button.classList.toggle('active', selected);
       if (selected) button.setAttribute('aria-current', 'page'); else button.removeAttribute('aria-current');
@@ -90,6 +91,7 @@
     closeSidebar();
     applySidebarWidth();
     if (name === 'models') refreshServices();
+    if (name === 'settings') { settingsUI.refresh(); knowledgeUI.refresh(); }
   }
   function updateMode() {
     q('#session-mode').textContent = isCloud() ? 'CLOUD MODEL · LAEW TOOLS' : 'LOCAL MODEL · LAEW TOOLS';
@@ -203,6 +205,12 @@
   });
   q('#nav-chat').addEventListener('click',()=>showPage('chat'));
   q('#nav-models').addEventListener('click',()=>showPage('models'));
+  q('#chat-permission-mode').addEventListener('change',async()=>{
+    const project=currentProjectId,select=q('#chat-permission-mode');select.disabled=true;
+    try{const response=await fetch('/api/project/permissions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:project,permission_mode:select.value})});const data=await readJson(response);if(!response.ok)throw new Error(data.error || 'Could not save permissions.');}
+    catch(error){setState(error.message,'error');}finally{await refreshProjectSettings();select.disabled=false;}
+  });
+  q('#nav-settings').addEventListener('click',()=>showPage('settings'));
   q('#services-refresh').addEventListener('click',refreshServices);
   manageProvider.addEventListener('change',updateServiceEditor);
   manageAccount.addEventListener('change',updateServiceEditor);
@@ -226,6 +234,7 @@
     q('#refresh-projects').disabled = busy;
     projectList.querySelectorAll('button').forEach((button) => { button.disabled = busy || button.dataset.unavailable === 'true'; });
     q('#sidebar-new-chat').disabled = busy;
+    q('#chat-permission-mode').disabled = busy;
   };
   const clearConversation = () => {
     conversation.replaceChildren(emptyForScope());
@@ -277,57 +286,19 @@
       [['Project',latest.project_path],['Projects root',latest.projects_root],['Global Knowledge',latest.knowledge_root]].forEach(([label,value])=>{if(value){const p=document.createElement('p');p.textContent=label+': '+value;paths.append(p);}});panelBody.append(paths);
       panelNote(currentProjectId ? 'LAEW tools use this project’s permissions.' : 'Global Knowledge is available; project tools and Project Memory are unavailable.');
 
+      panelHeading('Knowledge routing'); renderRouting();
       panelHeading('Retrieved knowledge'); renderSources();
       panelHeading('Last response usage');
       if (latest.usage) panelNote(`Input: ${latest.usage.prompt_tokens ?? 'unavailable'} · Output: ${latest.usage.completion_tokens ?? 'unavailable'} tokens`);
       else panelNote('Token usage is reported after a response. Context capacity is not reported.');
       if (currentProjectId) {
       panelHeading('Project settings');
-      if (latest.projectSettings?.error) panelNote(latest.projectSettings.error);
-      else if (latest.projectSettings && latest.projectSettings.project_id === currentProjectId) {
-        const label = document.createElement('label'); label.textContent = 'Documentation language ';
-        const select = document.createElement('select');
-        [['en', 'English'], ['pl', 'Polish']].forEach(([value, title]) => {
-          const option = document.createElement('option'); option.value = value; option.textContent = title;
-          select.append(option);
-        });
-        select.value = latest.projectSettings.documentation_language;
-        select.disabled = submitting || switchingProject || creatingProject;
-        select.addEventListener('change', async () => {
-          select.disabled = true;
-          try {
-            const response = await fetch('/api/project/settings', {method: 'POST', headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({project_id: currentProjectId, documentation_language: select.value})});
-            const payload = await readJson(response);
-            if (!response.ok) throw new Error(payload.error || 'Could not save project settings.');
-            if (payload.project_id === currentProjectId) latest.projectSettings = payload;
-          } catch (error) { panelNote(error.message); }
-          finally { await refreshProjectSettings(); }
-        });
-        label.append(select); panelBody.append(label);
-      } else panelNote('Checking project settings…');
-      panelHeading('Permissions');
-      if (latest.projectSettings?.project_id === currentProjectId) {
-        const label = document.createElement('label'); label.textContent = 'Permission mode ';
-        const select = document.createElement('select');
-        [['auto', 'Auto'], ['manual', 'Manual'], ['restricted', 'Restricted']].forEach(([value, title]) => {
-          const option = document.createElement('option'); option.value = value; option.textContent = title; select.append(option);
-        });
-        select.value = latest.projectSettings.permission_mode || 'auto';
-        select.disabled = submitting || switchingProject || creatingProject;
-        select.addEventListener('change', async () => {
-          select.disabled = true;
-          try {
-            const response = await fetch('/api/project/permissions', {method: 'POST', headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({project_id: currentProjectId, permission_mode: select.value})});
-            const payload = await readJson(response);
-            if (!response.ok) throw new Error(payload.error || 'Could not save permission mode.');
-          } catch (error) { panelNote(error.message); }
-          finally { await refreshProjectSettings(); }
-        });
-        label.append(select); panelBody.append(label);
+      panelNote('Documentation language: '+(latest.projectSettings?.documentation_language || 'checking…'));
+      const settingsButton=document.createElement('button');settingsButton.type='button';settingsButton.textContent='Open project settings';settingsButton.addEventListener('click',()=>settingsUI.openProject(currentProjectId));panelBody.append(settingsButton);
       }
-      }
+      panelHeading('Long-Term Memory');
+      if (latest.memories?.length) latest.memories.forEach(memory=>panelNote(`${memory.scope === 'user' ? 'User Memory' : 'Project Memory'} · ${memory.content}`));
+      else panelNote(latest.memoryMode === 'unavailable' ? 'Memory is unavailable for this turn.' : 'No memories used for this turn.');
       panelHeading('Knowledge');
       if (!latest.rag) panelNote('Checking synchronization status…');
       else if (latest.rag.error) panelNote(latest.rag.error);
@@ -351,6 +322,7 @@
       });
     } else if (tab === 'run') {
       panelHeading('Current run');
+      renderRouting();
       const steps = Array.isArray(latest.steps) ? latest.steps : [];
       if (!steps.length) panelNote(latest.error || 'No tool activity for this response.');
       else {
@@ -370,8 +342,26 @@
       renderSources();
     }
   }
+  function renderRouting() {
+    const routing = latest.routing;
+    if (!routing) { panelNote('No routing information for this turn.'); return; }
+    const labels = {global: 'Global Knowledge', project: 'Project Knowledge', hybrid: 'Both scopes'};
+    const selected = routing.scopes.map(scope => labels[scope]);
+    panelNote(`${routing.reason} · ${selected.join(', ') || 'No RAG scope'} · ${routing.routing_ms} ms`);
+    panelNote(`Memory Recall: ${routing.memory}`);
+    for (const [label, searches] of [['Automatic prefetch', routing.prefetch], ['RagTool follow-up', routing.follow_up]]) {
+      if (!searches.length) panelNote(`${label}: none`);
+      for (const search of searches) {
+        const timing = search.elapsed_ms == null ? '' : ` · ${search.elapsed_ms} ms`;
+        const duplicates = search.duplicates_omitted ? ` · ${search.duplicates_omitted} duplicate(s) omitted` : '';
+        panelNote(`${label} · ${labels[search.scope] || search.scope}: ${search.status} · ${search.chunks} fragments${timing}${duplicates}`);
+        if (search.error) panelNote(search.error);
+      }
+    }
+  }
   function renderSources() {
-    const sources=[...new Set((latest.steps || []).flatMap(step=>step.sources || []))];
+    const searches = latest.routing?.prefetch || [];
+    const sources = [...new Set([...searches, ...(latest.steps || [])].flatMap(item => item.sources || []))];
     if(!sources.length) panelNote('No sources used for this response.');
     sources.forEach(source=>{
       const note=document.createElement('p'); note.className='source-item';
@@ -504,7 +494,7 @@
       const response = await fetch('/api/project/settings', {cache: 'no-store'});
       const payload = await readJson(response);
       if (!response.ok) throw new Error(payload.error || 'Project settings unavailable.');
-      if (currentProjectId === projectId && payload.project_id === projectId) latest.projectSettings = payload;
+      if (currentProjectId === projectId && payload.project_id === projectId) { latest.projectSettings = payload; q('#chat-permission-mode').value=payload.permission_mode || 'auto'; }
     } catch (error) {
       if (currentProjectId === projectId) latest.projectSettings = {error: error.message};
     }
@@ -525,6 +515,7 @@
   function updateProjectHeader(item) {
     const name = item?.name || 'General Chat';
     const path = item?.path || 'Global Knowledge · No active project';
+    q('#chat-permissions').hidden=!item;
     q('#active-project-name').textContent = name;
     q('#active-project-name').title = name;
     q('#task-title').textContent = name;
@@ -564,7 +555,13 @@
         if (projectId !== currentProjectId) await switchProject(projectId);
         if (projectId === currentProjectId) await newConversation();
       });
-      heading.append(toggle,select,count,create); section.append(heading);
+      heading.append(toggle,select,count,create);
+      if (!group.unavailable && projectId !== null) {
+        select.addEventListener('contextmenu',event=>{event.preventDefault();settingsUI.projectMenu(projectId,event.clientX,event.clientY,select);});
+        select.addEventListener('keydown',event=>{if(event.key==='ContextMenu' || (event.shiftKey && event.key==='F10')){event.preventDefault();const rect=select.getBoundingClientRect();settingsUI.projectMenu(projectId,rect.left,rect.bottom,select);}});
+        const config=document.createElement('button');config.type='button';config.className='group-new-chat';config.textContent='⚙';config.title='Project settings';config.setAttribute('aria-label',`Settings for ${group.name}`);config.addEventListener('click',()=>settingsUI.openProject(projectId));heading.append(config);
+      }
+      section.append(heading);
       const contents=document.createElement('div'); contents.id=contentsId; contents.className='group-contents'; contents.hidden=!expanded;
       toggle.addEventListener('click', () => { const value=contents.hidden; contents.hidden=!value; expansion.setGroup(group.key,value); toggle.setAttribute('aria-expanded',String(value)); toggle.textContent=value?'▾':'▸'; });
       for (const item of group.items) {
@@ -708,7 +705,7 @@
     q('#cancel').disabled = false; q('#cancel').hidden = false; send.hidden = true; setProjectBusy(true);
     q('#cloud-settings').querySelectorAll('input, select, button').forEach(item => { item.disabled = true; });
     activeController = new AbortController(); activeRunId = crypto.randomUUID(); activeAssistant = null; streamedResponse = '';
-    latest = { ...latest, steps: [], error: null };
+    latest = { ...latest, steps: [], error: null, routing: null, memories: [], memoryMode: null };
     setState('Starting Chief Agent…', 'pending');
     try {
       if (!currentConversationId) {
@@ -727,7 +724,9 @@
         signal: activeController.signal,
       });
       await window.LAEWStream.readEventStream(response, (event) => {
-        if (event.type === 'start') {
+        if (event.type === 'routing') { latest.routing = event.routing; render(); }
+        if (event.type === 'memory') { latest.memories=event.memories; latest.memoryMode=event.mode; render(); }
+        if (event.type === 'start') { latest.memories=[];
           latest = { ...latest, provider: event.provider, model: event.model };
           q('#runtime').textContent = `${event.provider || 'Provider'} · ${event.model || 'model unavailable'}`;
           q('#runtime').className = 'ready'; setState('Generating response…', 'pending');
@@ -771,6 +770,7 @@
           });
           conversation.append(card); conversation.scrollTop=conversation.scrollHeight; setState('Waiting for approval…', 'pending');
         } else if (event.type === 'done') {
+          knowledgeUI.refresh();
           latest = { ...latest, ...event };
           if (!activeAssistant) activeAssistant = addMessage('assistant', event.response || 'The Chief Agent returned no response.', event.response ? '' : 'error');
           else window.LAEWMarkdown.renderMarkdown(activeAssistant.content, event.response || streamedResponse);
@@ -926,5 +926,14 @@
     }));
     drawProviderCards();updateModelPicker();
   }
+  const knowledgeUI=window.LAEWKnowledge.create({project:()=>currentProjectId,conversation:()=>currentConversationId});
+  knowledgeUI.refresh();
+  window.setInterval(()=>{if(!document.hidden)knowledgeUI.refresh();},10000);
+  const settingsUI=window.LAEWSettings.create({
+    projects:()=>projectItems, conversation:()=>currentConversationId, project:()=>currentProjectId,
+    selection:()=>({provider:provider.value,model:q('#cloud-model').value,account_id:q('#cloud-account').value || null}),
+    catalogs:()=>window.LAEWUI.modelGroups(Array.from(catalogs.entries()),providerLabels,credentialStatus.accounts || []),
+    openConversation, onProjectSaved:refreshProjectSettings
+  });
   updateServiceEditor(); syncResponsivePanels(); render(); refreshProjects().then(() => { const saved=storage.get(activeConversationKey); if (saved && !currentConversationId) openConversation(saved, true); }); discoverModels();
 })();

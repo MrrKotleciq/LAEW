@@ -73,6 +73,38 @@ def adapter(monkeypatch, provider, responses):
     return instance, session, model
 
 
+@pytest.mark.parametrize('provider',['openai-api','chatgpt','gemini'])
+def test_memory_category_schema_error_correction_and_review(tmp_path,monkeypatch,provider):
+    from laew.memory.store import MemoryStore
+    from laew.memory.service import MemoryService
+    from laew.memory.tool import MemoryTool
+    from laew.memory.categories import CATEGORIES
+    memory=MemoryService(MemoryStore(tmp_path/'memory.db'))
+    content='Użytkownik chce w przyszłości odwiedzić Edynburg.'
+    responses=[Response(frames(provider,[(str(i),'MemoryTool__propose',json.dumps(
+        dict(content=content,scope='user',category=category)))]))
+        for i,category in enumerate(['preferencje i plany podróżnicze','goals'])]
+    responses.append(Response(frames(provider,text='Proposal ready for review.')))
+    instance,session,model=adapter(monkeypatch,provider,responses)
+    broker=PermissionBroker(None)
+    tool=MemoryTool(memory)
+    result=AgentExecutor(Agent(AgentConfig(model=model),provider=instance,tools=[tool])).run(
+        'Zapamiętaj, że chcę w przyszłości odwiedzić Edynburg',
+        on_tool_call=lambda t,op,args:broker.call(t,op,args,None))
+    assert result.success
+    error=result.steps[0].tool_result
+    assert not error.success and set(error.data['accepted_categories'])==CATEGORIES
+    assert result.steps[1].tool_result.success
+    assert len(memory.proposals())==1 and memory.proposals()[0]['category']=='goal'
+    assert not memory.store.list_memories()
+    first=session.calls[0][2]['json']['tools'][0]
+    if provider=='chatgpt': first=first['tools'][0]
+    elif provider=='gemini': first=first['function']
+    assert set(first['parameters']['properties']['category']['enum'])==CATEGORIES
+    correction=json.dumps(session.calls[1][2]['json'])
+    assert 'accepted_categories' in correction and 'Correct category and retry' in correction
+
+
 def filesystem(tmp_path):
     project = tmp_path / "project"; project.mkdir()
     vault = tmp_path / "knowledge"; vault.mkdir()
@@ -273,3 +305,38 @@ def test_gemini_redacted_api_errors(monkeypatch, status, code):
         instance.generate([], model)
     assert error.value.code == code and "fixture" not in str(error.value)
     assert len(session.calls) == 1
+
+@pytest.mark.parametrize("provider", ["openai-api", "chatgpt", "gemini"])
+def test_native_transport_receives_automatic_knowledge_before_first_response(tmp_path, monkeypatch, provider):
+    from laew.knowledge.routing import KnowledgeTurn
+
+    project, vault, _ = filesystem(tmp_path)
+    (vault / "environment.md").write_text("Shared environment evidence GLOBAL-NATIVE-54", encoding="utf-8")
+
+    class Embedding:
+        model, dimensions = "synthetic", 2
+
+        def embed(self, text):
+            return [1., 0.]
+
+        def embed_batch(self, texts):
+            return [self.embed(text) for text in texts]
+
+    rag = build_rag_tool({"rag": {"vector_store": {"enabled": False}}}, project_root=project,
+                         knowledge_root=vault, embedding_service=Embedding())
+    synchronize_scope(rag._pipeline.knowledge_base, "global")
+    instance, session, model = adapter(monkeypatch, provider, [
+        Response(frames(provider, text="Fixture response [source](@knowledge/environment.md)"))
+    ])
+    executor = AgentExecutor(Agent(AgentConfig(model=model), provider=instance, tools=[rag]))
+    broker = PermissionBroker(project)
+    turn = KnowledgeTurn(lambda tool, op, args: broker.call(tool, op, args, None))
+    message = "What is my AI environment configuration?"
+    turn.prepare(executor, message, "project", lambda: None, rag)
+    result = executor.run(message, stream=True, on_tool_call=turn.call)
+    assert result.success and len(session.calls) == 1
+    first = json.dumps(session.calls[0][2]["json"])
+    assert "GLOBAL-NATIVE-54" in first and "environment.md" in first
+    assert "PROJECT-FIXTURE" not in first
+    assert "RagTool__query" in first
+    assert turn.diagnostics["prefetch"][0]["status"] == "found"

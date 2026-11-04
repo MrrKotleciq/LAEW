@@ -1,7 +1,9 @@
 """Main RAG pipeline orchestrating retrieval, reranking, and context injection."""
 
 import logging
-from dataclasses import dataclass, field
+import math
+from hashlib import sha256
+from dataclasses import dataclass, field, replace
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -12,6 +14,12 @@ from laew.rag.vector_store import DocumentChunk, VectorStore
 
 
 logger = logging.getLogger("laew.rag.pipeline")
+
+
+def fragment_key(chunk: DocumentChunk) -> tuple[str, str, str, bytes]:
+    """Identify an exact excerpt without retaining its text in turn state."""
+    return (chunk.source, chunk.file_path, chunk.chunk_id,
+            sha256(chunk.text.encode("utf-8")).digest())
 
 
 @dataclass
@@ -36,12 +44,28 @@ class RAGResult:
     scope: KnowledgeScope = KnowledgeScope.PROJECT
     query: str = ""
     error: Optional[str] = None
+    duplicates_omitted: int = 0
+
+    def source_metadata(self) -> List[Dict[str, Any]]:
+        """Expose note properties separately from the budgeted context."""
+        notes = {}
+        for chunk, _ in self.chunks:
+            alias = "@knowledge" if chunk.source == "global" else "@project"
+            path = chunk.file_path.replace(chr(92), "/")
+            source = f"{alias}/{path}" if path else alias
+            if source not in notes:
+                notes[source] = {"source": source,
+                                 "frontmatter": chunk.metadata.get("frontmatter", {}),
+                                 "backlinks": chunk.metadata.get("backlinks", [])}
+        return list(notes.values())
 
     def to_dict(self) -> dict:
         """Convert to dictionary for serialization."""
         result = {
             "context": self.context,
             "total_tokens": self.total_tokens,
+            "token_count_is_estimated": True,
+            "source_metadata": self.source_metadata(),
             "sources": self.sources,
             "scope": self.scope.value,
             "chunk_count": len(self.chunks),
@@ -88,7 +112,8 @@ class RAGPipeline:
         self.similarity_threshold = similarity_threshold
 
     def retrieve(self, query: str, scope: KnowledgeScope = KnowledgeScope.PROJECT,
-                 top_k: Optional[int] = None) -> RAGResult:
+                 top_k: Optional[int] = None, *, max_context_tokens: Optional[int] = None,
+                 exclude_fragments: frozenset = frozenset()) -> RAGResult:
         """Retrieve under the same scope locks used by synchronization."""
         locks = []
         if getattr(self, "require_freshness", False):
@@ -106,7 +131,7 @@ class RAGPipeline:
                 except Exception:
                     return RAGResult(context="", total_tokens=0, sources=[], scope=scope,
                                      query=query, error="Persistent knowledge store is unavailable. Check ChromaDB and retry synchronization.")
-            return self._retrieve(query, scope, top_k)
+            return self._retrieve(query, scope, top_k, max_context_tokens, exclude_fragments)
         finally:
             for lock in reversed(locks):
                 lock.release()
@@ -116,6 +141,8 @@ class RAGPipeline:
         query: str,
         scope: KnowledgeScope = KnowledgeScope.PROJECT,
         top_k: Optional[int] = None,
+        max_context_tokens: Optional[int] = None,
+        exclude_fragments: frozenset = frozenset(),
     ) -> RAGResult:
         """
         Execute RAG pipeline for a query.
@@ -185,8 +212,14 @@ class RAGPipeline:
         # Rerank and filter
         reranked = self._rerank(candidates)
 
-        # Build context within token budget
-        context, used_chunks, total_tokens = self._build_context(reranked)
+        unique = []
+        seen = set(exclude_fragments)
+        for chunk, score in reranked:
+            key = fragment_key(chunk)
+            if key not in seen:
+                unique.append((chunk, score))
+                seen.add(key)
+        context, used_chunks, total_tokens = self._build_context(unique, max_context_tokens)
 
         # Return stable, logical-root paths so provenance remains meaningful
         # when the runtime serves more than one project.
@@ -200,6 +233,7 @@ class RAGPipeline:
 
         return RAGResult(
             chunks=used_chunks,
+            duplicates_omitted=len(reranked) - len(unique),
             context=context,
             total_tokens=total_tokens,
             sources=sources,
@@ -274,6 +308,7 @@ class RAGPipeline:
     def _build_context(
         self,
         chunks: List[Tuple[DocumentChunk, float]],
+        max_context_tokens: Optional[int] = None,
     ) -> Tuple[str, List[Tuple[DocumentChunk, float]], int]:
         """
         Build context string within token budget.
@@ -284,56 +319,49 @@ class RAGPipeline:
         Returns:
             Tuple of (context_string, used_chunks, total_tokens)
         """
-        context_parts = []
+        separator = "\n\n---\n\n"
+        limit = self.max_context_tokens
+        if max_context_tokens is not None:
+            limit = min(limit, max_context_tokens)
+        char_limit = max(0, int(limit * CHARS_PER_TOKEN_DEFAULT))
+        parts = []
         used_chunks = []
-        total_tokens = 0
-
-        # Named constant for character-to-token ratio estimate
-        CHARS_PER_TOKEN: float = CHARS_PER_TOKEN_DEFAULT
+        remaining = char_limit
 
         for chunk, score in chunks:
-            header = chunk.metadata.get("section_header", "")
-            header_str = f" > {header}" if header else ""
+            header = chunk.metadata.get("section_header")
             tags = chunk.metadata.get("tags") or []
             backlinks = chunk.metadata.get("backlinks") or []
-            tags_str = f" > {', '.join(tags)}" if tags else ""
-            backlinks_str = (
-                f" | backlinks: {', '.join(backlinks)}" if backlinks else ""
-            )
-            source_label = (
-                "GLOBAL KNOWLEDGE @knowledge"
-                if chunk.source == "global"
-                else "PROJECT MEMORY @project"
-            )
-            attribution = (
-                f"[{source_label}: {chunk.file_path}"
-                f"{header_str}{tags_str}{backlinks_str}]"
-            )
-
-            # Estimate tokens for this chunk
-            chunk_tokens = len(chunk.text) // CHARS_PER_TOKEN + 1
-
-            # Check if adding this chunk would exceed budget
-            if total_tokens + chunk_tokens > self.max_context_tokens:
-                # Try to fit a partial chunk if we haven't added any yet
-                if not used_chunks:
-                    # Calculate how much we can fit
-                    remaining_chars = (self.max_context_tokens - total_tokens) * CHARS_PER_TOKEN
-                    if remaining_chars > 100:
-                        partial_text = chunk.text[:remaining_chars]
-                        context_parts.append(f"{attribution}\n{partial_text}...")
-                        used_chunks.append((chunk, score))
-                        total_tokens += remaining_chars // CHARS_PER_TOKEN
+            frontmatter = chunk.metadata.get("frontmatter") or {}
+            provenance = "GLOBAL KNOWLEDGE @knowledge" if chunk.source == "global" else "PROJECT MEMORY @project"
+            labels = [f"{provenance}: {chunk.file_path}"]
+            if header:
+                labels.append(str(header))
+            if tags:
+                labels.append(", ".join(tags))
+            if backlinks:
+                labels.append("backlinks: " + ", ".join(backlinks))
+            for key in ("type", "status"):
+                if frontmatter.get(key):
+                    labels.append(f"{key}: {frontmatter[key]}")
+            attribution = "[" + " > ".join(labels) + "]\n"
+            overhead = len(attribution) + (len(separator) if parts else 0)
+            available = remaining - overhead
+            if available <= 0 or not chunk.text:
+                continue
+            if len(chunk.text) > available:
+                if parts or available <= 3:
+                    continue
+                excerpt = chunk.text[:available - 3]
+                parts.append(attribution + excerpt + "...")
+                used_chunks.append((replace(chunk, text=excerpt), score))
                 break
-
-            # Obsidian note metadata (section, tags, backlinks) remains
-            # visible with the precise project/global logical-root provenance.
-            context_parts.append(f"{attribution}\n{chunk.text}")
+            parts.append(attribution + chunk.text)
             used_chunks.append((chunk, score))
-            total_tokens += chunk_tokens
+            remaining -= overhead + len(chunk.text)
 
-        context = "\n\n---\n\n".join(context_parts)
-        return context, used_chunks, total_tokens
+        context = separator.join(parts)
+        return context, used_chunks, math.ceil(len(context) / CHARS_PER_TOKEN_DEFAULT)
 
     def get_stats(self) -> Dict[str, Any]:
         """

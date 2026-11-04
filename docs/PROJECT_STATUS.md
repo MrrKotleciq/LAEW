@@ -14,6 +14,26 @@ read_when:
 
 ## Status
 
+2026-11-04 Global Knowledge Curation: conversation proposals, versioned Review,
+approved Obsidian publication, and retryable Global RAG synchronization. See
+[Global Knowledge Curation](architecture/GLOBAL_KNOWLEDGE_CURATION.md) and the
+[Stage 2A audit](reports/GLOBAL_RAG_AUDIT.md).
+
+2026-11-02 Long-Term Memory: SQLite records/revisions/sources, scoped semantic
+recall with FTS5 fallback, durable extraction jobs and transactional index outbox,
+Review/Auto/Off, shared Workbench/CLI integration, Settings memory management,
+workspace defaults and per-project language/memory overrides. Theme now lives in
+Settings; permission mode is a quick control on the chat heading.
+Validation: **1101 passed, 4 skipped, 1 deselected** in the full offline suite;
+**24 JavaScript tests passed**. The memory unit suite has **34 passing cases**.
+Disposable real Chroma tests exercised scope filtering, stale/deleted records and
+rebuild. Isolated Gemini 3.5 Flash Lite acceptance passed extraction, review,
+indexing, fresh-conversation recall and preference replacement, with a 61-second
+pause after each request. A preceding text-output attempt failed JSON validation
+without advancing its checkpoint. Browser checks used only disposable fixture
+histories, projects and SQLite. See [Long-Term Memory](architecture/LONG_TERM_MEMORY.md)
+and [ADR-023](decisions/ADR-023-sqlite-long-term-memory.md) for the contract and limits.
+
 Workbench Cloud Chat supports OpenAI API keys and official ChatGPT account
 sign-in as isolated text-only conversations. It includes model selection,
 streaming, Stop, token usage and protected OAuth sessions; it does not enable
@@ -66,7 +86,7 @@ roadmap work remain outside M17 completion.
 - **manifests/SYSTEM_MANIFEST.yaml** — System manifest v1.0 (workspace boundaries, model roles, tool policies, memory layers, RAG configuration)
 - **tools/** — Tool contracts for filesystem, git, terminal, web (each with CONTRACT.md and Python implementation)
 - **prompts/** — Layered prompt templates (core.md, chief-agent.md, architecture.md, research.md, code-review.md, debugging.md, documentation.md, rag.md)
-- **tests/** — Test specifications for security, agent, rag, workflow, multi-agent, console, CLI, web, benchmarking, and documentation validation (803 unit tests across 43 suites)
+- **tests/** — Test specifications for security, agent, rag, workflow, multi-agent, console, CLI, web, benchmarking, and documentation validation (921 unit tests across 46 suites)
 - **docs/** — Architecture, principles, decisions, context, status, history, roadmap, performance, security, and source reference material
 - **.claude/** — Agent SDK configuration, settings, prompts, and skills (project-sync, research, architecture-review)
 - **laew/** — Python package (tool runtime wrappers, CLI, LLM provider, prompt management, agent loop, multi-agent coordination, RAG, workflow, evaluation)
@@ -112,7 +132,7 @@ roadmap work remain outside M17 completion.
   two documents/five chunks; unchanged synchronization embedded zero chunks.
   Existing LAEW and global collection records/vectors were unchanged.
 
-- **803 unit tests** collected across **43 test suites** (in `tests/unit`)
+- **921 unit tests** collected across **46 test suites** (in `tests/unit`)
 - Earlier offline unit and component verification for M17: 887 passed, 2 skipped. Separate isolated live tests exercised ChromaDB, embeddings, the Chief Agent and a browser; M17 was still in progress at that stage.
 - 2026-10-28/29 final verification: 826 passed, 2 skipped, 1 deselected for
   `tests/unit tests/integration -m "not ollama"`; a focused RAG, process,

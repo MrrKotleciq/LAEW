@@ -22,4 +22,4 @@ General conversations have a null project ID; project conversations carry the st
 
 Workbench lists conversations, opens them, renames them and deletes them after confirmation. New conversations are persisted on the first message; drafts stay in the browser while switching views. `laew chat --general --new-conversation` creates a general conversation; `laew chat --conversation ID` resumes a conversation and `laew chat --list-conversations` lists them. A project conversation can be resumed only when its ID matches the CLI's configured project. Legacy `--session` and `--resume` keep their original behavior.
 
-This is conversation history, not Long-Term Memory: no cross-conversation extraction, semantic recall or memory management is performed.
+Conversation history remains separate from [Long-Term Memory](LONG_TERM_MEMORY.md). The memory service references stable conversation/event IDs for extraction and source attribution without migrating JSON history to SQLite.

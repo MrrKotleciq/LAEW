@@ -1,0 +1,594 @@
+{
+  "id": "laew-global-rag-mini",
+  "version": 1,
+  "queries": [
+    {
+      "id": "q01",
+      "language": "en",
+      "text": "What sampling interval should I use for ARX identification?",
+      "phenomenon": "exact",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/arx.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/arx.md",
+          "section": "Sampling",
+          "passage": "Use a fixed sampling interval and record it with the ARX coefficients. Select model orders on calibration data only."
+        }
+      ],
+      "relevance": {
+        "@knowledge/arx.md": 2
+      },
+      "no_answer": null
+    },
+    {
+      "id": "q02",
+      "language": "pl",
+      "text": "Jak zweryfikować model ARX na osobnym przebiegu?",
+      "phenomenon": "cross_language",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/arx.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/arx.md",
+          "section": "Validation",
+          "passage": "Estimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace."
+        }
+      ],
+      "relevance": {
+        "@knowledge/arx.md": 2
+      },
+      "no_answer": null
+    },
+    {
+      "id": "q03",
+      "language": "en",
+      "text": "How do I verify an identified model on unseen data?",
+      "phenomenon": "paraphrase",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/arx.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/arx.md",
+          "section": "Validation",
+          "passage": "Estimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace."
+        }
+      ],
+      "relevance": {
+        "@knowledge/arx.md": 2
+      },
+      "no_answer": null
+    },
+    {
+      "id": "q04",
+      "language": "pl",
+      "text": "Jak działa aktualizacja parametrów RLS po nadejściu próbki?",
+      "phenomenon": "acronym",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/rls.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/rls.md",
+          "section": "Aktualizacja",
+          "passage": "RLS aktualizuje parametry po każdej próbce bez ponownego dopasowania całej historii."
+        }
+      ],
+      "relevance": {
+        "@knowledge/rls.md": 2
+      },
+      "no_answer": null
+    },
+    {
+      "id": "q05",
+      "language": "en",
+      "text": "What effect does a forgetting factor below one have on recursive estimation?",
+      "phenomenon": "cross_language",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/rls.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/rls.md",
+          "section": "Zapominanie",
+          "passage": "Współczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf."
+        }
+      ],
+      "relevance": {
+        "@knowledge/rls.md": 2
+      },
+      "no_answer": null
+    },
+    {
+      "id": "q06",
+      "language": "en",
+      "text": "What does RLS mean when used to restrict PostgreSQL table rows?",
+      "phenomenon": "ambiguity",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/rls-database.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/rls-database.md",
+          "section": "Policies",
+          "passage": "In PostgreSQL, RLS means row-level security. A policy restricts which rows a role can read or modify."
+        }
+      ],
+      "relevance": {
+        "@knowledge/rls-database.md": 2
+      },
+      "no_answer": null
+    },
+    {
+      "id": "q07",
+      "language": "pl",
+      "text": "Jakie znaczenie ma RLS przy kontrolowaniu dostępu do wierszy?",
+      "phenomenon": "cross_language",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/rls-database.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/rls-database.md",
+          "section": "Policies",
+          "passage": "In PostgreSQL, RLS means row-level security. A policy restricts which rows a role can read or modify."
+        }
+      ],
+      "relevance": {
+        "@knowledge/rls-database.md": 2
+      },
+      "no_answer": null
+    },
+    {
+      "id": "q08",
+      "language": "pl",
+      "text": "Gdzie umieścić filtr antyaliasingowy względem ADC?",
+      "phenomenon": "exact",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/sampling.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/sampling.md",
+          "section": "Filtr wejściowy",
+          "passage": "Filtr antyaliasingowy stosuje się przed przetwornikiem ADC. Po próbkowaniu nie da się odtworzyć utraconego rozróżnienia częstotliwości."
+        }
+      ],
+      "relevance": {
+        "@knowledge/sampling.md": 2
+      },
+      "no_answer": null
+    },
+    {
+      "id": "q09",
+      "language": "en",
+      "text": "How can I detect nonuniform sample timing?",
+      "phenomenon": "cross_language",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/sampling.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/sampling.md",
+          "section": "Zegar",
+          "passage": "Znaczniki czasu pozwalają wykryć jitter zegara przed analizą sygnału."
+        }
+      ],
+      "relevance": {
+        "@knowledge/sampling.md": 2
+      },
+      "no_answer": null
+    },
+    {
+      "id": "q10",
+      "language": "pl",
+      "text": "Jakiego mechanizmu użyć, by nie nadpisać zmienionej notatki?",
+      "phenomenon": "section",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/vault.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/vault.md",
+          "section": "Konflikt",
+          "passage": "Jeśli hash docelowej notatki się zmienił, przygotuj świeżą propozycję zamiast nadpisywać plik."
+        }
+      ],
+      "relevance": {
+        "@knowledge/vault.md": 2
+      },
+      "no_answer": null
+    },
+    {
+      "id": "q11",
+      "language": "en",
+      "text": "What must happen before publishing a note into Obsidian?",
+      "phenomenon": "cross_language",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/vault.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/vault.md",
+          "section": "Akceptacja",
+          "passage": "Przed zapisem do vaulta użytkownik zatwierdza konkretną wersję propozycji."
+        }
+      ],
+      "relevance": {
+        "@knowledge/vault.md": 2
+      },
+      "no_answer": null
+    },
+    {
+      "id": "q12",
+      "language": "en",
+      "text": "How do I recover indexing after Chroma becomes unavailable?",
+      "phenomenon": "exact",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/chroma.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/chroma.md",
+          "section": "Recovery",
+          "passage": "Keep the approved Markdown when Chroma is unavailable and retry indexing after recovery."
+        }
+      ],
+      "relevance": {
+        "@knowledge/chroma.md": 2
+      },
+      "no_answer": null
+    },
+    {
+      "id": "q13",
+      "language": "pl",
+      "text": "Co zrobić ze starymi fragmentami po skróceniu dokumentu?",
+      "phenomenon": "cross_language",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/chroma.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/chroma.md",
+          "section": "Deletion",
+          "passage": "Upsert the current chunks and delete obsolete chunk IDs after a document shrinks."
+        }
+      ],
+      "relevance": {
+        "@knowledge/chroma.md": 2
+      },
+      "no_answer": null
+    },
+    {
+      "id": "q14",
+      "language": "en",
+      "text": "Which MQTT QoS may deliver a measurement twice and how should I handle it?",
+      "phenomenon": "acronym",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/telemetry.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/telemetry.md",
+          "section": "MQTT",
+          "passage": "MQTT QoS 1 provides at-least-once delivery. Deduplicate measurements using a stable message identifier."
+        }
+      ],
+      "relevance": {
+        "@knowledge/telemetry.md": 2
+      },
+      "no_answer": null
+    },
+    {
+      "id": "q15",
+      "language": "pl",
+      "text": "Jaką rolę odgrywa CRC w ramce Modbus RTU?",
+      "phenomenon": "cross_language",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/telemetry.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/telemetry.md",
+          "section": "Modbus",
+          "passage": "A Modbus RTU frame uses a CRC to detect accidental transmission errors."
+        }
+      ],
+      "relevance": {
+        "@knowledge/telemetry.md": 2
+      },
+      "no_answer": null
+    },
+    {
+      "id": "q16",
+      "language": "pl",
+      "text": "Czy zależność dryfu od temperatury obudowy jest potwierdzona?",
+      "phenomenon": "section",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/drift.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/drift.md",
+          "section": "Hipoteza",
+          "passage": "Podejrzewamy zależność dryfu czujnika od temperatury obudowy. Hipoteza pozostaje niepotwierdzona."
+        }
+      ],
+      "relevance": {
+        "@knowledge/drift.md": 2
+      },
+      "no_answer": null
+    },
+    {
+      "id": "q17",
+      "language": "en",
+      "text": "Which clock should be used for timing a benchmark?",
+      "phenomenon": "section",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/timing.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/timing.md",
+          "section": "Clocks",
+          "passage": "Use a monotonic clock for elapsed duration. Wall-clock time may jump during clock synchronization."
+        }
+      ],
+      "relevance": {
+        "@knowledge/timing.md": 2
+      },
+      "no_answer": null
+    },
+    {
+      "id": "q18",
+      "language": "pl",
+      "text": "Jak zmierzyć czas przebiegu mimo skoku zegara systemowego?",
+      "phenomenon": "cross_language",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/timing.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/timing.md",
+          "section": "Clocks",
+          "passage": "Use a monotonic clock for elapsed duration. Wall-clock time may jump during clock synchronization."
+        }
+      ],
+      "relevance": {
+        "@knowledge/timing.md": 2
+      },
+      "no_answer": null
+    },
+    {
+      "id": "q19",
+      "language": "pl",
+      "text": "Po publikacji notatki co zrobić z plikiem, gdy Chroma jest niedostępna? Uwzględnij warunek zapisu.",
+      "phenomenon": "multi_document",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/vault.md",
+        "@knowledge/chroma.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/vault.md",
+          "section": "Akceptacja",
+          "passage": "Przed zapisem do vaulta użytkownik zatwierdza konkretną wersję propozycji."
+        },
+        {
+          "document_id": "@knowledge/chroma.md",
+          "section": "Recovery",
+          "passage": "Keep the approved Markdown when Chroma is unavailable and retry indexing after recovery."
+        }
+      ],
+      "relevance": {
+        "@knowledge/vault.md": 2,
+        "@knowledge/chroma.md": 2
+      },
+      "no_answer": null
+    },
+    {
+      "id": "q20",
+      "language": "en",
+      "text": "Which method updates estimates online and how should an ARX model be validated separately?",
+      "phenomenon": "multi_document",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/rls.md",
+        "@knowledge/arx.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/rls.md",
+          "section": "Aktualizacja",
+          "passage": "RLS aktualizuje parametry po każdej próbce bez ponownego dopasowania całej historii."
+        },
+        {
+          "document_id": "@knowledge/arx.md",
+          "section": "Validation",
+          "passage": "Estimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace."
+        }
+      ],
+      "relevance": {
+        "@knowledge/rls.md": 2,
+        "@knowledge/arx.md": 2
+      },
+      "no_answer": null
+    },
+    {
+      "id": "q21",
+      "language": "pl",
+      "text": "Jak ograniczyć aliasing przed konwersją i jak sprawdzić odstępy próbek w modelu ARX?",
+      "phenomenon": "multi_document",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/sampling.md",
+        "@knowledge/arx.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/sampling.md",
+          "section": "Filtr wejściowy",
+          "passage": "Filtr antyaliasingowy stosuje się przed przetwornikiem ADC. Po próbkowaniu nie da się odtworzyć utraconego rozróżnienia częstotliwości."
+        },
+        {
+          "document_id": "@knowledge/arx.md",
+          "section": "Sampling",
+          "passage": "Use a fixed sampling interval and record it with the ARX coefficients. Select model orders on calibration data only."
+        }
+      ],
+      "relevance": {
+        "@knowledge/sampling.md": 2,
+        "@knowledge/arx.md": 2
+      },
+      "no_answer": null
+    },
+    {
+      "id": "q22",
+      "language": "en",
+      "text": "How do I measure runtime duration and detect sampling jitter?",
+      "phenomenon": "multi_document",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/timing.md",
+        "@knowledge/sampling.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/timing.md",
+          "section": "Clocks",
+          "passage": "Use a monotonic clock for elapsed duration. Wall-clock time may jump during clock synchronization."
+        },
+        {
+          "document_id": "@knowledge/sampling.md",
+          "section": "Zegar",
+          "passage": "Znaczniki czasu pozwalają wykryć jitter zegara przed analizą sygnału."
+        }
+      ],
+      "relevance": {
+        "@knowledge/timing.md": 2,
+        "@knowledge/sampling.md": 2
+      },
+      "no_answer": null
+    },
+    {
+      "id": "q23",
+      "language": "en",
+      "text": "What is the installed CUDA driver version on the lab workstation?",
+      "phenomenon": "no_answer",
+      "allowed_scope": "global",
+      "expected_document_ids": [],
+      "evidence": [],
+      "relevance": {},
+      "no_answer": "absent"
+    },
+    {
+      "id": "q24",
+      "language": "pl",
+      "text": "Jaka jest masa satelity JUICE?",
+      "phenomenon": "no_answer",
+      "allowed_scope": "global",
+      "expected_document_ids": [],
+      "evidence": [],
+      "relevance": {},
+      "no_answer": "absent"
+    },
+    {
+      "id": "q25",
+      "language": "en",
+      "text": "What exact voltage offset is the private project sensor calibrated to?",
+      "phenomenon": "scope_trap",
+      "allowed_scope": "global",
+      "expected_document_ids": [],
+      "evidence": [],
+      "relevance": {},
+      "no_answer": "out_of_scope"
+    },
+    {
+      "id": "q26",
+      "language": "pl",
+      "text": "Jaka jest częstotliwość rezonansowa konkretnego czujnika?",
+      "phenomenon": "no_answer",
+      "allowed_scope": "global",
+      "expected_document_ids": [],
+      "evidence": [],
+      "relevance": {},
+      "no_answer": "absent"
+    },
+    {
+      "id": "q27",
+      "language": "en",
+      "text": "In RLS parameter estimation, how do newer observations receive more weight?",
+      "phenomenon": "ambiguity",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/rls.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/rls.md",
+          "section": "Zapominanie",
+          "passage": "Współczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf."
+        }
+      ],
+      "relevance": {
+        "@knowledge/rls.md": 2,
+        "@knowledge/arx.md": 1
+      },
+      "no_answer": null
+    },
+    {
+      "id": "q28",
+      "language": "pl",
+      "text": "Jak ograniczyć duplikaty pomiarów w MQTT przy dostarczaniu co najmniej raz?",
+      "phenomenon": "cross_language",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/telemetry.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/telemetry.md",
+          "section": "MQTT",
+          "passage": "MQTT QoS 1 provides at-least-once delivery. Deduplicate measurements using a stable message identifier."
+        }
+      ],
+      "relevance": {
+        "@knowledge/telemetry.md": 2
+      },
+      "no_answer": null
+    }
+  ],
+  "document_languages": {
+    "@knowledge/arx.md": "en",
+    "@knowledge/rls.md": "pl",
+    "@knowledge/rls-database.md": "en",
+    "@knowledge/sampling.md": "pl",
+    "@knowledge/chroma.md": "en",
+    "@knowledge/vault.md": "pl",
+    "@knowledge/telemetry.md": "en",
+    "@knowledge/drift.md": "pl",
+    "@knowledge/timing.md": "en"
+  }
+}
