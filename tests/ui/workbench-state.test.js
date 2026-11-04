@@ -3,18 +3,12 @@ const assert = require('node:assert/strict');
 const {createPanelState, modelGroups} = require('../../laew/ui/ui-state.js');
 const {createThemeController} = require('../../laew/ui/theme.js');
 
-test('tool activity switches once, preserving later manual selection', () => {
-  const panel=createPanelState();
-  panel.select('sources'); panel.beginRun(); assert.equal(panel.toolEvent(),'run');
-  panel.select('context'); assert.equal(panel.toolEvent(),'context');
-  panel.select('sources'); assert.equal(panel.toolEvent(),'sources');
-  panel.beginRun(); assert.equal(panel.toolEvent(),'run');
-});
-test('manual tabs, invalid selection, project reset and text-only run', () => {
+test('manual tabs, invalid selection and project reset', () => {
   const panel=createPanelState(); panel.select('run'); assert.equal(panel.active,'run');
-  panel.select('context'); panel.beginRun(); assert.equal(panel.active,'context');
-  panel.select('invalid'); assert.equal(panel.active,'context');
-  panel.select('sources'); panel.reset(); assert.equal(panel.active,'context');
+  panel.select('setup'); assert.equal(panel.active,'setup');
+  panel.select('invalid'); assert.equal(panel.active,'setup');
+  panel.select('sources'); assert.equal(panel.active,'sources');
+  panel.reset(); assert.equal(panel.active,'setup');
 });
 function theme(initial, dark=false) {
   const saved=[], applied=[], media={matches:dark,addEventListener(_,callback){this.change=callback;}};

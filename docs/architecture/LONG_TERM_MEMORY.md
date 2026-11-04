@@ -89,9 +89,11 @@ estimate of the entire generated memory block, including its labels and IDs.
 This deliberately underuses some providers' token budgets rather than exceeding
 them. Only selected memories are placed in a clearly marked system-context block;
 they are never appended to persistent user history. Current user statements take
-precedence. Workbench Context receives the actual selected records through a
-separate `memory` stream event. Reopening a transcript without a new run does not
-claim that historical memory context has been reconstructed.
+precedence, and the model is told that memories may be incomplete or outdated.
+Workbench Sources receives recall status, counts and selected IDs in the turn's
+diagnostic snapshot. The snapshot omits memory contents. It records the number
+supplied to the provider adapter when dispatch begins. Reopening a transcript
+uses the persisted snapshot for that turn, when available.
 
 ## Extraction and approval
 

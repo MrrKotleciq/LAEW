@@ -54,17 +54,26 @@ def route_sources(message: str, *, in_project: bool) -> SourceRoute:
     intent = "?" in text or matches(
         r"sprawdz\w*|wyjasnij|opisz|porownaj|zaproponuj|znajdz|podaj|uzyj|"
         r"explain|describe|compare|propose|find|search|show|check|look up|tell me|"
-        r"jak\w*|what|how|which|why|where", text)
+        r"jak\w*|gdzie|what|how|which|why|where", text)
     recorded = matches(r"mamy zapisan\w*|mamy ustaleni\w*|co ustalil\w*|"
                        r"our (?:notes|decisions|findings)|(?:we|i) (?:recorded|decided)|"
                        r"what (?:is|was) documented", text)
-    memory = (personal and personal_topic) or matches(
+    education = matches(
+        r"edukacj\w*|szkol\w*|wyksztalceni\w*|kwalifikacj\w*|studi(?:a|ach|ami|om|ow)|dyplom\w*|"
+        r"education|school|degrees?|qualifications?|credentials?|certifications?|university|college", text)
+    first_person = personal or matches(
+        r"i|mam|ukonczyl[ea]m|skonczyl[ea]m|zakonczyl[ea]m|"
+        r"zdobylem|zdobylam|uzyskal[ea]m|studiowal[ea]m", text)
+    personal_environment = environment and (personal or matches(
+        r"(?:do i|have i) (?:have|use|installed)|jaki\w* sprzet mam|jak\w* narzedzi\w* uzywam", text))
+    profile = intent and ((education and first_person) or (personal_environment and not project_ref))
+    memory = profile or (personal and personal_topic) or matches(
         r"co o mnie pamietasz|what do you remember about me", text)
     if re.match(r"(?:translate|rewrite|proofread|przetlumacz|przeredaguj|popraw pisownie)\b", text) and not (
         global_ref or project_ref or both
     ):
         return SourceRoute(False, (), "The request is a text transformation.")
-    global_scope = global_ref or both or (intent and (vault_topic or (personal and environment)))
+    global_scope = global_ref or both or profile or (intent and (vault_topic or (personal and environment)))
     if not project_ref and intent and (technical or recorded):
         global_scope = True
     requested_project = both or explicit_project or (project_ref and intent)
@@ -74,6 +83,8 @@ def route_sources(message: str, *, in_project: bool) -> SourceRoute:
     project_unavailable = requested_project and not in_project
     if project_unavailable:
         reason = "Project Knowledge is unavailable in General Chat."
+    elif profile:
+        reason = "The request asks for structured personal profile information."
     elif scopes:
         reason = ("Explicit knowledge scope." if global_ref or project_ref or both
                   else "The request asks for technical details or recorded knowledge.")
@@ -112,7 +123,7 @@ class KnowledgeTurn:
             request["dispatched"] = True
             recall = self.diagnostics.get("memory_recall")
             if recall and "selected" in recall:
-                recall["supplied"] = recall["selected"]
+                recall["supplied"] = recall["prepared"]
             for search in self.diagnostics.get("prefetch", []):
                 if search.get("status") == "found":
                     search["supplied"] = search["chunks"]
@@ -123,10 +134,15 @@ class KnowledgeTurn:
                     search["supplied"] = search["chunks"]
         elif phase == "provider_outcome":
             self.requests[-1].update(details)
+        elif phase == "tool_started":
+            self.tools.append(details)
         elif phase == "tool":
             result = details.pop("result")
             details["supplied"] = False
-            self.tools.append(details)
+            if self.tools and self.tools[-1]["order"] == details["order"]:
+                self.tools[-1].update(details)
+            else:
+                self.tools.append(details)
             if details["tool"] == "RagTool":
                 recorded = self._rag_results.get(id(result))
                 if recorded is None:
@@ -188,8 +204,11 @@ class KnowledgeTurn:
                 memories = memory.recall(message, project_id, **options)
                 executor.memory_context = memory.context(memories)
                 self.diagnostics["memory"] = memory.retrieval_mode
-                recall.update(status=("completed" if memories else "skipped" if memory.retrieval_mode == "disabled"
-                                      else "no_results"), selected=len(memories), supplied=0,
+                status = ("failed" if recall["status"] == "failed" else
+                          "completed" if memories else "skipped" if memory.retrieval_mode == "disabled"
+                          else "no_results")
+                recall.update(status=status, selected=len(memories), supplied=0,
+                              prepared=len(memories) if executor.memory_context else 0,
                               ids=[entry["id"] for entry in memories if isinstance(entry, dict) and "id" in entry],
                               estimated_context_size=(len(executor.memory_context) + 3) // 4)
             except Exception as exc:

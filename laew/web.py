@@ -858,8 +858,7 @@ class WorkspaceService:
                     if phase == "provider_request" and not checkpointed:
                         store.checkpoint_turn(conversation_id, run_id, diagnostics)
                         checkpointed = True
-                    if phase != "provider_dispatch":
-                        send({"type": "diagnostics", "phase": phase, "diagnostics": diagnostics})
+                    send({"type": "diagnostics", "phase": phase, "diagnostics": diagnostics})
                 def finalize(status, reason=""):
                     persist({"id": uuid.uuid4().hex, "kind": "run", "status": status, "content": reason,
                              "user_event_id": user_event_id, "diagnostics": diagnostics,
@@ -881,7 +880,11 @@ class WorkspaceService:
                         except Exception:
                             logging.getLogger(__name__).exception("Memory extraction could not be scheduled")
                     elif event.get("type") == "error":
-                        finalize("cancelled" if cancellation and cancellation.is_set() else "failed", str(event.get("error") or "Run failed."))
+                        status = "cancelled" if cancellation and cancellation.is_set() else "failed"
+                        reason = _redact_conversation_value(str(event.get("error") or "Run failed."))
+                        finalize(status, reason)
+                        event = {**event, "type": "cancelled" if status == "cancelled" else "error",
+                                 "error": reason}
                     emit({**event, "run_id": run_id, "conversation_id": conversation_id,
                           **({"diagnostics": diagnostics, "run_status": state["status"]}
                              if state["finalized"] else {})})
@@ -891,7 +894,11 @@ class WorkspaceService:
                                       cancellation, model, account_id, conversation_id,
                                       history, persist_agent_event, user_event_id, capture)
                 except StreamCancelled:
-                    state["status"] = "cancelled"
+                    if not state["finalized"]:
+                        finalize("cancelled", "Response cancelled.")
+                        if cancellation and cancellation.is_set():
+                            emit({"type": "cancelled", "conversation_id": conversation_id, "run_id": run_id,
+                                  "run_status": "cancelled", "diagnostics": diagnostics})
                 finally:
                     if not state["finalized"]:
                         finalize("cancelled" if cancellation and cancellation.is_set() else state["status"])
@@ -1035,6 +1042,12 @@ class WorkspaceService:
 def make_handler(service: WorkspaceService):
     """Create a same-origin-only request handler bound to *service*."""
     static_root = Path(__file__).with_name("ui")
+    # A running backend must not start serving a newer frontend after an edit.
+    assets = {
+        name: (static_root / name).read_bytes()
+        for name in ("index.html", "app.js", "app.css", "markdown.js", "stream.js",
+                     "theme.js", "ui-state.js", "settings.js", "knowledge.js")
+    }
 
     class Handler(BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
@@ -1095,9 +1108,9 @@ def make_handler(service: WorkspaceService):
                 status, response = service.project_settings()
                 self._json(status, response); return
             requested = "index.html" if parsed.path in ("/", "/index.html") else parsed.path.lstrip("/")
-            if requested not in {"index.html", "app.js", "app.css", "markdown.js", "stream.js", "theme.js", "ui-state.js", "settings.js", "knowledge.js"}:
+            if requested not in assets:
                 self.send_error(HTTPStatus.NOT_FOUND); return
-            data = (static_root / requested).read_bytes()
+            data = assets[requested]
             content_type = "text/html" if requested.endswith("html") else ("text/css" if requested.endswith("css") else "application/javascript")
             self.send_response(HTTPStatus.OK); self.send_header("Content-Type", f"{content_type}; charset=utf-8")
             self.send_header("Content-Length", str(len(data))); self.send_header("Cache-Control", "no-store"); self.end_headers(); self.wfile.write(data)

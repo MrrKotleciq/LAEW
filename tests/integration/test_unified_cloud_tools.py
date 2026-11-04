@@ -309,6 +309,8 @@ def test_gemini_redacted_api_errors(monkeypatch, status, code):
 @pytest.mark.parametrize("provider", ["openai-api", "chatgpt", "gemini"])
 def test_native_transport_receives_automatic_knowledge_before_first_response(tmp_path, monkeypatch, provider):
     from laew.knowledge.routing import KnowledgeTurn
+    from laew.memory.service import MemoryService
+    from laew.memory.store import MemoryStore
 
     project, vault, _ = filesystem(tmp_path)
     (vault / "environment.md").write_text("Shared environment evidence GLOBAL-NATIVE-54", encoding="utf-8")
@@ -331,12 +333,19 @@ def test_native_transport_receives_automatic_knowledge_before_first_response(tmp
     executor = AgentExecutor(Agent(AgentConfig(model=model), provider=instance, tools=[rag]))
     broker = PermissionBroker(project)
     turn = KnowledgeTurn(lambda tool, op, args: broker.call(tool, op, args, None))
-    message = "What is my AI environment configuration?"
-    turn.prepare(executor, message, "project", lambda: None, rag)
-    result = executor.run(message, stream=True, on_tool_call=turn.call)
+    memory = MemoryStore(tmp_path / "memory.db")
+    memory.save_settings({"semantic_enabled": False})
+    memory.remember("My hobbies include MEMORY-NATIVE-58.", category="interest")
+    message = "What are my hobbies and what is my AI environment configuration?"
+    turn.prepare(executor, message, "project", lambda: MemoryService(memory), rag)
+    result = executor.run(message, stream=True, on_tool_call=turn.call, on_diagnostic=turn.observe)
     assert result.success and len(session.calls) == 1
     first = json.dumps(session.calls[0][2]["json"])
     assert "GLOBAL-NATIVE-54" in first and "environment.md" in first
     assert "PROJECT-FIXTURE" not in first
     assert "RagTool__query" in first
+    assert "Relevant Long-Term Memory" in first and "MEMORY-NATIVE-58" in first
+    assert "incomplete or outdated" in first
+    assert turn.diagnostics["memory_recall"]["supplied"] == 1
+    assert turn.tools == []
     assert turn.diagnostics["prefetch"][0]["status"] == "found"

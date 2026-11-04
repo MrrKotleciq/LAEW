@@ -60,8 +60,12 @@ class MemoryService:
             else: self.retrieval_mode='FTS5'
         except Exception as exc:
             self.last_error=type(exc).__name__+': semantic retrieval unavailable'
-            self.retrieval_mode='FTS5 fallback'
-            if diagnostics is not None: diagnostics['fallback_error_category'] = type(exc).__name__
+            self.retrieval_mode='FTS5 fallback' if settings['fallback_to_fts'] else 'unavailable'
+            if diagnostics is not None:
+                if settings['fallback_to_fts']:
+                    diagnostics['fallback_error_category'] = type(exc).__name__
+                else:
+                    diagnostics.update(status='failed', error_category=type(exc).__name__)
         if self.retrieval_mode!='semantic' and settings['fallback_to_fts']:
             rows=self.store.fts(query,project_id)
         if diagnostics is not None: diagnostics['candidates'] = len(rows)

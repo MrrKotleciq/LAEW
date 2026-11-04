@@ -10,13 +10,14 @@
     const decoder = new TextDecoder();
     let pending = '';
     let terminal = false;
+    let drained = false;
     const dispatch = (line) => {
       if (!line.trim()) return;
       let event;
       try { event = JSON.parse(line); }
       catch { throw new Error('The local API returned an invalid stream event.'); }
       onEvent(event);
-      if (event.type === 'done' || event.type === 'error') terminal = true;
+      if (['done', 'error', 'cancelled'].includes(event.type)) terminal = true;
     };
     try {
       while (true) {
@@ -28,12 +29,15 @@
           dispatch(pending.slice(0, newline));
           pending = pending.slice(newline + 1);
         }
-        if (done) break;
+        if (done) {
+          drained = true;
+          break;
+        }
       }
       if (pending.trim()) dispatch(pending);
       if (!terminal) throw new Error('The response stream ended before LAEW reported completion. Retry the request.');
     } finally {
-      if (signal?.aborted) await reader.cancel().catch(() => {});
+      if (!drained) await reader.cancel().catch(() => {});
       reader.releaseLock();
     }
   }

@@ -20,11 +20,12 @@ PROJECT = "Wyjaśnij architekturę PermissionBroker w aktualnym projekcie."
 BOTH = "Zaproponuj rozwiązanie dopasowane do mojego sprzętu i architektury aktualnego projektu."
 EXPLICIT = "Sprawdź dokładnie, co mamy zapisane w Global Knowledge o indeksowaniu dokumentów."
 GREETING = "Cześć, co słychać?"
+EDUCATION = "Jaką edukację zakończyłem?"
 
 
 @pytest.mark.parametrize("message,in_project,memory,scopes", [
     (PREFERENCE, False, True, ()),
-    (ENVIRONMENT, False, False, ("global",)),
+    (ENVIRONMENT, False, True, ("global",)),
     (TECHNICAL, False, False, ("global",)),
     (PROJECT, True, False, ("project",)),
     (PROJECT, False, False, ()),
@@ -36,6 +37,16 @@ GREETING = "Cześć, co słychać?"
     ("Explain our repository architecture and check the shared @knowledge vault.", True, False, ("global", "project")),
     ("Translate: What is vector indexing?", False, False, ()),
     ("What is 2 + 2?", False, False, ()),
+    (EDUCATION, False, True, ("global",)),
+    ("Jaką szkołę ukończyłem?", False, True, ("global",)),
+    ("Jakie mam wykształcenie?", False, True, ("global",)),
+    ("Gdzie zdobyłem kwalifikacje zawodowe?", False, True, ("global",)),
+    ("What education have I completed?", False, True, ("global",)),
+    ("What qualifications do I have?", True, True, ("global",)),
+    ("What hardware do I have?", False, True, ("global",)),
+    ("What qualifications are required for this profession?", False, False, ()),
+    ("Translate: What education have I completed?", False, False, ()),
+    ("użyj rag", False, False, ("global",)),
 ])
 def test_source_classification(message, in_project, memory, scopes):
     route = route_sources(message, in_project=in_project)
@@ -158,6 +169,43 @@ def test_empty_stale_and_broker_denial_are_distinct(isolated_runtime):
     assert len(fixture.embedding.queries) == 1
 
 
+@pytest.mark.parametrize("has_related_memory", [False, True])
+def test_education_profile_reaches_first_request_without_education_memory(isolated_runtime, tmp_path,
+                                                                  has_related_memory):
+    from laew.memory.service import MemoryService
+    from laew.memory.store import MemoryStore
+
+    fixture = isolated_runtime
+    (fixture.vault / "fixture.md").unlink()
+    (fixture.vault / "education.md").write_text(
+        "Completed education: Northbridge College, diploma in digital publishing PROFILE-417.",
+        encoding="utf-8",
+    )
+    tool = fixture.build()
+    store = MemoryStore(tmp_path / "education-memory.db")
+    store.save_settings({"semantic_enabled": False})
+    store.remember("My preferred drink is tea.", category="preference")
+    if has_related_memory:
+        store.remember("Chcę kontynuować edukację.", category="goal")
+    memory = MemoryService(store)
+    broker = PermissionBroker(None)
+    provider = ObservingProvider("Fixture response")
+    executor = AgentExecutor(Agent(AgentConfig(), provider=provider, tools=[tool]))
+    turn = KnowledgeTurn(lambda t, op, args: broker.call(t, op, args, None))
+    turn.prepare(executor, EDUCATION, None, lambda: memory, tool)
+    assert executor.run(EDUCATION, on_tool_call=turn.call, on_diagnostic=turn.observe).success
+    assert len(provider.messages) == 1
+    context = provider.messages[0][0].content
+    assert "Relevant Global Knowledge" in context and "PROFILE-417" in context
+    assert ("Relevant Long-Term Memory" in context) == has_related_memory
+    recall = turn.diagnostics["memory_recall"]
+    assert recall["supplied"] == int(has_related_memory)
+    assert recall["status"] == ("completed" if has_related_memory else "no_results")
+    search, = turn.diagnostics["prefetch"]
+    assert search["sources"] == ["@knowledge/education.md"] and search["supplied"] == 1
+    assert turn.tools == []
+
+
 def test_later_rag_tool_omits_same_fragment(isolated_runtime):
     tool = isolated_runtime.build()
     broker = PermissionBroker(None)
@@ -203,6 +251,99 @@ def test_preference_uses_memory_and_greeting_uses_neither():
     assert calls == [None] and "Python" in executor.memory_context and not executor.knowledge_context
     assert not turn.prepare(executor, GREETING, None, lambda: memory, None)
     assert calls == [None] and not executor.memory_context
+
+
+@pytest.mark.parametrize("mode,status,selected,omitted", [
+    ("empty", "no_results", 0, 0),
+    ("one", "completed", 1, 0),
+    ("multiple", "completed", 2, 0),
+    ("budget", "completed", 1, 1),
+    ("disabled", "skipped", 0, 0),
+    ("failed", "failed", 0, 0),
+    ("semantic_failure_without_fallback", "failed", 0, 0),
+])
+def test_automatic_memory_recall_outcomes(tmp_path, monkeypatch, mode, status, selected, omitted):
+    from laew.memory.service import MemoryService
+    from laew.memory.store import MemoryStore
+
+    store = MemoryStore(tmp_path / "fixture-memory.db")
+    semantic_failure = mode == "semantic_failure_without_fallback"
+    store.save_settings({"semantic_enabled": semantic_failure, "fallback_to_fts": not semantic_failure,
+                         "recall_enabled": mode != "disabled",
+                         "token_budget": 400 if mode == "budget" else 1000})
+    if mode != "empty":
+        store.remember("My hobbies include stargazing.", category="interest")
+    if mode in {"multiple", "budget"}:
+        store.remember("My hobbies include woodwork. " + "I carve small ornaments. " * (20 if mode == "budget" else 1),
+                       category="interest")
+    private = store.remember("My hobbies are classified by a different project.", scope="project",
+                             project_id="other", category="interest")
+    if mode == "failed":
+        def fail(*_):
+            raise RuntimeError("private error body")
+        monkeypatch.setattr(store, "settings", fail)
+    provider = ObservingProvider("Fixture reply")
+    executor = AgentExecutor(Agent(AgentConfig(), provider=provider))
+    snapshots = []
+    turn = KnowledgeTurn(lambda *_: pytest.fail("Automatic recall invoked a tool"), notify=snapshots.append)
+    message = "What are my hobbies?"
+    turn.prepare(executor, message, None, lambda: MemoryService(store), None)
+    assert [entry["memory_recall"]["status"] for entry in snapshots[:2]] == ["selected", "started"]
+    assert executor.run(message, stream=True, on_diagnostic=turn.observe).success
+    recall = turn.diagnostics["memory_recall"]
+    assert recall["status"] == status and recall["scopes"] == ["user"]
+    assert recall.get("selected", 0) == recall.get("supplied", 0) == selected
+    assert recall.get("budget_omitted", 0) == omitted
+    if mode == "disabled":
+        assert recall["skip_reason"] == "recall_disabled"
+    if mode == "failed" or semantic_failure:
+        assert recall["error_category"] == "RuntimeError"
+    assert private["id"] not in str(turn.snapshot())
+    assert "private error body" not in str(turn.snapshot())
+    assert "stargazing" not in str(turn.snapshot())
+    assert ("Relevant Long-Term Memory" in provider.messages[0][0].content) == bool(selected)
+    assert not turn.tools
+
+
+@pytest.mark.parametrize("adapter", ["llamacpp", "ollama"])
+def test_local_stream_payload_contains_automatic_memory(tmp_path, monkeypatch, adapter):
+    from laew.llm.llamacpp import LlamaCppProvider
+    from laew.llm.ollama import OllamaProvider
+    from laew.memory.service import MemoryService
+    from laew.memory.store import MemoryStore
+
+    store = MemoryStore(tmp_path / "fixture-memory.db")
+    store.save_settings({"semantic_enabled": False})
+    store.remember("My hobbies include stargazing.", category="interest")
+    if adapter == "llamacpp":
+        provider = LlamaCppProvider("fixture", "http://127.0.0.1:18999")
+        frames = [b'data: {"choices":[{"delta":{"content":"Fixture reply"}}]}', b'data: [DONE]']
+    else:
+        provider = OllamaProvider("http://127.0.0.1:18999")
+        frames = ['{"message":{"content":"Fixture reply"},"done":true}']
+    monkeypatch.setattr(provider, "is_available", lambda: True)
+    sent = []
+
+    def response(_, json, **kwargs):
+        sent.append(json)
+        return SimpleNamespace(raise_for_status=lambda: None, close=lambda: None, iter_lines=lambda **_: iter(frames))
+
+    if adapter == "llamacpp":
+        monkeypatch.setattr(provider, "_request", response)
+    else:
+        monkeypatch.setattr("laew.llm.ollama.requests.post", response)
+    executor = AgentExecutor(Agent(AgentConfig(model="fixture"), provider=provider))
+    turn = KnowledgeTurn(lambda *_: pytest.fail("Automatic recall invoked a tool"))
+    message = "What are my hobbies?"
+    turn.prepare(executor, message, None, lambda: MemoryService(store), None)
+    assert executor.run(message, stream=True, on_diagnostic=turn.observe).success
+    assert len(sent) == 1
+    system = sent[0]["messages"][0]
+    assert system["role"] == "system"
+    assert all(text in system["content"] for text in
+               ("Relevant Long-Term Memory", "stargazing", "incomplete or outdated", "current statements take precedence"))
+    assert turn.diagnostics["memory_recall"]["supplied"] == 1
+    assert not turn.tools
 
 def test_workbench_stream_exposes_prefetch_and_source_paths(isolated_runtime, tmp_path, monkeypatch):
     fixture = isolated_runtime
@@ -331,6 +472,12 @@ def test_four_diagnostic_turns_remain_inspectable_after_restart(isolated_runtime
         service.stream_chat(prompt, "manifest", None, events.append, conversation_id=chat["id"])
         assert events[-1]["type"] == "done"
         assert len({e["run_id"] for e in events}) == 1
+        assert any(e.get("phase") == "provider_dispatch" and e["diagnostics"]["requests"][-1]["dispatched"]
+                   for e in events[:-1])
+        for started in (e for e in events if e.get("phase") == "tool_started"):
+            tool = started["diagnostics"]["tools"][-1]
+            assert tool["status"] == "started"
+            assert sum(item["order"] == tool["order"] for item in events[-1]["diagnostics"]["tools"]) == 1
         streamed[events[-1]["run_id"]] = events[-1]["diagnostics"]
         assert all("PRIVATE-MEMORY-TEXT" not in str(event) for event in events)
 
@@ -373,3 +520,161 @@ def test_four_diagnostic_turns_remain_inspectable_after_restart(isolated_runtime
     assert follow_up["status"] == "empty" and follow_up["call_id"] == third["tools"][0]["call_id"]
     assert fourth["routing"]["memory_recall"]["ids"] == ["memory-1"]
     assert fourth["routing"]["memory_recall"]["supplied"] == 1 and fourth["tools"] == []
+
+
+def test_live_workbench_browser(isolated_runtime, tmp_path, monkeypatch):
+    """Run with LAEW_BROWSER_EXECUTABLE pointing to Chromium or Edge and Node 22+."""
+    import os
+    import subprocess
+    from http.server import ThreadingHTTPServer
+    from pathlib import Path
+    from threading import Event, Thread
+
+    from laew.console.session_store import SessionStore
+    from laew.agent.executor import StreamCancelled
+    from laew.memory.service import MemoryService
+    from laew.memory.store import MemoryStore
+    from laew.runtime import build_shared_tools
+    from laew import web
+    from laew.cli import cmd_ui
+
+    browser = os.environ.get("LAEW_BROWSER_EXECUTABLE")
+    if not browser:
+        pytest.skip("Set LAEW_BROWSER_EXECUTABLE to run the actual browser test.")
+    fixture = isolated_runtime
+    rag = fixture.build()
+    tools = build_shared_tools(manifest={}, general=True, projects_root=fixture.active.parent,
+                               knowledge_root=fixture.vault, rag_embedding_service=fixture.embedding)
+    filesystem = next(tool for tool in tools if tool.name == "FilesystemTool")
+    store = MemoryStore(tmp_path / "fixture-memory.db")
+    store.save_settings({"semantic_enabled": False})
+    store.remember("My hobbies include stargazing.", category="interest")
+    memory = MemoryService(store)
+    enrollment = SimpleNamespace(baseline=lambda _: None, enqueue=lambda *_: None)
+    monkeypatch.setattr(memory, "baseline", enrollment.baseline)
+    monkeypatch.setattr(memory, "enqueue", enrollment.enqueue)
+    gates = {name: Event() for name in ("tool", "reply", "recall")}
+    original_recall = memory.recall
+
+    def delayed_recall(message, *args, **kwargs):
+        if message == "What are my hobbies?":
+            assert gates["recall"].wait(20)
+        return original_recall(message, *args, **kwargs)
+
+    monkeypatch.setattr(memory, "recall", delayed_recall)
+
+    class Provider(ObservingProvider):
+        def generate_stream(self, messages, *, model, temperature, max_tokens, cancellation):
+            self.messages.append(list(messages))
+            index = len(self.messages)
+            if index == 1:
+                raise RuntimeError("Temporary fixture failure")
+            if index <= 3:
+                filename = "missing.md" if index == 2 else "fixture.md"
+                yield ('```tool_call\n{"tool":"FilesystemTool","operation":"view_file",'
+                       f'"args":{{"file_path":"@knowledge/{filename}"}}}}\n```')
+            elif index == 4:
+                assert gates["reply"].wait(20)
+                yield "Fixture final response"
+            elif index == 5:
+                yield ('```tool_call\n{"tool":"RagTool","operation":"query",'
+                       '"args":{"query":"shared technical evidence","scope":"global"}}\n```')
+            else:
+                import time
+                deadline = time.monotonic() + 20
+                while not cancellation.is_set() and time.monotonic() < deadline:
+                    time.sleep(.01)
+                raise StreamCancelled()
+
+    service = WorkspaceService(tmp_path / "manifest", projects_root=fixture.active.parent, workspace_root=tmp_path)
+    service._active_project_id = None
+    service._conversation_store = SessionStore(tmp_path / "sessions")
+    sessions = service._conversation_store
+    legacy = sessions.create_conversation("general", None, title="Legacy fixture")
+    sessions.append_conversation_event(legacy["id"], {"id": "legacy-run", "run_id": "legacy",
+                                                       "kind": "run", "status": "completed", "content": ""})
+    sessions.create_conversation("project", service._id_for_path(fixture.active), title="Project fixture")
+    provider = Provider("")
+    service._provider_name, service._model = "fixture", "test model"
+    service._agent = Agent(AgentConfig(model="test model"), provider=provider, tools=[rag, filesystem])
+    service._agent.config.retry.backoff_base_ms = 0
+    service._executor = AgentExecutor(service._agent)
+    service._permissions = PermissionBroker(None)
+    monkeypatch.setattr(service, "_ensure_runtime", lambda *args: None)
+    monkeypatch.setattr(service, "_activate_session", lambda *args: None)
+    monkeypatch.setattr(service, "memory", lambda: memory)
+    monkeypatch.setattr(service, "knowledge", lambda: enrollment)
+    monkeypatch.setattr(service, "memory_selection", lambda: {})
+    monkeypatch.setattr(service, "knowledge_selection", lambda _: {})
+    monkeypatch.setattr(service, "knowledge_request", lambda *_: (200, {}))
+    monkeypatch.setattr(service, "cloud_request", lambda *_: (200, {"accounts": [], "models": []}))
+    sync_requests = []
+    service._scheduler = SimpleNamespace(request=lambda scope, path: sync_requests.append((scope, path)))
+    monkeypatch.setattr(service, "sync_status", lambda: {"global": {"state": "requested" if sync_requests else "ready"}})
+    service._knowledge_worker = service._memory_worker = SimpleNamespace(request=lambda: None)
+    call = service._call_tool
+
+    def delayed_tool(tool, operation, args, *options):
+        if tool is filesystem and args.get("file_path", "").endswith("missing.md"):
+            assert gates["tool"].wait(20)
+        return call(tool, operation, args, *options)
+
+    monkeypatch.setattr(service, "_call_tool", delayed_tool)
+
+    snapshots = {}
+    stream_chat = service.stream_chat
+
+    def capture_stream(message, selection, project_id, emit, *args, **kwargs):
+        def capture(event):
+            if event.get("run_status") in {"completed", "cancelled"}:
+                snapshots[event["run_id"]] = event["diagnostics"]
+            emit(event)
+        return stream_chat(message, selection, project_id, capture, *args, **kwargs)
+
+    monkeypatch.setattr(service, "stream_chat", capture_stream)
+    started = Event()
+    servers = []
+
+    def server_factory(address, handler):
+        class Handler(handler):
+            def do_GET(self):
+                if self.path.startswith("/release/") and self._local_host():
+                    gates[self.path.rsplit("/", 1)[-1]].set()
+                    self.send_response(204)
+                    self.end_headers()
+                else:
+                    super().do_GET()
+
+        server = ThreadingHTTPServer(address, Handler)
+        server.daemon_threads = True
+        servers.append(server)
+        started.set()
+        return server
+
+    monkeypatch.setattr(web, "WorkspaceService", lambda *_: service)
+    monkeypatch.setattr(web, "ThreadingHTTPServer", server_factory)
+    monkeypatch.setattr(service, "start_sync", lambda: None)
+    monkeypatch.setattr(service, "close", lambda: None)
+    args = SimpleNamespace(manifest=str(tmp_path / "manifest"), port=0, no_browser=True,
+                           projects_root=str(fixture.active.parent), workspace_root=str(tmp_path))
+    worker = Thread(target=cmd_ui, args=(args,), daemon=True)
+    worker.start()
+    assert started.wait(5)
+    server = servers[0]
+    script = Path(__file__).resolve().parents[1] / "ui" / "live-diagnostics.browser.js"
+    try:
+        subprocess.run(["node", str(script), browser, str(tmp_path / "browser"),
+                        f"http://127.0.0.1:{server.server_port}"], check=True, timeout=65)
+        assert "Relevant Long-Term Memory" in provider.messages[0][0].content
+        assert "stargazing" in provider.messages[0][0].content
+        assert sync_requests == [("global", None), ("project", str(fixture.active))]
+        chat, = [item for item in sessions.list_conversations() if item["title"].startswith("What are my hobbies")]
+        persisted = {event["run_id"]: event["diagnostics"]
+                     for event in sessions.load_conversation(chat["id"])["events"]
+                     if event["kind"] == "run" and event["status"] in {"completed", "cancelled"}}
+        assert len(persisted) == 2 and snapshots == persisted
+    finally:
+        for gate in gates.values():
+            gate.set()
+        server.shutdown()
+        worker.join(3)

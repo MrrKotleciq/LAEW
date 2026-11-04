@@ -86,7 +86,7 @@ roadmap work remain outside M17 completion.
 - **manifests/SYSTEM_MANIFEST.yaml** — System manifest v1.0 (workspace boundaries, model roles, tool policies, memory layers, RAG configuration)
 - **tools/** — Tool contracts for filesystem, git, terminal, web (each with CONTRACT.md and Python implementation)
 - **prompts/** — Layered prompt templates (core.md, chief-agent.md, architecture.md, research.md, code-review.md, debugging.md, documentation.md, rag.md)
-- **tests/** — Test specifications for security, agent, rag, workflow, multi-agent, console, CLI, web, benchmarking, and documentation validation (922 unit tests across 46 suites)
+- **tests/** — Test specifications for security, agent, rag, workflow, multi-agent, console, CLI, web, benchmarking, and documentation validation (923 unit tests across 46 suites)
 - **docs/** — Architecture, principles, decisions, context, status, history, roadmap, performance, security, and source reference material
 - **.claude/** — Agent SDK configuration, settings, prompts, and skills (project-sync, research, architecture-review)
 - **laew/** — Python package (tool runtime wrappers, CLI, LLM provider, prompt management, agent loop, multi-agent coordination, RAG, workflow, evaluation)
@@ -132,7 +132,7 @@ roadmap work remain outside M17 completion.
   two documents/five chunks; unchanged synchronization embedded zero chunks.
   Existing LAEW and global collection records/vectors were unchanged.
 
-- **922 unit tests** collected across **46 test suites** (in `tests/unit`)
+- **923 unit tests** collected across **46 test suites** (in `tests/unit`)
 - Earlier offline unit and component verification for M17: 887 passed, 2 skipped. Separate isolated live tests exercised ChromaDB, embeddings, the Chief Agent and a browser; M17 was still in progress at that stage.
 - 2026-10-28/29 final verification: 826 passed, 2 skipped, 1 deselected for
   `tests/unit tests/integration -m "not ollama"`; a focused RAG, process,

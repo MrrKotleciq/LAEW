@@ -51,6 +51,34 @@ def test_handler_is_constructed_for_loopback_api(tmp_path):
     assert make_handler(make_service(tmp_path)).__name__ == "Handler"
 
 
+def test_running_handler_keeps_its_startup_assets(tmp_path, monkeypatch):
+    from http.server import ThreadingHTTPServer
+    from shutil import copytree
+    from urllib.request import urlopen
+
+    from laew import web
+
+    ui = tmp_path / "ui"
+    copytree(Path(web.__file__).with_name("ui"), ui)
+    monkeypatch.setattr(web, "__file__", str(tmp_path / "web.py"))
+    service = make_service(tmp_path)
+    asset = ui / "app.js"
+    original = asset.read_bytes()
+    handler = make_handler(service)
+    asset.write_bytes(original + b"\n// Next frontend revision\n")
+
+    with ThreadingHTTPServer(("127.0.0.1", 0), handler) as server:
+        worker = threading.Thread(target=server.serve_forever, daemon=True)
+        worker.start()
+        try:
+            with urlopen(f"http://127.0.0.1:{server.server_port}/app.js", timeout=3) as response:
+                assert response.headers["Cache-Control"] == "no-store"
+                assert response.read() == original
+        finally:
+            server.shutdown()
+            worker.join(3)
+
+
 def test_explicit_llamacpp_uses_registry_path_and_discovery(tmp_path):
     service = make_service(tmp_path)
     provider = MagicMock()
@@ -191,7 +219,7 @@ def test_browser_client_posts_message_and_provider_to_chat_route():
     assert "renderMarkdown" in client
     assert "readEventStream" in client
     assert "fetch('/api/chat/cancel'" in client
-    assert "controller.abort()" in client
+    assert "event.type === 'cancelled'" in client
 
 
 def test_chat_stream_emits_delta_before_generation_finishes(tmp_path):

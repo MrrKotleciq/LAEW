@@ -15,6 +15,7 @@
   let latest = { steps: [] };
   const panelState = window.LAEWUI.createPanelState();
   let activeTab = panelState.active;
+  let panelFrame = null;
   let panelBody = panel;
   let submitting = false;
   let switchingProject = false;
@@ -27,9 +28,7 @@
   let conversationItems = [];
   let conversationsRequest = 0;
   let statusRequest = 0;
-  let activeController = null;
   let activeRunId = null;
-  let stoppingRunId = null;
   let activeAssistant = null;
   let streamedResponse = '';
   const sessionId = crypto.randomUUID();
@@ -245,7 +244,7 @@
     diagnosticRuns.clear(); selectedDiagnosticRun = null; streamingDiagnosticRun = null;
     latest.steps = [];
     latest.error = null;
-    panelState.reset(); render('context');
+    panelState.reset(); render('setup');
   };
 
   const addMessage = (role, text, kind = '') => {
@@ -272,20 +271,20 @@
   };
   function attachContextAction(article, runId) {
     const button = document.createElement('button');
-    button.type = 'button'; button.className = 'turn-context-action'; button.textContent = 'View context';
+    button.type = 'button'; button.className = 'turn-context-action'; button.textContent = 'View sources';
     const run = diagnosticRuns.get(runId);
-    if (run) button.setAttribute('aria-label', `View context for turn ${run.number}`);
+    if (run) button.setAttribute('aria-label', `View sources for turn ${run.number}`);
     button.addEventListener('click', () => {
       selectedDiagnosticRun = runId;
       if (q('#context').classList.contains('hidden')) q('#context-toggle').click();
-      render('context');
+      render('sources');
       q('#diagnostic-turn')?.focus();
     });
     article.append(button);
   }
-  function renderTurnSelection(tab) {
+  function renderTurnSelection() {
     panelHeading('Conversation turn');
-    const choices = [...diagnosticRuns].filter(([, run]) => tab === 'run' || run.status === 'completed' || run.status === 'running');
+    const choices = [...diagnosticRuns];
     const available = choices.some(([id]) => id === selectedDiagnosticRun);
     const select = document.createElement('select');
     select.id = 'diagnostic-turn'; select.setAttribute('aria-label', 'Conversation turn');
@@ -296,19 +295,34 @@
     select.value = available ? selectedDiagnosticRun : '';
     select.addEventListener('change', () => {
       selectedDiagnosticRun = select.value || null;
-      render(tab);
+      render();
     });
     panelBody.append(select);
     if (available && submitting && selectedDiagnosticRun !== streamingDiagnosticRun) {
       panelNote('A new run is active. Select Follow live run to inspect it.');
     }
     const run = available ? diagnosticRuns.get(selectedDiagnosticRun)
-      : (submitting && streamingDiagnosticRun ? diagnosticRuns.get(streamingDiagnosticRun) : choices.at(-1)?.[1]);
+      : (submitting ? diagnosticRuns.get(streamingDiagnosticRun) : choices.at(-1)?.[1]);
+    if (submitting && !run) panelNote('Starting run…');
     if (run) panelNote(`Turn ${run.number} · ${run.status}${available ? ' · selected' : ''}`);
     return run;
   }
+  function scheduleDiagnosticsRender() {
+    if (activeTab === 'setup' || panelFrame !== null) return;
+    panelFrame = requestAnimationFrame(() => {
+      panelFrame = null;
+      render();
+    });
+  }
   function render(tab = activeTab) {
-    const restoreTurnFocus = document.activeElement?.id === 'diagnostic-turn';
+    if (panelFrame !== null) cancelAnimationFrame(panelFrame);
+    panelFrame = null;
+    const focused = document.activeElement;
+    const restoreTurnFocus = focused?.id === 'diagnostic-turn';
+    const focusedDetail = focused?.parentElement?.dataset.detail;
+    const focusedSync = focused?.dataset.syncScope;
+    const openDetails = new Set([...panel.querySelectorAll('details[open][data-detail]')]
+      .map(detail => detail.dataset.detail));
     activeTab = panelState.select(tab);
     document.querySelectorAll('.tab').forEach(button => {
       const selected=button.dataset.tab === activeTab;
@@ -316,8 +330,8 @@
     });
     panel.setAttribute('aria-labelledby','tab-'+activeTab);
     panel.replaceChildren(); panelBody=panel;
-    const run = renderTurnSelection(tab);
-    if (tab === 'context') {
+    const run = tab === 'setup' ? null : renderTurnSelection();
+    if (tab === 'setup') {
       panelHeading(currentProjectId ? 'Active project' : 'General Chat');
       const details = document.createElement('dl');
       [['Project', currentProjectId ? (latest.project || projectItems.find(item=>item.id===currentProjectId)?.name) : 'None'], ['Provider', latest.provider], ['Model', latest.model]].forEach(([label, value]) => {
@@ -326,12 +340,10 @@
         details.append(term, description);
       });
       panelBody.append(details);
-      const paths=document.createElement('details'), summary=document.createElement('summary'); summary.textContent='Workspace paths'; paths.append(summary);
-      [['Project',latest.project_path],['Projects root',latest.projects_root],['Global Knowledge',latest.knowledge_root]].forEach(([label,value])=>{if(value){const p=document.createElement('p');p.textContent=label+': '+value;paths.append(p);}});panelBody.append(paths);
+      const paths=diagnosticDetails('Workspace paths', 'workspace-paths');
+      [['Project',latest.project_path],['Projects root',latest.projects_root],['Global Knowledge',latest.knowledge_root]].forEach(([label,value])=>{if(value){const p=document.createElement('p');p.textContent=label+': '+value;paths.append(p);}});
       panelNote(currentProjectId ? 'LAEW tools use this project’s permissions.' : 'Global Knowledge is available; project tools and Project Memory are unavailable.');
 
-      panelHeading('Context preparation'); renderRouting(run);
-      panelHeading('Retrieved knowledge'); renderSources(run);
       if (currentProjectId) {
       panelHeading('Project settings');
       panelNote('Documentation language: '+(latest.projectSettings?.documentation_language || 'checking…'));
@@ -348,120 +360,219 @@
         if (status.error) panelNote(status.error);
         const button = document.createElement('button');
         button.type = 'button'; button.textContent = `Sync ${scope}`;
+        button.dataset.syncScope = scope;
+        const card = panelBody;
         button.addEventListener('click', async () => {
           try {
             const response = await fetch('/api/rag/sync', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({scope})});
             const payload = await readJson(response);
             if (!response.ok) throw new Error(payload.error || 'Synchronization could not start.');
-            await refreshRag();
-          } catch (error) { panelNote(error.message); }
+            await refreshRag(true);
+          } catch (error) {
+            const note = document.createElement('p');
+            note.textContent = error.message;
+            card.append(note);
+          }
         });
         panelBody.append(button);
       });
     } else if (tab === 'run') {
-      panelHeading('Execution');
-      renderRouting(run);
-      const steps = [...(run?.diagnostics?.tools || []), ...(run?.legacyTools || [])];
-      if (!steps.length) panelNote('No recorded tool activity.');
-      else {
-        const list = document.createElement('ol');
-        steps.forEach((step) => {
-          const item = document.createElement('li'); item.className='tool-card';
-          const badge=document.createElement('span'); badge.className='status-badge'; badge.textContent=step.status || (step.success === true ? 'Completed' : step.success === false ? (/denied|blocked/i.test(step.error || '') ? 'Denied' : 'Failed') : 'Status unavailable'); item.append(badge);
-          const title = document.createElement('b'); title.textContent = step.tool || 'Response'; item.append(title);
-          if (step.operation) item.append(document.createTextNode(` · ${step.operation}`));
-          if (step.call_id) item.append(document.createTextNode(` · Call ${step.call_id}`));
-          if (step.elapsed_ms != null) item.append(document.createTextNode(` · ${step.elapsed_ms} ms`));
-          if (step.supplied) item.append(document.createTextNode(' · result supplied'));
-          if (step.reused) item.append(document.createTextNode(' · reused result'));
-          if (step.error_category) item.append(document.createTextNode(` · ${step.error_category}`));
-          if (step.historical) item.append(document.createTextNode(' · from conversation history'));
-          if (step.error) { const error = document.createElement('em'); error.textContent = step.error; item.append(error); }
-          list.append(item);
-        });
-        panelBody.append(list);
-      }
-      if (run?.status === 'failed' || run?.status === 'cancelled') panelNote(run.error || `Run ${run.status}.`);
-      if (submitting && !selectedDiagnosticRun) {
-        latest.steps.filter(step => step.pending).forEach(step => panelNote(`${step.tool} · ${step.status}`));
-      }
+      renderExecution(run);
     } else {
-      panelHeading('Sources');
       renderSources(run);
     }
+    for (const detail of panel.querySelectorAll('details[data-detail]')) {
+      detail.open = openDetails.has(detail.dataset.detail);
+      if (detail.dataset.detail === focusedDetail) detail.firstElementChild.focus({preventScroll: true});
+    }
     if (restoreTurnFocus) q('#diagnostic-turn')?.focus({preventScroll: true});
+    if (focusedSync) panel.querySelector(`[data-sync-scope="${focusedSync}"]`)?.focus({preventScroll: true});
   }
-  function renderRouting(run) {
+
+  function diagnosticDetails(label, key) {
+    const details = document.createElement('details');
+    details.dataset.detail = key;
+    const summary = document.createElement('summary');
+    summary.textContent = label;
+    details.append(summary);
+    panelBody.append(details);
+    return details;
+  }
+
+  const sourceLabels = {global: 'Global Knowledge', project: 'Project Knowledge', hybrid: 'Global + Project Knowledge'};
+  const formatStatus = value => String(value || 'unavailable').replaceAll('_', ' ');
+  function renderExecution(run) {
+    const isLive = submitting && run?.status === 'running' && run === diagnosticRuns.get(streamingDiagnosticRun);
+    panelHeading(isLive ? 'Run · Live' : 'Execution');
+    const routing = run?.diagnostics?.routing;
+    const requests = run?.diagnostics?.requests || [];
+    const tools = [...(run?.diagnostics?.tools || []), ...(run?.legacyTools || [])];
+    const list = document.createElement('ol');
+    const step = (title, status, detail = '') => {
+      const item = document.createElement('li');
+      item.className = 'tool-card';
+      const badge = document.createElement('span');
+      badge.className = 'status-badge';
+      badge.textContent = formatStatus(status);
+      const name = document.createElement('b');
+      name.textContent = title;
+      item.append(badge, name, document.createTextNode(detail));
+      list.append(item);
+    };
+    if (routing) {
+      step('Knowledge Routing', 'completed', `${routing.routing_ms} ms`);
+      step('Automatic Memory Recall', routing.memory_recall?.status);
+      for (const search of routing.prefetch) {
+        step(`${sourceLabels[search.scope]} automatic prefetch`, search.status, search.error || '');
+      }
+    } else if (run?.status === 'running') {
+      panelNote('Preparing context…');
+    } else if (!run?.diagnostics) {
+      panelNote('Diagnostic data unavailable for this turn.');
+    }
+    const renderTool = tool => {
+      step([tool.tool, tool.operation].filter(Boolean).join(' · '), tool.status,
+        [tool.call_id && `Call ${tool.call_id}`, tool.elapsed_ms != null && `${tool.elapsed_ms} ms`,
+          tool.error_category, tool.reused && 'Reused result', tool.supplied && 'Result supplied to adapter',
+          tool.historical && 'From conversation history'].filter(Boolean).join(' · '));
+    };
+    for (const [index, request] of requests.entries()) {
+      step(request.iteration > 1 ? 'Model request · resumed' : 'Model request', request.status,
+        [`Iteration ${request.iteration}`, `Attempt ${request.attempt}`, request.error_category,
+          request.elapsed_ms != null && `${request.elapsed_ms} ms`].filter(Boolean).join(' · '));
+      const next = requests[index + 1];
+      if (next?.iteration !== request.iteration) {
+        tools.filter(tool => tool.iteration === request.iteration).forEach(renderTool);
+      }
+    }
+    tools.filter(tool => !requests.some(request => request.iteration === tool.iteration)).forEach(renderTool);
+    if (!tools.length) panelNote('No recorded tool activity.');
+    if (run?.status === 'completed') step('Assistant response', 'completed');
+    if (['failed', 'cancelled', 'outcome unknown'].includes(run?.status)) step('Run', run.status, run.error || '');
+    if (list.childNodes.length) panelBody.append(list);
+    if (submitting && !selectedDiagnosticRun) {
+      latest.steps.filter(item => item.pending).forEach(item => panelNote(`${item.tool} · ${item.status}`));
+    }
+  }
+
+  function renderSources(run) {
     const diagnostics = run?.diagnostics;
     const routing = diagnostics?.routing;
-    if (!diagnostics) { panelNote('Diagnostic data unavailable for this turn.'); return; }
-    if (!routing) { panelNote(run.status === 'running' ? 'Preparing context…' : 'Routing was not recorded.'); return; }
-    const labels = {global: 'Global Knowledge', project: 'Project Knowledge', hybrid: 'Both scopes'};
-    const selected = routing.scopes.map(scope => labels[scope]);
-    panelNote(`${routing.reason} · ${selected.join(', ') || 'No RAG scope'} · ${routing.routing_ms} ms`);
-    const recall = routing.memory_recall;
-    if (recall) {
-      panelNote(`Automatic Memory Recall · ${recall.status} · ${recall.scopes.join(', ')}`
-        + (recall.status === 'completed' ? ` · ${routing.memory}` : '')
-        + (recall.selected == null ? '' : ` · ${recall.selected} selected · ${recall.supplied} supplied`)
-        + (recall.elapsed_ms == null ? '' : ` · ${recall.elapsed_ms} ms`)
-        + (recall.candidates == null ? '' : ` · ${recall.candidates} candidates`)
-        + (recall.budget_omitted ? ` · ${recall.budget_omitted} omitted for budget` : '')
-        + (recall.estimated_context_size == null ? '' : ` · ${recall.estimated_context_size} estimated tokens`));
-      if (recall.ids?.length) panelNote(`Memory IDs: ${recall.ids.join(', ')}`);
+    panelHeading('Knowledge Routing');
+    if (!run) panelNote(submitting ? 'Preparing context…' : 'Choose a conversation turn to inspect its sources.');
+    else if (!diagnostics) panelNote('Diagnostic data unavailable for this turn.');
+    else if (!routing) panelNote(run.status === 'running' ? 'Preparing context…' : 'Routing was not recorded.');
+    else {
+      const selected = [...(routing.memory_requested ? ['Long-Term Memory'] : []),
+        ...routing.scopes.map(scope => sourceLabels[scope])];
+      panelNote(`Selected: ${selected.join(', ') || 'None'}`);
+      panelNote(routing.reason);
+      panelNote(`Routing: ${routing.routing_ms} ms`);
+    }
+
+    panelHeading('Long-Term Memory');
+    const recall = routing?.memory_recall;
+    if (!recall) panelNote('No recorded Memory Recall data.');
+    else {
+      const recallStatus = recall.skip_reason === 'recall_disabled' ? 'Memory Recall disabled' : ({
+        no_results: recall.budget_omitted ? 'Matching memories exceeded the context budget' : 'No matching memories',
+        failed: 'Memory Recall failed', unavailable: 'Memory Recall unavailable',
+        not_selected: 'Memory Recall not selected',
+      }[recall.status] || formatStatus(recall.status));
+      panelNote(`Automatic Memory Recall · ${recallStatus} · Allowed scope: ${recall.scopes.join(', ')}`);
+      if (recall.candidates != null) panelNote(`${recall.candidates} candidates`);
+      if (recall.selected != null) panelNote(`${recall.selected} selected · ${recall.supplied} supplied to provider adapter`);
+      if (recall.elapsed_ms != null) panelNote(`${recall.elapsed_ms} ms`);
+      if (recall.estimated_context_size != null) panelNote(`${recall.estimated_context_size} estimated tokens`);
+      if (recall.budget_omitted) panelNote(`${recall.budget_omitted} omitted for budget`);
       if (recall.error_category) panelNote(recall.error_category);
-      if (recall.skip_reason) panelNote(recall.skip_reason);
       if (recall.fallback_error_category) panelNote(`Semantic recall fallback · ${recall.fallback_error_category}`);
+      if (recall.skip_reason && recall.skip_reason !== 'recall_disabled') panelNote(formatStatus(recall.skip_reason));
+      if (recall.ids?.length) diagnosticDetails('Selected memory IDs', 'memory-ids').append(document.createTextNode(recall.ids.join(', ')));
     }
-    if (routing.project_unavailable) panelNote('Project Knowledge unavailable in this scope.');
-    for (const [label, searches] of [['Automatic prefetch', routing.prefetch], ['RagTool follow-up', routing.follow_up]]) {
-      if (!searches.length) panelNote(`${label}: none`);
-      for (const search of searches) {
-        const timing = search.elapsed_ms == null ? '' : ` · ${search.elapsed_ms} ms`;
-        const duplicates = search.duplicates_omitted ? ` · ${search.duplicates_omitted} duplicate(s) omitted` : '';
-        panelNote(`${label} · ${labels[search.scope] || search.scope}: ${search.status}${timing}${duplicates}`);
-        if (search.candidates != null) panelNote(`${search.candidates} candidates · ${search.chunks} excerpts prepared · ${search.supplied} supplied · ${search.budget_omitted} omitted for budget · ${search.estimated_context_size} estimated tokens`);
-        if (search.index_status) panelNote(`Index · ${search.index_status.replaceAll('_', ' ')}`);
-        if (search.search_executed === false) panelNote('Search did not reach the retrieval pipeline.');
-        if (search.reused) panelNote('Reused result.');
-        if (search.retrieved_sources?.length) {
-          const details = document.createElement('details'), summary = document.createElement('summary');
-          summary.textContent = 'Retrieved document paths'; details.append(summary);
-          for (const path of search.retrieved_sources) {
-            const note = document.createElement('p'); note.textContent = path; details.append(note);
-          }
-          panelBody.append(details);
+
+    for (const scope of ['global', 'project']) {
+      panelHeading(sourceLabels[scope]);
+      if (scope === 'project' && !currentProjectId) {
+        panelNote('Project Knowledge unavailable in General Chat');
+        continue;
+      }
+      if (!routing) {
+        panelNote('No recorded retrieval data.');
+        continue;
+      }
+      const prefetch = routing.prefetch.filter(search => search.scope === scope);
+      panelNote(routing.scopes.includes(scope) ? 'Selected for automatic prefetch' : 'Not selected for automatic prefetch');
+      if (routing.scopes.includes(scope) && !prefetch.length) {
+        panelNote(run.status === 'running' ? 'Automatic prefetch pending' : 'No automatic prefetch outcome recorded');
+      }
+      prefetch.forEach((search, index) => renderSearch(search, 'Automatic prefetch', `prefetch-${scope}-${index}`));
+      routing.follow_up.filter(search => search.scope === scope)
+        .forEach((search, index) => renderSearch(search, 'Model-initiated RagTool', `rag-${scope}-${index}`));
+    }
+    const otherSearches = routing?.follow_up.filter(search => !['global', 'project'].includes(search.scope)) || [];
+    if (otherSearches.length) {
+      panelHeading('Other RagTool searches');
+      otherSearches.forEach((search, index) => renderSearch(search,
+        `Model-initiated RagTool · ${sourceLabels[search.scope] || formatStatus(search.scope)}`, `rag-other-${index}`));
+    }
+
+    panelHeading('Context Assembly');
+    if (!routing) {
+      panelNote('No recorded context assembly data.');
+      return;
+    }
+    if (recall?.selected != null) {
+      panelNote(`Memory · ${recall.selected} selected${recall.prepared == null ? '' : ` · ${recall.prepared} prepared`} · ${recall.supplied} supplied to provider adapter`);
+    }
+    for (const scope of (currentProjectId ? ['global', 'project'] : ['global'])) {
+      for (const [label, searches] of [['automatic prefetch', routing.prefetch], ['RagTool', routing.follow_up]]) {
+        for (const search of searches.filter(item => item.scope === scope)) {
+          if (search.chunks == null || search.status === 'started') continue;
+          const metrics = [
+            search.retrieved_sources && `${search.retrieved_sources.length} retrieved paths recorded`,
+            `${search.chunks} excerpts prepared`, `${search.supplied ?? 0} supplied to provider adapter`,
+            search.budget_omitted && `${search.budget_omitted} omitted for budget`,
+            search.duplicates_omitted && `${search.duplicates_omitted} duplicates omitted`,
+            search.fragments && `${search.fragments.filter(fragment => fragment.truncated).length} truncated`,
+            search.estimated_context_size != null && `${search.estimated_context_size} estimated tokens`,
+          ];
+          panelNote(`${sourceLabels[scope]} ${label} · ${metrics.filter(Boolean).join(' · ')}`);
         }
-        if (search.call_id) panelNote(`Call ${search.call_id}`);
-        if (search.error) panelNote(search.error);
       }
     }
-    if (diagnostics.requests.length) {
-      const details = document.createElement('details');
-      const summary = document.createElement('summary'); summary.textContent = 'Model requests and context assembly';
-      details.append(summary);
-      for (const request of diagnostics.requests) {
-        const note = document.createElement('p');
-        note.textContent = `Iteration ${request.iteration} · attempt ${request.attempt} · ${request.status} · ${request.history_messages} history messages · ${request.tool_results} current tool results`
-          + (request.dispatched ? ' · dispatched to provider adapter' : ' · dispatch unconfirmed')
-          + (request.history_omitted ? ` · ${request.history_omitted} history messages omitted for budget` : '')
-          + (request.elapsed_ms == null ? '' : ` · ${request.elapsed_ms} ms`)
-          + (request.usage?.input == null && request.usage?.output == null ? ''
-            : ` · ${request.usage.input ?? 'unknown'} input / ${request.usage.output ?? 'unknown'} output tokens reported`)
-          + (request.error_category ? ` · ${request.error_category}` : '');
-        details.append(note);
-      }
-      panelBody.append(details);
+    for (const request of diagnostics.requests) {
+      panelNote(`Iteration ${request.iteration} · attempt ${request.attempt} · ${request.dispatched ? 'Dispatched to provider adapter' : 'Dispatch unconfirmed'} · ${request.history_messages} history messages · ${request.tool_results} current tool results`
+        + (request.history_omitted ? ` · ${request.history_omitted} history messages omitted for budget` : '')
+        + (request.usage?.input == null ? '' : ` · ${request.usage.input} input tokens reported`)
+        + (request.usage?.output == null ? '' : ` · ${request.usage.output} output tokens reported`));
     }
   }
-  function renderSources(run) {
-    const routing = run?.diagnostics?.routing;
-    const searches = [...(routing?.prefetch || []), ...(routing?.follow_up || [])];
-    if (!searches.some(search => search.fragments?.length)) panelNote('No recorded excerpts.');
-    for (const search of searches) for (const fragment of search.fragments || []) {
-      const note=document.createElement('p'); note.className='source-item';
-      note.textContent = `${fragment.path} · ${fragment.id} · ${search.supplied ? 'supplied' : 'prepared'}${fragment.truncated ? ' · truncated' : ''}`;
-      panelBody.append(note);
+
+  function renderSearch(search, label, key) {
+    panelNote(`${label} · ${formatStatus(search.status)}${search.elapsed_ms == null ? '' : ` · ${search.elapsed_ms} ms`}`);
+    if (search.candidates != null) panelNote(`${search.candidates} candidates`);
+    if (search.chunks != null) panelNote(`${search.chunks} excerpts prepared · ${search.supplied ?? 0} supplied to provider adapter`);
+    if (search.index_status) panelNote(`Index · ${formatStatus(search.index_status)}`);
+    if (search.search_executed === false) panelNote('Search did not reach the retrieval pipeline.');
+    if (search.error) panelNote(search.error);
+    if (search.call_id) panelNote(`Call ${search.call_id}`);
+    if (search.reused) panelNote('Reused result.');
+    if (search.budget_omitted) panelNote(`${search.budget_omitted} omitted for budget`);
+    if (search.duplicates_omitted) panelNote(`${search.duplicates_omitted} duplicate(s) omitted`);
+    if (search.estimated_context_size != null) panelNote(`${search.estimated_context_size} estimated tokens`);
+    const authorized = path => typeof path === 'string' &&
+      (path.startsWith('@knowledge/') || (currentProjectId && path.startsWith('@project/')));
+    const paths = (search.retrieved_sources || search.sources || []).filter(authorized);
+    const fragments = (search.fragments || []).filter(fragment => authorized(fragment.path));
+    if (paths.length || fragments.length) {
+      const details = diagnosticDetails('Source paths and prepared excerpts', key);
+      for (const text of [...paths, ...fragments.map(fragment =>
+        `${fragment.path} · ${fragment.id} · ${search.supplied ? 'supplied to provider adapter' : 'prepared'}${fragment.truncated ? ' · truncated' : ''}`)]) {
+        const note = document.createElement('p');
+        note.textContent = text;
+        details.append(note);
+      }
     }
   }
   async function readJson(response) {
@@ -572,7 +683,7 @@
         diagnosticRuns.set(event.run_id, {
           number: previous?.number || diagnosticRuns.size + 1,
           status: event.status, error: event.content, assistantId: event.assistant_event_id,
-          diagnostics: event.diagnostics?.version === 1 ? event.diagnostics : null,
+          diagnostics: event.diagnostics?.version === 1 ? event.diagnostics : previous?.diagnostics || null,
           legacyTools: [],
         });
       }
@@ -611,13 +722,13 @@
     } catch (error) {
       if (currentProjectId === projectId) latest.projectSettings = {error: error.message};
     }
-    if (activeTab === 'context' && !panel.contains(document.activeElement)) render('context');
+    if (activeTab === 'setup' && !panel.contains(document.activeElement)) render('setup');
   }
-  async function refreshRag() {
+  async function refreshRag(manual = false) {
     const projectId=currentProjectId;
     try { const data=await readJson(await fetch('/api/rag'));if(projectId===currentProjectId) latest.rag=data; }
     catch { if(projectId===currentProjectId) latest.rag = {error: 'Synchronization status is unavailable.'}; }
-    if (activeTab === 'context' && !panel.contains(document.activeElement)) render('context');
+    if (activeTab === 'setup' && (manual || !panel.contains(document.activeElement))) render('setup');
   }
   refreshRag();
   window.setInterval(refreshRag, 5000);
@@ -813,14 +924,14 @@
     const message = input.value.trim();
     if (!message || submitting || switchingProject || creatingProject || openingConversation) return;
     if (isCloud() && !q('#cloud-model').value.trim()) { setState('Choose an exact model ID first.', 'error'); return; }
-    panelState.beginRun();
     submitting = true; q('#active-model').disabled=true; send.disabled = true; provider.disabled = true; input.disabled = true;
     q('#cancel').disabled = false; q('#cancel').hidden = false; send.hidden = true; setProjectBusy(true);
     q('#cloud-settings').querySelectorAll('input, select, button').forEach(item => { item.disabled = true; });
-    activeController = new AbortController(); activeRunId = crypto.randomUUID(); activeAssistant = null; streamedResponse = '';
+    activeRunId = crypto.randomUUID(); activeAssistant = null; streamedResponse = '';
     streamingDiagnosticRun = null;
     latest = { ...latest, steps: [], error: null };
     setState('Starting Chief Agent…', 'pending');
+    scheduleDiagnosticsRender();
     try {
       if (!currentConversationId) {
         const created = await conversationPost('/api/conversations', {scope_type: currentProjectId ? 'project' : 'general', project_id: currentProjectId});
@@ -831,14 +942,18 @@
         await refreshConversations();
       }
       addMessage('user', message);
+      const conversationId = currentConversationId;
+      const projectId = currentProjectId;
       const response = await fetch('/api/chat', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message, provider: provider.value, project_id: currentProjectId, conversation_id: currentConversationId, session_id: sessionId, run_id: activeRunId,
           model:q('#cloud-model').value.trim() || null, account_id:provider.value === 'chatgpt' ? q('#cloud-account').value || null : null }),
-        signal: activeController.signal,
       });
       await window.LAEWStream.readEventStream(response, (event) => {
-        if (event.diagnostics && event.conversation_id === currentConversationId && event.run_id) {
+        if (currentConversationId !== conversationId || currentProjectId !== projectId) return;
+        if (event.conversation_id && event.conversation_id !== conversationId) return;
+        if (event.run_id && streamingDiagnosticRun && event.run_id !== streamingDiagnosticRun) return;
+        if (event.conversation_id === conversationId && event.diagnostics?.version === 1 && event.run_id) {
           streamingDiagnosticRun = event.run_id;
           const previous = diagnosticRuns.get(event.run_id);
           diagnosticRuns.set(event.run_id, {
@@ -846,7 +961,7 @@
             status: event.run_status || 'running', error: event.error,
             diagnostics: event.diagnostics,
           });
-          if (!selectedDiagnosticRun || selectedDiagnosticRun === event.run_id || !previous || event.run_status) render();
+          if (!selectedDiagnosticRun || selectedDiagnosticRun === event.run_id || !previous || event.run_status) scheduleDiagnosticsRender();
         }
         if (event.phase === 'provider_request' && !streamedResponse) setState('Generating response…', 'pending');
         if (event.type === 'start') { latest.memories=[];
@@ -864,13 +979,10 @@
           setState('Provider retrying…', 'pending');
         } else if (event.type === 'step') {
           latest = { ...latest, steps: [...(latest.steps || []).filter(step => !(step.pending && step.tool === event.step.tool && step.operation === event.step.operation)), event.step] };
-          if (!selectedDiagnosticRun) {
-            if (event.step.tool) panelState.toolEvent();
-            render(panelState.active);
-          }
+          if (!selectedDiagnosticRun) scheduleDiagnosticsRender();
         } else if (event.type === 'approval') {
           latest.steps.push({tool:event.tool,operation:event.operation,pending:true,approvalId:event.id,status:'Pending approval',success:null});
-          if (!selectedDiagnosticRun) render(panelState.toolEvent());
+          if (!selectedDiagnosticRun) scheduleDiagnosticsRender();
           const card = document.createElement('section'); card.className = 'message approval-request'; card.setAttribute('role','group'); card.setAttribute('aria-label','Tool approval');
           const heading = document.createElement('strong'); heading.textContent = 'Chief Agent requests permission';
           const details = document.createElement('pre');
@@ -903,28 +1015,30 @@
           input.value = '';
           q('#runtime').textContent = `${event.provider || latest.provider || 'Provider'} · ${event.model || latest.model || 'model unavailable'}`;
           q('#runtime').className = 'ready'; setState('Completed', 'success');
+        } else if (event.type === 'cancelled') {
+          if (activeAssistant) activeAssistant.article.classList.add('incomplete');
+          conversation.querySelectorAll('.approval-request button').forEach(button => { button.disabled = true; });
+          setState('Cancelled', 'error');
         } else if (event.type === 'error') {
           latest = { ...latest, error: event.error, steps: event.steps || latest.steps || [] };
           if (activeAssistant) activeAssistant.article.classList.add('incomplete');
           addMessage('assistant', `${event.error || 'The response failed.'} Check provider availability and retry.`, 'error');
           setState('Run failed — revise and retry', 'error');
         }
-      }, activeController.signal);
+      });
     } catch (error) {
-      const cancelled = error.name === 'AbortError' || (activeRunId && activeRunId === stoppingRunId);
       const run = diagnosticRuns.get(streamingDiagnosticRun);
       if (run?.status === 'running') {
-        run.status = cancelled ? 'cancelled' : 'failed';
-        run.error = cancelled ? 'Response cancelled.' : 'Response stream ended early.';
+        run.status = 'outcome unknown';
+        run.error = 'Response stream ended early. Reopen the conversation for the persisted outcome.';
       }
-      latest = { ...latest, error: cancelled ? 'Response cancelled.' : error.message, steps: latest.steps || [] };
+      latest = { ...latest, error: error.message, steps: latest.steps || [] };
       if (activeAssistant) activeAssistant.article.classList.add('incomplete');
-      if (cancelled) latest.steps.forEach(step=>{if(step.pending) step.status='Cancelled';});
-      if (cancelled) conversation.querySelectorAll('.approval-request button').forEach((button) => { button.disabled = true; });
-      addMessage('assistant', `${latest.error} ${cancelled ? 'The partial response is incomplete.' : 'Check provider availability and retry.'}`, 'error');
-      setState(cancelled ? 'Cancelled · partial response retained' : 'Run failed — revise and retry', 'error');
+      conversation.querySelectorAll('.approval-request button').forEach(button => { button.disabled = true; });
+      addMessage('assistant', latest.error, 'error');
+      setState('Stream interrupted', 'error');
     } finally {
-      submitting = false; activeController = null; activeRunId = null; stoppingRunId = null; activeAssistant = null;
+      submitting = false; activeRunId = null; activeAssistant = null;
       streamingDiagnosticRun = null;
       send.disabled = false; send.hidden = false; q('#cancel').hidden = true; q('#cancel').disabled = true; provider.disabled = false; input.disabled = false; setProjectBusy(false);
       q('#cloud-settings').querySelectorAll('input, select, button').forEach(item => { item.disabled = false; });
@@ -933,17 +1047,16 @@
     }
   }
   q('#cancel').addEventListener('click', async () => {
-    const controller = activeController, runId = activeRunId;
-    if (!controller || !runId) return;
-    stoppingRunId = runId;
+    const runId = activeRunId;
+    if (!runId) return;
     q('#cancel').disabled = true; setState('Stopping…', 'pending');
     try {
       const response = await fetch('/api/chat/cancel', {method: 'POST', headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({session_id: sessionId, run_id: runId})});
       if (!response.ok) throw new Error('Could not stop the run.');
-      controller.abort();
+      // Persistent runs report cancellation through the stream after saving the terminal snapshot.
     } catch (error) {
-      if (activeRunId === runId) { stoppingRunId = null; q('#cancel').disabled = false; setState(error.message, 'error'); }
+      if (activeRunId === runId) { q('#cancel').disabled = false; setState(error.message, 'error'); }
     }
   });
   function closeSidebar() {

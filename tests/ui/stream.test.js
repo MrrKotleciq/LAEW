@@ -29,6 +29,13 @@ test('incomplete streams fail instead of appearing completed', async () => {
   await assert.rejects(readEventStream(response, () => {}), /ended before LAEW reported completion/);
 });
 
+test('cancelled is a terminal event carrying the server outcome', async () => {
+  const events = [];
+  const response = new Response('{"type":"cancelled","run_id":"run","run_status":"cancelled"}\n');
+  await readEventStream(response, event => events.push(event));
+  assert.equal(events[0].run_status, 'cancelled');
+});
+
 test('UTF-8 split inside emoji survives NDJSON streaming', async () => {
   const sample = 'Zażółć gęślą jaźń — 25°C — 🐕 🧬 🤝 🐶';
   const bytes = new TextEncoder().encode(JSON.stringify({type:'delta', text:sample}) + '\n' + JSON.stringify({type:'done', response:sample}) + '\n');

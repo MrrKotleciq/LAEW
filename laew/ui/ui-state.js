@@ -1,13 +1,11 @@
 (function (root) {
   'use strict';
   function createPanelState() {
-    let tab = 'context', switched = false;
+    let tab = 'setup';
     return {
       get active() { return tab; },
-      select(value) { if (['context', 'run', 'sources'].includes(value)) tab = value; return tab; },
-      beginRun() { switched = false; },
-      toolEvent() { if (!switched) { switched = true; tab = 'run'; } return tab; },
-      reset() { tab = 'context'; switched = false; }
+      select(value) { if (['setup', 'sources', 'run'].includes(value)) tab = value; return tab; },
+      reset() { tab = 'setup'; }
     };
   }
   function modelGroups(entries, labels, accounts = []) {
