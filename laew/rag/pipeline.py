@@ -45,6 +45,11 @@ class RAGResult:
     query: str = ""
     error: Optional[str] = None
     duplicates_omitted: int = 0
+    candidates: Optional[int] = None
+    budget_omitted: int = 0
+    fragments: list[dict[str, Any]] = field(default_factory=list)
+    retrieved_sources: list[str] = field(default_factory=list)
+    index_status: Optional[str] = None
 
     def source_metadata(self) -> List[Dict[str, Any]]:
         """Expose note properties separately from the budgeted context."""
@@ -122,7 +127,7 @@ class RAGPipeline:
             locks, error = acquire_fresh_scopes(self.knowledge_base, scopes)
             if error:
                 return RAGResult(context="", total_tokens=0, sources=[], scope=scope,
-                                 query=query, error=error)
+                                 query=query, error=error, index_status="freshness_check_failed")
         try:
             if locks:
                 try:
@@ -130,8 +135,12 @@ class RAGPipeline:
                         self.knowledge_base.ensure_store(requested_scope)
                 except Exception:
                     return RAGResult(context="", total_tokens=0, sources=[], scope=scope,
-                                     query=query, error="Persistent knowledge store is unavailable. Check ChromaDB and retry synchronization.")
-            return self._retrieve(query, scope, top_k, max_context_tokens, exclude_fragments)
+                                     query=query, index_status="unavailable",
+                                     error="Persistent knowledge store is unavailable. Check ChromaDB and retry synchronization.")
+            result = self._retrieve(query, scope, top_k, max_context_tokens, exclude_fragments)
+            if locks:
+                result.index_status = "freshness_verified"
+            return result
         finally:
             for lock in reversed(locks):
                 lock.release()
@@ -223,17 +232,24 @@ class RAGPipeline:
 
         # Return stable, logical-root paths so provenance remains meaningful
         # when the runtime serves more than one project.
-        sources = []
-        for chunk, _ in used_chunks:
+        def logical_path(chunk):
             alias = "@knowledge" if chunk.source == "global" else "@project"
             relative_path = chunk.file_path.replace("\\", "/")
-            source = f"{alias}/{relative_path}" if relative_path else alias
-            if source not in sources:
-                sources.append(source)
+            return f"{alias}/{relative_path}" if relative_path else alias
 
+        sources = list(dict.fromkeys(logical_path(chunk) for chunk, _ in used_chunks))
+        original_text = {(chunk.source, chunk.file_path, chunk.chunk_id): chunk.text for chunk, _ in unique}
         return RAGResult(
             chunks=used_chunks,
             duplicates_omitted=len(reranked) - len(unique),
+            candidates=len(candidates),
+            budget_omitted=len(unique) - len(used_chunks),
+            retrieved_sources=list(dict.fromkeys(logical_path(chunk) for chunk, _ in reranked))[:50],
+            fragments=[
+                {"id": chunk.chunk_id, "path": logical_path(chunk),
+                 "truncated": chunk.text != original_text[(chunk.source, chunk.file_path, chunk.chunk_id)]}
+                for chunk, _ in used_chunks
+            ],
             context=context,
             total_tokens=total_tokens,
             sources=sources,

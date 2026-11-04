@@ -19,6 +19,7 @@ class RetrievalOptions:
     max_context_tokens: Optional[int] = None
     exclude_fragments: frozenset = frozenset()
     included_fragments: set = field(default_factory=set)
+    diagnostics: dict = field(default_factory=dict)
 
 
 _retrieval_options = ContextVar("rag_retrieval_options", default=None)
@@ -152,17 +153,23 @@ class RagTool(Tool):
             options = _retrieval_options.get()
             limits = ({"max_context_tokens": options.max_context_tokens,
                        "exclude_fragments": options.exclude_fragments} if options else {})
+            if options is not None:
+                options.diagnostics["search_executed"] = True
             result = self._pipeline.retrieve(
                 query=query,
                 scope=scope,
                 top_k=max_results,
                 **limits,
             )
+            if options is not None and result.index_status is not None:
+                options.diagnostics["index_status"] = result.index_status
 
             # A recorded pipeline error means retrieval itself failed (e.g.
             # embedding service down) — surface it instead of pretending there
             # is simply no relevant information (H5).
             if result.error:
+                if options is not None:
+                    options.diagnostics["error_category"] = "retrieval_failed"
                 return ToolResult.error(
                     code="ERR_RAG_FAILURE",
                     message=f"RAG query failed: {result.error}",
@@ -196,6 +203,11 @@ class RagTool(Tool):
                     data["message"] = "Matching fragments were already supplied for this turn."
             if options:
                 options.included_fragments.update(fragment_key(chunk) for chunk, _ in result.chunks)
+                options.diagnostics.update(
+                    candidates=result.candidates, budget_omitted=result.budget_omitted,
+                    fragments=result.fragments, estimated_context_size=result.total_tokens,
+                    retrieved_sources=result.retrieved_sources,
+                )
             return ToolResult.ok(data=data)
 
         except Exception as e:

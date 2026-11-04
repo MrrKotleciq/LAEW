@@ -118,7 +118,9 @@ def test_workbench_run_restarts_and_keeps_other_conversations_separate(tmp_path)
         cancellation.cancel()
         restarted.stream_chat("cancelled", "manifest", None, lambda _: None, "session",
                               cancellation, conversation_id=other["id"])
-        assert store.load_conversation(other["id"])["events"][-1]["status"] == "cancelled"
+        cancelled = store.load_conversation(other["id"])["events"][-1]
+        assert cancelled["status"] == "cancelled" and cancelled["assistant_event_id"] is None
+        assert cancelled["diagnostics"]["requests"] == []
         unavailable = WorkspaceService(tmp_path / "manifest", projects_root=projects, workspace_root=tmp_path)
         unavailable._conversation_store = store
         provider.is_available = lambda: False
@@ -128,6 +130,27 @@ def test_workbench_run_restarts_and_keeps_other_conversations_separate(tmp_path)
         assert errors[-1]["type"] == "error"
         saved = store.load_conversation(other["id"])["events"]
         assert saved[-2]["content"] == "save even when offline" and saved[-1]["status"] == "failed"
+        assert saved[-1]["user_event_id"] == saved[-2]["id"] and saved[-1]["diagnostics"]["routing"] is None
+
+
+def test_interrupted_turn_keeps_checkpoint_and_rejects_invalid_snapshot(tmp_path):
+    from laew.web import WorkspaceService
+
+    store = SessionStore(tmp_path / "sessions")
+    chat = store.create_conversation("general", None)
+    run = {"id": "start", "kind": "run", "run_id": "run", "status": "running", "content": "",
+           "user_event_id": "user"}
+    store.append_conversation_event(chat["id"], run)
+    with pytest.raises(SessionStoreError, match="invalid turn diagnostics"):
+        store.checkpoint_turn(chat["id"], "run", {"version": 1, "tools": "invalid"})
+    diagnostics = {"version": 1, "routing": None, "tools": [], "requests": [{"status": "started"}]}
+    store.checkpoint_turn(chat["id"], "run", diagnostics)
+    service = WorkspaceService(tmp_path / "manifest", projects_root=tmp_path, workspace_root=tmp_path)
+    service._conversation_store = SessionStore(tmp_path / "sessions")
+    recovered = service.read_conversation(chat["id"], None)["events"][-1]
+    assert recovered["status"] == "failed" and recovered["user_event_id"] == "user"
+    assert recovered["diagnostics"] == diagnostics
+    assert len(service.read_conversation(chat["id"], None)["events"]) == 2
 
 
 def test_busy_conversation_cannot_be_renamed_or_deleted(tmp_path):
@@ -192,6 +215,13 @@ def test_cli_general_conversation_can_be_resumed_with_shared_store(tmp_path):
         args.conversation = store.list_conversations()[0]["id"]
         assert cmd_chat(args) == 0
     assert "cli first" in provider.contexts[-1] and "cli answer" in provider.contexts[-1]
+    from laew.web import WorkspaceService
+    workbench = WorkspaceService(tmp_path / "manifest.yaml", projects_root=tmp_path, workspace_root=tmp_path)
+    workbench._conversation_store = SessionStore(tmp_path / "sessions")
+    events = workbench.read_conversation(args.conversation, None)["events"]
+    runs = [event for event in events if event["kind"] == "run" and event["status"] == "completed"]
+    assert len(runs) == 2 and runs[0]["assistant_event_id"] != runs[1]["assistant_event_id"]
+    assert all(run["diagnostics"]["requests"][0]["dispatched"] for run in runs)
 
 
 def test_atomic_write_failure_and_cross_process_run_lease(tmp_path, monkeypatch):

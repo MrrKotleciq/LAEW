@@ -386,6 +386,7 @@ class AgentExecutor:
         stream: bool,
         on_delta: Optional[Callable[[Optional[str]], None]] = None,
         cancellation=None,
+        on_dispatch=None,
     ) -> LLMResponse:
         """
         Generate an LLM response, optionally via the provider's stream path.
@@ -408,6 +409,8 @@ class AgentExecutor:
         model = self.agent.config.model
         if cancellation and cancellation.is_set():
             raise StreamCancelled()
+        if on_dispatch is not None:
+            on_dispatch()
         if (getattr(self.agent.provider, "native_tools", False) is True):
             return self.agent.provider.generate_tools(
                 messages, model, tool_definitions(self.agent.tools),
@@ -583,6 +586,7 @@ class AgentExecutor:
         on_tool_call: Optional[Callable] = None,
         cancellation=None,
         on_event: Optional[Callable[[dict], None]] = None,
+        on_diagnostic: Optional[Callable[[str, dict], None]] = None,
     ) -> ExecutionResult:
         """
         Execute the agent loop until completion or max iterations.
@@ -594,11 +598,42 @@ class AgentExecutor:
                 the accumulated result is identical to the non-streaming path.
                 Tool-call parsing still needs the full response, so streaming
                 here is a transport optimisation, not an output-different one.
+            on_diagnostic: Optional in-process observer for provider attempts
+                and tool outcomes. Tool results are available transiently so
+                the observer can correlate metadata before persistence.
 
         Returns:
             ExecutionResult containing all execution steps and final output
         """
         result = ExecutionResult(agent_name=self.agent.config.name)
+        observed_tools = 0
+
+        def diagnostic(phase, **details):
+            if on_diagnostic is not None:
+                on_diagnostic(phase, details)
+
+        def generate(iteration_number, attempt_number):
+            if cancellation and cancellation.is_set():
+                raise StreamCancelled()
+            diagnostic("provider_request", iteration=iteration_number, attempt=attempt_number,
+                       history_messages=live_user_index - 1, history_omitted=seeded_history - live_user_index + 1,
+                       tool_results=observed_tools)
+            started = time.perf_counter()
+            try:
+                response = self._generate(messages, stream=stream, on_delta=on_delta,
+                                          cancellation=cancellation,
+                                          on_dispatch=lambda: diagnostic("provider_dispatch"))
+            except Exception as exc:
+                diagnostic("provider_outcome", status="cancelled" if isinstance(exc, StreamCancelled)
+                           else "failed", error_category=type(exc).__name__,
+                           elapsed_ms=round((time.perf_counter() - started) * 1000, 1))
+                raise
+            usage = {key: count for key, count in (("input", response.prompt_tokens),
+                     ("output", response.completion_tokens), ("total", response.total_tokens))
+                     if type(count) is int}
+            diagnostic("provider_outcome", status="completed", usage=usage,
+                       elapsed_ms=round((time.perf_counter() - started) * 1000, 1))
+            return response
 
         def record(kind, status, message=None, **details):
             if on_event is not None:
@@ -641,6 +676,7 @@ class AgentExecutor:
         # may drop OLDER seeded history turns but never the system prompt
         # (index 0) nor this live turn.
         live_user_index = len(messages) - 1
+        seeded_history = live_user_index - 1
 
         iteration = 0
         call_count = 0
@@ -679,9 +715,8 @@ class AgentExecutor:
             while attempt < retry_config.max_attempts and remaining_tries > 0:
                 remaining_tries -= 1
                 try:
-                    llm_response = self._generate(
-                        messages, stream=stream, on_delta=on_delta, cancellation=cancellation
-                    )
+                    llm_response = generate(iteration, retry_config.max_attempts *
+                                            max(1, len(self.agent.providers)) - remaining_tries)
                     break  # Success, exit retry loop
                 except StreamCancelled:
                     result.success = False
@@ -822,7 +857,9 @@ class AgentExecutor:
                 event_call_id = step.call_id or uuid.uuid4().hex
                 record("tool_call", "running", call_id=event_call_id,
                        tool=tool_name, operation=operation, args=args)
+                tool_started = time.perf_counter()
                 tool = self.agent.tools.get(self._resolve_tool_name(tool_name))
+                executed = False
                 identity = (llm_response.provider_data.get("scope", "native"), step.call_id)
                 fingerprint = json.dumps([tool_name, operation, args], sort_keys=True, ensure_ascii=False)
                 cached = self._tool_results.get(identity) if native else None
@@ -849,6 +886,7 @@ class AgentExecutor:
                             tool_res = mutations[fingerprint]
                         else:
                             call_count += 1
+                            executed = True
                             tool_res = (on_tool_call(tool, operation, args) if on_tool_call is not None
                                         else tool.call(operation, **args))
                             if native and mutating:
@@ -862,6 +900,7 @@ class AgentExecutor:
                         tool_res = ToolResult.error("ERR_AGENT_EXECUTION", str(exc))
                 if native and not cached:
                     self._tool_results[identity] = (fingerprint, tool_res)
+                elapsed_ms = round((time.perf_counter() - tool_started) * 1000, 1)
                 step.tool_result = tool_res
                 result.steps.append(step)
                 observation = json.dumps({"success": tool_res.success, "data": tool_res.data,
@@ -876,6 +915,16 @@ class AgentExecutor:
                           else "cancelled" if tool_res.error_code == "ERR_CANCELLED" else "failed")
                 record("tool_result", status, message, call_id=event_call_id,
                        tool=tool_name, operation=operation)
+                observed_tools += 1
+                requested_scope = args.get("scope") if isinstance(args, dict) else None
+                diagnostic("tool", call_id=event_call_id, order=observed_tools,
+                           iteration=iteration, tool=tool.name if tool is not None else "Unknown tool",
+                           operation=operation if tool is not None and (executed or cached) else None,
+                           status=status, executed=executed, reused=bool(cached and cached[1] is tool_res),
+                           scope=requested_scope if requested_scope in ("global", "project", "hybrid") else None,
+                           elapsed_ms=elapsed_ms,
+                           error_category=str(tool_res.error_code) if not tool_res.success else None,
+                           result=tool_res)
                 if on_step is not None and not cancelled:
                     try:
                         on_step(step)
@@ -902,9 +951,7 @@ class AgentExecutor:
         messages.append(LLMMessage(role=MessageRole.USER, content=forced_prompt))
         self._trim_to_budget(messages, live_user_index)
         try:
-            llm_response = self._generate(
-                messages, stream=stream, on_delta=on_delta, cancellation=cancellation
-            )
+            llm_response = generate(iteration + 1, 1)
         except StreamCancelled:
             result.success = False
             result.error = "The client disconnected or cancelled the response stream."

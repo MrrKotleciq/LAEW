@@ -203,3 +203,5 @@ a {color:var(--accent);text-underline-offset:3px;} code,pre {font-family:var(--m
 #knowledge-result {color:var(--text-2);}
 #knowledge-approve-selected {margin-top:16px;}
 @media(max-width:560px){.knowledge-drawer {width:100%;padding:16px;}#knowledge-toggle {font-size:11px;padding:5px 8px;}}
+.message .turn-context-action {background:transparent;color:var(--muted);font-size:12px;margin-top:6px;}
+.context-card p, .context-card summary {overflow-wrap:anywhere;}

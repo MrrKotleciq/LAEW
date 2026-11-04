@@ -639,13 +639,15 @@ def cmd_chat(args) -> int:
 
             from laew.knowledge.routing import KnowledgeTurn
             turn = KnowledgeTurn(lambda tool, op, kwargs: console_call(permission_broker, tool, op, kwargs, "cli-chat"))
-            turn.prepare(executor, user_input, project_id, lambda: memory, agent.tools.get("RagTool"))
-            for search in turn.diagnostics["prefetch"]:
-                print(f"[RAG] {search['scope']}: {search['status']} ({search['chunks']} fragments)")
-                if search.get("error"):
-                    print(f"[RAG] {search['error']}")
-            run_options = {"on_tool_call": turn.call}
+            def prepare():
+                turn.prepare(executor, user_input, project_id, lambda: memory, agent.tools.get("RagTool"))
+                for search in turn.diagnostics["prefetch"]:
+                    print(f"[RAG] {search['scope']}: {search['status']} ({search['chunks']} fragments)")
+                    if search["scope"] in turn.prefetch_errors:
+                        print(f"[RAG] {turn.prefetch_errors[search['scope']]}")
+            run_options = {"on_tool_call": turn.call, "on_diagnostic": turn.observe}
             if conversation_store is None:
+                prepare()
                 result = executor.run(user_input, stream=not args.no_stream, **run_options)
             else:
                 import uuid
@@ -661,16 +663,38 @@ def cmd_chat(args) -> int:
                         conversation_store.recover_interrupted_runs(conversation_id)
                         agent.history = conversation_store.conversation_messages(conversation_id)
                         run_id = uuid.uuid4().hex
+                        user_event_id = uuid.uuid4().hex
+                        assistant_event_id = None
+                        checkpointed = False
                         def persist(event):
-                            if memory and event.get('kind')=='user' and not event.get('generated'):
-                                agent.tools['MemoryTool'].event_id=event['id']
-                            if knowledge and event.get('kind')=='user' and not event.get('generated'):
-                                agent.tools['KnowledgeProposalTool'].event_id=event['id']
+                            nonlocal assistant_event_id
                             conversation_store.append_conversation_event(conversation_id, {**event, "run_id": run_id})
-                        persist({"id": uuid.uuid4().hex, "kind": "run", "status": "running", "content": ""})
+                            if event.get('kind') == 'user' and not event.get('generated'):
+                                if memory:
+                                    agent.tools['MemoryTool'].event_id = user_event_id
+                                if knowledge:
+                                    agent.tools['KnowledgeProposalTool'].event_id = user_event_id
+                            if event.get('kind') == 'assistant':
+                                assistant_event_id = event['id']
+                        def persist_agent_event(event):
+                            if event.get("kind") != "user" or event.get("generated"):
+                                persist(event)
+                        def observe(phase, details):
+                            nonlocal checkpointed
+                            turn.observe(phase, details)
+                            if phase == "provider_request" and not checkpointed:
+                                conversation_store.checkpoint_turn(conversation_id, run_id, turn.snapshot())
+                                checkpointed = True
+                        persist({"id": uuid.uuid4().hex, "kind": "run", "status": "running", "content": "",
+                                 "user_event_id": user_event_id})
                         state, reason = "failed", "Run failed."
                         try:
-                            result = executor.run(user_input, stream=not args.no_stream, on_event=persist, **run_options)
+                            persist({"id": user_event_id, "kind": "user", "status": "completed",
+                                     "content": user_input, "message": LLMMessage(MessageRole.USER, user_input).to_dict()})
+                            prepare()
+                            result = executor.run(user_input, stream=not args.no_stream,
+                                                  on_event=persist_agent_event, on_tool_call=turn.call,
+                                                  on_diagnostic=observe)
                             state = "completed" if result.success else "failed"
                             reason = "" if result.success else (result.error or "Run failed.")
                         except KeyboardInterrupt:
@@ -678,7 +702,9 @@ def cmd_chat(args) -> int:
                             reason = "Run cancelled."
                             raise
                         finally:
-                            persist({"id": uuid.uuid4().hex, "kind": "run", "status": state, "content": reason})
+                            persist({"id": uuid.uuid4().hex, "kind": "run", "status": state, "content": reason,
+                                     "user_event_id": user_event_id, "diagnostics": turn.snapshot(),
+                                     "assistant_event_id": assistant_event_id if state == "completed" else None})
                             if state=='completed' and knowledge is not None:
                                 try:
                                     if knowledge.settings()['model_source'] == 'active':

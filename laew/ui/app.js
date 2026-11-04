@@ -47,6 +47,9 @@
   const localViews = new Map();
   const drafts = new Map();
   let activeView = null;
+  let diagnosticRuns = new Map();
+  let selectedDiagnosticRun = null;
+  let streamingDiagnosticRun = null;
   let authAttempt = null;
   const cloudFields = () => ({provider: provider.value, model: q('#cloud-model').value.trim(),
     account_id: q('#cloud-account').value || null, session_id: sessionId, project_id: currentProjectId});
@@ -62,6 +65,7 @@
     activeView = {key, cloud: isCloud()};
     input.value = drafts.get(key) || '';
     activeAssistant = null; streamedResponse = '';
+    diagnosticRuns = new Map(); selectedDiagnosticRun = null; streamingDiagnosticRun = null;
     latest = {steps: [], provider: latest.provider, model: latest.model, project: latest.project,
       project_path: latest.project_path, projects_root: latest.projects_root, knowledge_root: latest.knowledge_root,
       projectSettings: latest.projectSettings, rag: latest.rag};
@@ -238,6 +242,7 @@
   };
   const clearConversation = () => {
     conversation.replaceChildren(emptyForScope());
+    diagnosticRuns.clear(); selectedDiagnosticRun = null; streamingDiagnosticRun = null;
     latest.steps = [];
     latest.error = null;
     panelState.reset(); render('context');
@@ -265,7 +270,45 @@
   const panelNote = (text) => {
     const note = document.createElement('p'); note.textContent = text; panelBody.append(note);
   };
+  function attachContextAction(article, runId) {
+    const button = document.createElement('button');
+    button.type = 'button'; button.className = 'turn-context-action'; button.textContent = 'View context';
+    const run = diagnosticRuns.get(runId);
+    if (run) button.setAttribute('aria-label', `View context for turn ${run.number}`);
+    button.addEventListener('click', () => {
+      selectedDiagnosticRun = runId;
+      if (q('#context').classList.contains('hidden')) q('#context-toggle').click();
+      render('context');
+      q('#diagnostic-turn')?.focus();
+    });
+    article.append(button);
+  }
+  function renderTurnSelection(tab) {
+    panelHeading('Conversation turn');
+    const choices = [...diagnosticRuns].filter(([, run]) => tab === 'run' || run.status === 'completed' || run.status === 'running');
+    const available = choices.some(([id]) => id === selectedDiagnosticRun);
+    const select = document.createElement('select');
+    select.id = 'diagnostic-turn'; select.setAttribute('aria-label', 'Conversation turn');
+    select.add(new Option(submitting ? 'Follow live run' : 'Follow latest turn', ''));
+    for (const [id, run] of choices) {
+      select.add(new Option(`Turn ${run.number} · ${run.status}`, id));
+    }
+    select.value = available ? selectedDiagnosticRun : '';
+    select.addEventListener('change', () => {
+      selectedDiagnosticRun = select.value || null;
+      render(tab);
+    });
+    panelBody.append(select);
+    if (available && submitting && selectedDiagnosticRun !== streamingDiagnosticRun) {
+      panelNote('A new run is active. Select Follow live run to inspect it.');
+    }
+    const run = available ? diagnosticRuns.get(selectedDiagnosticRun)
+      : (submitting && streamingDiagnosticRun ? diagnosticRuns.get(streamingDiagnosticRun) : choices.at(-1)?.[1]);
+    if (run) panelNote(`Turn ${run.number} · ${run.status}${available ? ' · selected' : ''}`);
+    return run;
+  }
   function render(tab = activeTab) {
+    const restoreTurnFocus = document.activeElement?.id === 'diagnostic-turn';
     activeTab = panelState.select(tab);
     document.querySelectorAll('.tab').forEach(button => {
       const selected=button.dataset.tab === activeTab;
@@ -273,6 +316,7 @@
     });
     panel.setAttribute('aria-labelledby','tab-'+activeTab);
     panel.replaceChildren(); panelBody=panel;
+    const run = renderTurnSelection(tab);
     if (tab === 'context') {
       panelHeading(currentProjectId ? 'Active project' : 'General Chat');
       const details = document.createElement('dl');
@@ -286,19 +330,13 @@
       [['Project',latest.project_path],['Projects root',latest.projects_root],['Global Knowledge',latest.knowledge_root]].forEach(([label,value])=>{if(value){const p=document.createElement('p');p.textContent=label+': '+value;paths.append(p);}});panelBody.append(paths);
       panelNote(currentProjectId ? 'LAEW tools use this project’s permissions.' : 'Global Knowledge is available; project tools and Project Memory are unavailable.');
 
-      panelHeading('Knowledge routing'); renderRouting();
-      panelHeading('Retrieved knowledge'); renderSources();
-      panelHeading('Last response usage');
-      if (latest.usage) panelNote(`Input: ${latest.usage.prompt_tokens ?? 'unavailable'} · Output: ${latest.usage.completion_tokens ?? 'unavailable'} tokens`);
-      else panelNote('Token usage is reported after a response. Context capacity is not reported.');
+      panelHeading('Context preparation'); renderRouting(run);
+      panelHeading('Retrieved knowledge'); renderSources(run);
       if (currentProjectId) {
       panelHeading('Project settings');
       panelNote('Documentation language: '+(latest.projectSettings?.documentation_language || 'checking…'));
       const settingsButton=document.createElement('button');settingsButton.type='button';settingsButton.textContent='Open project settings';settingsButton.addEventListener('click',()=>settingsUI.openProject(currentProjectId));panelBody.append(settingsButton);
       }
-      panelHeading('Long-Term Memory');
-      if (latest.memories?.length) latest.memories.forEach(memory=>panelNote(`${memory.scope === 'user' ? 'User Memory' : 'Project Memory'} · ${memory.content}`));
-      else panelNote(latest.memoryMode === 'unavailable' ? 'Memory is unavailable for this turn.' : 'No memories used for this turn.');
       panelHeading('Knowledge');
       if (!latest.rag) panelNote('Checking synchronization status…');
       else if (latest.rag.error) panelNote(latest.rag.error);
@@ -321,10 +359,10 @@
         panelBody.append(button);
       });
     } else if (tab === 'run') {
-      panelHeading('Current run');
-      renderRouting();
-      const steps = Array.isArray(latest.steps) ? latest.steps : [];
-      if (!steps.length) panelNote(latest.error || 'No tool activity for this response.');
+      panelHeading('Execution');
+      renderRouting(run);
+      const steps = [...(run?.diagnostics?.tools || []), ...(run?.legacyTools || [])];
+      if (!steps.length) panelNote('No recorded tool activity.');
       else {
         const list = document.createElement('ol');
         steps.forEach((step) => {
@@ -332,43 +370,99 @@
           const badge=document.createElement('span'); badge.className='status-badge'; badge.textContent=step.status || (step.success === true ? 'Completed' : step.success === false ? (/denied|blocked/i.test(step.error || '') ? 'Denied' : 'Failed') : 'Status unavailable'); item.append(badge);
           const title = document.createElement('b'); title.textContent = step.tool || 'Response'; item.append(title);
           if (step.operation) item.append(document.createTextNode(` · ${step.operation}`));
+          if (step.call_id) item.append(document.createTextNode(` · Call ${step.call_id}`));
+          if (step.elapsed_ms != null) item.append(document.createTextNode(` · ${step.elapsed_ms} ms`));
+          if (step.supplied) item.append(document.createTextNode(' · result supplied'));
+          if (step.reused) item.append(document.createTextNode(' · reused result'));
+          if (step.error_category) item.append(document.createTextNode(` · ${step.error_category}`));
+          if (step.historical) item.append(document.createTextNode(' · from conversation history'));
           if (step.error) { const error = document.createElement('em'); error.textContent = step.error; item.append(error); }
           list.append(item);
         });
         panelBody.append(list);
       }
+      if (run?.status === 'failed' || run?.status === 'cancelled') panelNote(run.error || `Run ${run.status}.`);
+      if (submitting && !selectedDiagnosticRun) {
+        latest.steps.filter(step => step.pending).forEach(step => panelNote(`${step.tool} · ${step.status}`));
+      }
     } else {
       panelHeading('Sources');
-      renderSources();
+      renderSources(run);
     }
+    if (restoreTurnFocus) q('#diagnostic-turn')?.focus({preventScroll: true});
   }
-  function renderRouting() {
-    const routing = latest.routing;
-    if (!routing) { panelNote('No routing information for this turn.'); return; }
+  function renderRouting(run) {
+    const diagnostics = run?.diagnostics;
+    const routing = diagnostics?.routing;
+    if (!diagnostics) { panelNote('Diagnostic data unavailable for this turn.'); return; }
+    if (!routing) { panelNote(run.status === 'running' ? 'Preparing context…' : 'Routing was not recorded.'); return; }
     const labels = {global: 'Global Knowledge', project: 'Project Knowledge', hybrid: 'Both scopes'};
     const selected = routing.scopes.map(scope => labels[scope]);
     panelNote(`${routing.reason} · ${selected.join(', ') || 'No RAG scope'} · ${routing.routing_ms} ms`);
-    panelNote(`Memory Recall: ${routing.memory}`);
+    const recall = routing.memory_recall;
+    if (recall) {
+      panelNote(`Automatic Memory Recall · ${recall.status} · ${recall.scopes.join(', ')}`
+        + (recall.status === 'completed' ? ` · ${routing.memory}` : '')
+        + (recall.selected == null ? '' : ` · ${recall.selected} selected · ${recall.supplied} supplied`)
+        + (recall.elapsed_ms == null ? '' : ` · ${recall.elapsed_ms} ms`)
+        + (recall.candidates == null ? '' : ` · ${recall.candidates} candidates`)
+        + (recall.budget_omitted ? ` · ${recall.budget_omitted} omitted for budget` : '')
+        + (recall.estimated_context_size == null ? '' : ` · ${recall.estimated_context_size} estimated tokens`));
+      if (recall.ids?.length) panelNote(`Memory IDs: ${recall.ids.join(', ')}`);
+      if (recall.error_category) panelNote(recall.error_category);
+      if (recall.skip_reason) panelNote(recall.skip_reason);
+      if (recall.fallback_error_category) panelNote(`Semantic recall fallback · ${recall.fallback_error_category}`);
+    }
+    if (routing.project_unavailable) panelNote('Project Knowledge unavailable in this scope.');
     for (const [label, searches] of [['Automatic prefetch', routing.prefetch], ['RagTool follow-up', routing.follow_up]]) {
       if (!searches.length) panelNote(`${label}: none`);
       for (const search of searches) {
         const timing = search.elapsed_ms == null ? '' : ` · ${search.elapsed_ms} ms`;
         const duplicates = search.duplicates_omitted ? ` · ${search.duplicates_omitted} duplicate(s) omitted` : '';
-        panelNote(`${label} · ${labels[search.scope] || search.scope}: ${search.status} · ${search.chunks} fragments${timing}${duplicates}`);
+        panelNote(`${label} · ${labels[search.scope] || search.scope}: ${search.status}${timing}${duplicates}`);
+        if (search.candidates != null) panelNote(`${search.candidates} candidates · ${search.chunks} excerpts prepared · ${search.supplied} supplied · ${search.budget_omitted} omitted for budget · ${search.estimated_context_size} estimated tokens`);
+        if (search.index_status) panelNote(`Index · ${search.index_status.replaceAll('_', ' ')}`);
+        if (search.search_executed === false) panelNote('Search did not reach the retrieval pipeline.');
+        if (search.reused) panelNote('Reused result.');
+        if (search.retrieved_sources?.length) {
+          const details = document.createElement('details'), summary = document.createElement('summary');
+          summary.textContent = 'Retrieved document paths'; details.append(summary);
+          for (const path of search.retrieved_sources) {
+            const note = document.createElement('p'); note.textContent = path; details.append(note);
+          }
+          panelBody.append(details);
+        }
+        if (search.call_id) panelNote(`Call ${search.call_id}`);
         if (search.error) panelNote(search.error);
       }
     }
+    if (diagnostics.requests.length) {
+      const details = document.createElement('details');
+      const summary = document.createElement('summary'); summary.textContent = 'Model requests and context assembly';
+      details.append(summary);
+      for (const request of diagnostics.requests) {
+        const note = document.createElement('p');
+        note.textContent = `Iteration ${request.iteration} · attempt ${request.attempt} · ${request.status} · ${request.history_messages} history messages · ${request.tool_results} current tool results`
+          + (request.dispatched ? ' · dispatched to provider adapter' : ' · dispatch unconfirmed')
+          + (request.history_omitted ? ` · ${request.history_omitted} history messages omitted for budget` : '')
+          + (request.elapsed_ms == null ? '' : ` · ${request.elapsed_ms} ms`)
+          + (request.usage?.input == null && request.usage?.output == null ? ''
+            : ` · ${request.usage.input ?? 'unknown'} input / ${request.usage.output ?? 'unknown'} output tokens reported`)
+          + (request.error_category ? ` · ${request.error_category}` : '');
+        details.append(note);
+      }
+      panelBody.append(details);
+    }
   }
-  function renderSources() {
-    const searches = latest.routing?.prefetch || [];
-    const sources = [...new Set([...searches, ...(latest.steps || [])].flatMap(item => item.sources || []))];
-    if(!sources.length) panelNote('No sources used for this response.');
-    sources.forEach(source=>{
+  function renderSources(run) {
+    const routing = run?.diagnostics?.routing;
+    const searches = [...(routing?.prefetch || []), ...(routing?.follow_up || [])];
+    if (!searches.some(search => search.fragments?.length)) panelNote('No recorded excerpts.');
+    for (const search of searches) for (const fragment of search.fragments || []) {
       const note=document.createElement('p'); note.className='source-item';
-      const label=source.startsWith('@project')?'Project Memory':source.startsWith('@knowledge')?'Global Knowledge':/^https?:/.test(source)?'Web source':'Retrieved source';
-      note.textContent=label+' · '+source;panelBody.append(note);
-    });
-    (latest.steps || []).filter(step=>step.tool==='FilesystemTool' && step.operation==='view_file' && step.success===true).forEach(()=>panelNote('Source includes a direct file read.'));
+      note.textContent = `${fragment.path} · ${fragment.id} · ${search.supplied ? 'supplied' : 'prepared'}${fragment.truncated ? ' · truncated' : ''}`;
+      panelBody.append(note);
+    }
   }
   async function readJson(response) {
     const text = await response.text();
@@ -453,13 +547,17 @@
     if (submitting || switchingProject || creatingProject || openingConversation) return;
     openingConversation = true; setProjectBusy(true); send.disabled = true; input.disabled = true;
     try {
-      const response = await fetch('/api/conversation?id='+encodeURIComponent(id), {cache:'no-store'});
+      const item = conversationItems.find(entry => entry.id === id);
+      if (!item) throw new Error('Conversation unavailable.');
+      if (item.project_id !== currentProjectId) {
+        await switchProject(item.project_id, true);
+        if (currentProjectId !== item.project_id) throw new Error('Conversation project is unavailable.');
+      }
+      const params = new URLSearchParams({id});
+      if (currentProjectId) params.set('project_id', currentProjectId);
+      const response = await fetch('/api/conversation?' + params, {cache:'no-store'});
       const data = await readJson(response);
       if (!response.ok) throw new Error(data.error || 'Conversation unavailable.');
-      if (data.project_id !== currentProjectId) {
-        await switchProject(data.project_id, true);
-        if (currentProjectId !== data.project_id) throw new Error('Conversation project is unavailable.');
-      }
       currentConversationId = id; saveActiveConversation();
       const groupKey=data.scope_type === 'general' ? 'general' : 'project:'+data.project_id;
       expansion.revealConversation(groupKey, restore);
@@ -467,22 +565,37 @@
       showPage('chat'); closeSidebar();
       await changeView();
       conversation.replaceChildren();
-      const finished = new Set(data.events.filter(e=>e.kind==='run' && e.status==='completed').map(e=>e.run_id));
+      diagnosticRuns = new Map(); streamingDiagnosticRun = null;
       for (const event of data.events) {
-        if (event.kind === 'user' && !event.generated) addMessage('user', event.content);
-        if (event.kind === 'assistant' && finished.has(event.run_id) && !event.message?.tool_calls?.length && !event.content.includes('```tool_call')) addMessage('assistant', event.content);
+        if (event.kind !== 'run' || !event.run_id) continue;
+        const previous = diagnosticRuns.get(event.run_id);
+        diagnosticRuns.set(event.run_id, {
+          number: previous?.number || diagnosticRuns.size + 1,
+          status: event.status, error: event.content, assistantId: event.assistant_event_id,
+          diagnostics: event.diagnostics?.version === 1 ? event.diagnostics : null,
+          legacyTools: [],
+        });
       }
-      const lastRunId = [...data.events].reverse().find(event=>event.kind==='run')?.run_id;
-      latest.steps = data.events.filter(event=>event.kind==='tool_result' && event.run_id===lastRunId).map(event=>({
-        tool:event.tool, operation:event.operation, call_id:event.call_id,
-        success:event.status==='completed', status:event.status,
-        error:event.status==='completed' ? null : event.content.slice(0, 300),
-      }));
+      const toolOutcomes = new Set(data.events.filter(event => event.kind === 'tool_result')
+        .map(event => JSON.stringify([event.run_id, event.call_id])));
+      for (const event of data.events) {
+        const run = diagnosticRuns.get(event.run_id);
+        if (event.kind === 'user' && !event.generated) addMessage('user', event.content);
+        if (event.kind === 'assistant' && run?.status === 'completed'
+            && (run.assistantId ? run.assistantId === event.id
+              : !event.message?.tool_calls?.length && !event.content.includes('```tool_call'))) {
+          attachContextAction(addMessage('assistant', event.content).article, event.run_id);
+        }
+        const hasOutcome = toolOutcomes.has(JSON.stringify([event.run_id, event.call_id]));
+        if (run && (event.kind === 'tool_result' || (event.kind === 'tool_call' && !hasOutcome))
+            && !run.diagnostics?.tools.some(tool => tool.call_id === event.call_id)) {
+          run.legacyTools.push({tool: event.tool, operation: event.operation,
+            call_id: event.call_id, status: event.kind === 'tool_result' ? event.status : 'Outcome unknown', historical: true});
+        }
+      }
       render();
       if (!conversation.childNodes.length) conversation.append(emptyForScope());
-      const runs = new Map();
-      data.events.filter(e=>e.kind==='run').forEach(e=>runs.set(e.run_id, e.status));
-      if ([...runs.values()].some(status=>status !== 'completed')) setState('This conversation contains an incomplete run.');
+      if ([...diagnosticRuns.values()].some(run => run.status !== 'completed')) setState('This conversation contains an incomplete run.');
       await refreshConversations();
     } catch (error) { setState(error.message, 'error'); }
     finally { openingConversation = false; setProjectBusy(false); send.disabled = false; input.disabled = false; }
@@ -705,7 +818,8 @@
     q('#cancel').disabled = false; q('#cancel').hidden = false; send.hidden = true; setProjectBusy(true);
     q('#cloud-settings').querySelectorAll('input, select, button').forEach(item => { item.disabled = true; });
     activeController = new AbortController(); activeRunId = crypto.randomUUID(); activeAssistant = null; streamedResponse = '';
-    latest = { ...latest, steps: [], error: null, routing: null, memories: [], memoryMode: null };
+    streamingDiagnosticRun = null;
+    latest = { ...latest, steps: [], error: null };
     setState('Starting Chief Agent…', 'pending');
     try {
       if (!currentConversationId) {
@@ -724,12 +838,21 @@
         signal: activeController.signal,
       });
       await window.LAEWStream.readEventStream(response, (event) => {
-        if (event.type === 'routing') { latest.routing = event.routing; render(); }
-        if (event.type === 'memory') { latest.memories=event.memories; latest.memoryMode=event.mode; render(); }
+        if (event.diagnostics && event.conversation_id === currentConversationId && event.run_id) {
+          streamingDiagnosticRun = event.run_id;
+          const previous = diagnosticRuns.get(event.run_id);
+          diagnosticRuns.set(event.run_id, {
+            number: previous?.number || diagnosticRuns.size + 1,
+            status: event.run_status || 'running', error: event.error,
+            diagnostics: event.diagnostics,
+          });
+          if (!selectedDiagnosticRun || selectedDiagnosticRun === event.run_id || !previous || event.run_status) render();
+        }
+        if (event.phase === 'provider_request' && !streamedResponse) setState('Generating response…', 'pending');
         if (event.type === 'start') { latest.memories=[];
           latest = { ...latest, provider: event.provider, model: event.model };
           q('#runtime').textContent = `${event.provider || 'Provider'} · ${event.model || 'model unavailable'}`;
-          q('#runtime').className = 'ready'; setState('Generating response…', 'pending');
+          q('#runtime').className = 'ready'; setState('Preparing context…', 'pending');
         } else if (event.type === 'delta') {
           streamedResponse += event.text;
           if (!activeAssistant) activeAssistant = addMessage('assistant', '');
@@ -741,11 +864,13 @@
           setState('Provider retrying…', 'pending');
         } else if (event.type === 'step') {
           latest = { ...latest, steps: [...(latest.steps || []).filter(step => !(step.pending && step.tool === event.step.tool && step.operation === event.step.operation)), event.step] };
-          if (event.step.tool) panelState.toolEvent();
-          render(panelState.active);
+          if (!selectedDiagnosticRun) {
+            if (event.step.tool) panelState.toolEvent();
+            render(panelState.active);
+          }
         } else if (event.type === 'approval') {
           latest.steps.push({tool:event.tool,operation:event.operation,pending:true,approvalId:event.id,status:'Pending approval',success:null});
-          render(panelState.toolEvent());
+          if (!selectedDiagnosticRun) render(panelState.toolEvent());
           const card = document.createElement('section'); card.className = 'message approval-request'; card.setAttribute('role','group'); card.setAttribute('aria-label','Tool approval');
           const heading = document.createElement('strong'); heading.textContent = 'Chief Agent requests permission';
           const details = document.createElement('pre');
@@ -771,9 +896,10 @@
           conversation.append(card); conversation.scrollTop=conversation.scrollHeight; setState('Waiting for approval…', 'pending');
         } else if (event.type === 'done') {
           knowledgeUI.refresh();
-          latest = { ...latest, ...event };
+          latest = { ...latest, provider: event.provider, model: event.model, usage: event.usage };
           if (!activeAssistant) activeAssistant = addMessage('assistant', event.response || 'The Chief Agent returned no response.', event.response ? '' : 'error');
           else window.LAEWMarkdown.renderMarkdown(activeAssistant.content, event.response || streamedResponse);
+          if (streamingDiagnosticRun) attachContextAction(activeAssistant.article, streamingDiagnosticRun);
           input.value = '';
           q('#runtime').textContent = `${event.provider || latest.provider || 'Provider'} · ${event.model || latest.model || 'model unavailable'}`;
           q('#runtime').className = 'ready'; setState('Completed', 'success');
@@ -786,6 +912,11 @@
       }, activeController.signal);
     } catch (error) {
       const cancelled = error.name === 'AbortError' || (activeRunId && activeRunId === stoppingRunId);
+      const run = diagnosticRuns.get(streamingDiagnosticRun);
+      if (run?.status === 'running') {
+        run.status = cancelled ? 'cancelled' : 'failed';
+        run.error = cancelled ? 'Response cancelled.' : 'Response stream ended early.';
+      }
       latest = { ...latest, error: cancelled ? 'Response cancelled.' : error.message, steps: latest.steps || [] };
       if (activeAssistant) activeAssistant.article.classList.add('incomplete');
       if (cancelled) latest.steps.forEach(step=>{if(step.pending) step.status='Cancelled';});
@@ -794,9 +925,11 @@
       setState(cancelled ? 'Cancelled · partial response retained' : 'Run failed — revise and retry', 'error');
     } finally {
       submitting = false; activeController = null; activeRunId = null; stoppingRunId = null; activeAssistant = null;
+      streamingDiagnosticRun = null;
       send.disabled = false; send.hidden = false; q('#cancel').hidden = true; q('#cancel').disabled = true; provider.disabled = false; input.disabled = false; setProjectBusy(false);
       q('#cloud-settings').querySelectorAll('input, select, button').forEach(item => { item.disabled = false; });
-      drawProjectList(); refreshConversations(); updateModelPicker(); render(); input.focus();
+      drawProjectList(); refreshConversations(); updateModelPicker(); render();
+      if (!panel.contains(document.activeElement)) input.focus();
     }
   }
   q('#cancel').addEventListener('click', async () => {

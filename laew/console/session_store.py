@@ -77,6 +77,33 @@ def _redact_conversation_value(value):
     raise SessionStoreError("conversation event contains unsupported data")
 
 
+def _valid_turn_diagnostics(value):
+    if not isinstance(value, dict) or type(value.get("version")) is not int or value["version"] != 1:
+        return False
+    if any(not isinstance(value.get(key), list) or any(not isinstance(item, dict) for item in value[key])
+           for key in ("requests", "tools")):
+        return False
+    routing = value.get("routing")
+    if routing is None:
+        return True
+    if not isinstance(routing, dict) or not isinstance(routing.get("scopes"), list):
+        return False
+    recall = routing.get("memory_recall")
+    if recall is not None and (not isinstance(recall, dict) or not isinstance(recall.get("scopes"), list)
+                               or not isinstance(recall.get("ids", []), list)):
+        return False
+    for key in ("prefetch", "follow_up"):
+        if not isinstance(routing.get(key), list):
+            return False
+        for item in routing[key]:
+            if not isinstance(item, dict):
+                return False
+            fragments = item.get("fragments", [])
+            if not isinstance(fragments, list) or any(not isinstance(fragment, dict) for fragment in fragments):
+                return False
+    return True
+
+
 def _safe_provider_data(value):
     """Retain only Gemini continuation signatures, never raw transport payloads."""
     if not isinstance(value, dict) or not isinstance(value.get("scope"), str):
@@ -433,13 +460,29 @@ class SessionStore:
             if event.get("kind") != "run" or not event.get("run_id"):
                 continue
             if event["status"] in {"pending", "running"}:
-                running[event["run_id"]] = True
+                running[event["run_id"]] = event
             else:
                 running.pop(event["run_id"], None)
-        for run_id in running:
+        for run_id, event in running.items():
             self.append_conversation_event(conversation_id, {
                 "id": uuid.uuid4().hex, "kind": "run", "status": "failed", "run_id": run_id,
+                **({"diagnostics": event["diagnostics"]} if _valid_turn_diagnostics(event.get("diagnostics")) else {}),
+                **({"user_event_id": event["user_event_id"]} if "user_event_id" in event else {}),
                 "content": "Run interrupted; unfinished tool outcomes may be unknown."})
+
+    def checkpoint_turn(self, conversation_id, run_id, diagnostics):
+        if not _valid_turn_diagnostics(diagnostics):
+            raise SessionStoreError("invalid turn diagnostics")
+        with self._conversation_lock(conversation_id):
+            document = self.load_conversation(conversation_id)
+            for event in reversed(document["events"]):
+                if event["kind"] == "run" and event.get("run_id") == run_id:
+                    if event["status"] != "running":
+                        break
+                    event["diagnostics"] = _redact_conversation_value(diagnostics)
+                    self._write_conversation(document)
+                    return
+            raise SessionStoreError("diagnostic checkpoint requires a running turn")
 
     def append_conversation_event(self, conversation_id, event):
         if (not isinstance(event, dict) or not isinstance(event.get("id"), str)
@@ -448,6 +491,8 @@ class SessionStore:
                 or event.get("status") not in {"pending", "running", "completed", "failed", "cancelled", "denied"}
                 or not isinstance(event.get("content"), str) or "sequence" in event):
             raise SessionStoreError("invalid conversation event")
+        if "diagnostics" in event and (event["kind"] != "run" or not _valid_turn_diagnostics(event["diagnostics"])):
+            raise SessionStoreError("invalid turn diagnostics")
         event = _redact_conversation_value(event)
         with self._conversation_lock(conversation_id):
             document = self.load_conversation(conversation_id)

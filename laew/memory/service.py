@@ -33,13 +33,15 @@ class MemoryService:
         if not self.index_factory: raise RuntimeError('Semantic index is not configured.')
         return self.index_factory()
 
-    def recall(self, query, project_id=None):
+    def recall(self, query, project_id=None, *, diagnostics=None):
         settings=self.store.settings(project_id)
         if not settings['recall_enabled']:
+            if diagnostics is not None: diagnostics['skip_reason'] = 'recall_disabled'
             self.retrieval_mode='disabled'; return []
         with self.store.connection() as db:
             available=db.execute("SELECT 1 FROM memories WHERE status='active' AND (scope='user' OR (scope='project' AND project_id IS ?)) LIMIT 1",(project_id,)).fetchone()
         if not available:
+            if diagnostics is not None: diagnostics['candidates'] = 0
             self.retrieval_mode='empty'; return []
         rows=[]
         try:
@@ -59,13 +61,18 @@ class MemoryService:
         except Exception as exc:
             self.last_error=type(exc).__name__+': semantic retrieval unavailable'
             self.retrieval_mode='FTS5 fallback'
+            if diagnostics is not None: diagnostics['fallback_error_category'] = type(exc).__name__
         if self.retrieval_mode!='semantic' and settings['fallback_to_fts']:
             rows=self.store.fts(query,project_id)
+        if diagnostics is not None: diagnostics['candidates'] = len(rows)
         selected=[]
         for row in rows:
             # UTF-8 bytes give a conservative provider-independent estimate, including labels.
             estimate=len(self.context(selected+[row]).encode('utf8'))
-            if estimate > settings['token_budget']: continue
+            if estimate > settings['token_budget']:
+                if diagnostics is not None:
+                    diagnostics['budget_omitted'] = diagnostics.get('budget_omitted', 0) + 1
+                continue
             selected.append(row)
             if len(selected)>=settings['max_memories']: break
         return selected

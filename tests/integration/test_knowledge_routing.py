@@ -272,3 +272,104 @@ def test_combined_memory_and_global_context_are_separate_and_bounded(isolated_ru
     assert len(context) <= 2000
     assert turn.diagnostics["prefetch"][0]["chunks"] == 1
     assert turn.diagnostics["memory"] == "fts"
+
+
+def test_four_diagnostic_turns_remain_inspectable_after_restart(isolated_runtime, tmp_path, monkeypatch):
+    import json
+    from laew.console.session_store import SessionStore
+    from laew.llm.cancellation import Cancellation
+    from laew.runtime import build_shared_tools
+
+    fixture = isolated_runtime
+    rag = fixture.build()
+    tools = build_shared_tools(manifest={}, general=True, projects_root=fixture.active.parent,
+                               knowledge_root=fixture.vault, rag_embedding_service=fixture.embedding)
+    filesystem = next(tool for tool in tools if tool.name == "FilesystemTool")
+    private_memory = {"id": "memory-1", "scope": "user", "content": "PRIVATE-MEMORY-TEXT"}
+    worker = SimpleNamespace(request=lambda: None)
+    enrollment = {"baseline": lambda _: None, "enqueue": lambda *_: None}
+    memory = SimpleNamespace(retrieval_mode="FTS5", recall=lambda *args: [private_memory],
+                             context=lambda rows: rows[0]["content"], **enrollment)
+    replies = iter([
+        RuntimeError("Temporary provider failure"),
+        "Incremental indexing reply",
+        '```tool_call\n{"tool":"FilesystemTool","operation":"view_file","args":{"file_path":"@knowledge/missing.md"}}\n```',
+        '```tool_call\n{"tool":"FilesystemTool","operation":"view_file","args":{"file_path":"@knowledge/fixture.md"}}\n```',
+        "Limitations reply",
+        '```tool_call\n{"tool":"RagTool","operation":"query","args":{"query":"missing evidence","scope":"global"}}\n```',
+        "No benchmarks reply",
+        "Interests reply",
+    ])
+    provider = ObservingProvider("")
+    def generate(messages, **kwargs):
+        reply = next(replies)
+        if isinstance(reply, Exception):
+            raise reply
+        return LLMResponse(content=reply, model="fixture")
+    monkeypatch.setattr(provider, "generate", generate)
+    store = SessionStore(tmp_path / "sessions")
+    service = WorkspaceService(tmp_path / "manifest", projects_root=fixture.active.parent, workspace_root=tmp_path)
+    service._conversation_store = store
+    service._agent = Agent(AgentConfig(), provider=provider, tools=[rag, filesystem])
+    service._agent.config.retry.backoff_base_ms = 0
+    service._executor = AgentExecutor(service._agent)
+    service._permissions = PermissionBroker(None)
+    monkeypatch.setattr(service, "_ensure_runtime", lambda *args: None)
+    monkeypatch.setattr(service, "_activate_session", lambda *args: None)
+    monkeypatch.setattr(service, "memory", lambda: memory)
+    monkeypatch.setattr(service, "knowledge", lambda: SimpleNamespace(**enrollment))
+    monkeypatch.setattr(service, "knowledge_selection", lambda *_: {})
+    monkeypatch.setattr(service, "memory_selection", lambda: {})
+    service._knowledge_worker = service._memory_worker = worker
+    chat = store.create_conversation("general", None)
+    streamed = {}
+    for prompt in ("Explain the incremental indexing strategy documented in Global Knowledge.",
+                   "What are the limitations of that approach?",
+                   "Do we have concrete performance benchmarks for this approach?",
+                   "What are my interests?"):
+        events = []
+        service.stream_chat(prompt, "manifest", None, events.append, conversation_id=chat["id"])
+        assert events[-1]["type"] == "done"
+        assert len({e["run_id"] for e in events}) == 1
+        streamed[events[-1]["run_id"]] = events[-1]["diagnostics"]
+        assert all("PRIVATE-MEMORY-TEXT" not in str(event) for event in events)
+
+    cancelled_chat = store.create_conversation("general", None)
+    cancellation = Cancellation()
+    def cancel_after_prefetch(event):
+        routing = event.get("diagnostics", {}).get("routing") or {}
+        if any(search["status"] == "found" for search in routing.get("prefetch", [])):
+            cancellation.cancel()
+    service.stream_chat(EXPLICIT, "manifest", None, cancel_after_prefetch,
+                        cancellation=cancellation, conversation_id=cancelled_chat["id"])
+    cancelled = store.load_conversation(cancelled_chat["id"])["events"][-1]
+    assert cancelled["status"] == "cancelled" and cancelled["assistant_event_id"] is None
+    assert cancelled["diagnostics"]["routing"]["prefetch"][0]["supplied"] == 0
+    assert cancelled["diagnostics"]["requests"] == []
+
+    monkeypatch.setattr("laew.knowledge.routing.route_sources", lambda *a, **k: pytest.fail("Historical routing replay"))
+    restarted = WorkspaceService(tmp_path / "manifest", projects_root=fixture.active.parent, workspace_root=tmp_path)
+    restarted._conversation_store = SessionStore(tmp_path / "sessions")
+    events = restarted.read_conversation(chat["id"], None)["events"]
+    completed = [e for e in events if e["kind"] == "run" and e["status"] == "completed"]
+    assert len(completed) == 4
+    for run in completed:
+        assert run["diagnostics"] == streamed[run["run_id"]]
+        assert any(e["id"] == run["assistant_event_id"] and e["run_id"] == run["run_id"] for e in events)
+        diagnostic_json = json.dumps(run["diagnostics"])
+        assert not any(private in diagnostic_json for private in
+                       ("PRIVATE-MEMORY-TEXT", "GLOBAL-7319", "missing evidence", "Interests reply"))
+    first, second, third, fourth = (run["diagnostics"] for run in completed)
+    prefetch = first["routing"]["prefetch"][0]
+    assert prefetch["status"] == "found" and prefetch["supplied"] == 1
+    assert prefetch["fragments"][0]["path"] == "@knowledge/fixture.md"
+    assert [(r["iteration"], r["attempt"], r["status"]) for r in first["requests"]] == [
+        (1, 1, "failed"), (1, 2, "completed")]
+    assert second["routing"]["prefetch"] == []
+    assert [tool["status"] for tool in second["tools"]] == ["failed", "completed"]
+    assert all(tool["tool"] == "FilesystemTool" and tool["supplied"] for tool in second["tools"])
+    assert [item["tool_results"] for item in second["requests"]] == [0, 1, 2]
+    follow_up = third["routing"]["follow_up"][0]
+    assert follow_up["status"] == "empty" and follow_up["call_id"] == third["tools"][0]["call_id"]
+    assert fourth["routing"]["memory_recall"]["ids"] == ["memory-1"]
+    assert fourth["routing"]["memory_recall"]["supplied"] == 1 and fourth["tools"] == []

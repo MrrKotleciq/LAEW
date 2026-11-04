@@ -409,6 +409,27 @@ class WorkspaceService:
             raise SessionStoreError("Project is unavailable.")
         return self.conversation_store().create_conversation(scope, project_id)
 
+    def read_conversation(self, conversation_id, project_id):
+        from laew.console.session_store import SessionStoreError, _valid_turn_diagnostics
+        store = self.conversation_store()
+        conversation = store.load_conversation(conversation_id)
+        if (project_id != self._active_project_id or project_id != conversation["project_id"]
+                or (project_id is not None and project_id not in self._discover_projects())):
+            raise PermissionError("Conversation scope does not match the active scope.")
+        if any(event["kind"] == "run" and event["status"] == "running"
+               for event in {e.get("run_id"): e for e in conversation["events"] if e["kind"] == "run"}.values()):
+            try:
+                with store.conversation_run(conversation_id):
+                    store.recover_interrupted_runs(conversation_id)
+                    conversation = store.load_conversation(conversation_id)
+            except SessionStoreError as exc:
+                if str(exc) != "conversation is busy":
+                    raise
+        for event in conversation["events"]:
+            if "diagnostics" in event and not _valid_turn_diagnostics(event["diagnostics"]):
+                event.pop("diagnostics")
+        return conversation
+
     def _sync_base(self, project_root=None):
         root = Path(project_root).resolve() if project_root is not None else None
         with self._sync_lock:
@@ -790,7 +811,7 @@ class WorkspaceService:
         if conversation_id is None:
             return self._stream_chat(message, selection, expected_project_id, emit, session_id,
                                      cancellation, model, account_id)
-        from laew.console.session_store import SessionStoreError
+        from laew.console.session_store import SessionStoreError, _redact_conversation_value
         if not isinstance(message, str) or not message.strip():
             emit({"type": "error", "error": "A non-empty message is required."})
             return
@@ -809,23 +830,40 @@ class WorkspaceService:
                 store.recover_interrupted_runs(conversation_id)
                 history = store.conversation_messages(conversation_id)
                 run_id = uuid.uuid4().hex
+                user_event_id = uuid.uuid4().hex
                 def persist(event):
                     store.append_conversation_event(conversation_id, {**event, "run_id": run_id})
-                persist({"id": uuid.uuid4().hex, "kind": "run", "status": "running", "content": ""})
+                persist({"id": uuid.uuid4().hex, "kind": "run", "status": "running", "content": "",
+                         "user_event_id": user_event_id})
                 from laew.llm.base import LLMMessage, MessageRole
                 user_message = LLMMessage(MessageRole.USER, message.strip())
-                user_event_id=uuid.uuid4().hex
                 persist({"id": user_event_id, "kind": "user", "status": "completed",
                          "content": user_message.content, "message": user_message.to_dict()})
                 first_user = {"pending": True}
+                assistant_event_id = None
                 def persist_agent_event(event):
+                    nonlocal assistant_event_id
                     if first_user["pending"] and event.get("kind") == "user" and not event.get("generated"):
                         first_user["pending"] = False
                         return
                     persist(event)
+                    if event.get("kind") == "assistant":
+                        assistant_event_id = event["id"]
                 state = {"status": "failed", "finalized": False}
+                diagnostics = {"version": 1, "routing": None, "requests": [], "tools": []}
+                checkpointed = False
+                def capture(phase, snapshot):
+                    nonlocal diagnostics, checkpointed
+                    diagnostics = _redact_conversation_value(snapshot)
+                    if phase == "provider_request" and not checkpointed:
+                        store.checkpoint_turn(conversation_id, run_id, diagnostics)
+                        checkpointed = True
+                    if phase != "provider_dispatch":
+                        send({"type": "diagnostics", "phase": phase, "diagnostics": diagnostics})
                 def finalize(status, reason=""):
-                    persist({"id": uuid.uuid4().hex, "kind": "run", "status": status, "content": reason})
+                    persist({"id": uuid.uuid4().hex, "kind": "run", "status": status, "content": reason,
+                             "user_event_id": user_event_id, "diagnostics": diagnostics,
+                             "assistant_event_id": assistant_event_id if status == "completed" else None})
                     state.update(status=status, finalized=True)
                 def send(event):
                     if event.get("type") == "done":
@@ -844,11 +882,16 @@ class WorkspaceService:
                             logging.getLogger(__name__).exception("Memory extraction could not be scheduled")
                     elif event.get("type") == "error":
                         finalize("cancelled" if cancellation and cancellation.is_set() else "failed", str(event.get("error") or "Run failed."))
-                    emit(event)
+                    emit({**event, "run_id": run_id, "conversation_id": conversation_id,
+                          **({"diagnostics": diagnostics, "run_status": state["status"]}
+                             if state["finalized"] else {})})
                 try:
+                    send({"type": "diagnostics", "phase": "starting", "diagnostics": diagnostics})
                     self._stream_chat(message, selection, expected_project_id, send, session_id,
                                       cancellation, model, account_id, conversation_id,
-                                      history, persist_agent_event, user_event_id)
+                                      history, persist_agent_event, user_event_id, capture)
+                except StreamCancelled:
+                    state["status"] = "cancelled"
                 finally:
                     if not state["finalized"]:
                         finalize("cancelled" if cancellation and cancellation.is_set() else state["status"])
@@ -869,6 +912,7 @@ class WorkspaceService:
         stored_history=None,
         on_event=None,
         source_event_id=None,
+        on_diagnostic=None,
     ) -> None:
         """Run the existing Chief Agent and emit newline-delimited events."""
         original_emit = emit
@@ -914,16 +958,29 @@ class WorkspaceService:
                 except Exception:
                     logging.getLogger(__name__).debug("Memory proposal tool unavailable")
                 from laew.knowledge.routing import KnowledgeTurn
+                def routing_event(diagnostics):
+                    if on_diagnostic is not None:
+                        on_diagnostic("context_preparation", turn.snapshot())
+                        if cancellation and cancellation.is_set():
+                            raise StreamCancelled()
+                    else:
+                        emit({"type": "routing", "routing": diagnostics})
                 turn = KnowledgeTurn(
                     lambda tool, op, args: self._call_tool_checked(tool, op, args, emit, session_id, cancellation),
-                    notify=lambda diagnostics: emit({"type": "routing", "routing": diagnostics}),
+                    notify=routing_event,
                 )
                 used_memories = turn.prepare(self._executor, message.strip(), self._active_project_id,
                                              self.memory, self._agent.tools.get("RagTool") if self._agent else None)
-                emit({"type": "memory", "memories": used_memories, "mode": turn.diagnostics["memory"]})
+                if on_diagnostic is None:
+                    emit({"type": "memory", "memories": used_memories, "mode": turn.diagnostics["memory"]})
                 run_options = {"cancellation": cancellation} if cancellation is not None else {}
                 if on_event is not None:
                     run_options["on_event"] = on_event
+                if on_diagnostic is not None:
+                    def observe(phase, details):
+                        turn.observe(phase, details)
+                        on_diagnostic(phase, turn.snapshot())
+                    run_options["on_diagnostic"] = observe
                 result = self._executor.run(
                     message.strip(), stream=True,
                     on_delta=lambda text: emit(
@@ -955,12 +1012,15 @@ class WorkspaceService:
             emit({
                 "type": "done", "response": result.final_response,
                 "provider": self._provider_name, "model": self._model,
-                "steps": steps, "routing": turn.diagnostics,
+                "steps": steps,
+                **({"routing": turn.diagnostics} if on_diagnostic is None else {}),
                 "usage": {"prompt_tokens": result.prompt_tokens,
                           "completion_tokens": result.completion_tokens,
                           "total_tokens": result.total_tokens},
             })
         except StreamCancelled:
+            if on_diagnostic is not None:
+                raise
             return
         except (OSError, ManifestError, LLMError, RuntimeError, ValueError) as exc:
             self._error = str(exc)
@@ -1011,7 +1071,10 @@ def make_handler(service: WorkspaceService):
                         self._json(HTTPStatus.OK, {"conversations": store.list_conversations()})
                     else:
                         params = parse_qs(parsed.query)
-                        self._json(HTTPStatus.OK, store.load_conversation(params.get("id", [""])[0]))
+                        self._json(HTTPStatus.OK, service.read_conversation(
+                            params.get("id", [""])[0], params.get("project_id", [None])[0]))
+                except PermissionError as exc:
+                    self._json(HTTPStatus.FORBIDDEN, {"error": str(exc)})
                 except (SessionStoreError, OSError, ValueError) as exc:
                     self._json(HTTPStatus.BAD_REQUEST, {"error": str(exc)})
                 return
