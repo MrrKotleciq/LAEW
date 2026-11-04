@@ -422,8 +422,16 @@
     if (routing) {
       step('Knowledge Routing', 'completed', `${routing.routing_ms} ms`);
       step('Automatic Memory Recall', routing.memory_recall?.status);
-      for (const search of routing.prefetch) {
+      if (routing.escalation) {
+        step('Knowledge escalation', 'selected', routing.escalation.reason);
+      } else if (routing.escalation_skipped) {
+        step('Knowledge escalation', 'skipped', routing.escalation_skipped);
+      }
+      for (const search of routing.prefetch.filter(search => !search.after_order)) {
         step(`${sourceLabels[search.scope]} automatic prefetch`, search.status, search.error || '');
+      }
+      for (const hint of (routing.hints || []).filter(hint => !hint.after_order)) {
+        step('Retrieval hint', hint.supplied ? 'supplied' : 'generated', hintLabel(hint));
       }
     } else if (run?.status === 'running') {
       panelNote('Preparing context…');
@@ -435,6 +443,16 @@
         [tool.call_id && `Call ${tool.call_id}`, tool.elapsed_ms != null && `${tool.elapsed_ms} ms`,
           tool.error_category, tool.reused && 'Reused result', tool.supplied && 'Result supplied to adapter',
           tool.historical && 'From conversation history'].filter(Boolean).join(' · '));
+      if (tool.memory_recall?.escalation_skipped) {
+        step('Knowledge escalation after MemoryTool', 'skipped', tool.memory_recall.escalation_skipped);
+      }
+      for (const search of (routing?.prefetch || []).filter(search => search.after_order === tool.order)) {
+        step(`${sourceLabels[search.scope]} automatic fallback`, search.status,
+          [search.reason, search.error].filter(Boolean).join(' · '));
+      }
+      for (const hint of (routing?.hints || []).filter(hint => hint.after_order === tool.order)) {
+        step('Retrieval hint', hint.supplied ? 'supplied' : 'generated', hintLabel(hint));
+      }
     };
     for (const [index, request] of requests.entries()) {
       step(request.iteration > 1 ? 'Model request · resumed' : 'Model request', request.status,
@@ -464,16 +482,25 @@
     const scopes = recall.scopes?.length ? ` · Allowed scope: ${recall.scopes.join(', ')}` : '';
     panelNote(`${label} · ${recallStatus}${scopes}`);
     if (recall.reason) panelNote(recall.reason);
+    if (recall.invoked === false) panelNote('Recall service was not invoked.');
+    else if (recall.search_executed === false) panelNote('Recall did not reach a search backend.');
+    else if (recall.search_executed === true) panelNote('Recall queried a search backend.');
     if (recall.candidates != null) panelNote(`${recall.candidates} candidates`);
     if (recall.selected != null) panelNote(`${recall.selected} selected · ${recall.supplied} supplied to provider adapter`);
     if (recall.elapsed_ms != null) panelNote(`${recall.elapsed_ms} ms`);
     if (recall.estimated_context_size != null) panelNote(`${recall.estimated_context_size} estimated tokens`);
     if (recall.budget_omitted) panelNote(`${recall.budget_omitted} omitted for budget`);
+    if (recall.duplicates_omitted) panelNote(`${recall.duplicates_omitted} duplicate(s) omitted`);
     if (recall.error_category) panelNote(recall.error_category);
     if (recall.fallback_error_category) panelNote(`Semantic recall fallback · ${recall.fallback_error_category}`);
     if (recall.fallback_reason) panelNote(`Semantic recall fallback · ${formatStatus(recall.fallback_reason)}`);
     if (recall.skip_reason && recall.skip_reason !== 'recall_disabled') panelNote(formatStatus(recall.skip_reason));
     if (recall.ids?.length) diagnosticDetails('Selected memory IDs', id).append(document.createTextNode(recall.ids.join(', ')));
+  }
+
+  function hintLabel(hint) {
+    const scopes = hint.scopes.map(scope => sourceLabels[scope]).join(', ');
+    return `${formatStatus(hint.kind)} evidence${scopes ? ` · Optional search in ${scopes}` : ''}`;
   }
 
   function renderSources(run) {
@@ -485,9 +512,14 @@
     else if (!routing) panelNote(run.status === 'running' ? 'Preparing context…' : 'Routing was not recorded.');
     else {
       const selected = [...(routing.memory_requested ? ['Long-Term Memory'] : []),
-        ...routing.scopes.map(scope => sourceLabels[scope])];
-      panelNote(`Selected: ${selected.join(', ') || 'None'}`);
+        ...(routing.initial_scopes || routing.scopes).map(scope => sourceLabels[scope])];
+      panelNote(`${routing.initial_scopes ? 'Initially selected' : 'Selected'}: ${selected.join(', ') || 'None'}`);
       panelNote(routing.reason);
+      if (routing.topic_from_history) panelNote('Search used the recent conversation topic.');
+      if (routing.rag_disabled) panelNote('RAG excluded for this turn by the user.');
+      else if (routing.excluded_scopes?.length) {
+        panelNote(`Excluded by the user: ${routing.excluded_scopes.map(scope => sourceLabels[scope]).join(', ')}`);
+      }
       panelNote(`Routing: ${routing.routing_ms} ms`);
     }
 
@@ -495,12 +527,26 @@
     const recall = routing?.memory_recall;
     if (!recall) panelNote('No recorded Memory Recall data.');
     else renderMemoryRecall(recall, 'Automatic Memory Recall', 'memory-ids');
+    if (routing?.assessment) {
+      panelNote(`Assessment · ${formatStatus(routing.assessment.status)} · ${routing.assessment.reason}`);
+    }
+    if (routing?.escalation) {
+      panelNote(`Escalated to ${routing.escalation.scopes.map(scope => sourceLabels[scope]).join(', ')} · ${routing.escalation.reason}`);
+    } else if (routing?.escalation_skipped) {
+      panelNote(`Automatic fallback skipped · ${routing.escalation_skipped}`);
+    }
     for (const tool of diagnostics?.tools || []) {
       if (tool.tool === 'MemoryTool' && tool.operation === 'recall') {
         renderMemoryRecall(
           {status: tool.status, elapsed_ms: tool.elapsed_ms, ...tool.memory_recall},
           'Model-initiated MemoryTool recall', `memory-tool-${tool.order}`,
         );
+        if (tool.memory_recall?.assessment) {
+          panelNote(`Assessment · ${formatStatus(tool.memory_recall.assessment.status)} · ${tool.memory_recall.assessment.reason}`);
+        }
+        if (tool.memory_recall?.escalation_skipped) {
+          panelNote(`Automatic fallback skipped · ${tool.memory_recall.escalation_skipped}`);
+        }
       }
     }
 
@@ -519,7 +565,10 @@
       if (routing.scopes.includes(scope) && !prefetch.length) {
         panelNote(run.status === 'running' ? 'Automatic prefetch pending' : 'No automatic prefetch outcome recorded');
       }
-      prefetch.forEach((search, index) => renderSearch(search, 'Automatic prefetch', `prefetch-${scope}-${index}`));
+      prefetch.forEach((search, index) => {
+        renderSearch(search, search.after_order ? 'Automatic fallback after MemoryTool' : 'Automatic prefetch', `prefetch-${scope}-${index}`);
+        if (search.reason) panelNote(search.reason);
+      });
       routing.follow_up.filter(search => search.scope === scope)
         .forEach((search, index) => renderSearch(search, 'Model-initiated RagTool', `rag-${scope}-${index}`));
     }
@@ -537,6 +586,9 @@
     }
     if (recall?.selected != null) {
       panelNote(`Memory · ${recall.selected} selected${recall.prepared == null ? '' : ` · ${recall.prepared} prepared`} · ${recall.supplied} supplied to provider adapter`);
+    }
+    for (const hint of routing.hints || []) {
+      panelNote(`Retrieval hint · ${hintLabel(hint)} · ${hint.supplied ? 'supplied to provider adapter' : 'generated'}`);
     }
     for (const scope of (currentProjectId ? ['global', 'project'] : ['global'])) {
       for (const [label, searches] of [['automatic prefetch', routing.prefetch], ['RagTool', routing.follow_up]]) {
@@ -567,7 +619,7 @@
     if (search.candidates != null) panelNote(`${search.candidates} candidates`);
     if (search.chunks != null) panelNote(`${search.chunks} excerpts prepared · ${search.supplied ?? 0} supplied to provider adapter`);
     if (search.index_status) panelNote(`Index · ${formatStatus(search.index_status)}`);
-    if (search.search_executed === false) panelNote('Search did not reach the retrieval pipeline.');
+    if (search.search_executed === false && !search.reused) panelNote('Search did not reach the retrieval pipeline.');
     if (search.error) panelNote(search.error);
     if (search.call_id) panelNote(`Call ${search.call_id}`);
     if (search.reused) panelNote('Reused result.');

@@ -83,10 +83,36 @@ General Chat can use User Memory only. Project Chat can use User Memory and its
 own stable project ID. SQLite validates scope even after Chroma metadata filtering.
 No request automatically searches every project.
 
-The source router recognizes explicit recall and personal-context questions.
-A Memory-only correction can reuse the preceding user question as the search
-topic. Automatic recall runs before the first model request. The model can
-search again with `MemoryTool.recall` when it needs additional evidence.
+The turn router prepares evidence before the first provider request. References
+to existing personal or shared context can select Memory without a recognized
+subject category. Technical documentation can select RAG directly, and mixed
+requests can use both Knowledge scopes alongside Memory. If a Memory-first
+request has a specific search topic and no scheduled Knowledge search, it can
+fall back to one Global Knowledge prefetch within the turn's source restrictions.
+A request to check Memory can still fall back. A request to use Memory only
+excludes RAG.
+
+Fallback can follow an empty or unavailable recall, a weak lexical hit, a
+coverage gap, or a positive recall whose answer coverage is still unverified.
+An exact requested field with one explicit, non-conflicting value can avoid
+fallback. Topical overlap, similarity and narrative recall leave coverage
+unverified. When policy skips fallback, a hint can explain remaining gaps.
+The router adds no separate model call. Identical completed
+searches can reuse evidence already prepared for the turn. Focused searches can
+add new evidence and omit already included IDs or excerpts. An explicit Memory-only
+request blocks RagTool for that turn. Explicit Knowledge restrictions also apply
+to model-initiated retrieval.
+
+After a provider's tool batch completes, the same coverage policy evaluates
+new `MemoryTool.recall` results. One bounded Global fallback can run through
+the permission broker before the existing next provider request. An attempted
+Global search for the same normalized query prevents automatic repetition.
+The backend has one automatic Global search per turn.
+Supplemental excerpts and advisory hints are attached to turn-local context.
+
+A short follow-up or source correction can use the most recent topic in the
+existing conversation history. The scan is limited to 16 messages and 800
+characters of the topic. A new standalone question is routed on its own.
 
 Recall performs no LLM request. It uses the existing embedding service to
 query the Chroma collection without creating or modifying it, then validates

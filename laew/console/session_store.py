@@ -94,6 +94,15 @@ def _valid_turn_diagnostics(value):
         return True
     if not isinstance(routing, dict) or not isinstance(routing.get("scopes"), list):
         return False
+    hints = routing.get("hints", [])
+    if not isinstance(hints, list) or any(
+        not isinstance(hint, dict) or hint.get("kind") not in ("missing", "weak", "incomplete", "uncertain", "unavailable")
+        or not isinstance(hint.get("scopes"), list) or any(scope not in ("global", "project") for scope in hint["scopes"])
+        or type(hint.get("after_order")) is not int or hint["after_order"] < 0
+        or type(hint.get("supplied")) is not bool
+        for hint in hints
+    ):
+        return False
     recall = routing.get("memory_recall")
     if recall is not None and (not isinstance(recall, dict) or not isinstance(recall.get("scopes"), list)
                                or not isinstance(recall.get("ids", []), list)):

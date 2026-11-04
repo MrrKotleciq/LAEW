@@ -46,7 +46,7 @@ class MemoryService:
             return []
 
     def _recall(self, query, project_id, info):
-        info.update(candidates=0)
+        info.update(candidates=0, search_executed=False)
         settings=self.store.settings(project_id)
         if not settings['recall_enabled']:
             info.update(status='skipped', skip_reason='recall_disabled', mode='disabled')
@@ -64,7 +64,9 @@ class MemoryService:
         try:
             if settings['semantic_enabled']:
                 index=self.recall_index_factory()
-                result=index._collection.query(query_embeddings=[self.embedding_factory().embed(query)],n_results=20,
+                embedding = self.embedding_factory().embed(query)
+                info['search_executed'] = True
+                result=index._collection.query(query_embeddings=[embedding],n_results=20,
                     where={'$or':[{'scope':'user'},{'project_id':project_id}]} if project_id else {'scope':'user'},
                     include=['metadatas','distances'])
                 for key, meta, distance in zip(result['ids'][0],result['metadatas'][0],result['distances'][0]):
@@ -87,6 +89,7 @@ class MemoryService:
             info['fallback_reason'] = 'no_valid_semantic_matches'
         info['mode'] = mode
         if mode != 'semantic':
+            info['search_executed'] = True
             rows=self.store.fts(query,project_id)
         info['candidates'] = len(rows)
         selected=[]

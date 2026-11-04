@@ -800,7 +800,7 @@ class WorkspaceService:
                 turn.prepare(self._executor, message.strip(), self._active_project_id, self.memory,
                              self._agent.tools.get("RagTool") if self._agent else None)
                 result = self._executor.run(message.strip(), stream=False, on_tool_call=turn.call,
-                                            on_diagnostic=turn.observe)
+                                            on_diagnostic=turn.observe, on_tool_batch=turn.after_tools)
             steps = [
                 {"number": step.step_number, "tool": step.tool_name, "operation": step.operation, "call_id": step.call_id,
                  "success": None if step.tool_result is None else step.tool_result.success,
@@ -1015,6 +1015,7 @@ class WorkspaceService:
                         if step.tool_result and isinstance(step.tool_result.data, dict) else [],
                     }}),
                     on_tool_call=turn.call,
+                    on_tool_batch=turn.after_tools,
                     **run_options,
                 )
             steps = [

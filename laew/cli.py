@@ -648,7 +648,7 @@ def cmd_chat(args) -> int:
                     print(f"[RAG] {search['scope']}: {search['status']} ({search['chunks']} fragments)")
                     if search["scope"] in turn.prefetch_errors:
                         print(f"[RAG] {turn.prefetch_errors[search['scope']]}")
-            run_options = {"on_tool_call": turn.call, "on_diagnostic": turn.observe}
+            run_options = {"on_tool_call": turn.call, "on_diagnostic": turn.observe, "on_tool_batch": turn.after_tools}
             if conversation_store is None:
                 prepare()
                 result = executor.run(user_input, stream=not args.no_stream, **run_options)
@@ -697,6 +697,7 @@ def cmd_chat(args) -> int:
                             prepare()
                             result = executor.run(user_input, stream=not args.no_stream,
                                                   on_event=persist_agent_event, on_tool_call=turn.call,
+                                                  on_tool_batch=turn.after_tools,
                                                   on_diagnostic=observe)
                             state = "completed" if result.success else "failed"
                             reason = "" if result.success else (result.error or "Run failed.")
