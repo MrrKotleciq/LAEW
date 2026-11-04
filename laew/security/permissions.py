@@ -32,7 +32,8 @@ class PermissionBroker:
                     (self.project_root is not None or tool.project_id is None) else 'denied')
         from laew.memory.tool import MemoryTool
         if isinstance(tool, MemoryTool):
-            return "safe" if operation == "propose" and (self.project_root is not None or tool.project_id is None) else "denied"
+            return "safe" if operation in ("propose", "recall") and (
+                self.project_root is not None or tool.project_id is None) else "denied"
         if self.project_root is None:
             if isinstance(tool, FilesystemTool):
                 if tool.resolver.project_root is not None:

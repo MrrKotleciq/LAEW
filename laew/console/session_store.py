@@ -83,6 +83,12 @@ def _valid_turn_diagnostics(value):
     if any(not isinstance(value.get(key), list) or any(not isinstance(item, dict) for item in value[key])
            for key in ("requests", "tools")):
         return False
+    for tool in value["tools"]:
+        recall = tool.get("memory_recall")
+        if recall is not None and (not isinstance(recall, dict)
+                                   or not isinstance(recall.get("scopes", []), list)
+                                   or not isinstance(recall.get("ids", []), list)):
+            return False
     routing = value.get("routing")
     if routing is None:
         return True

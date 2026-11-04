@@ -229,7 +229,7 @@ def test_chat_stream_emits_delta_before_generation_finishes(tmp_path):
     continue_generation = threading.Event()
 
     class FakeExecutor:
-        def run(self, prompt, *, stream, on_delta, on_step, on_tool_call):
+        def run(self, prompt, *, stream, on_delta, on_step, on_tool_call, on_diagnostic):
             assert stream is True
             on_delta("Partial answer")
             generation_started.set()

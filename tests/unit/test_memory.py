@@ -288,3 +288,44 @@ def test_extraction_cannot_overwrite_a_target_changed_during_model_call(tmp_path
     assert not service.process_extraction(SimpleNamespace(load_conversation=lambda key:conversation(5)),lambda selection:(SimpleNamespace(generate=generate),'test'))
     assert store.get(original['id'])['content']=='I prefer C++'
     assert not service.proposals()
+def test_recall_tool_validates_scope_status_and_fallback(tmp_path):
+    from types import SimpleNamespace
+    from laew.memory.tool import MemoryTool
+    from laew.security.permissions import PermissionBroker
+
+    store = MemoryStore(tmp_path / "memory.db")
+    user = store.remember("Edinburgh travel preference", category="goal")
+    own = store.remember("Edinburgh plan for this project", "project", "current", "goal")
+    other = store.remember("Edinburgh confidential destination", "project", "other", "goal")
+    deleted = store.remember("Edinburgh deleted memory", category="goal")
+    store.delete(deleted["id"], deleted["version"])
+    # A semantic response containing stale and out-of-scope hits must trigger the lexical fallback.
+    collection = SimpleNamespace(query=lambda **_: {
+        "ids": [[deleted["id"], other["id"]]], "metadatas": [[{"version": 1}, {"version": 1}]],
+        "distances": [[0.1, 0.2]],
+    })
+    service = MemoryService(store, index_factory=lambda: SimpleNamespace(_collection=collection),
+                            embedding_factory=lambda: SimpleNamespace(embed=lambda _: [1.]))
+    pending = service.create_proposal("Edinburgh pending proposal", category="goal")
+    rejected = service.create_proposal("Edinburgh rejected proposal", category="goal")
+    service.decide(rejected, False)
+    general = PermissionBroker(None, "restricted")
+    project = PermissionBroker(tmp_path, "restricted")
+    user_tool = MemoryTool(service)
+    project_tool = MemoryTool(service, "current")
+    assert not general.call(project_tool, "recall", {"query": "Edinburgh"}, None).success
+    assert not project.call(project_tool, "recall", {"query": "Edinburgh", "project_id": "other"}, None).success
+    for query in ("", " " * 10, "x" * 1001, 123):
+        assert not user_tool.call("recall", query=query).success
+    for broker, tool, expected in [(general, user_tool, {user["id"]}),
+                                   (project, project_tool, {user["id"], own["id"]})]:
+        result = broker.call(tool, "recall", {"query": "Edinburgh"}, None)
+        assert result.success
+        assert {row["id"] for row in result.data["memories"]} == expected
+        assert result.data["recall"]["fallback_reason"] == "no_valid_semantic_matches"
+        assert pending not in str(result.data) and rejected not in str(result.data)
+    store.save_settings({"recall_enabled": False})
+    assert user_tool.call("recall", query="Edinburgh").error_code == "ERR_MEMORY_DISABLED"
+    store.save_settings({"recall_enabled": True})
+    result = user_tool.call("recall", query="pending")
+    assert result.success and result.data["status"] == "no_results" and not result.data["memories"]

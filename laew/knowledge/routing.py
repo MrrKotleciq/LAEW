@@ -6,6 +6,15 @@ from copy import deepcopy
 from dataclasses import dataclass
 
 from laew.rag.rag_tool import RagTool, RetrievalOptions, retrieval_options
+from laew.tools.base import ErrorCode, ToolResult
+
+
+MEMORY_SOURCE = r"(?:long term memory|memory|saved memor(?:y|ies)|pamieci(?: dlugoterminowej)?|pamiec(?: dlugoterminow\w*)?|wspomnieni\w*)"
+RAG_SOURCE = r"(?:(?:global|project) (?:knowledge|rag)|rag|knowledge)"
+MEMORY_SWITCH = (
+    rf"(?:a )?(?:nie (?:w |z )?{RAG_SOURCE} tylko (?:w |z )?{MEMORY_SOURCE}|"
+    rf"not (?:in |from )?{RAG_SOURCE} (?:but |only |use )*(?:in |from )?{MEMORY_SOURCE})"
+)
 
 
 def normalize(text):
@@ -23,6 +32,9 @@ class SourceRoute:
     scopes: tuple[str, ...]
     reason: str
     project_unavailable: bool = False
+    memory_reason: str = "No clear request for saved personal or project context."
+    memory_only: bool = False
+    source_correction: bool = False
 
 
 def route_sources(message: str, *, in_project: bool) -> SourceRoute:
@@ -44,6 +56,25 @@ def route_sources(message: str, *, in_project: bool) -> SourceRoute:
     personal_topic = matches(r"preferenc\w*|zainteresowan\w*|cele|umiejetnos\w*|"
                              r"preferences?|interests?|hobbies|goals|skills|previous decisions|wczesniejsz\w* decyzj\w*|"
                              r"what (?:do|did) i (?:like|prefer)|co lubie", text)
+    memory_only = matches(
+        rf"{MEMORY_SWITCH}|(?:only|exclusively|just|wylacznie|tylko) (?:in |w )?{MEMORY_SOURCE}|"
+        rf"{MEMORY_SOURCE} (?:only|exclusively)|(?:use|check|search) (?:my )?{MEMORY_SOURCE} (?:instead|without rag)",
+        text)
+    source_correction = bool(re.fullmatch(
+        rf"(?:{MEMORY_SWITCH}|(?:a |and |teraz )?(?:w|z|in|from) {MEMORY_SOURCE}|{MEMORY_SOURCE} instead)"
+        rf"(?: prosze| please)?(?: \?)?", text))
+    memory_only = memory_only or source_correction
+    explicit_memory = memory_only or matches(
+        rf"(?:check|search|look (?:in|through)|read|use|sprawdz\w*|przeszukaj\w*|odczytaj\w*|zajrzyj do|uzyj)"
+        rf" (?:in |w )?(?:my |your |the |moj\w* |swoj\w* )?{MEMORY_SOURCE}"
+        r"(?! (?:usage|allocation|leaks?|limits?|ram|komputera|operacyjna)\b)|"
+        r"przypomnij (?:sobie|mi)|what do you remember|what have you (?:saved|remembered)|"
+        r"co (?:o mnie pamietasz|pamietasz|zapamietal\w*|masz zapisan\w*)",
+        text)
+    personal_plans = matches(
+        r"(?:gdzie|dokad|kiedy|co) (?:chcial[ab]ym|chce|chcial[ea]m|zamierzam|planowal[ea]m|planuje)|"
+        r"(?:where|when|what) (?:did|do) i (?:want|plan|hope|intend)|my (?:future )?plans|moj\w* plan\w*",
+        text)
     environment = matches(r"sprzet\w*|srodowisk\w*|narzedz\w*|konfiguracj\w*|"
                           r"hardware|workstation|setup|environment|tooling|tools|configuration", text)
     technical = matches(r"retrieval|rag|ragtool|indeksow\w*|indexing|embedding\w*|chroma\w*|"
@@ -67,12 +98,15 @@ def route_sources(message: str, *, in_project: bool) -> SourceRoute:
     personal_environment = environment and (personal or matches(
         r"(?:do i|have i) (?:have|use|installed)|jaki\w* sprzet mam|jak\w* narzedzi\w* uzywam", text))
     profile = intent and ((education and first_person) or (personal_environment and not project_ref))
-    memory = profile or (personal and personal_topic) or matches(
-        r"co o mnie pamietasz|what do you remember about me", text)
+    memory = explicit_memory or profile or (personal and personal_topic) or (intent and personal_plans)
     if re.match(r"(?:translate|rewrite|proofread|przetlumacz|przeredaguj|popraw pisownie)\b", text) and not (
         global_ref or project_ref or both
     ):
         return SourceRoute(False, (), "The request is a text transformation.")
+    if memory_only:
+        reason = "The user requested Long-Term Memory only."
+        return SourceRoute(True, (), reason, memory_reason=reason, memory_only=True,
+                           source_correction=source_correction)
     global_scope = global_ref or both or profile or (intent and (vault_topic or (personal and environment)))
     if not project_ref and intent and (technical or recorded):
         global_scope = True
@@ -83,6 +117,8 @@ def route_sources(message: str, *, in_project: bool) -> SourceRoute:
     project_unavailable = requested_project and not in_project
     if project_unavailable:
         reason = "Project Knowledge is unavailable in General Chat."
+    elif explicit_memory:
+        reason = "The user asked to recall saved context."
     elif profile:
         reason = "The request asks for structured personal profile information."
     elif scopes:
@@ -92,7 +128,10 @@ def route_sources(message: str, *, in_project: bool) -> SourceRoute:
         reason = "The request concerns a personal fact or preference."
     else:
         reason = "No clear need for stored knowledge; RagTool remains available."
-    return SourceRoute(memory, scopes, reason, project_unavailable)
+    memory_reason = ("The user asked to recall saved context." if explicit_memory else
+                     "The request concerns a personal fact, plan or preference." if memory else
+                     "No clear request for saved personal or project context.")
+    return SourceRoute(memory, scopes, reason, project_unavailable, memory_reason)
 
 
 class KnowledgeTurn:
@@ -129,6 +168,8 @@ class KnowledgeTurn:
                     search["supplied"] = search["chunks"]
             for tool in self.tools:
                 tool["supplied"] = tool["order"] <= request["tool_results"]
+                if tool["supplied"] and "memory_recall" in tool:
+                    tool["memory_recall"]["supplied"] = tool["memory_recall"]["selected"]
             for search in self.diagnostics.get("follow_up", []):
                 if "chunks" in search and search.get("order", float("inf")) <= request["tool_results"]:
                     search["supplied"] = search["chunks"]
@@ -143,6 +184,13 @@ class KnowledgeTurn:
                 self.tools[-1].update(details)
             else:
                 self.tools.append(details)
+            if details["tool"] == "MemoryTool" and details["operation"] == "recall":
+                data = result.data if isinstance(result.data, dict) else {}
+                ids = [entry["id"] for entry in data.get("memories", [])]
+                self.tools[-1]["memory_recall"] = {
+                    "status": details["status"], "error_category": details["error_category"],
+                    **data.get("recall", {}), "ids": ids, "selected": len(ids), "supplied": 0,
+                }
             if details["tool"] == "RagTool":
                 recorded = self._rag_results.get(id(result))
                 if recorded is None:
@@ -177,7 +225,9 @@ class KnowledgeTurn:
                             "routing_ms": round((time.perf_counter() - started) * 1000, 2),
                             "project_unavailable": decision.project_unavailable,
                             "memory_requested": decision.memory,
+                            "memory_only": decision.memory_only,
                             "memory_recall": {"status": "selected" if decision.memory else "not_selected",
+                                              "reason": decision.memory_reason,
                                               "scopes": ["user", "project"] if project_id else ["user"]},
                             "memory": "skipped", "prefetch": [], "follow_up": []}
         self._prefetched.clear()
@@ -201,25 +251,48 @@ class KnowledgeTurn:
                 if memory is None:
                     raise RuntimeError("Memory service unavailable")
                 options = {"diagnostics": recall} if isinstance(memory, MemoryService) else {}
-                memories = memory.recall(message, project_id, **options)
+                query = message
+                if decision.source_correction:
+                    from laew.llm.base import MessageRole
+                    history = getattr(getattr(executor, "agent", None), "history", ())
+                    query = next((item.content for item in reversed(history)
+                                  if item.role == MessageRole.USER and item.content
+                                  and not item.content.startswith(("Tool '", "Stop repeating tools."))
+                                  and not route_sources(item.content, in_project=project_id is not None).source_correction),
+                                 message)
+                memories = memory.recall(query, project_id, **options)
                 executor.memory_context = memory.context(memories)
-                self.diagnostics["memory"] = memory.retrieval_mode
-                status = ("failed" if recall["status"] == "failed" else
-                          "completed" if memories else "skipped" if memory.retrieval_mode == "disabled"
-                          else "no_results")
+                mode = recall.get("mode", memory.retrieval_mode)
+                self.diagnostics["memory"] = mode
+                status = recall["status"]
+                if status == "started":
+                    status = "completed" if memories else "skipped" if mode == "disabled" else "no_results"
                 recall.update(status=status, selected=len(memories), supplied=0,
                               prepared=len(memories) if executor.memory_context else 0,
                               ids=[entry["id"] for entry in memories if isinstance(entry, dict) and "id" in entry],
                               estimated_context_size=(len(executor.memory_context) + 3) // 4)
             except Exception as exc:
                 memories = []
+                executor.memory_context = ""
                 self.diagnostics["memory"] = "unavailable"
                 recall.update(status="failed" if memory is not None else "unavailable",
                               error_category=type(exc).__name__)
+            recall.setdefault("selected", 0)
+            recall.setdefault("prepared", 0)
+            recall.setdefault("supplied", 0)
             recall["elapsed_ms"] = round((time.perf_counter() - started) * 1000, 1)
         self._emit()
 
         sections = [decision.reason] if decision.project_unavailable else []
+        if decision.memory_only:
+            sections.append("The user requested Long-Term Memory only. Use Memory evidence and do not search Knowledge for this turn.")
+        if decision.memory and not memories:
+            status = self.diagnostics["memory_recall"]["status"]
+            outcome = {"skipped": "is disabled for this conversation",
+                       "unavailable": "is unavailable",
+                       "failed": "failed",
+                       "no_results": "returned no matching evidence within the search and context limits"}[status]
+            sections.append(f"Automatic Memory Recall {outcome}. This does not establish what is stored in Long-Term Memory.")
         for scope in decision.scopes:
             label = "Global Knowledge" if scope == "global" else "Project Knowledge"
             if not isinstance(rag_tool, RagTool):
@@ -256,6 +329,8 @@ class KnowledgeTurn:
     def call(self, tool, operation, args):
         if not isinstance(tool, RagTool):
             return self._call_tool(tool, operation, args)
+        if self.diagnostics.get("memory_only"):
+            return ToolResult.error(ErrorCode.ERR_UNAUTHORIZED, "The user requested Long-Term Memory only for this turn.")
         started = time.perf_counter()
         options = RetrievalOptions(exclude_fragments=frozenset(self._prefetched))
         with retrieval_options(options):

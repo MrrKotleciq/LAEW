@@ -641,6 +641,9 @@ def cmd_chat(args) -> int:
             turn = KnowledgeTurn(lambda tool, op, kwargs: console_call(permission_broker, tool, op, kwargs, "cli-chat"))
             def prepare():
                 turn.prepare(executor, user_input, project_id, lambda: memory, agent.tools.get("RagTool"))
+                if turn.diagnostics["memory_requested"]:
+                    recall = turn.diagnostics["memory_recall"]
+                    print(f"[Memory] {recall.get('skip_reason', recall['status'])} ({recall['selected']} selected)")
                 for search in turn.diagnostics["prefetch"]:
                     print(f"[RAG] {search['scope']}: {search['status']} ({search['chunks']} fragments)")
                     if search["scope"] in turn.prefetch_errors:

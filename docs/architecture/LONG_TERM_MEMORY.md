@@ -15,8 +15,10 @@ read_when:
 `MemoryService` implements recall, proposals, approval, extraction, synchronization
 and recovery. `integration.py` composes the existing provider/embedding registry,
 ChromaVectorStore and one lifecycle-managed worker per application process.
-`MemoryTool` prepares immediate review proposals for explicit remember requests;
-it cannot approve them or access an arbitrary project.
+`MemoryTool.propose` prepares review proposals for explicit remember requests.
+`MemoryTool.recall` accepts only a focused search string and returns bounded
+active evidence with stable IDs. The runtime binds the tool to the active
+conversation and the permission broker enforces the allowed scope.
 
 The canonical taxonomy is defined in `laew/memory/categories.py`: `preference`,
 `education`, `interest`, `skill`, `goal`, `decision`, `constraint`, `fact`.
@@ -81,15 +83,24 @@ General Chat can use User Memory only. Project Chat can use User Memory and its
 own stable project ID. SQLite validates scope even after Chroma metadata filtering.
 No request automatically searches every project.
 
-Recall performs no LLM request. It uses the existing embedding service for semantic
-search, then validates canonical status and exact indexed version. On semantic
-failure it uses scoped FTS5 when enabled. Empty stores avoid embedding requests.
+The source router recognizes explicit recall and personal-context questions.
+A Memory-only correction can reuse the preceding user question as the search
+topic. Automatic recall runs before the first model request. The model can
+search again with `MemoryTool.recall` when it needs additional evidence.
+
+Recall performs no LLM request. It uses the existing embedding service to
+query the Chroma collection without creating or modifying it, then validates
+canonical status and the indexed version. If semantic retrieval fails or finds
+no valid hits, scoped FTS5 runs when enabled. FTS5 matches lexical terms and an
+empty result does not establish what exists in SQLite. Empty stores avoid
+embedding requests.
 Results are capped by count and by a conservative UTF-8-byte token upper-bound
 estimate of the entire generated memory block, including its labels and IDs.
 This deliberately underuses some providers' token budgets rather than exceeding
-them. Only selected memories are placed in a clearly marked system-context block;
-they are never appended to persistent user history. Current user statements take
-precedence, and the model is told that memories may be incomplete or outdated.
+them. Selected automatic memories are placed in a labeled system-context block.
+Explicit recall sends its result to the current tool loop. The conversation
+records the tool outcome and diagnostic IDs without replaying stored evidence
+as tool content on future turns. Current user statements take precedence.
 Workbench Sources receives recall status, counts and selected IDs in the turn's
 diagnostic snapshot. The snapshot omits memory contents. It records the number
 supplied to the provider adapter when dispatch begins. Reopening a transcript

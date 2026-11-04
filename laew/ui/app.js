@@ -455,6 +455,27 @@
     }
   }
 
+  function renderMemoryRecall(recall, label, id) {
+    const recallStatus = recall.skip_reason === 'recall_disabled' ? 'Memory Recall disabled' : ({
+      no_results: recall.budget_omitted ? 'Matching memories exceeded the context budget' : 'No matching active memories returned',
+      failed: 'Memory Recall failed', unavailable: 'Memory Recall unavailable',
+      not_selected: 'Memory Recall not selected',
+    }[recall.status] || formatStatus(recall.status));
+    const scopes = recall.scopes?.length ? ` · Allowed scope: ${recall.scopes.join(', ')}` : '';
+    panelNote(`${label} · ${recallStatus}${scopes}`);
+    if (recall.reason) panelNote(recall.reason);
+    if (recall.candidates != null) panelNote(`${recall.candidates} candidates`);
+    if (recall.selected != null) panelNote(`${recall.selected} selected · ${recall.supplied} supplied to provider adapter`);
+    if (recall.elapsed_ms != null) panelNote(`${recall.elapsed_ms} ms`);
+    if (recall.estimated_context_size != null) panelNote(`${recall.estimated_context_size} estimated tokens`);
+    if (recall.budget_omitted) panelNote(`${recall.budget_omitted} omitted for budget`);
+    if (recall.error_category) panelNote(recall.error_category);
+    if (recall.fallback_error_category) panelNote(`Semantic recall fallback · ${recall.fallback_error_category}`);
+    if (recall.fallback_reason) panelNote(`Semantic recall fallback · ${formatStatus(recall.fallback_reason)}`);
+    if (recall.skip_reason && recall.skip_reason !== 'recall_disabled') panelNote(formatStatus(recall.skip_reason));
+    if (recall.ids?.length) diagnosticDetails('Selected memory IDs', id).append(document.createTextNode(recall.ids.join(', ')));
+  }
+
   function renderSources(run) {
     const diagnostics = run?.diagnostics;
     const routing = diagnostics?.routing;
@@ -473,22 +494,14 @@
     panelHeading('Long-Term Memory');
     const recall = routing?.memory_recall;
     if (!recall) panelNote('No recorded Memory Recall data.');
-    else {
-      const recallStatus = recall.skip_reason === 'recall_disabled' ? 'Memory Recall disabled' : ({
-        no_results: recall.budget_omitted ? 'Matching memories exceeded the context budget' : 'No matching memories',
-        failed: 'Memory Recall failed', unavailable: 'Memory Recall unavailable',
-        not_selected: 'Memory Recall not selected',
-      }[recall.status] || formatStatus(recall.status));
-      panelNote(`Automatic Memory Recall · ${recallStatus} · Allowed scope: ${recall.scopes.join(', ')}`);
-      if (recall.candidates != null) panelNote(`${recall.candidates} candidates`);
-      if (recall.selected != null) panelNote(`${recall.selected} selected · ${recall.supplied} supplied to provider adapter`);
-      if (recall.elapsed_ms != null) panelNote(`${recall.elapsed_ms} ms`);
-      if (recall.estimated_context_size != null) panelNote(`${recall.estimated_context_size} estimated tokens`);
-      if (recall.budget_omitted) panelNote(`${recall.budget_omitted} omitted for budget`);
-      if (recall.error_category) panelNote(recall.error_category);
-      if (recall.fallback_error_category) panelNote(`Semantic recall fallback · ${recall.fallback_error_category}`);
-      if (recall.skip_reason && recall.skip_reason !== 'recall_disabled') panelNote(formatStatus(recall.skip_reason));
-      if (recall.ids?.length) diagnosticDetails('Selected memory IDs', 'memory-ids').append(document.createTextNode(recall.ids.join(', ')));
+    else renderMemoryRecall(recall, 'Automatic Memory Recall', 'memory-ids');
+    for (const tool of diagnostics?.tools || []) {
+      if (tool.tool === 'MemoryTool' && tool.operation === 'recall') {
+        renderMemoryRecall(
+          {status: tool.status, elapsed_ms: tool.elapsed_ms, ...tool.memory_recall},
+          'Model-initiated MemoryTool recall', `memory-tool-${tool.order}`,
+        );
+      }
     }
 
     for (const scope of ['global', 'project']) {

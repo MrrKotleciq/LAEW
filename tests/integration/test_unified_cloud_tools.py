@@ -114,6 +114,50 @@ def filesystem(tmp_path):
 
 
 @pytest.mark.parametrize("provider", ["openai-api", "chatgpt", "gemini"])
+def test_native_memory_recall_contract_and_continuation(tmp_path, monkeypatch, provider):
+    from laew.knowledge.routing import KnowledgeTurn
+    from laew.memory.service import MemoryService
+    from laew.memory.store import MemoryStore
+    from laew.memory.tool import MemoryTool
+
+    store = MemoryStore(tmp_path / "memory.db")
+    store.save_settings({"semantic_enabled": False})
+    initial = store.remember("I like hobbies such as stargazing.", category="interest")
+    targeted = store.remember("Edinburgh is the next destination.", category="goal")
+    memory = MemoryService(store)
+    tool = MemoryTool(memory)
+    calls = [("recall", "MemoryTool__recall", '{"query":"Edinburgh"}')]
+    instance, session, model = adapter(monkeypatch, provider, [
+        Response(frames(provider, calls)), Response(frames(provider, text="Fixture reply")),
+    ])
+    executor = AgentExecutor(Agent(AgentConfig(model=model), provider=instance, tools=[tool]))
+    broker = PermissionBroker(None)
+    turn = KnowledgeTurn(lambda t, op, args: broker.call(t, op, args, None))
+    # Start with a general recall; the targeted term occurs only in the function call.
+    message = "What are my hobbies?"
+    turn.prepare(executor, message, None, lambda: memory, None)
+    result = executor.run(message, on_tool_call=turn.call, on_diagnostic=turn.observe)
+    assert result.success and len(session.calls) == 2
+    first = session.calls[0][2]["json"]
+    definitions = first["tools"]
+    if provider == "chatgpt":
+        definitions = definitions[0]["tools"]
+    elif provider == "gemini":
+        definitions = [item["function"] for item in definitions]
+    definition = next(item for item in definitions if item["name"] == "MemoryTool__recall")
+    assert definition["parameters"]["required"] == ["query"]
+    assert set(definition["parameters"]["properties"]) == {"query"}
+    assert definition["parameters"]["additionalProperties"] is False
+    assert initial["id"] in json.dumps(first)
+    assert targeted["id"] in json.dumps(session.calls[1][2]["json"])
+    assert targeted["content"] not in str(executor.agent.history)
+    operation, = turn.snapshot()["tools"]
+    assert operation["operation"] == "recall"
+    assert operation["memory_recall"]["ids"] == [targeted["id"]]
+    assert operation["memory_recall"]["supplied"] == 1
+
+
+@pytest.mark.parametrize("provider", ["openai-api", "chatgpt", "gemini"])
 def test_native_multiple_calls_continuation_and_shared_rag(tmp_path, monkeypatch, provider):
     project, vault, fs = filesystem(tmp_path)
     class Embedding:

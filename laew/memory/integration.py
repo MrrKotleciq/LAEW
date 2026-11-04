@@ -27,11 +27,11 @@ def build_memory(manifest, manifest_path):
         return embedding
     config=manifest.get('rag',{}).get('vector_store',{})
     collection_name=('laew_ltm_'+hashlib.sha256(str(path.resolve()).encode()).hexdigest()[:16]) if os.environ.get('LAEW_MEMORY_STORAGE') else 'laew_long_term_memory'
-    def index():
+    def index(*, read_only=False):
         if not config.get('enabled'): raise RuntimeError('ChromaDB is disabled in the manifest.')
         return ChromaVectorStore(host=config.get('host','localhost'),port=int(config.get('port',8000)),
             timeout=min(int(config.get('timeout',30)),5),collection_name=collection_name,source='memory',
-            embedding_model_id=embedding_model_identity(embed()))
+            embedding_model_id=embedding_model_identity(embed()),read_only=read_only)
     def reset_index():
         import chromadb
         from laew.rag.vector_store import _build_chroma_client
@@ -40,7 +40,8 @@ def build_memory(manifest, manifest_path):
         try: client.delete_collection(collection_name)
         except chromadb.errors.NotFoundError: pass
         return index()
-    return MemoryService(store,index_factory=index,embedding_factory=embed,reset_index_factory=reset_index)
+    return MemoryService(store,index_factory=index,embedding_factory=embed,reset_index_factory=reset_index,
+                         recall_index_factory=lambda: index(read_only=True))
 
 
 def extraction_provider(manifest, selection, cloud=None):

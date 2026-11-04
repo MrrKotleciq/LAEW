@@ -771,6 +771,20 @@ class WorkspaceService:
                         "project_path": current["path"] if current else None, "projects_root": str(self.projects_root),
                         "knowledge_root": str(self.knowledge_root), "error": self._error}
 
+    def _register_memory_tool(self, conversation_id=None, source_event_id=None):
+        from laew.memory.tool import MemoryTool
+        if self._agent is None:
+            return
+        self._agent.tools.pop("MemoryTool", None)
+        self._executor._system_prompt_cache = None
+        try:
+            memory = self.memory()
+            if memory is not None:
+                self._agent.register_tool(MemoryTool(memory, self._active_project_id,
+                                                     conversation_id, source_event_id))
+        except Exception:
+            logging.getLogger(__name__).debug("Memory tool unavailable")
+
     def chat(self, message: str, selection: object = "manifest", expected_project_id: object = _UNSPECIFIED_SCOPE) -> tuple[int, dict[str, Any]]:
         if not isinstance(message, str) or not message.strip():
             return HTTPStatus.UNPROCESSABLE_ENTITY, {"error": "A non-empty message is required."}
@@ -780,11 +794,13 @@ class WorkspaceService:
                     return HTTPStatus.CONFLICT, {"error": "The active project changed before this message started. Review the selected project and retry."}
                 self._ensure_runtime(selection)
                 assert self._executor is not None
+                self._register_memory_tool()
                 from laew.knowledge.routing import KnowledgeTurn
                 turn = KnowledgeTurn(lambda tool, op, args: self._call_tool(tool, op, args, None))
                 turn.prepare(self._executor, message.strip(), self._active_project_id, self.memory,
                              self._agent.tools.get("RagTool") if self._agent else None)
-                result = self._executor.run(message.strip(), stream=False, on_tool_call=turn.call)
+                result = self._executor.run(message.strip(), stream=False, on_tool_call=turn.call,
+                                            on_diagnostic=turn.observe)
             steps = [
                 {"number": step.step_number, "tool": step.tool_name, "operation": step.operation, "call_id": step.call_id,
                  "success": None if step.tool_result is None else step.tool_result.success,
@@ -958,12 +974,7 @@ class WorkspaceService:
                         conversation_id, source_event_id))
                 except Exception:
                     logging.getLogger(__name__).exception('Knowledge proposal tool unavailable')
-                try:
-                    from laew.memory.tool import MemoryTool
-                    self._agent.register_tool(MemoryTool(self.memory(), self._active_project_id,
-                                                         conversation_id, source_event_id))
-                except Exception:
-                    logging.getLogger(__name__).debug("Memory proposal tool unavailable")
+                self._register_memory_tool(conversation_id, source_event_id)
                 from laew.knowledge.routing import KnowledgeTurn
                 def routing_event(diagnostics):
                     if on_diagnostic is not None:
@@ -983,11 +994,13 @@ class WorkspaceService:
                 run_options = {"cancellation": cancellation} if cancellation is not None else {}
                 if on_event is not None:
                     run_options["on_event"] = on_event
-                if on_diagnostic is not None:
-                    def observe(phase, details):
-                        turn.observe(phase, details)
+                def observe(phase, details):
+                    turn.observe(phase, details)
+                    if on_diagnostic is not None:
                         on_diagnostic(phase, turn.snapshot())
-                    run_options["on_diagnostic"] = observe
+                    elif phase == "provider_dispatch":
+                        routing_event(turn.snapshot()["routing"])
+                run_options["on_diagnostic"] = observe
                 result = self._executor.run(
                     message.strip(), stream=True,
                     on_delta=lambda text: emit(

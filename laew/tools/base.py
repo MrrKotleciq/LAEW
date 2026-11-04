@@ -173,7 +173,7 @@ class ToolLogger:
         sanitized_args = self._sanitize_arguments(arguments)
         if operation == "write_knowledge_note":
             sanitized_args["content"] = "[REDACTED]"
-        if tool == "RagTool" and "query" in sanitized_args:
+        if tool in {"RagTool", "MemoryTool"} and "query" in sanitized_args:
             sanitized_args["query"] = "[REDACTED]"
         if tool == "KnowledgeProposalTool":
             for key in ("content", "evidence", "summary", "title"):

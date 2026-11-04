@@ -47,6 +47,21 @@ EDUCATION = "Jaką edukację zakończyłem?"
     ("What qualifications are required for this profession?", False, False, ()),
     ("Translate: What education have I completed?", False, False, ()),
     ("użyj rag", False, False, ("global",)),
+    ("Przypomnij sobie, gdzie chciałbym polecieć w przyszłości.", False, True, ()),
+    ("Gdzie chciałbym polecieć w przyszłości?", False, True, ()),
+    ("Co zapamiętałeś o moich planach?", False, True, ()),
+    ("Co masz zapisane o moich zainteresowaniach?", False, True, ()),
+    ("Sprawdź moje wspomnienia.", False, True, ()),
+    ("Sprawdź Long-Term Memory.", False, True, ()),
+    ("A nie w RAG, tylko w Memory.", True, True, ()),
+    ("A w pamięci długoterminowej?", True, True, ()),
+    ("Sprawdź wyłącznie Long-Term Memory. Gdzie chciałbym pojechać?", False, True, ()),
+    ("Where did I want to travel?", False, True, ()),
+    ("What do you remember about my plans?", False, True, ()),
+    ("Search my saved memories.", False, True, ()),
+    ("Check Long-Term Memory.", False, True, ()),
+    ("Explain the memory retrieval implementation.", False, False, ("global",)),
+    ("Check memory usage on the GPU.", False, False, ("global",)),
 ])
 def test_source_classification(message, in_project, memory, scopes):
     route = route_sources(message, in_project=in_project)
@@ -222,6 +237,52 @@ def test_later_rag_tool_omits_same_fragment(isolated_runtime):
     assert turn.diagnostics["follow_up"][0]["duplicates_omitted"] == 1
 
 
+@pytest.mark.parametrize("prompt", [
+    "Przypomnij sobie, gdzie chciałbym polecieć w przyszłości.",
+    "Sprawdź wyłącznie Long-Term Memory. Gdzie chciałbym pojechać?",
+    "Nie w RAG, tylko w Memory.",
+])
+def test_travel_memory_routes_before_the_first_provider_request(isolated_runtime, tmp_path, prompt):
+    from laew.llm.base import LLMMessage, MessageRole
+    from laew.memory.service import MemoryService
+    from laew.memory.store import MemoryStore
+    from laew.memory.tool import MemoryTool
+
+    store = MemoryStore(tmp_path / "memory.db")
+    active = store.remember("The user wants to visit the city of Edinburgh in the future.", category="goal")
+    # A controlled multilingual embedding and collection query, with canonical evidence from SQLite.
+    queries = []
+    def embed(text):
+        queries.append(text)
+        return [1., 0.]
+    def semantic_query(**kwargs):
+        assert kwargs["where"] == {"scope": "user"}
+        return {"ids": [[active["id"]]], "metadatas": [[{"version": active["version"]}]], "distances": [[0.1]]}
+    index = SimpleNamespace(_collection=SimpleNamespace(query=semantic_query))
+    memory = MemoryService(store, index_factory=lambda: index, embedding_factory=lambda: SimpleNamespace(embed=embed))
+    rag = isolated_runtime.build()
+    broker = PermissionBroker(None)
+    provider = ObservingProvider("Fixture reply")
+    executor = AgentExecutor(Agent(AgentConfig(), provider=provider, tools=[rag, MemoryTool(memory)]))
+    earlier = "Gdzie chciałbym polecieć w przyszłości?"
+    correction = prompt.startswith("Nie w RAG")
+    if correction:
+        executor.agent.history = [LLMMessage(MessageRole.USER, earlier),
+                                  LLMMessage(MessageRole.ASSISTANT, "Global Knowledge returned no travel evidence.")]
+    turn = KnowledgeTurn(lambda tool, op, args: broker.call(tool, op, args, None))
+    turn.prepare(executor, prompt, None, lambda: memory, rag)
+    assert executor.run(prompt, on_tool_call=turn.call, on_diagnostic=turn.observe).success
+    assert queries == [earlier if correction else prompt]
+    assert not turn.diagnostics["prefetch"] and not isolated_runtime.embedding.queries
+    recall = turn.diagnostics["memory_recall"]
+    assert recall["ids"] == [active["id"]]
+    assert recall["candidates"] == recall["selected"] == recall["supplied"] == 1
+    assert "Edinburgh" in provider.messages[0][0].content
+    assert "GLOBAL-7319" not in provider.messages[0][0].content
+    if turn.diagnostics["memory_only"]:
+        assert not turn.call(rag, "query", {"scope": "global", "query": "travel"}).success
+
+
 def test_web_prefetch_and_turn_reset(isolated_runtime, tmp_path, monkeypatch):
     fixture = isolated_runtime
     tool = fixture.build()
@@ -307,43 +368,55 @@ def test_automatic_memory_recall_outcomes(tmp_path, monkeypatch, mode, status, s
 
 @pytest.mark.parametrize("adapter", ["llamacpp", "ollama"])
 def test_local_stream_payload_contains_automatic_memory(tmp_path, monkeypatch, adapter):
+    import json
     from laew.llm.llamacpp import LlamaCppProvider
     from laew.llm.ollama import OllamaProvider
     from laew.memory.service import MemoryService
     from laew.memory.store import MemoryStore
+    from laew.memory.tool import MemoryTool
 
     store = MemoryStore(tmp_path / "fixture-memory.db")
     store.save_settings({"semantic_enabled": False})
     store.remember("My hobbies include stargazing.", category="interest")
+    targeted = store.remember("Edinburgh is the next destination.", category="goal")
+    tool_call = ' ```tool_call\n{"tool":"MemoryTool","operation":"recall","args":{"query":"Edinburgh"}}\n```'
     if adapter == "llamacpp":
         provider = LlamaCppProvider("fixture", "http://127.0.0.1:18999")
-        frames = [b'data: {"choices":[{"delta":{"content":"Fixture reply"}}]}', b'data: [DONE]']
+        def frames(text):
+            return [b"data: " + json.dumps({"choices": [{"delta": {"content": text}}]}).encode(),
+                    b"data: [DONE]"]
     else:
         provider = OllamaProvider("http://127.0.0.1:18999")
-        frames = ['{"message":{"content":"Fixture reply"},"done":true}']
+        def frames(text):
+            return [json.dumps({"message": {"content": text}, "done": True})]
     monkeypatch.setattr(provider, "is_available", lambda: True)
     sent = []
 
     def response(_, json, **kwargs):
         sent.append(json)
-        return SimpleNamespace(raise_for_status=lambda: None, close=lambda: None, iter_lines=lambda **_: iter(frames))
+        chunks = frames(tool_call if len(sent) == 1 else "Fixture reply")
+        return SimpleNamespace(raise_for_status=lambda: None, close=lambda: None, iter_lines=lambda **_: iter(chunks))
 
     if adapter == "llamacpp":
         monkeypatch.setattr(provider, "_request", response)
     else:
         monkeypatch.setattr("laew.llm.ollama.requests.post", response)
-    executor = AgentExecutor(Agent(AgentConfig(model="fixture"), provider=provider))
-    turn = KnowledgeTurn(lambda *_: pytest.fail("Automatic recall invoked a tool"))
+    memory = MemoryService(store)
+    executor = AgentExecutor(Agent(AgentConfig(model="fixture"), provider=provider, tools=[MemoryTool(memory)]))
+    broker = PermissionBroker(None)
+    turn = KnowledgeTurn(lambda tool, op, args: broker.call(tool, op, args, None))
     message = "What are my hobbies?"
-    turn.prepare(executor, message, None, lambda: MemoryService(store), None)
-    assert executor.run(message, stream=True, on_diagnostic=turn.observe).success
-    assert len(sent) == 1
+    turn.prepare(executor, message, None, lambda: memory, None)
+    assert executor.run(message, stream=True, on_diagnostic=turn.observe, on_tool_call=turn.call).success
+    assert len(sent) == 2
     system = sent[0]["messages"][0]
     assert system["role"] == "system"
     assert all(text in system["content"] for text in
                ("Relevant Long-Term Memory", "stargazing", "incomplete or outdated", "current statements take precedence"))
     assert turn.diagnostics["memory_recall"]["supplied"] == 1
-    assert not turn.tools
+    assert "recall(query)" in system["content"]
+    assert targeted["id"] in sent[1]["messages"][-1]["content"]
+    assert turn.tools[0]["memory_recall"]["supplied"] == 1
 
 def test_workbench_stream_exposes_prefetch_and_source_paths(isolated_runtime, tmp_path, monkeypatch):
     fixture = isolated_runtime
@@ -419,6 +492,8 @@ def test_four_diagnostic_turns_remain_inspectable_after_restart(isolated_runtime
     import json
     from laew.console.session_store import SessionStore
     from laew.llm.cancellation import Cancellation
+    from laew.memory.service import MemoryService
+    from laew.memory.store import MemoryStore
     from laew.runtime import build_shared_tools
 
     fixture = isolated_runtime
@@ -426,11 +501,15 @@ def test_four_diagnostic_turns_remain_inspectable_after_restart(isolated_runtime
     tools = build_shared_tools(manifest={}, general=True, projects_root=fixture.active.parent,
                                knowledge_root=fixture.vault, rag_embedding_service=fixture.embedding)
     filesystem = next(tool for tool in tools if tool.name == "FilesystemTool")
-    private_memory = {"id": "memory-1", "scope": "user", "content": "PRIVATE-MEMORY-TEXT"}
     worker = SimpleNamespace(request=lambda: None)
     enrollment = {"baseline": lambda _: None, "enqueue": lambda *_: None}
-    memory = SimpleNamespace(retrieval_mode="FTS5", recall=lambda *args: [private_memory],
-                             context=lambda rows: rows[0]["content"], **enrollment)
+    memories = MemoryStore(tmp_path / "memory.db")
+    memories.save_settings({"semantic_enabled": False})
+    initial_memory = memories.remember("My interests include PRIVATE-MEMORY-TEXT.")
+    targeted_memory = memories.remember("Portobello SECOND-MEMORY-TEXT")
+    memory = MemoryService(memories)
+    for name, method in enrollment.items():
+        monkeypatch.setattr(memory, name, method)
     replies = iter([
         RuntimeError("Temporary provider failure"),
         "Incremental indexing reply",
@@ -439,6 +518,7 @@ def test_four_diagnostic_turns_remain_inspectable_after_restart(isolated_runtime
         "Limitations reply",
         '```tool_call\n{"tool":"RagTool","operation":"query","args":{"query":"missing evidence","scope":"global"}}\n```',
         "No benchmarks reply",
+        '```tool_call\n{"tool":"MemoryTool","operation":"recall","args":{"query":"Portobello"}}\n```',
         "Interests reply",
     ])
     provider = ObservingProvider("")
@@ -479,7 +559,8 @@ def test_four_diagnostic_turns_remain_inspectable_after_restart(isolated_runtime
             assert tool["status"] == "started"
             assert sum(item["order"] == tool["order"] for item in events[-1]["diagnostics"]["tools"]) == 1
         streamed[events[-1]["run_id"]] = events[-1]["diagnostics"]
-        assert all("PRIVATE-MEMORY-TEXT" not in str(event) for event in events)
+        assert all("PRIVATE-MEMORY-TEXT" not in str(event) and "SECOND-MEMORY-TEXT" not in str(event)
+                   for event in events)
 
     cancelled_chat = store.create_conversation("general", None)
     cancellation = Cancellation()
@@ -518,8 +599,13 @@ def test_four_diagnostic_turns_remain_inspectable_after_restart(isolated_runtime
     assert [item["tool_results"] for item in second["requests"]] == [0, 1, 2]
     follow_up = third["routing"]["follow_up"][0]
     assert follow_up["status"] == "empty" and follow_up["call_id"] == third["tools"][0]["call_id"]
-    assert fourth["routing"]["memory_recall"]["ids"] == ["memory-1"]
-    assert fourth["routing"]["memory_recall"]["supplied"] == 1 and fourth["tools"] == []
+    assert fourth["routing"]["memory_recall"]["ids"] == [initial_memory["id"]]
+    assert fourth["routing"]["memory_recall"]["supplied"] == 1
+    recall_tool, = fourth["tools"]
+    assert recall_tool["operation"] == "recall"
+    assert recall_tool["memory_recall"]["ids"] == [targeted_memory["id"]]
+    assert recall_tool["memory_recall"]["supplied"] == 1
+    assert "SECOND-MEMORY-TEXT" not in str(events)
 
 
 def test_live_workbench_browser(isolated_runtime, tmp_path, monkeypatch):
@@ -579,6 +665,9 @@ def test_live_workbench_browser(isolated_runtime, tmp_path, monkeypatch):
             elif index == 5:
                 yield ('```tool_call\n{"tool":"RagTool","operation":"query",'
                        '"args":{"query":"shared technical evidence","scope":"global"}}\n```')
+            elif index == 6:
+                yield ('```tool_call\n{"tool":"MemoryTool","operation":"recall",'
+                       '"args":{"query":"stargazing"}}\n```')
             else:
                 import time
                 deadline = time.monotonic() + 20

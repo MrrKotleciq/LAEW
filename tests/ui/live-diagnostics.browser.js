@@ -118,6 +118,10 @@ async function main() {
     await expectPanel(/1 selected · 1 supplied to provider adapter/);
     await expectPanel(/Model-initiated RagTool · found/);
     await expectPanel(/Global Knowledge RagTool · .*1 supplied to provider adapter/);
+    await expectPanel(/Model-initiated MemoryTool recall · completed[\s\S]*1 selected · 1 supplied to provider adapter/);
+    await click('#tab-run');
+    await expectPanel(/completed\s+MemoryTool · recall/);
+    await click('#tab-sources');
     await expectPanel(/Turn 2 · running/);
     assert.equal(await evaluate('document.querySelector(".tab.active").textContent'), 'Sources');
     await click('#cancel');
@@ -129,8 +133,10 @@ async function main() {
     await expectPanel(/Turn 2 · cancelled/);
     await click('#tab-sources');
     await expectPanel(/Model-initiated RagTool · found/);
+    await expectPanel(/Model-initiated MemoryTool recall · completed/);
     await choose(1);
     assert.doesNotMatch(await text(), /Model-initiated RagTool · found/);
+    assert.doesNotMatch(await text(), /Model-initiated MemoryTool recall/);
     await click('#tab-run');
     await expectPanel(/completed\s+FilesystemTool/);
     await click('#tab-sources');
