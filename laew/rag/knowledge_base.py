@@ -18,7 +18,7 @@ from laew.config.constants import RAG_CHUNK_SIZE, RAG_CHUNK_OVERLAP
 from laew.rag.embedding import EmbeddingService, embedding_model_identity
 from laew.rag.config import global_source_exclusions as resolve_global_exclusions
 from laew.rag.identity import project_collection_name
-from laew.rag.obsidian import FRONTMATTER_RE, parse_note
+from laew.rag.obsidian import FRONTMATTER_RE, NOTE_METADATA_VERSION, parse_note
 from laew.rag.vector_store import ChromaVectorStore, DocumentChunk, VectorStore
 
 
@@ -350,7 +350,8 @@ class KnowledgeBase:
                 old = by_path.get(relative, [])
                 if old and not force and all(
                     r.metadata.get("sync_fingerprint") == fingerprint
-                    and r.metadata.get("sync_chunk_count") == len(old) for r in old
+                    and r.metadata.get("sync_chunk_count") == len(old)
+                    and r.metadata.get("note_metadata_version") == NOTE_METADATA_VERSION for r in old
                 ):
                     counts["unchanged"]["documents"] += 1
                     counts["unchanged"]["chunks"] += len(old)
@@ -373,6 +374,7 @@ class KnowledgeBase:
                 chunks = self._load_file(path, source, root, content=content)
                 for chunk in chunks:
                     chunk.metadata["sync_fingerprint"] = fingerprint
+                    chunk.metadata["note_metadata_version"] = NOTE_METADATA_VERSION
                     chunk.metadata["sync_chunk_count"] = len(chunks)
                 pending.extend(chunks)
                 new_ids = {chunk.chunk_id for chunk in chunks}
@@ -539,7 +541,7 @@ class KnowledgeBase:
         match = FRONTMATTER_RE.search(content)
         return content[match.end():] if match else content
 
-    def _obsidian_metadata(self, content: str) -> Dict[str, List[str]]:
+    def _obsidian_metadata(self, content: str) -> dict:
         """
         Extract Obsidian note metadata for RAG indexing.
 
@@ -547,12 +549,13 @@ class KnowledgeBase:
             content: Note text (frontmatter + body).
 
         Returns:
-            Dict with ``tags`` and ``backlinks`` lists (empty when absent).
+            Tag and link lists and optional typed frontmatter properties.
         """
         note = parse_note(content)
         return {
             "tags": list(note["tags"]),
             "backlinks": list(note["backlinks"]),
+            **({"frontmatter": note["frontmatter"]} if note["frontmatter"] else {}),
         }
 
     def _extract_sections(self, content: str) -> List[tuple[str, str]]:

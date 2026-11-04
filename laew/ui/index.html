@@ -15,7 +15,7 @@
       <a class="brand" href="/" aria-label="LAEW Engineering Workbench"><span class="brand-mark">L</span><span class="brand-name">LAEW</span><span class="brand-product">Engineering Workbench</span></a>
       <div class="topbar-workspace"><span class="topbar-label">WORKSPACE</span><strong id="active-project-name">Loading projects…</strong><code id="workspace">Resolving project…</code></div>
       <div class="runtime-controls"><span id="runtime" role="status" aria-live="polite">Checking runtime…</span></div>
-      <label class="theme-control">Theme <select id="theme"><option value="system">System</option><option value="dark">Dark</option><option value="light">Light</option></select></label>
+      <button id="knowledge-toggle" class="text-button" type="button" aria-controls="knowledge-review" aria-expanded="false">Knowledge <span id="knowledge-count" class="count-badge" aria-live="polite">0</span></button>
       <button id="context-toggle" class="text-button context-toggle" aria-label="Toggle context panel" aria-expanded="true">Details</button>
     </header>
 
@@ -35,10 +35,10 @@
         <p class="eyebrow">WORKSPACE</p>
         <button id="nav-chat" class="nav-item active" aria-current="page"><span class="nav-glyph">W</span>Workbench</button>
         <p class="eyebrow nav-subheading">TOOLS</p>
-        <button class="nav-item unavailable" disabled><span class="nav-glyph">K</span>Knowledge <small>Not yet available</small></button>
+        <button id="knowledge-open-settings" class="nav-item" type="button"><span class="nav-glyph">K</span>Knowledge Review</button>
         <button class="nav-item unavailable" disabled><span class="nav-glyph">A</span>Activity <small>Not yet available</small></button>
         <button id="nav-models" class="nav-item"><span class="nav-glyph">M</span>Models &amp; Services</button>
-        <button class="nav-item unavailable settings-item" disabled><span class="nav-glyph">S</span>Settings <small>Not yet available</small></button>
+        <button id="nav-settings" class="nav-item settings-item"><span class="nav-glyph">S</span>Settings</button>
       </section>
       <div class="sidebar-foot"><span class="local-indicator"></span><span>Local workspace</span></div>
       <div id="sidebar-resize" class="sidebar-resize" role="separator" aria-label="Resize navigation" aria-orientation="vertical" tabindex="0"></div>
@@ -48,7 +48,7 @@
     <main id="chat-view" class="main-panel">
       <section class="task-heading">
         <div class="heading-copy"><p class="eyebrow accent" id="conversation-mode">CHIEF AGENT · ENGINEERING SESSION</p><h1 id="task-title">Workspace</h1><p class="subtitle" id="conversation-description">Investigate, reason, and work with this project through LAEW’s controlled runtime.</p><code class="active-project-path" id="active-project-path">Resolving active project…</code></div>
-        <span class="runtime-badge" id="session-mode">LOCAL SESSION</span>
+        <label id="chat-permissions" class="chat-permissions" hidden>Permissions <select id="chat-permission-mode" aria-label="Project permissions"><option value="auto">Auto</option><option value="manual">Manual</option><option value="restricted">Restricted</option></select></label><span class="runtime-badge" id="session-mode">LOCAL SESSION</span>
       </section>
       <section id="conversation" aria-label="Conversation" aria-live="polite" aria-relevant="additions text">
         <div class="empty"><div class="empty-mark">L</div><h2>Start with the project at hand</h2><p>Ask the Chief Agent to inspect, explain, or work with this project. Tool operations stay within LAEW’s existing restrictions and approval boundaries.</p><div class="suggestions"><button data-prompt="Summarize the current project structure.">Summarize the project structure <span>↗</span></button><button data-prompt="What should I inspect before making this change?">Plan a safe investigation <span>↗</span></button></div></div>
@@ -76,8 +76,33 @@
         <p id="services-message" role="status"></p><ul id="model-catalog" class="model-catalog"></ul>
       </section>
     </main>
-    <aside id="context" aria-label="Execution details"><nav class="panel-tabs" role="tablist" aria-label="Execution detail tabs"><button class="tab active" id="tab-context" role="tab" aria-controls="panel" tabindex="0" data-tab="context" aria-selected="true">Context</button><button class="tab" id="tab-run" role="tab" aria-controls="panel" tabindex="-1" data-tab="run" aria-selected="false">Run</button><button class="tab" id="tab-sources" role="tab" aria-controls="panel" tabindex="-1" data-tab="sources" aria-selected="false">Sources</button></nav><section id="panel" role="tabpanel" aria-labelledby="tab-context" tabindex="0" aria-live="polite"></section></aside>
+    <main id="settings-view" class="services-view settings-view" hidden aria-labelledby="settings-title">
+      <div class="page-heading"><div><p class="eyebrow accent">WORKSPACE PREFERENCES</p><h1 id="settings-title">Settings</h1></div><button id="settings-refresh" type="button">Refresh</button></div>
+      <section class="settings-section"><h2>Appearance</h2><label class="theme-control">Theme <select id="theme"><option value="system">System</option><option value="dark">Dark</option><option value="light">Light</option></select></label></section>
+      <section class="settings-section"><h2>Project defaults</h2><form id="defaults-form"><label>Documentation language <select id="default-language"><option value="en">English</option><option value="pl">Polish</option></select></label><button type="submit">Save defaults</button></form><p class="muted-note">Projects inherit these defaults unless they have a local override. Right-click a project and choose Settings to manage overrides.</p></section>
+      <section class="settings-section"><h2>Memory</h2><form id="memory-settings-form" class="settings-form">
+        <label><input id="memory-recall" type="checkbox" checked> Use Long-Term Memory</label><p>Use relevant memories from previous conversations when generating responses.</p>
+        <label>Automatic Memory <select id="memory-mode"><option value="off">Off</option><option value="review" selected>Review</option><option value="auto">Auto</option></select></label><p>Off disables automatic analysis. Review proposes facts for approval. Auto saves clear, directly evidenced facts; conflicts remain in review.</p>
+        <label>Analyze every N completed turns <input id="memory-interval" type="number" min="2" max="20" value="5" required></label>
+        <label>Extraction model <select id="memory-model"><option value="">Same as active chat model</option></select></label><p>Analysis makes a separate model request. Provider credentials are managed in Models &amp; Services.</p>
+        <details><summary>Advanced</summary><label>Maximum memories <input id="memory-max" type="number" min="1" max="20" value="5" required></label><label>Token budget (conservative estimate) <input id="memory-budget" type="number" min="100" max="2000" value="400" required></label><label><input id="memory-semantic" type="checkbox" checked> Semantic retrieval</label><label><input id="memory-fts" type="checkbox" checked> FTS5 fallback</label></details>
+        <button type="submit">Save memory settings</button></form>
+        <div class="settings-actions"><button id="memory-analyze" type="button">Analyze current conversation</button><button id="memory-sync" type="button">Retry synchronization</button><button id="memory-rebuild" type="button">Rebuild semantic index</button></div>
+        <p id="memory-status" role="status"></p>
+      </section>
+      <section class="settings-section"><h2>Knowledge</h2><p>Every new document and update requires your approval in Knowledge Review.</p><form id="knowledge-settings-form" class="settings-form"><label><input id="knowledge-enabled" type="checkbox" checked> Analyze conversations for reusable knowledge</label><label>Analyze every N completed turns <input id="knowledge-interval" type="number" min="2" max="20" value="5" required></label><label>Extraction model source <select id="knowledge-model-source"><option value="memory">Memory extraction model</option><option value="active">Active chat model</option></select></label><p class="muted-note">Analysis runs as a separate request. The active model can incur additional API costs.</p><p>Selected model: <span id="knowledge-model">Loading…</span></p><button type="submit">Save knowledge settings</button></form><div class="settings-actions"><button id="knowledge-analyze" type="button">Analyze current conversation</button><button id="knowledge-sync" type="button">Retry knowledge indexing</button></div><p id="knowledge-settings-result" role="status"></p><details><summary>Knowledge operations &amp; RAG status</summary><pre id="knowledge-status"></pre></details></section>
+      <section class="settings-section"><h2>Saved memories &amp; Review Queue</h2><div class="settings-actions"><label>Project <select id="memory-project"><option value="">User Memory only</option></select></label><label>Show <select id="memory-filter"><option value="all">Active &amp; Pending Review</option><option value="user">User Memory</option><option value="project">Project Memory</option><option value="active">Active</option><option value="pending">Pending Review</option></select></label><button id="memory-add" type="button">Add memory</button></div><div id="memory-list"></div></section>
+      <p id="settings-result" role="status"></p>
+    </main>
+    <aside id="context" aria-label="Execution details"><nav class="panel-tabs" role="tablist" aria-label="Execution detail tabs"><button class="tab active" id="tab-setup" role="tab" aria-controls="panel" tabindex="0" data-tab="setup" aria-selected="true">Setup</button><button class="tab" id="tab-sources" role="tab" aria-controls="panel" tabindex="-1" data-tab="sources" aria-selected="false">Sources</button><button class="tab" id="tab-run" role="tab" aria-controls="panel" tabindex="-1" data-tab="run" aria-selected="false">Run</button></nav><section id="panel" role="tabpanel" aria-labelledby="tab-setup" tabindex="0"></section></aside>
   </div>
+
+  <aside id="knowledge-review" class="knowledge-drawer" aria-labelledby="knowledge-review-title" hidden>
+    <div class="knowledge-drawer-heading"><h2 id="knowledge-review-title">Knowledge Review</h2><button id="knowledge-close" type="button" aria-label="Close Knowledge Review">×</button></div>
+    <p id="knowledge-summary"></p><p id="knowledge-result" role="status" aria-live="polite"></p>
+    <div id="knowledge-list"></div><button id="knowledge-approve-selected" type="button" disabled>Approve selected proposals</button>
+    <section id="knowledge-preview" hidden><h3 id="knowledge-preview-title" tabindex="-1"></h3><code id="knowledge-path"></code><p id="knowledge-stale" role="alert"></p><section id="knowledge-matches" hidden><h4>Related existing documents</h4><pre id="knowledge-match-list"></pre><p>Review these related notes before choosing the destination. An update preserves the selected note and adds the reviewed material. Save the draft, then review the resulting diff.</p><label>Destination <select id="knowledge-destination"><option value="">Choose a destination</option></select></label></section><p>Review the complete Markdown, including frontmatter. Save edits before approving.</p><label for="knowledge-editor">Markdown draft</label><textarea id="knowledge-editor" rows="16" spellcheck="false"></textarea><div class="settings-actions"><button id="knowledge-save" type="button">Save draft</button><button id="knowledge-approve" type="button">Approve</button><button id="knowledge-reject" type="button">Reject</button><button id="knowledge-defer" type="button">Later</button></div><details open><summary>Document preview</summary><div id="knowledge-rendered" class="knowledge-rendered"></div></details><details open><summary>Changes (diff)</summary><pre id="knowledge-diff"></pre></details><details><summary>Sources &amp; evidence</summary><pre id="knowledge-sources"></pre></details></section>
+  </aside>
 
   <dialog id="project-dialog" class="project-dialog" aria-labelledby="dialog-title">
     <form id="project-form" novalidate>
@@ -90,9 +115,15 @@
     </form>
   </dialog>
 
+  <div id="project-settings-menu" class="conversation-menu" role="menu" hidden><button type="button" role="menuitem">Settings</button></div>
+  <dialog id="project-settings-dialog" class="project-dialog project-settings-dialog" aria-labelledby="project-settings-title"><form id="project-settings-form"><div class="dialog-heading"><h2 id="project-settings-title">Project settings</h2><button type="button" id="project-settings-close" aria-label="Close project settings">×</button></div><p>Local overrides take precedence over workspace defaults.</p><label>Documentation language <select id="project-language-override"><option value="">Inherit workspace default</option><option value="en">English</option><option value="pl">Polish</option></select></label><p id="project-settings-effective"></p><p id="project-settings-error" role="alert"></p><div class="dialog-actions"><button type="submit">Save project language</button></div></form><section class="settings-section"><h3>Memory overrides</h3><p>Unchecked values inherit workspace defaults. Each checked value is saved locally for this project.</p><form id="project-memory-form"><div id="project-memory-fields" class="settings-form"></div><button type="submit">Save memory overrides</button><p id="project-memory-result" role="status"></p></form></section></dialog>
+  <dialog id="memory-delete-dialog" class="project-dialog" aria-labelledby="memory-delete-title"><h2 id="memory-delete-title">Delete memory?</h2><p id="memory-delete-content"></p><p>Deleted memories are excluded from recall immediately. Revision history remains in SQLite.</p><p id="memory-delete-error" role="alert"></p><div class="dialog-actions"><button id="memory-delete-cancel" type="button">Cancel</button><button id="memory-delete-confirm" type="button">Delete memory</button></div></dialog>
+  <dialog id="memory-editor" class="project-dialog" aria-labelledby="memory-editor-title"><form id="memory-editor-form"><h2 id="memory-editor-title">Memory</h2><label>Content <textarea id="memory-content" maxlength="2000" required></textarea></label><label>Category <select id="memory-category"></select></label><label>Scope <select id="memory-scope"><option value="user">User Memory</option><option value="project">Selected project</option></select></label><p id="memory-editor-error" role="alert"></p><div class="dialog-actions"><button type="button" id="memory-editor-cancel">Cancel</button><button type="submit">Save</button></div></form></dialog>
   <script src="/markdown.js" defer></script>
   <script src="/stream.js" defer></script>
   <script src="/ui-state.js" defer></script>
+  <script src="/settings.js" defer></script>
+  <script src="/knowledge.js" defer></script>
   <script src="/app.js" defer></script>
 </body>
 </html>

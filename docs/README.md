@@ -53,6 +53,12 @@ Plans and documentation must not be assumed to describe implemented behavior wit
 ## Common Queries
 
 ### Architecture
+
+- [Long-Term Memory](architecture/LONG_TERM_MEMORY.md): SQLite, semantic index, extraction, recall, Settings and recovery.
+- [Global Knowledge Curation](architecture/GLOBAL_KNOWLEDGE_CURATION.md)
+- [Global RAG and Ingestion Audit](reports/GLOBAL_RAG_AUDIT.md)
+- [Global RAG Correctness and Retrieval Baseline](reports/GLOBAL_RAG_BASELINE.md)
+- [Knowledge Source Routing and Automatic RAG Activation](reports/KNOWLEDGE_SOURCE_ROUTING.md)
 Start with `architecture/` and `decisions/`.
 
 ### Current implementation

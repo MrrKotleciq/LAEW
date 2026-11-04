@@ -173,6 +173,12 @@ class ToolLogger:
         sanitized_args = self._sanitize_arguments(arguments)
         if operation == "write_knowledge_note":
             sanitized_args["content"] = "[REDACTED]"
+        if tool in {"RagTool", "MemoryTool"} and "query" in sanitized_args:
+            sanitized_args["query"] = "[REDACTED]"
+        if tool == "KnowledgeProposalTool":
+            for key in ("content", "evidence", "summary", "title"):
+                if key in sanitized_args:
+                    sanitized_args[key] = "[REDACTED]"
 
         # Create log entry
         log_entry = ToolInvocationLog(
@@ -336,6 +342,10 @@ class Tool(ABC):
             ToolResult with success flag, data, or error code
         """
 
+    def invalid_input(self, message: str, /, **kwargs) -> ToolResult:
+        """Allow a tool to attach actionable validation details at every entry point."""
+        return ToolResult.error(ErrorCode.ERR_INVALID_INPUT, message)
+
     def call(self, operation: str, **kwargs) -> ToolResult:
         """
         Call a tool operation with validation, approval checks, and logging.
@@ -353,9 +363,7 @@ class Tool(ABC):
         # Validate
         is_valid, error_msg = self.validate(operation, **kwargs)
         if not is_valid:
-            result = ToolResult.error(
-                ErrorCode.ERR_INVALID_INPUT, error_msg or "Invalid operation"
-            )
+            result = self.invalid_input(error_msg or "Invalid operation", **kwargs)
             self._log_invocation(operation, kwargs, result, start_time)
             return result
 

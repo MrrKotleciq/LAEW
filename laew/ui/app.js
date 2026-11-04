@@ -15,6 +15,7 @@
   let latest = { steps: [] };
   const panelState = window.LAEWUI.createPanelState();
   let activeTab = panelState.active;
+  let panelFrame = null;
   let panelBody = panel;
   let submitting = false;
   let switchingProject = false;
@@ -27,9 +28,7 @@
   let conversationItems = [];
   let conversationsRequest = 0;
   let statusRequest = 0;
-  let activeController = null;
   let activeRunId = null;
-  let stoppingRunId = null;
   let activeAssistant = null;
   let streamedResponse = '';
   const sessionId = crypto.randomUUID();
@@ -47,6 +46,9 @@
   const localViews = new Map();
   const drafts = new Map();
   let activeView = null;
+  let diagnosticRuns = new Map();
+  let selectedDiagnosticRun = null;
+  let streamingDiagnosticRun = null;
   let authAttempt = null;
   const cloudFields = () => ({provider: provider.value, model: q('#cloud-model').value.trim(),
     account_id: q('#cloud-account').value || null, session_id: sessionId, project_id: currentProjectId});
@@ -62,6 +64,7 @@
     activeView = {key, cloud: isCloud()};
     input.value = drafts.get(key) || '';
     activeAssistant = null; streamedResponse = '';
+    diagnosticRuns = new Map(); selectedDiagnosticRun = null; streamingDiagnosticRun = null;
     latest = {steps: [], provider: latest.provider, model: latest.model, project: latest.project,
       project_path: latest.project_path, projects_root: latest.projects_root, knowledge_root: latest.knowledge_root,
       projectSettings: latest.projectSettings, rag: latest.rag};
@@ -70,6 +73,7 @@
     if (saved) { conversation.append(...saved.nodes); latest = {...saved.latest, ...latest}; }
     else conversation.append(emptyForScope());
     render();
+    knowledgeUI.refresh();
   }
   const services = q('#services-view');
   const manageProvider = q('#service-provider');
@@ -80,9 +84,9 @@
   let credentialStatus = {};
   let catalogRequest = 0;
   function showPage(name) {
-    q('#chat-view').hidden = name !== 'chat'; services.hidden = name !== 'models';
-    q('.shell').classList.toggle('services-open', name === 'models');
-    for (const page of ['chat','models']) {
+    q('#chat-view').hidden = name !== 'chat'; services.hidden = name !== 'models'; q('#settings-view').hidden = name !== 'settings';
+    q('.shell').classList.toggle('services-open', name !== 'chat');
+    for (const page of ['chat','models','settings']) {
       const button = q('#nav-' + page), selected = name === page;
       button.classList.toggle('active', selected);
       if (selected) button.setAttribute('aria-current', 'page'); else button.removeAttribute('aria-current');
@@ -90,6 +94,7 @@
     closeSidebar();
     applySidebarWidth();
     if (name === 'models') refreshServices();
+    if (name === 'settings') { settingsUI.refresh(); knowledgeUI.refresh(); }
   }
   function updateMode() {
     q('#session-mode').textContent = isCloud() ? 'CLOUD MODEL · LAEW TOOLS' : 'LOCAL MODEL · LAEW TOOLS';
@@ -203,6 +208,12 @@
   });
   q('#nav-chat').addEventListener('click',()=>showPage('chat'));
   q('#nav-models').addEventListener('click',()=>showPage('models'));
+  q('#chat-permission-mode').addEventListener('change',async()=>{
+    const project=currentProjectId,select=q('#chat-permission-mode');select.disabled=true;
+    try{const response=await fetch('/api/project/permissions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:project,permission_mode:select.value})});const data=await readJson(response);if(!response.ok)throw new Error(data.error || 'Could not save permissions.');}
+    catch(error){setState(error.message,'error');}finally{await refreshProjectSettings();select.disabled=false;}
+  });
+  q('#nav-settings').addEventListener('click',()=>showPage('settings'));
   q('#services-refresh').addEventListener('click',refreshServices);
   manageProvider.addEventListener('change',updateServiceEditor);
   manageAccount.addEventListener('change',updateServiceEditor);
@@ -226,12 +237,14 @@
     q('#refresh-projects').disabled = busy;
     projectList.querySelectorAll('button').forEach((button) => { button.disabled = busy || button.dataset.unavailable === 'true'; });
     q('#sidebar-new-chat').disabled = busy;
+    q('#chat-permission-mode').disabled = busy;
   };
   const clearConversation = () => {
     conversation.replaceChildren(emptyForScope());
+    diagnosticRuns.clear(); selectedDiagnosticRun = null; streamingDiagnosticRun = null;
     latest.steps = [];
     latest.error = null;
-    panelState.reset(); render('context');
+    panelState.reset(); render('setup');
   };
 
   const addMessage = (role, text, kind = '') => {
@@ -256,7 +269,60 @@
   const panelNote = (text) => {
     const note = document.createElement('p'); note.textContent = text; panelBody.append(note);
   };
+  function attachContextAction(article, runId) {
+    const button = document.createElement('button');
+    button.type = 'button'; button.className = 'turn-context-action'; button.textContent = 'View sources';
+    const run = diagnosticRuns.get(runId);
+    if (run) button.setAttribute('aria-label', `View sources for turn ${run.number}`);
+    button.addEventListener('click', () => {
+      selectedDiagnosticRun = runId;
+      if (q('#context').classList.contains('hidden')) q('#context-toggle').click();
+      render('sources');
+      q('#diagnostic-turn')?.focus();
+    });
+    article.append(button);
+  }
+  function renderTurnSelection() {
+    panelHeading('Conversation turn');
+    const choices = [...diagnosticRuns];
+    const available = choices.some(([id]) => id === selectedDiagnosticRun);
+    const select = document.createElement('select');
+    select.id = 'diagnostic-turn'; select.setAttribute('aria-label', 'Conversation turn');
+    select.add(new Option(submitting ? 'Follow live run' : 'Follow latest turn', ''));
+    for (const [id, run] of choices) {
+      select.add(new Option(`Turn ${run.number} · ${run.status}`, id));
+    }
+    select.value = available ? selectedDiagnosticRun : '';
+    select.addEventListener('change', () => {
+      selectedDiagnosticRun = select.value || null;
+      render();
+    });
+    panelBody.append(select);
+    if (available && submitting && selectedDiagnosticRun !== streamingDiagnosticRun) {
+      panelNote('A new run is active. Select Follow live run to inspect it.');
+    }
+    const run = available ? diagnosticRuns.get(selectedDiagnosticRun)
+      : (submitting ? diagnosticRuns.get(streamingDiagnosticRun) : choices.at(-1)?.[1]);
+    if (submitting && !run) panelNote('Starting run…');
+    if (run) panelNote(`Turn ${run.number} · ${run.status}${available ? ' · selected' : ''}`);
+    return run;
+  }
+  function scheduleDiagnosticsRender() {
+    if (activeTab === 'setup' || panelFrame !== null) return;
+    panelFrame = requestAnimationFrame(() => {
+      panelFrame = null;
+      render();
+    });
+  }
   function render(tab = activeTab) {
+    if (panelFrame !== null) cancelAnimationFrame(panelFrame);
+    panelFrame = null;
+    const focused = document.activeElement;
+    const restoreTurnFocus = focused?.id === 'diagnostic-turn';
+    const focusedDetail = focused?.parentElement?.dataset.detail;
+    const focusedSync = focused?.dataset.syncScope;
+    const openDetails = new Set([...panel.querySelectorAll('details[open][data-detail]')]
+      .map(detail => detail.dataset.detail));
     activeTab = panelState.select(tab);
     document.querySelectorAll('.tab').forEach(button => {
       const selected=button.dataset.tab === activeTab;
@@ -264,7 +330,8 @@
     });
     panel.setAttribute('aria-labelledby','tab-'+activeTab);
     panel.replaceChildren(); panelBody=panel;
-    if (tab === 'context') {
+    const run = tab === 'setup' ? null : renderTurnSelection();
+    if (tab === 'setup') {
       panelHeading(currentProjectId ? 'Active project' : 'General Chat');
       const details = document.createElement('dl');
       [['Project', currentProjectId ? (latest.project || projectItems.find(item=>item.id===currentProjectId)?.name) : 'None'], ['Provider', latest.provider], ['Model', latest.model]].forEach(([label, value]) => {
@@ -273,60 +340,14 @@
         details.append(term, description);
       });
       panelBody.append(details);
-      const paths=document.createElement('details'), summary=document.createElement('summary'); summary.textContent='Workspace paths'; paths.append(summary);
-      [['Project',latest.project_path],['Projects root',latest.projects_root],['Global Knowledge',latest.knowledge_root]].forEach(([label,value])=>{if(value){const p=document.createElement('p');p.textContent=label+': '+value;paths.append(p);}});panelBody.append(paths);
+      const paths=diagnosticDetails('Workspace paths', 'workspace-paths');
+      [['Project',latest.project_path],['Projects root',latest.projects_root],['Global Knowledge',latest.knowledge_root]].forEach(([label,value])=>{if(value){const p=document.createElement('p');p.textContent=label+': '+value;paths.append(p);}});
       panelNote(currentProjectId ? 'LAEW tools use this project’s permissions.' : 'Global Knowledge is available; project tools and Project Memory are unavailable.');
 
-      panelHeading('Retrieved knowledge'); renderSources();
-      panelHeading('Last response usage');
-      if (latest.usage) panelNote(`Input: ${latest.usage.prompt_tokens ?? 'unavailable'} · Output: ${latest.usage.completion_tokens ?? 'unavailable'} tokens`);
-      else panelNote('Token usage is reported after a response. Context capacity is not reported.');
       if (currentProjectId) {
       panelHeading('Project settings');
-      if (latest.projectSettings?.error) panelNote(latest.projectSettings.error);
-      else if (latest.projectSettings && latest.projectSettings.project_id === currentProjectId) {
-        const label = document.createElement('label'); label.textContent = 'Documentation language ';
-        const select = document.createElement('select');
-        [['en', 'English'], ['pl', 'Polish']].forEach(([value, title]) => {
-          const option = document.createElement('option'); option.value = value; option.textContent = title;
-          select.append(option);
-        });
-        select.value = latest.projectSettings.documentation_language;
-        select.disabled = submitting || switchingProject || creatingProject;
-        select.addEventListener('change', async () => {
-          select.disabled = true;
-          try {
-            const response = await fetch('/api/project/settings', {method: 'POST', headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({project_id: currentProjectId, documentation_language: select.value})});
-            const payload = await readJson(response);
-            if (!response.ok) throw new Error(payload.error || 'Could not save project settings.');
-            if (payload.project_id === currentProjectId) latest.projectSettings = payload;
-          } catch (error) { panelNote(error.message); }
-          finally { await refreshProjectSettings(); }
-        });
-        label.append(select); panelBody.append(label);
-      } else panelNote('Checking project settings…');
-      panelHeading('Permissions');
-      if (latest.projectSettings?.project_id === currentProjectId) {
-        const label = document.createElement('label'); label.textContent = 'Permission mode ';
-        const select = document.createElement('select');
-        [['auto', 'Auto'], ['manual', 'Manual'], ['restricted', 'Restricted']].forEach(([value, title]) => {
-          const option = document.createElement('option'); option.value = value; option.textContent = title; select.append(option);
-        });
-        select.value = latest.projectSettings.permission_mode || 'auto';
-        select.disabled = submitting || switchingProject || creatingProject;
-        select.addEventListener('change', async () => {
-          select.disabled = true;
-          try {
-            const response = await fetch('/api/project/permissions', {method: 'POST', headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({project_id: currentProjectId, permission_mode: select.value})});
-            const payload = await readJson(response);
-            if (!response.ok) throw new Error(payload.error || 'Could not save permission mode.');
-          } catch (error) { panelNote(error.message); }
-          finally { await refreshProjectSettings(); }
-        });
-        label.append(select); panelBody.append(label);
-      }
+      panelNote('Documentation language: '+(latest.projectSettings?.documentation_language || 'checking…'));
+      const settingsButton=document.createElement('button');settingsButton.type='button';settingsButton.textContent='Open project settings';settingsButton.addEventListener('click',()=>settingsUI.openProject(currentProjectId));panelBody.append(settingsButton);
       }
       panelHeading('Knowledge');
       if (!latest.rag) panelNote('Checking synchronization status…');
@@ -339,46 +360,285 @@
         if (status.error) panelNote(status.error);
         const button = document.createElement('button');
         button.type = 'button'; button.textContent = `Sync ${scope}`;
+        button.dataset.syncScope = scope;
+        const card = panelBody;
         button.addEventListener('click', async () => {
           try {
             const response = await fetch('/api/rag/sync', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({scope})});
             const payload = await readJson(response);
             if (!response.ok) throw new Error(payload.error || 'Synchronization could not start.');
-            await refreshRag();
-          } catch (error) { panelNote(error.message); }
+            await refreshRag(true);
+          } catch (error) {
+            const note = document.createElement('p');
+            note.textContent = error.message;
+            card.append(note);
+          }
         });
         panelBody.append(button);
       });
     } else if (tab === 'run') {
-      panelHeading('Current run');
-      const steps = Array.isArray(latest.steps) ? latest.steps : [];
-      if (!steps.length) panelNote(latest.error || 'No tool activity for this response.');
-      else {
-        const list = document.createElement('ol');
-        steps.forEach((step) => {
-          const item = document.createElement('li'); item.className='tool-card';
-          const badge=document.createElement('span'); badge.className='status-badge'; badge.textContent=step.status || (step.success === true ? 'Completed' : step.success === false ? (/denied|blocked/i.test(step.error || '') ? 'Denied' : 'Failed') : 'Status unavailable'); item.append(badge);
-          const title = document.createElement('b'); title.textContent = step.tool || 'Response'; item.append(title);
-          if (step.operation) item.append(document.createTextNode(` · ${step.operation}`));
-          if (step.error) { const error = document.createElement('em'); error.textContent = step.error; item.append(error); }
-          list.append(item);
-        });
-        panelBody.append(list);
-      }
+      renderExecution(run);
     } else {
-      panelHeading('Sources');
-      renderSources();
+      renderSources(run);
+    }
+    for (const detail of panel.querySelectorAll('details[data-detail]')) {
+      detail.open = openDetails.has(detail.dataset.detail);
+      if (detail.dataset.detail === focusedDetail) detail.firstElementChild.focus({preventScroll: true});
+    }
+    if (restoreTurnFocus) q('#diagnostic-turn')?.focus({preventScroll: true});
+    if (focusedSync) panel.querySelector(`[data-sync-scope="${focusedSync}"]`)?.focus({preventScroll: true});
+  }
+
+  function diagnosticDetails(label, key) {
+    const details = document.createElement('details');
+    details.dataset.detail = key;
+    const summary = document.createElement('summary');
+    summary.textContent = label;
+    details.append(summary);
+    panelBody.append(details);
+    return details;
+  }
+
+  const sourceLabels = {global: 'Global Knowledge', project: 'Project Knowledge', hybrid: 'Global + Project Knowledge'};
+  const formatStatus = value => String(value || 'unavailable').replaceAll('_', ' ');
+  function renderExecution(run) {
+    const isLive = submitting && run?.status === 'running' && run === diagnosticRuns.get(streamingDiagnosticRun);
+    panelHeading(isLive ? 'Run · Live' : 'Execution');
+    const routing = run?.diagnostics?.routing;
+    const requests = run?.diagnostics?.requests || [];
+    const tools = [...(run?.diagnostics?.tools || []), ...(run?.legacyTools || [])];
+    const list = document.createElement('ol');
+    const step = (title, status, detail = '') => {
+      const item = document.createElement('li');
+      item.className = 'tool-card';
+      const badge = document.createElement('span');
+      badge.className = 'status-badge';
+      badge.textContent = formatStatus(status);
+      const name = document.createElement('b');
+      name.textContent = title;
+      item.append(badge, name, document.createTextNode(detail));
+      list.append(item);
+    };
+    if (routing) {
+      step('Knowledge Routing', 'completed', `${routing.routing_ms} ms`);
+      step('Automatic Memory Recall', routing.memory_recall?.status);
+      if (routing.escalation) {
+        step('Knowledge escalation', 'selected', routing.escalation.reason);
+      } else if (routing.escalation_skipped) {
+        step('Knowledge escalation', 'skipped', routing.escalation_skipped);
+      }
+      for (const search of routing.prefetch.filter(search => !search.after_order)) {
+        step(`${sourceLabels[search.scope]} automatic prefetch`, search.status, search.error || '');
+      }
+      for (const hint of (routing.hints || []).filter(hint => !hint.after_order)) {
+        step('Retrieval hint', hint.supplied ? 'supplied' : 'generated', hintLabel(hint));
+      }
+    } else if (run?.status === 'running') {
+      panelNote('Preparing context…');
+    } else if (!run?.diagnostics) {
+      panelNote('Diagnostic data unavailable for this turn.');
+    }
+    const renderTool = tool => {
+      step([tool.tool, tool.operation].filter(Boolean).join(' · '), tool.status,
+        [tool.call_id && `Call ${tool.call_id}`, tool.elapsed_ms != null && `${tool.elapsed_ms} ms`,
+          tool.error_category, tool.reused && 'Reused result', tool.supplied && 'Result supplied to adapter',
+          tool.historical && 'From conversation history'].filter(Boolean).join(' · '));
+      if (tool.memory_recall?.escalation_skipped) {
+        step('Knowledge escalation after MemoryTool', 'skipped', tool.memory_recall.escalation_skipped);
+      }
+      for (const search of (routing?.prefetch || []).filter(search => search.after_order === tool.order)) {
+        step(`${sourceLabels[search.scope]} automatic fallback`, search.status,
+          [search.reason, search.error].filter(Boolean).join(' · '));
+      }
+      for (const hint of (routing?.hints || []).filter(hint => hint.after_order === tool.order)) {
+        step('Retrieval hint', hint.supplied ? 'supplied' : 'generated', hintLabel(hint));
+      }
+    };
+    for (const [index, request] of requests.entries()) {
+      step(request.iteration > 1 ? 'Model request · resumed' : 'Model request', request.status,
+        [`Iteration ${request.iteration}`, `Attempt ${request.attempt}`, request.error_category,
+          request.elapsed_ms != null && `${request.elapsed_ms} ms`].filter(Boolean).join(' · '));
+      const next = requests[index + 1];
+      if (next?.iteration !== request.iteration) {
+        tools.filter(tool => tool.iteration === request.iteration).forEach(renderTool);
+      }
+    }
+    tools.filter(tool => !requests.some(request => request.iteration === tool.iteration)).forEach(renderTool);
+    if (!tools.length) panelNote('No recorded tool activity.');
+    if (run?.status === 'completed') step('Assistant response', 'completed');
+    if (['failed', 'cancelled', 'outcome unknown'].includes(run?.status)) step('Run', run.status, run.error || '');
+    if (list.childNodes.length) panelBody.append(list);
+    if (submitting && !selectedDiagnosticRun) {
+      latest.steps.filter(item => item.pending).forEach(item => panelNote(`${item.tool} · ${item.status}`));
     }
   }
-  function renderSources() {
-    const sources=[...new Set((latest.steps || []).flatMap(step=>step.sources || []))];
-    if(!sources.length) panelNote('No sources used for this response.');
-    sources.forEach(source=>{
-      const note=document.createElement('p'); note.className='source-item';
-      const label=source.startsWith('@project')?'Project Memory':source.startsWith('@knowledge')?'Global Knowledge':/^https?:/.test(source)?'Web source':'Retrieved source';
-      note.textContent=label+' · '+source;panelBody.append(note);
-    });
-    (latest.steps || []).filter(step=>step.tool==='FilesystemTool' && step.operation==='view_file' && step.success===true).forEach(()=>panelNote('Source includes a direct file read.'));
+
+  function renderMemoryRecall(recall, label, id) {
+    const recallStatus = recall.skip_reason === 'recall_disabled' ? 'Memory Recall disabled' : ({
+      no_results: recall.budget_omitted ? 'Matching memories exceeded the context budget' : 'No matching active memories returned',
+      failed: 'Memory Recall failed', unavailable: 'Memory Recall unavailable',
+      not_selected: 'Memory Recall not selected',
+    }[recall.status] || formatStatus(recall.status));
+    const scopes = recall.scopes?.length ? ` · Allowed scope: ${recall.scopes.join(', ')}` : '';
+    panelNote(`${label} · ${recallStatus}${scopes}`);
+    if (recall.reason) panelNote(recall.reason);
+    if (recall.invoked === false) panelNote('Recall service was not invoked.');
+    else if (recall.search_executed === false) panelNote('Recall did not reach a search backend.');
+    else if (recall.search_executed === true) panelNote('Recall queried a search backend.');
+    if (recall.candidates != null) panelNote(`${recall.candidates} candidates`);
+    if (recall.selected != null) panelNote(`${recall.selected} selected · ${recall.supplied} supplied to provider adapter`);
+    if (recall.elapsed_ms != null) panelNote(`${recall.elapsed_ms} ms`);
+    if (recall.estimated_context_size != null) panelNote(`${recall.estimated_context_size} estimated tokens`);
+    if (recall.budget_omitted) panelNote(`${recall.budget_omitted} omitted for budget`);
+    if (recall.duplicates_omitted) panelNote(`${recall.duplicates_omitted} duplicate(s) omitted`);
+    if (recall.error_category) panelNote(recall.error_category);
+    if (recall.fallback_error_category) panelNote(`Semantic recall fallback · ${recall.fallback_error_category}`);
+    if (recall.fallback_reason) panelNote(`Semantic recall fallback · ${formatStatus(recall.fallback_reason)}`);
+    if (recall.skip_reason && recall.skip_reason !== 'recall_disabled') panelNote(formatStatus(recall.skip_reason));
+    if (recall.ids?.length) diagnosticDetails('Selected memory IDs', id).append(document.createTextNode(recall.ids.join(', ')));
+  }
+
+  function hintLabel(hint) {
+    const scopes = hint.scopes.map(scope => sourceLabels[scope]).join(', ');
+    return `${formatStatus(hint.kind)} evidence${scopes ? ` · Optional search in ${scopes}` : ''}`;
+  }
+
+  function renderSources(run) {
+    const diagnostics = run?.diagnostics;
+    const routing = diagnostics?.routing;
+    panelHeading('Knowledge Routing');
+    if (!run) panelNote(submitting ? 'Preparing context…' : 'Choose a conversation turn to inspect its sources.');
+    else if (!diagnostics) panelNote('Diagnostic data unavailable for this turn.');
+    else if (!routing) panelNote(run.status === 'running' ? 'Preparing context…' : 'Routing was not recorded.');
+    else {
+      const selected = [...(routing.memory_requested ? ['Long-Term Memory'] : []),
+        ...(routing.initial_scopes || routing.scopes).map(scope => sourceLabels[scope])];
+      panelNote(`${routing.initial_scopes ? 'Initially selected' : 'Selected'}: ${selected.join(', ') || 'None'}`);
+      panelNote(routing.reason);
+      if (routing.topic_from_history) panelNote('Search used the recent conversation topic.');
+      if (routing.rag_disabled) panelNote('RAG excluded for this turn by the user.');
+      else if (routing.excluded_scopes?.length) {
+        panelNote(`Excluded by the user: ${routing.excluded_scopes.map(scope => sourceLabels[scope]).join(', ')}`);
+      }
+      panelNote(`Routing: ${routing.routing_ms} ms`);
+    }
+
+    panelHeading('Long-Term Memory');
+    const recall = routing?.memory_recall;
+    if (!recall) panelNote('No recorded Memory Recall data.');
+    else renderMemoryRecall(recall, 'Automatic Memory Recall', 'memory-ids');
+    if (routing?.assessment) {
+      panelNote(`Assessment · ${formatStatus(routing.assessment.status)} · ${routing.assessment.reason}`);
+    }
+    if (routing?.escalation) {
+      panelNote(`Escalated to ${routing.escalation.scopes.map(scope => sourceLabels[scope]).join(', ')} · ${routing.escalation.reason}`);
+    } else if (routing?.escalation_skipped) {
+      panelNote(`Automatic fallback skipped · ${routing.escalation_skipped}`);
+    }
+    for (const tool of diagnostics?.tools || []) {
+      if (tool.tool === 'MemoryTool' && tool.operation === 'recall') {
+        renderMemoryRecall(
+          {status: tool.status, elapsed_ms: tool.elapsed_ms, ...tool.memory_recall},
+          'Model-initiated MemoryTool recall', `memory-tool-${tool.order}`,
+        );
+        if (tool.memory_recall?.assessment) {
+          panelNote(`Assessment · ${formatStatus(tool.memory_recall.assessment.status)} · ${tool.memory_recall.assessment.reason}`);
+        }
+        if (tool.memory_recall?.escalation_skipped) {
+          panelNote(`Automatic fallback skipped · ${tool.memory_recall.escalation_skipped}`);
+        }
+      }
+    }
+
+    for (const scope of ['global', 'project']) {
+      panelHeading(sourceLabels[scope]);
+      if (scope === 'project' && !currentProjectId) {
+        panelNote('Project Knowledge unavailable in General Chat');
+        continue;
+      }
+      if (!routing) {
+        panelNote('No recorded retrieval data.');
+        continue;
+      }
+      const prefetch = routing.prefetch.filter(search => search.scope === scope);
+      panelNote(routing.scopes.includes(scope) ? 'Selected for automatic prefetch' : 'Not selected for automatic prefetch');
+      if (routing.scopes.includes(scope) && !prefetch.length) {
+        panelNote(run.status === 'running' ? 'Automatic prefetch pending' : 'No automatic prefetch outcome recorded');
+      }
+      prefetch.forEach((search, index) => {
+        renderSearch(search, search.after_order ? 'Automatic fallback after MemoryTool' : 'Automatic prefetch', `prefetch-${scope}-${index}`);
+        if (search.reason) panelNote(search.reason);
+      });
+      routing.follow_up.filter(search => search.scope === scope)
+        .forEach((search, index) => renderSearch(search, 'Model-initiated RagTool', `rag-${scope}-${index}`));
+    }
+    const otherSearches = routing?.follow_up.filter(search => !['global', 'project'].includes(search.scope)) || [];
+    if (otherSearches.length) {
+      panelHeading('Other RagTool searches');
+      otherSearches.forEach((search, index) => renderSearch(search,
+        `Model-initiated RagTool · ${sourceLabels[search.scope] || formatStatus(search.scope)}`, `rag-other-${index}`));
+    }
+
+    panelHeading('Context Assembly');
+    if (!routing) {
+      panelNote('No recorded context assembly data.');
+      return;
+    }
+    if (recall?.selected != null) {
+      panelNote(`Memory · ${recall.selected} selected${recall.prepared == null ? '' : ` · ${recall.prepared} prepared`} · ${recall.supplied} supplied to provider adapter`);
+    }
+    for (const hint of routing.hints || []) {
+      panelNote(`Retrieval hint · ${hintLabel(hint)} · ${hint.supplied ? 'supplied to provider adapter' : 'generated'}`);
+    }
+    for (const scope of (currentProjectId ? ['global', 'project'] : ['global'])) {
+      for (const [label, searches] of [['automatic prefetch', routing.prefetch], ['RagTool', routing.follow_up]]) {
+        for (const search of searches.filter(item => item.scope === scope)) {
+          if (search.chunks == null || search.status === 'started') continue;
+          const metrics = [
+            search.retrieved_sources && `${search.retrieved_sources.length} retrieved paths recorded`,
+            `${search.chunks} excerpts prepared`, `${search.supplied ?? 0} supplied to provider adapter`,
+            search.budget_omitted && `${search.budget_omitted} omitted for budget`,
+            search.duplicates_omitted && `${search.duplicates_omitted} duplicates omitted`,
+            search.fragments && `${search.fragments.filter(fragment => fragment.truncated).length} truncated`,
+            search.estimated_context_size != null && `${search.estimated_context_size} estimated tokens`,
+          ];
+          panelNote(`${sourceLabels[scope]} ${label} · ${metrics.filter(Boolean).join(' · ')}`);
+        }
+      }
+    }
+    for (const request of diagnostics.requests) {
+      panelNote(`Iteration ${request.iteration} · attempt ${request.attempt} · ${request.dispatched ? 'Dispatched to provider adapter' : 'Dispatch unconfirmed'} · ${request.history_messages} history messages · ${request.tool_results} current tool results`
+        + (request.history_omitted ? ` · ${request.history_omitted} history messages omitted for budget` : '')
+        + (request.usage?.input == null ? '' : ` · ${request.usage.input} input tokens reported`)
+        + (request.usage?.output == null ? '' : ` · ${request.usage.output} output tokens reported`));
+    }
+  }
+
+  function renderSearch(search, label, key) {
+    panelNote(`${label} · ${formatStatus(search.status)}${search.elapsed_ms == null ? '' : ` · ${search.elapsed_ms} ms`}`);
+    if (search.candidates != null) panelNote(`${search.candidates} candidates`);
+    if (search.chunks != null) panelNote(`${search.chunks} excerpts prepared · ${search.supplied ?? 0} supplied to provider adapter`);
+    if (search.index_status) panelNote(`Index · ${formatStatus(search.index_status)}`);
+    if (search.search_executed === false && !search.reused) panelNote('Search did not reach the retrieval pipeline.');
+    if (search.error) panelNote(search.error);
+    if (search.call_id) panelNote(`Call ${search.call_id}`);
+    if (search.reused) panelNote('Reused result.');
+    if (search.budget_omitted) panelNote(`${search.budget_omitted} omitted for budget`);
+    if (search.duplicates_omitted) panelNote(`${search.duplicates_omitted} duplicate(s) omitted`);
+    if (search.estimated_context_size != null) panelNote(`${search.estimated_context_size} estimated tokens`);
+    const authorized = path => typeof path === 'string' &&
+      (path.startsWith('@knowledge/') || (currentProjectId && path.startsWith('@project/')));
+    const paths = (search.retrieved_sources || search.sources || []).filter(authorized);
+    const fragments = (search.fragments || []).filter(fragment => authorized(fragment.path));
+    if (paths.length || fragments.length) {
+      const details = diagnosticDetails('Source paths and prepared excerpts', key);
+      for (const text of [...paths, ...fragments.map(fragment =>
+        `${fragment.path} · ${fragment.id} · ${search.supplied ? 'supplied to provider adapter' : 'prepared'}${fragment.truncated ? ' · truncated' : ''}`)]) {
+        const note = document.createElement('p');
+        note.textContent = text;
+        details.append(note);
+      }
+    }
   }
   async function readJson(response) {
     const text = await response.text();
@@ -463,13 +723,17 @@
     if (submitting || switchingProject || creatingProject || openingConversation) return;
     openingConversation = true; setProjectBusy(true); send.disabled = true; input.disabled = true;
     try {
-      const response = await fetch('/api/conversation?id='+encodeURIComponent(id), {cache:'no-store'});
+      const item = conversationItems.find(entry => entry.id === id);
+      if (!item) throw new Error('Conversation unavailable.');
+      if (item.project_id !== currentProjectId) {
+        await switchProject(item.project_id, true);
+        if (currentProjectId !== item.project_id) throw new Error('Conversation project is unavailable.');
+      }
+      const params = new URLSearchParams({id});
+      if (currentProjectId) params.set('project_id', currentProjectId);
+      const response = await fetch('/api/conversation?' + params, {cache:'no-store'});
       const data = await readJson(response);
       if (!response.ok) throw new Error(data.error || 'Conversation unavailable.');
-      if (data.project_id !== currentProjectId) {
-        await switchProject(data.project_id, true);
-        if (currentProjectId !== data.project_id) throw new Error('Conversation project is unavailable.');
-      }
       currentConversationId = id; saveActiveConversation();
       const groupKey=data.scope_type === 'general' ? 'general' : 'project:'+data.project_id;
       expansion.revealConversation(groupKey, restore);
@@ -477,22 +741,37 @@
       showPage('chat'); closeSidebar();
       await changeView();
       conversation.replaceChildren();
-      const finished = new Set(data.events.filter(e=>e.kind==='run' && e.status==='completed').map(e=>e.run_id));
+      diagnosticRuns = new Map(); streamingDiagnosticRun = null;
       for (const event of data.events) {
-        if (event.kind === 'user' && !event.generated) addMessage('user', event.content);
-        if (event.kind === 'assistant' && finished.has(event.run_id) && !event.message?.tool_calls?.length && !event.content.includes('```tool_call')) addMessage('assistant', event.content);
+        if (event.kind !== 'run' || !event.run_id) continue;
+        const previous = diagnosticRuns.get(event.run_id);
+        diagnosticRuns.set(event.run_id, {
+          number: previous?.number || diagnosticRuns.size + 1,
+          status: event.status, error: event.content, assistantId: event.assistant_event_id,
+          diagnostics: event.diagnostics?.version === 1 ? event.diagnostics : previous?.diagnostics || null,
+          legacyTools: [],
+        });
       }
-      const lastRunId = [...data.events].reverse().find(event=>event.kind==='run')?.run_id;
-      latest.steps = data.events.filter(event=>event.kind==='tool_result' && event.run_id===lastRunId).map(event=>({
-        tool:event.tool, operation:event.operation, call_id:event.call_id,
-        success:event.status==='completed', status:event.status,
-        error:event.status==='completed' ? null : event.content.slice(0, 300),
-      }));
+      const toolOutcomes = new Set(data.events.filter(event => event.kind === 'tool_result')
+        .map(event => JSON.stringify([event.run_id, event.call_id])));
+      for (const event of data.events) {
+        const run = diagnosticRuns.get(event.run_id);
+        if (event.kind === 'user' && !event.generated) addMessage('user', event.content);
+        if (event.kind === 'assistant' && run?.status === 'completed'
+            && (run.assistantId ? run.assistantId === event.id
+              : !event.message?.tool_calls?.length && !event.content.includes('```tool_call'))) {
+          attachContextAction(addMessage('assistant', event.content).article, event.run_id);
+        }
+        const hasOutcome = toolOutcomes.has(JSON.stringify([event.run_id, event.call_id]));
+        if (run && (event.kind === 'tool_result' || (event.kind === 'tool_call' && !hasOutcome))
+            && !run.diagnostics?.tools.some(tool => tool.call_id === event.call_id)) {
+          run.legacyTools.push({tool: event.tool, operation: event.operation,
+            call_id: event.call_id, status: event.kind === 'tool_result' ? event.status : 'Outcome unknown', historical: true});
+        }
+      }
       render();
       if (!conversation.childNodes.length) conversation.append(emptyForScope());
-      const runs = new Map();
-      data.events.filter(e=>e.kind==='run').forEach(e=>runs.set(e.run_id, e.status));
-      if ([...runs.values()].some(status=>status !== 'completed')) setState('This conversation contains an incomplete run.');
+      if ([...diagnosticRuns.values()].some(run => run.status !== 'completed')) setState('This conversation contains an incomplete run.');
       await refreshConversations();
     } catch (error) { setState(error.message, 'error'); }
     finally { openingConversation = false; setProjectBusy(false); send.disabled = false; input.disabled = false; }
@@ -504,17 +783,17 @@
       const response = await fetch('/api/project/settings', {cache: 'no-store'});
       const payload = await readJson(response);
       if (!response.ok) throw new Error(payload.error || 'Project settings unavailable.');
-      if (currentProjectId === projectId && payload.project_id === projectId) latest.projectSettings = payload;
+      if (currentProjectId === projectId && payload.project_id === projectId) { latest.projectSettings = payload; q('#chat-permission-mode').value=payload.permission_mode || 'auto'; }
     } catch (error) {
       if (currentProjectId === projectId) latest.projectSettings = {error: error.message};
     }
-    if (activeTab === 'context' && !panel.contains(document.activeElement)) render('context');
+    if (activeTab === 'setup' && !panel.contains(document.activeElement)) render('setup');
   }
-  async function refreshRag() {
+  async function refreshRag(manual = false) {
     const projectId=currentProjectId;
     try { const data=await readJson(await fetch('/api/rag'));if(projectId===currentProjectId) latest.rag=data; }
     catch { if(projectId===currentProjectId) latest.rag = {error: 'Synchronization status is unavailable.'}; }
-    if (activeTab === 'context' && !panel.contains(document.activeElement)) render('context');
+    if (activeTab === 'setup' && (manual || !panel.contains(document.activeElement))) render('setup');
   }
   refreshRag();
   window.setInterval(refreshRag, 5000);
@@ -525,6 +804,7 @@
   function updateProjectHeader(item) {
     const name = item?.name || 'General Chat';
     const path = item?.path || 'Global Knowledge · No active project';
+    q('#chat-permissions').hidden=!item;
     q('#active-project-name').textContent = name;
     q('#active-project-name').title = name;
     q('#task-title').textContent = name;
@@ -564,7 +844,13 @@
         if (projectId !== currentProjectId) await switchProject(projectId);
         if (projectId === currentProjectId) await newConversation();
       });
-      heading.append(toggle,select,count,create); section.append(heading);
+      heading.append(toggle,select,count,create);
+      if (!group.unavailable && projectId !== null) {
+        select.addEventListener('contextmenu',event=>{event.preventDefault();settingsUI.projectMenu(projectId,event.clientX,event.clientY,select);});
+        select.addEventListener('keydown',event=>{if(event.key==='ContextMenu' || (event.shiftKey && event.key==='F10')){event.preventDefault();const rect=select.getBoundingClientRect();settingsUI.projectMenu(projectId,rect.left,rect.bottom,select);}});
+        const config=document.createElement('button');config.type='button';config.className='group-new-chat';config.textContent='⚙';config.title='Project settings';config.setAttribute('aria-label',`Settings for ${group.name}`);config.addEventListener('click',()=>settingsUI.openProject(projectId));heading.append(config);
+      }
+      section.append(heading);
       const contents=document.createElement('div'); contents.id=contentsId; contents.className='group-contents'; contents.hidden=!expanded;
       toggle.addEventListener('click', () => { const value=contents.hidden; contents.hidden=!value; expansion.setGroup(group.key,value); toggle.setAttribute('aria-expanded',String(value)); toggle.textContent=value?'▾':'▸'; });
       for (const item of group.items) {
@@ -703,13 +989,14 @@
     const message = input.value.trim();
     if (!message || submitting || switchingProject || creatingProject || openingConversation) return;
     if (isCloud() && !q('#cloud-model').value.trim()) { setState('Choose an exact model ID first.', 'error'); return; }
-    panelState.beginRun();
     submitting = true; q('#active-model').disabled=true; send.disabled = true; provider.disabled = true; input.disabled = true;
     q('#cancel').disabled = false; q('#cancel').hidden = false; send.hidden = true; setProjectBusy(true);
     q('#cloud-settings').querySelectorAll('input, select, button').forEach(item => { item.disabled = true; });
-    activeController = new AbortController(); activeRunId = crypto.randomUUID(); activeAssistant = null; streamedResponse = '';
+    activeRunId = crypto.randomUUID(); activeAssistant = null; streamedResponse = '';
+    streamingDiagnosticRun = null;
     latest = { ...latest, steps: [], error: null };
     setState('Starting Chief Agent…', 'pending');
+    scheduleDiagnosticsRender();
     try {
       if (!currentConversationId) {
         const created = await conversationPost('/api/conversations', {scope_type: currentProjectId ? 'project' : 'general', project_id: currentProjectId});
@@ -720,17 +1007,32 @@
         await refreshConversations();
       }
       addMessage('user', message);
+      const conversationId = currentConversationId;
+      const projectId = currentProjectId;
       const response = await fetch('/api/chat', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message, provider: provider.value, project_id: currentProjectId, conversation_id: currentConversationId, session_id: sessionId, run_id: activeRunId,
           model:q('#cloud-model').value.trim() || null, account_id:provider.value === 'chatgpt' ? q('#cloud-account').value || null : null }),
-        signal: activeController.signal,
       });
       await window.LAEWStream.readEventStream(response, (event) => {
-        if (event.type === 'start') {
+        if (currentConversationId !== conversationId || currentProjectId !== projectId) return;
+        if (event.conversation_id && event.conversation_id !== conversationId) return;
+        if (event.run_id && streamingDiagnosticRun && event.run_id !== streamingDiagnosticRun) return;
+        if (event.conversation_id === conversationId && event.diagnostics?.version === 1 && event.run_id) {
+          streamingDiagnosticRun = event.run_id;
+          const previous = diagnosticRuns.get(event.run_id);
+          diagnosticRuns.set(event.run_id, {
+            number: previous?.number || diagnosticRuns.size + 1,
+            status: event.run_status || 'running', error: event.error,
+            diagnostics: event.diagnostics,
+          });
+          if (!selectedDiagnosticRun || selectedDiagnosticRun === event.run_id || !previous || event.run_status) scheduleDiagnosticsRender();
+        }
+        if (event.phase === 'provider_request' && !streamedResponse) setState('Generating response…', 'pending');
+        if (event.type === 'start') { latest.memories=[];
           latest = { ...latest, provider: event.provider, model: event.model };
           q('#runtime').textContent = `${event.provider || 'Provider'} · ${event.model || 'model unavailable'}`;
-          q('#runtime').className = 'ready'; setState('Generating response…', 'pending');
+          q('#runtime').className = 'ready'; setState('Preparing context…', 'pending');
         } else if (event.type === 'delta') {
           streamedResponse += event.text;
           if (!activeAssistant) activeAssistant = addMessage('assistant', '');
@@ -742,11 +1044,10 @@
           setState('Provider retrying…', 'pending');
         } else if (event.type === 'step') {
           latest = { ...latest, steps: [...(latest.steps || []).filter(step => !(step.pending && step.tool === event.step.tool && step.operation === event.step.operation)), event.step] };
-          if (event.step.tool) panelState.toolEvent();
-          render(panelState.active);
+          if (!selectedDiagnosticRun) scheduleDiagnosticsRender();
         } else if (event.type === 'approval') {
           latest.steps.push({tool:event.tool,operation:event.operation,pending:true,approvalId:event.id,status:'Pending approval',success:null});
-          render(panelState.toolEvent());
+          if (!selectedDiagnosticRun) scheduleDiagnosticsRender();
           const card = document.createElement('section'); card.className = 'message approval-request'; card.setAttribute('role','group'); card.setAttribute('aria-label','Tool approval');
           const heading = document.createElement('strong'); heading.textContent = 'Chief Agent requests permission';
           const details = document.createElement('pre');
@@ -771,46 +1072,56 @@
           });
           conversation.append(card); conversation.scrollTop=conversation.scrollHeight; setState('Waiting for approval…', 'pending');
         } else if (event.type === 'done') {
-          latest = { ...latest, ...event };
+          knowledgeUI.refresh();
+          latest = { ...latest, provider: event.provider, model: event.model, usage: event.usage };
           if (!activeAssistant) activeAssistant = addMessage('assistant', event.response || 'The Chief Agent returned no response.', event.response ? '' : 'error');
           else window.LAEWMarkdown.renderMarkdown(activeAssistant.content, event.response || streamedResponse);
+          if (streamingDiagnosticRun) attachContextAction(activeAssistant.article, streamingDiagnosticRun);
           input.value = '';
           q('#runtime').textContent = `${event.provider || latest.provider || 'Provider'} · ${event.model || latest.model || 'model unavailable'}`;
           q('#runtime').className = 'ready'; setState('Completed', 'success');
+        } else if (event.type === 'cancelled') {
+          if (activeAssistant) activeAssistant.article.classList.add('incomplete');
+          conversation.querySelectorAll('.approval-request button').forEach(button => { button.disabled = true; });
+          setState('Cancelled', 'error');
         } else if (event.type === 'error') {
           latest = { ...latest, error: event.error, steps: event.steps || latest.steps || [] };
           if (activeAssistant) activeAssistant.article.classList.add('incomplete');
           addMessage('assistant', `${event.error || 'The response failed.'} Check provider availability and retry.`, 'error');
           setState('Run failed — revise and retry', 'error');
         }
-      }, activeController.signal);
+      });
     } catch (error) {
-      const cancelled = error.name === 'AbortError' || (activeRunId && activeRunId === stoppingRunId);
-      latest = { ...latest, error: cancelled ? 'Response cancelled.' : error.message, steps: latest.steps || [] };
+      const run = diagnosticRuns.get(streamingDiagnosticRun);
+      if (run?.status === 'running') {
+        run.status = 'outcome unknown';
+        run.error = 'Response stream ended early. Reopen the conversation for the persisted outcome.';
+      }
+      latest = { ...latest, error: error.message, steps: latest.steps || [] };
       if (activeAssistant) activeAssistant.article.classList.add('incomplete');
-      if (cancelled) latest.steps.forEach(step=>{if(step.pending) step.status='Cancelled';});
-      if (cancelled) conversation.querySelectorAll('.approval-request button').forEach((button) => { button.disabled = true; });
-      addMessage('assistant', `${latest.error} ${cancelled ? 'The partial response is incomplete.' : 'Check provider availability and retry.'}`, 'error');
-      setState(cancelled ? 'Cancelled · partial response retained' : 'Run failed — revise and retry', 'error');
+      conversation.querySelectorAll('.approval-request button').forEach(button => { button.disabled = true; });
+      addMessage('assistant', latest.error, 'error');
+      setState('Stream interrupted', 'error');
     } finally {
-      submitting = false; activeController = null; activeRunId = null; stoppingRunId = null; activeAssistant = null;
+      submitting = false; activeRunId = null; activeAssistant = null;
+      streamingDiagnosticRun = null;
       send.disabled = false; send.hidden = false; q('#cancel').hidden = true; q('#cancel').disabled = true; provider.disabled = false; input.disabled = false; setProjectBusy(false);
       q('#cloud-settings').querySelectorAll('input, select, button').forEach(item => { item.disabled = false; });
-      drawProjectList(); refreshConversations(); updateModelPicker(); render(); input.focus();
+      drawProjectList(); refreshConversations(); updateModelPicker(); render();
+      if (!panel.contains(document.activeElement)) input.focus();
     }
   }
   q('#cancel').addEventListener('click', async () => {
-    const controller = activeController, runId = activeRunId;
-    if (!controller || !runId) return;
-    stoppingRunId = runId;
+    const runId = activeRunId;
+    if (!runId) return;
     q('#cancel').disabled = true; setState('Stopping…', 'pending');
     try {
       const response = await fetch('/api/chat/cancel', {method: 'POST', headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({session_id: sessionId, run_id: runId})});
       if (!response.ok) throw new Error('Could not stop the run.');
-      controller.abort();
+      // Persistent runs report cancellation through the stream after saving the terminal snapshot.
     } catch (error) {
-      if (activeRunId === runId) { stoppingRunId = null; q('#cancel').disabled = false; setState(error.message, 'error'); }
+      if (activeRunId === runId) { q('#cancel').disabled = false; setState(error.message, 'error'); }
     }
   });
   function closeSidebar() {
@@ -926,5 +1237,14 @@
     }));
     drawProviderCards();updateModelPicker();
   }
+  const knowledgeUI=window.LAEWKnowledge.create({project:()=>currentProjectId,conversation:()=>currentConversationId});
+  knowledgeUI.refresh();
+  window.setInterval(()=>{if(!document.hidden)knowledgeUI.refresh();},10000);
+  const settingsUI=window.LAEWSettings.create({
+    projects:()=>projectItems, conversation:()=>currentConversationId, project:()=>currentProjectId,
+    selection:()=>({provider:provider.value,model:q('#cloud-model').value,account_id:q('#cloud-account').value || null}),
+    catalogs:()=>window.LAEWUI.modelGroups(Array.from(catalogs.entries()),providerLabels,credentialStatus.accounts || []),
+    openConversation, onProjectSaved:refreshProjectSettings
+  });
   updateServiceEditor(); syncResponsivePanels(); render(); refreshProjects().then(() => { const saved=storage.get(activeConversationKey); if (saved && !currentConversationId) openConversation(saved, true); }); discoverModels();
 })();

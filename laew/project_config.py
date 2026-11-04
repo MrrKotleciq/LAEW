@@ -32,30 +32,37 @@ def validate_language(value):
     return value
 
 
-def load_project_settings(project_root):
+def project_overrides(project_root):
     path = Path(project_root).resolve() / CONFIG_NAME
     if path.is_symlink():
         raise ValueError("Project settings cannot be a symbolic link.")
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
     except FileNotFoundError:
-        return {"documentation_language": "en"}
+        return {}
     except (UnicodeError, json.JSONDecodeError) as exc:
         raise ValueError("Project settings are not valid UTF-8 JSON.") from exc
     if not isinstance(data, dict):
         raise ValueError("Project settings must be a JSON object.")
     if "rag_source_allowlist" in data:
         data["rag_source_allowlist"] = validate_rag_source_allowlist(data["rag_source_allowlist"])
-    return {**data, "documentation_language": validate_language(data.get("documentation_language", "en"))}
+    if 'documentation_language' in data: validate_language(data['documentation_language'])
+    return data
+
+
+def load_project_settings(project_root, defaults=None):
+    return {"documentation_language":"en", **(defaults or {}), **project_overrides(project_root)}
 
 
 def save_project_settings(project_root, updates):
     root = Path(project_root).resolve(strict=True)
     if not root.is_dir():
         raise ValueError("Project root is not a directory.")
-    data = load_project_settings(root)
-    data.update(updates)
-    validate_language(data["documentation_language"])
+    data = project_overrides(root)
+    for key,value in updates.items():
+        if value is None and key == "documentation_language": data.pop(key,None)
+        else: data[key]=value
+    if 'documentation_language' in data: validate_language(data['documentation_language'])
     if "rag_source_allowlist" in data:
         data["rag_source_allowlist"] = validate_rag_source_allowlist(data["rag_source_allowlist"])
     path = root / CONFIG_NAME

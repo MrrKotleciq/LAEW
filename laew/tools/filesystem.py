@@ -402,10 +402,25 @@ class FilesystemTool(Tool):
         elif expected_sha256:
             return ToolResult.error(ErrorCode.ERR_TARGET_NOT_FOUND, "Expected existing note does not exist.")
         if not exists:
-            if self.knowledge_note_path(file_path) != path:
-                return ToolResult.error(ErrorCode.ERR_PATH_DENIED, "Knowledge target changed during approval.")
-            with path.open("xb") as handle:
-                handle.write(encoded)
+            # Publish a fully flushed file exclusively. A crash cannot expose a
+            # partial new note, and a concurrent creator cannot be overwritten.
+            temp_name = None
+            try:
+                with tempfile.NamedTemporaryFile(dir=path.parent, prefix=".laew-note-", delete=False) as handle:
+                    temp_name = handle.name
+                    handle.write(encoded)
+                    handle.flush()
+                    os.fsync(handle.fileno())
+                if self.knowledge_note_path(file_path) != path:
+                    return ToolResult.error(ErrorCode.ERR_PATH_DENIED, "Knowledge target changed during approval.")
+                if os.name == "nt":
+                    # Windows rename fails if the destination already exists.
+                    os.rename(temp_name, path)
+                else:
+                    os.link(temp_name, path)
+            finally:
+                if temp_name and os.path.exists(temp_name):
+                    os.unlink(temp_name)
         else:
             temp_name = None
             try:

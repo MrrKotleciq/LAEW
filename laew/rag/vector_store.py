@@ -1,12 +1,15 @@
 """In-memory vector store with similarity search."""
 
 import json
+import logging
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
 from laew.config.constants import DEFAULT_VECTOR_STORE_PORT
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -244,6 +247,8 @@ class ChromaVectorStore:
         source: Optional[str] = None,
         timeout: int = 30,
         embedding_model_id: Optional[str] = None,
+        *,
+        read_only: bool = False,
     ):
         """
         Initialize ChromaVectorStore.
@@ -254,6 +259,7 @@ class ChromaVectorStore:
             collection_name: ChromaDB collection name
             source: Optional default source scope ("project" or "global")
             timeout: Connection timeout in seconds
+            read_only: Open an existing collection without creating or updating it.
 
         Raises:
             ValueError: If chromadb is not installed
@@ -277,13 +283,16 @@ class ChromaVectorStore:
         self._client = _build_chroma_client(chromadb, host, port, timeout)
 
         try:
-            self._collection = self._client.get_or_create_collection(
-                name=collection_name,
-                metadata={
-                    "hnsw:space": "cosine",
-                    **({"embedding_model_id": embedding_model_id} if embedding_model_id else {}),
-                },
-            )
+            if read_only:
+                self._collection = self._client.get_collection(name=collection_name)
+            else:
+                self._collection = self._client.get_or_create_collection(
+                    name=collection_name,
+                    metadata={
+                        "hnsw:space": "cosine",
+                        **({"embedding_model_id": embedding_model_id} if embedding_model_id else {}),
+                    },
+                )
             if embedding_model_id:
                 metadata = self._collection.metadata or {}
                 stored_model_id = metadata.get("embedding_model_id")
@@ -293,7 +302,7 @@ class ChromaVectorStore:
                         "with a missing or incompatible embedding model identity. "
                         "Re-embed that scope into a fresh collection before retrieval."
                     )
-                if not self._collection.count() and stored_model_id != embedding_model_id:
+                if not read_only and not self._collection.count() and stored_model_id != embedding_model_id:
                     # ChromaDB 1.5 rejects ``hnsw:space`` in modify() because
                     # the distance function is immutable after creation. The
                     # collection metadata update is a replacement, so retain
@@ -429,7 +438,10 @@ class ChromaVectorStore:
 
         chunks = []
         for chunk_id, metadata, distance in zip(stored_ids, metadatas, distances):
-            if metadata is None:
+            if not metadata:
+                continue
+            stored_source = metadata.get("source")
+            if any(expected and stored_source != expected for expected in (self.source, source_filter)):
                 continue
             similarity = 1.0 - float(distance)
             chunk = DocumentChunk(

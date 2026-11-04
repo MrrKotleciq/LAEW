@@ -25,9 +25,10 @@ from laew.llm.base import LLMError
 
 
 @pytest.fixture(autouse=True)
-def isolate_background_synchronization():
+def isolate_background_synchronization(tmp_path):
     """CLI unit tests must not start a scheduler against the shipped workspace."""
-    with patch("laew.rag.sync.SyncScheduler") as scheduler:
+    from laew.console.session_store import SessionStore
+    with patch("laew.rag.sync.SyncScheduler") as scheduler, patch("laew.console.session_store.conversation_store_from_manifest", return_value=SessionStore(tmp_path/'conversations')):
         yield scheduler
 
 
@@ -478,6 +479,41 @@ class TestChatCommand:
         assert exit_code == 0
         _, kwargs = mock_build.call_args
         assert kwargs.get("timeout") == 900
+
+    def test_chat_general_memory_recall_reaches_the_provider(self, chat_manifest, tmp_path, monkeypatch, capsys):
+        from laew.llm.base import LLMResponse
+        from laew.memory.service import MemoryService
+        from laew.memory.store import MemoryStore
+
+        store = MemoryStore(tmp_path / "memory.db")
+        store.save_settings({"semantic_enabled": False})
+        initial = store.remember("Chcę polecieć do Edynburga w przyszłości.", category="goal")
+        targeted = store.remember("Portobello is my preferred beach.", category="preference")
+        private = store.remember("Private Portobello plan.", "project", "another-project", "goal")
+        memory = MemoryService(store)
+        sent = []
+
+        def generate(messages, **kwargs):
+            sent.append(list(messages))
+            reply = ('```tool_call\n{"tool":"MemoryTool","operation":"recall",'
+                     '"args":{"query":"Portobello"}}\n```' if len(sent) == 1 else "Recall complete.")
+            return LLMResponse(content=reply, model="fixture")
+
+        args = chats_args(chat_manifest)
+        args.model = "fixture"
+        args.general = True
+        args.no_persist = True
+        args.no_stream = True
+        provider = types.SimpleNamespace(base_url="fixture", is_available=lambda: True, generate=generate)
+        monkeypatch.setattr("laew.cli.build_provider_for_role", lambda *args, **kwargs: provider)
+        monkeypatch.setattr("laew.memory.integration.build_memory", lambda *args: memory)
+        monkeypatch.setattr("laew.rag.sync.SyncScheduler.start", lambda *args: None)
+        with patch("builtins.input", side_effect=["Przypomnij sobie, gdzie chciałbym polecieć.", "exit"]):
+            assert cmd_chat(args) == 0
+        assert initial["id"] in sent[0][0].content
+        assert targeted["id"] in sent[1][-1].content
+        assert private["id"] not in str(sent)
+        assert "[Memory] completed (1 selected)" in capsys.readouterr().out
 
     def test_chat_provider_flag_honored(self, chat_manifest, capsys):
         """An explicit --base-url flag is passed to build_provider_for_role."""

@@ -13,6 +13,9 @@ read_when:
 
 # Architecture
 
+- [Global Knowledge Curation](GLOBAL_KNOWLEDGE_CURATION.md)
+- [Global RAG and Ingestion Audit](../reports/GLOBAL_RAG_AUDIT.md)
+
 This directory contains documents describing LAEW's current architectural intent and design principles.
 
 ## Documents
@@ -80,3 +83,5 @@ The current roadmap is in [../roadmap/README.md](../roadmap/README.md).
 - [Decisions Index](../decisions/README.md)
 - [Roadmap](../roadmap/README.md)
 - [Project Status](../PROJECT_STATUS.md)
+
+- [Long-Term Memory](LONG_TERM_MEMORY.md) — SQLite records, recall, extraction, index recovery and Settings.

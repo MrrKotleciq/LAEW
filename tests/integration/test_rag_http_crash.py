@@ -28,8 +28,9 @@ def test_partial_http_upsert_crash_recovery(tmp_path, monkeypatch):
         port = sock.getsockname()[1]
     if port in (8000, 8080, 8081, 8765):
         pytest.skip("Reserved service port selected")
-    executable = Path(sys.executable).with_name("chroma.exe" if os.name == "nt" else "chroma")
-    server = subprocess.Popen([str(executable), "run", "--host", "127.0.0.1", "--port", str(port),
+    # Invoke the installed package rather than assuming a console script beside Python.
+    executable = [sys.executable, "-c", "import sys; from chromadb.cli.cli import app; sys.argv[0]='chroma'; app()"]
+    server = subprocess.Popen([*executable, "run", "--host", "127.0.0.1", "--port", str(port),
                                "--path", str(tmp_path / "db")], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     child = None
     try:

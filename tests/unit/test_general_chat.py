@@ -118,5 +118,6 @@ def test_cli_general_uses_the_same_scope_and_broker(tmp_path):
         executor.return_value.run.return_value = result
         assert cmd_chat(args) == 0
     agent = executor.call_args.args[0]
-    assert set(agent.tools) == {"FilesystemTool", "WebTool", "RagTool"}
+    assert set(agent.tools) == {"FilesystemTool", "WebTool", "RagTool", "MemoryTool"}
+    assert agent.tools["MemoryTool"].project_id is None
     assert agent.tools["FilesystemTool"].resolver.project_root is None

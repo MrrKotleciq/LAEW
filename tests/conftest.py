@@ -8,6 +8,12 @@ def offline_service_boundary(monkeypatch, request):
     """Offline tests cannot reach production services or start their scheduler."""
     if request.node.get_closest_marker("live"):
         return
+    monkeypatch.setenv('LAEW_MEMORY_STORAGE',str(request.config._tmp_path_factory.mktemp('memory')/'memory.db'))
+    monkeypatch.setenv('LAEW_KNOWLEDGE_STORAGE',str(request.config._tmp_path_factory.mktemp('knowledge')/'curation.db'))
+    from laew.knowledge.integration import KnowledgeWorker
+    monkeypatch.setattr(KnowledgeWorker,'start',lambda self: None)
+    from laew.memory.integration import MemoryWorker
+    monkeypatch.setattr(MemoryWorker,'start',lambda self: None)
     import socket
     from pathlib import Path
     from laew.rag.sync import SyncScheduler

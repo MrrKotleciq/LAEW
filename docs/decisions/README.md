@@ -71,3 +71,5 @@ Each ADR is a standalone document. Use the table below to find the relevant deci
 - [Architecture Overview](../architecture/README.md)
 - [Project Status](../PROJECT_STATUS.md)
 - [Roadmap](../roadmap/README.md)
+
+- [ADR-023 — SQLite Long-Term Memory](ADR-023-sqlite-long-term-memory.md) — canonical SQLite with a rebuildable semantic index.

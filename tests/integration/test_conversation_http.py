@@ -39,6 +39,8 @@ def test_general_conversation_http_lifecycle(tmp_path):
             history = requests.get(base + "/api/conversation", params={"id": chat_id}, timeout=3).json()
             assert [e["kind"] for e in history["events"]] == ["run", "user", "assistant", "run"]
             assert history["events"][-1]["status"] == "completed"
+            assert history["events"][-1]["assistant_event_id"] == history["events"][-2]["id"]
+            assert history["events"][-1]["diagnostics"]["requests"][0]["dispatched"] is True
             assert requests.post(base + "/api/conversation/rename", json={"id": chat_id, "title": "Renamed"}, timeout=3).json()["title"] == "Renamed"
             assert requests.get(base + "/api/conversations", timeout=3).json()["conversations"][0]["id"] == chat_id
             assert requests.post(base + "/api/conversation/delete", json={"id": chat_id}, timeout=3).json()["deleted"]
@@ -46,3 +48,35 @@ def test_general_conversation_http_lifecycle(tmp_path):
             server.shutdown()
             server.server_close()
             thread.join()
+
+
+def test_project_conversation_diagnostics_require_matching_active_scope(tmp_path):
+    projects = tmp_path / "Projects"
+    for name in ("A", "B"):
+        (projects / name).mkdir(parents=True)
+    service = WorkspaceService(tmp_path / "manifest", projects_root=projects, workspace_root=tmp_path)
+    store = service._conversation_store = SessionStore(tmp_path / "sessions")
+    a, b = (service._id_for_path(projects / name) for name in ("A", "B"))
+    chat = store.create_conversation("project", a)
+    store.append_conversation_event(chat["id"], {
+        "id": "finished", "run_id": "test", "kind": "run", "status": "completed", "content": "",
+        "diagnostics": {"version": 1, "routing": {"scopes": ["project"], "prefetch": [
+            {"fragments": [{"id": "private-chunk", "path": "@project/private.md"}]}
+        ], "follow_up": []}, "tools": [], "requests": []},
+    })
+    server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(service))
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    url = f"http://127.0.0.1:{server.server_port}/api/conversation"
+    try:
+        for active, requested in ((None, None), (None, a), (b, b), (b, a), (a, b)):
+            service._active_project_id = active
+            result = requests.get(url, params={"id": chat["id"], "project_id": requested}, timeout=3)
+            assert result.status_code == 403 and "private.md" not in result.text
+        service._active_project_id = a
+        result = requests.get(url, params={"id": chat["id"], "project_id": a}, timeout=3)
+        assert result.status_code == 200 and "@project/private.md" in result.text
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join()

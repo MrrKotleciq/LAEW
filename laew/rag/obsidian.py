@@ -5,17 +5,18 @@ Parses the Obsidian "Second Brain" vault (ADR-002) so its notes — title,
 frontmatter, ``#tags`` and ``[[backlinks]]`` — survive chunking and are
 surfaced in retrieved context (ADR-011).
 
-The parser is intentionally dependency-free: it handles the subset Obsidian
-notes use (``title``, ``tags``, ``backlinks`` and simple inline/block lists)
-so the RAG core needs no PyYAML dependency.
 """
 
 import re
+
+import yaml
 from typing import Any, Dict, List
+
+NOTE_METADATA_VERSION = 1
 
 #: Matches a YAML frontmatter block delimited by ``---`` lines.
 FRONTMATTER_RE = re.compile(
-    r"^---[ \t]*\n(.*?)\n?^---[ \t]*\n?",
+    r"\A---[ \t]*\r?\n(.*?)^---[ \t]*(?:\r?\n|\Z)",
     re.DOTALL | re.MULTILINE,
 )
 
@@ -127,7 +128,11 @@ def parse_frontmatter(content: str) -> Dict[str, Any]:
     match = FRONTMATTER_RE.search(content)
     if not match:
         return {}
-    return _parse_frontmatter_block(match.group(1))
+    try:
+        value = yaml.safe_load(match.group(1))
+    except yaml.YAMLError:
+        return _parse_frontmatter_block(match.group(1))
+    return value if isinstance(value, dict) else {}
 
 
 def extract_links(text: str) -> List[str]:
@@ -164,7 +169,15 @@ def parse_note(content: str) -> Dict[str, Any]:
     frontmatter = parse_frontmatter(content)
     body = _strip_frontmatter(content).strip()
 
-    title = frontmatter.get("title")
+    properties = {
+        key: frontmatter[key]
+        for key in ("name", "description", "title", "type", "scope", "status")
+        if isinstance(frontmatter.get(key), str)
+    }
+    for key in ("tags", "read_when"):
+        if key in frontmatter:
+            properties[key] = _as_string_list(frontmatter[key])
+    title = properties.get("title")
     if not title:
         first = body.splitlines()
         if first:
@@ -176,8 +189,7 @@ def parse_note(content: str) -> Dict[str, Any]:
 
     tags = _as_string_list(frontmatter.get("tags", []))
     backlinks = _as_string_list(frontmatter.get("backlinks", []))
-    if not backlinks:
-        backlinks = extract_links(content)
+    backlinks = list(dict.fromkeys(backlinks + extract_links(content)))
     if not tags:
         tags = extract_tags(content)
 
@@ -186,4 +198,5 @@ def parse_note(content: str) -> Dict[str, Any]:
         "tags": tags,
         "backlinks": backlinks,
         "body": body,
+        "frontmatter": properties,
     }

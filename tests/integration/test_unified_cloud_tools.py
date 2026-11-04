@@ -73,12 +73,88 @@ def adapter(monkeypatch, provider, responses):
     return instance, session, model
 
 
+@pytest.mark.parametrize('provider',['openai-api','chatgpt','gemini'])
+def test_memory_category_schema_error_correction_and_review(tmp_path,monkeypatch,provider):
+    from laew.memory.store import MemoryStore
+    from laew.memory.service import MemoryService
+    from laew.memory.tool import MemoryTool
+    from laew.memory.categories import CATEGORIES
+    memory=MemoryService(MemoryStore(tmp_path/'memory.db'))
+    content='Użytkownik chce w przyszłości odwiedzić Edynburg.'
+    responses=[Response(frames(provider,[(str(i),'MemoryTool__propose',json.dumps(
+        dict(content=content,scope='user',category=category)))]))
+        for i,category in enumerate(['preferencje i plany podróżnicze','goals'])]
+    responses.append(Response(frames(provider,text='Proposal ready for review.')))
+    instance,session,model=adapter(monkeypatch,provider,responses)
+    broker=PermissionBroker(None)
+    tool=MemoryTool(memory)
+    result=AgentExecutor(Agent(AgentConfig(model=model),provider=instance,tools=[tool])).run(
+        'Zapamiętaj, że chcę w przyszłości odwiedzić Edynburg',
+        on_tool_call=lambda t,op,args:broker.call(t,op,args,None))
+    assert result.success
+    error=result.steps[0].tool_result
+    assert not error.success and set(error.data['accepted_categories'])==CATEGORIES
+    assert result.steps[1].tool_result.success
+    assert len(memory.proposals())==1 and memory.proposals()[0]['category']=='goal'
+    assert not memory.store.list_memories()
+    first=session.calls[0][2]['json']['tools'][0]
+    if provider=='chatgpt': first=first['tools'][0]
+    elif provider=='gemini': first=first['function']
+    assert set(first['parameters']['properties']['category']['enum'])==CATEGORIES
+    correction=json.dumps(session.calls[1][2]['json'])
+    assert 'accepted_categories' in correction and 'Correct category and retry' in correction
+
+
 def filesystem(tmp_path):
     project = tmp_path / "project"; project.mkdir()
     vault = tmp_path / "knowledge"; vault.mkdir()
     (project / "README.md").write_text("PROJECT-FIXTURE Zażółć 🧬", encoding="utf-8")
     fs = FilesystemTool(PathResolver(project_root=project, projects_root=tmp_path, knowledge_root=vault))
     return project, vault, fs
+
+
+@pytest.mark.parametrize("provider", ["openai-api", "chatgpt", "gemini"])
+def test_native_memory_recall_contract_and_continuation(tmp_path, monkeypatch, provider):
+    from laew.knowledge.routing import KnowledgeTurn
+    from laew.memory.service import MemoryService
+    from laew.memory.store import MemoryStore
+    from laew.memory.tool import MemoryTool
+
+    store = MemoryStore(tmp_path / "memory.db")
+    store.save_settings({"semantic_enabled": False})
+    initial = store.remember("I like hobbies such as stargazing.", category="interest")
+    targeted = store.remember("Edinburgh is the next destination.", category="goal")
+    memory = MemoryService(store)
+    tool = MemoryTool(memory)
+    calls = [("recall", "MemoryTool__recall", '{"query":"Edinburgh"}')]
+    instance, session, model = adapter(monkeypatch, provider, [
+        Response(frames(provider, calls)), Response(frames(provider, text="Fixture reply")),
+    ])
+    executor = AgentExecutor(Agent(AgentConfig(model=model), provider=instance, tools=[tool]))
+    broker = PermissionBroker(None)
+    turn = KnowledgeTurn(lambda t, op, args: broker.call(t, op, args, None))
+    # Start with a general recall; the targeted term occurs only in the function call.
+    message = "What are my hobbies?"
+    turn.prepare(executor, message, None, lambda: memory, None)
+    result = executor.run(message, on_tool_call=turn.call, on_diagnostic=turn.observe)
+    assert result.success and len(session.calls) == 2
+    first = session.calls[0][2]["json"]
+    definitions = first["tools"]
+    if provider == "chatgpt":
+        definitions = definitions[0]["tools"]
+    elif provider == "gemini":
+        definitions = [item["function"] for item in definitions]
+    definition = next(item for item in definitions if item["name"] == "MemoryTool__recall")
+    assert definition["parameters"]["required"] == ["query"]
+    assert set(definition["parameters"]["properties"]) == {"query"}
+    assert definition["parameters"]["additionalProperties"] is False
+    assert initial["id"] in json.dumps(first)
+    assert targeted["id"] in json.dumps(session.calls[1][2]["json"])
+    assert targeted["content"] not in str(executor.agent.history)
+    operation, = turn.snapshot()["tools"]
+    assert operation["operation"] == "recall"
+    assert operation["memory_recall"]["ids"] == [targeted["id"]]
+    assert operation["memory_recall"]["supplied"] == 1
 
 
 @pytest.mark.parametrize("provider", ["openai-api", "chatgpt", "gemini"])
@@ -273,3 +349,47 @@ def test_gemini_redacted_api_errors(monkeypatch, status, code):
         instance.generate([], model)
     assert error.value.code == code and "fixture" not in str(error.value)
     assert len(session.calls) == 1
+
+@pytest.mark.parametrize("provider", ["openai-api", "chatgpt", "gemini"])
+def test_native_transport_receives_automatic_knowledge_before_first_response(tmp_path, monkeypatch, provider):
+    from laew.knowledge.routing import KnowledgeTurn
+    from laew.memory.service import MemoryService
+    from laew.memory.store import MemoryStore
+
+    project, vault, _ = filesystem(tmp_path)
+    (vault / "environment.md").write_text("Shared environment evidence GLOBAL-NATIVE-54", encoding="utf-8")
+
+    class Embedding:
+        model, dimensions = "synthetic", 2
+
+        def embed(self, text):
+            return [1., 0.]
+
+        def embed_batch(self, texts):
+            return [self.embed(text) for text in texts]
+
+    rag = build_rag_tool({"rag": {"vector_store": {"enabled": False}}}, project_root=project,
+                         knowledge_root=vault, embedding_service=Embedding())
+    synchronize_scope(rag._pipeline.knowledge_base, "global")
+    instance, session, model = adapter(monkeypatch, provider, [
+        Response(frames(provider, text="Fixture response [source](@knowledge/environment.md)"))
+    ])
+    executor = AgentExecutor(Agent(AgentConfig(model=model), provider=instance, tools=[rag]))
+    broker = PermissionBroker(project)
+    turn = KnowledgeTurn(lambda tool, op, args: broker.call(tool, op, args, None))
+    memory = MemoryStore(tmp_path / "memory.db")
+    memory.save_settings({"semantic_enabled": False})
+    memory.remember("My hobbies include MEMORY-NATIVE-58.", category="interest")
+    message = "What are my hobbies and what is my AI environment configuration?"
+    turn.prepare(executor, message, "project", lambda: MemoryService(memory), rag)
+    result = executor.run(message, stream=True, on_tool_call=turn.call, on_diagnostic=turn.observe)
+    assert result.success and len(session.calls) == 1
+    first = json.dumps(session.calls[0][2]["json"])
+    assert "GLOBAL-NATIVE-54" in first and "environment.md" in first
+    assert "PROJECT-FIXTURE" not in first
+    assert "RagTool__query" in first
+    assert "Relevant Long-Term Memory" in first and "MEMORY-NATIVE-58" in first
+    assert "incomplete or outdated" in first
+    assert turn.diagnostics["memory_recall"]["supplied"] == 1
+    assert turn.tools == []
+    assert turn.diagnostics["prefetch"][0]["status"] == "found"

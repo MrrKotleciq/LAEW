@@ -26,6 +26,14 @@ class PermissionBroker:
         self._session_grants = set()
 
     def classify(self, tool, operation, args):
+        from laew.knowledge.tool import KnowledgeProposalTool
+        if isinstance(tool, KnowledgeProposalTool):
+            return ('safe' if operation in tool.operations and
+                    (self.project_root is not None or tool.project_id is None) else 'denied')
+        from laew.memory.tool import MemoryTool
+        if isinstance(tool, MemoryTool):
+            return "safe" if operation in ("propose", "recall") and (
+                self.project_root is not None or tool.project_id is None) else "denied"
         if self.project_root is None:
             if isinstance(tool, FilesystemTool):
                 if tool.resolver.project_root is not None:
@@ -115,7 +123,7 @@ class PermissionBroker:
         args = copy.deepcopy(args)
         valid, error = tool.validate(operation, **args)
         if not valid:
-            return ToolResult.error(ErrorCode.ERR_INVALID_INPUT, error or "Invalid operation")
+            return tool.invalid_input(error or "Invalid operation", **args)
         risk = self.classify(tool, operation, args)
         logger.info("Permission classification %s.%s: %s (mode %s)", tool.name, operation, risk, self.mode)
         if risk == "denied":
