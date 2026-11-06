@@ -135,4 +135,31 @@ Run the offline regression from a source checkout with
 `python -m pytest tests -m "not live and not ollama"` and the JavaScript unit
 tests with `node --test tests/ui/*.test.js`.
 
+## Isolated tests and evaluations
+
+From the checkout, use the Python interpreter from the LAEW virtual environment.
+The runner creates a fresh directory outside the checkout and Obsidian vaults
+for temporary files, Python bytecode, and pytest's base directory and cache.
+
+```powershell
+python scripts/run_isolated.py pytest tests/unit tests/integration -m "not live and not ollama"
+python scripts/run_isolated.py --keep-diagnostics pytest -q tests/unit/test_git_tool.py
+python scripts/run_isolated.py --keep-diagnostics eval laew.eval.memory_sufficiency_eval --output memory.json
+python scripts/run_isolated.py --keep-diagnostics eval laew.eval.knowledge_routing_eval --output routing.json
+```
+
+Evaluators start in the run's `work` directory with copies of the evaluation
+fixtures and manifests. Use a relative output path such as `memory.json`.
+`--output` must resolve inside `work` and cannot contain `..`. Use absolute
+paths for inputs outside the copied fixtures.
+
+The runner forwards output and the exit code and cleans up after successful
+and failed runs. Put `--keep-diagnostics` before the subcommand to retain the
+entire run and print its location. On Windows, cleanup checks the process tree
+and deletes each verified entry through an exclusive handle. A live descendant,
+open handle, unexpected link, or changed entry can stop cleanup. The runner
+prints the path to whatever remains. A conflict during deletion can leave a
+partially cleaned tree.
+On Unix, automatic cleanup requires `lsof` to check for open files.
+
 See `docs/ROADMAP.md` for the development roadmap and future milestones.
