@@ -401,6 +401,29 @@
 
   const sourceLabels = {global: 'Global Knowledge', project: 'Project Knowledge', hybrid: 'Global + Project Knowledge'};
   const formatStatus = value => String(value || 'unavailable').replaceAll('_', ' ');
+  function coverageSteps(evaluation) {
+    if (!evaluation) return [];
+    return [evaluation.horizon, evaluation].filter(Boolean).map(attempt => {
+      const elapsed = attempt.backend === 'active' ? attempt.active_elapsed_ms : attempt.elapsed_ms;
+      return {
+        label: attempt.backend === 'horizon' ? 'Horizon NLI' :
+          attempt.backend === 'active' ? 'Active model fallback' : 'Memory coverage model',
+        status: attempt.status,
+        detail: [attempt.model, attempt.phase, attempt.signal && formatStatus(attempt.signal),
+          attempt.entailment_score != null && `Entailment ${attempt.entailment_score.toFixed(3)}`,
+          elapsed != null && `${elapsed} ms`, attempt.error_category].filter(Boolean).join(' · '),
+      };
+    });
+  }
+
+  function renderCoverageSource(assessment) {
+    if (!assessment) return;
+    panelNote(`Assessment · ${formatStatus(assessment.status)} · ${assessment.reason}`);
+    for (const attempt of coverageSteps(assessment.model_assessment)) {
+      panelNote([attempt.label, formatStatus(attempt.status), attempt.detail].filter(Boolean).join(' · '));
+    }
+  }
+
   function renderExecution(run) {
     const isLive = submitting && run?.status === 'running' && run === diagnosticRuns.get(streamingDiagnosticRun);
     panelHeading(isLive ? 'Run · Live' : 'Execution');
@@ -420,8 +443,14 @@
       list.append(item);
     };
     if (routing) {
-      step('Knowledge Routing', 'completed', `${routing.routing_ms} ms`);
-      step('Automatic Memory Recall', routing.memory_recall?.status);
+      const skipped = Object.entries(routing.knowledge_skip_reasons || {})
+        .filter(([scope]) => !routing.scopes.includes(scope))
+        .map(([scope, reason]) => `${sourceLabels[scope]} skipped. ${reason}`);
+      step('Knowledge Routing', 'completed', [`${routing.routing_ms} ms`, ...skipped].join(' · '));
+      step('Automatic Memory Recall', routing.memory_recall?.status, routing.memory_recall?.reason || '');
+      for (const attempt of coverageSteps(routing.assessment?.model_assessment)) {
+        step(attempt.label, attempt.status, attempt.detail);
+      }
       if (routing.escalation) {
         step('Knowledge escalation', 'selected', routing.escalation.reason);
       } else if (routing.escalation_skipped) {
@@ -443,6 +472,9 @@
         [tool.call_id && `Call ${tool.call_id}`, tool.elapsed_ms != null && `${tool.elapsed_ms} ms`,
           tool.error_category, tool.reused && 'Reused result', tool.supplied && 'Result supplied to adapter',
           tool.historical && 'From conversation history'].filter(Boolean).join(' · '));
+      for (const attempt of coverageSteps(tool.memory_recall?.assessment?.model_assessment)) {
+        step(attempt.label, attempt.status, attempt.detail);
+      }
       if (tool.memory_recall?.escalation_skipped) {
         step('Knowledge escalation after MemoryTool', 'skipped', tool.memory_recall.escalation_skipped);
       }
@@ -516,6 +548,7 @@
       panelNote(`${routing.initial_scopes ? 'Initially selected' : 'Selected'}: ${selected.join(', ') || 'None'}`);
       panelNote(routing.reason);
       if (routing.topic_from_history) panelNote('Search used the recent conversation topic.');
+      if (routing.memory_excluded) panelNote('Long-Term Memory excluded for this turn by the user.');
       if (routing.rag_disabled) panelNote('RAG excluded for this turn by the user.');
       else if (routing.excluded_scopes?.length) {
         panelNote(`Excluded by the user: ${routing.excluded_scopes.map(scope => sourceLabels[scope]).join(', ')}`);
@@ -527,9 +560,7 @@
     const recall = routing?.memory_recall;
     if (!recall) panelNote('No recorded Memory Recall data.');
     else renderMemoryRecall(recall, 'Automatic Memory Recall', 'memory-ids');
-    if (routing?.assessment) {
-      panelNote(`Assessment · ${formatStatus(routing.assessment.status)} · ${routing.assessment.reason}`);
-    }
+    renderCoverageSource(routing?.assessment);
     if (routing?.escalation) {
       panelNote(`Escalated to ${routing.escalation.scopes.map(scope => sourceLabels[scope]).join(', ')} · ${routing.escalation.reason}`);
     } else if (routing?.escalation_skipped) {
@@ -541,9 +572,7 @@
           {status: tool.status, elapsed_ms: tool.elapsed_ms, ...tool.memory_recall},
           'Model-initiated MemoryTool recall', `memory-tool-${tool.order}`,
         );
-        if (tool.memory_recall?.assessment) {
-          panelNote(`Assessment · ${formatStatus(tool.memory_recall.assessment.status)} · ${tool.memory_recall.assessment.reason}`);
-        }
+        renderCoverageSource(tool.memory_recall?.assessment);
         if (tool.memory_recall?.escalation_skipped) {
           panelNote(`Automatic fallback skipped · ${tool.memory_recall.escalation_skipped}`);
         }
@@ -562,6 +591,9 @@
       }
       const prefetch = routing.prefetch.filter(search => search.scope === scope);
       panelNote(routing.scopes.includes(scope) ? 'Selected for automatic prefetch' : 'Not selected for automatic prefetch');
+      if (!routing.scopes.includes(scope) && routing.knowledge_skip_reasons?.[scope]) {
+        panelNote(routing.knowledge_skip_reasons[scope]);
+      }
       if (routing.scopes.includes(scope) && !prefetch.length) {
         panelNote(run.status === 'running' ? 'Automatic prefetch pending' : 'No automatic prefetch outcome recorded');
       }

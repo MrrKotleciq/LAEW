@@ -156,6 +156,11 @@ class Agent:
     def provider(self) -> LLMProvider:
         """Get the currently active LLM provider."""
         self._ensure_available_provider()
+        return self.selected_provider
+
+    @property
+    def selected_provider(self) -> LLMProvider:
+        """Read the current selection without checking or switching providers."""
         return self.providers[self._current_provider_index]
 
     def save_history(self) -> None:

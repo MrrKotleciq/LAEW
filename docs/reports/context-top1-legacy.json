@@ -1,0 +1,706 @@
+{
+  "dataset_name": "laew-hard-cases",
+  "dataset_version": 1,
+  "dataset_sha256": "462340ca7fcdc5f7ddd5447e68dde2afdb3baf6d5c718a93d7c71f8597975664",
+  "corpus_sha256": {
+    "global/acquisition.md": "821b4225ae49968aff4e9024539e14230ef3aa0c2516e76a1160e848f84a4133",
+    "global/firmware.md": "532d463754e95859b9c1b031d2de8d3c2604873fed7b3a4997d06172f9fcaded",
+    "global/motor.md": "d037149f386a1231359a956f5bf29a07683ba12bbfd291d0db89d64449699d60",
+    "global/polish.md": "9219f95a5f73459d527c45517af2c0416733b38d0b9f9f5d74fd81b54230a08b",
+    "global/recovery.md": "977c8c381578c3cba7a089c9c647318925f36af19b13a195e79c1cbc504116a0",
+    "global/sensors.md": "93f5b7118c6de1d753032c9626fedf279fee926d556ce206f0aeddfffa718776",
+    "global/startup.md": "918b9d27a2d3bbf733a4206346f10cac5bf32702ae553dbeb1c710240a0207f3",
+    "global/unusual.md": "1934d6ba41fc71e8a8a894927d810db5f335bff44ca44c0d5262bc55b49229b3",
+    "project/private.md": "8daf0a60c4fead7981877b0e9f8262e634bcfe3593078200d31a6fb9066c2f64"
+  },
+  "embedding_model": "laew-qwen3-embedding",
+  "embedding_endpoint": "http://127.0.0.1:8081/v1",
+  "embedding_dimensions": 1024,
+  "chroma_version": "1.5.9",
+  "retrieval_config_version": "vector-only-2b.1",
+  "top_k": 1,
+  "similarity_threshold": 0.3,
+  "max_context_tokens": 8000,
+  "chunking": {
+    "strategy": "legacy",
+    "size": 1000,
+    "overlap": 200,
+    "global_chunk_count": 33,
+    "mean_chars": 490.3333333333333,
+    "project_chunk_count": 1,
+    "embedding_count_both_scopes": 34,
+    "max_chars": 1000,
+    "sizes_chars": [
+      7,
+      9,
+      9,
+      10,
+      11,
+      12,
+      12,
+      13,
+      57,
+      85,
+      89,
+      141,
+      188,
+      200,
+      200,
+      233,
+      252,
+      559,
+      594,
+      791,
+      934,
+      941,
+      950,
+      964,
+      978,
+      980,
+      980,
+      991,
+      991,
+      1000,
+      1000,
+      1000,
+      1000
+    ],
+    "index_seconds_both_scopes": 24.631358699989505,
+    "prepare_seconds": 0.008887400035746396,
+    "small_chunks_under_64": 9,
+    "oversize_chunks": 0,
+    "synthetic_chars": 0,
+    "indexed_chars": 16245,
+    "index_bytes": 1306952
+  },
+  "duration": 30.917726599960588,
+  "overall": {
+    "query_count": 13,
+    "recall_at_1": 0.9545454545454546,
+    "precision_at_1": 1.0,
+    "mrr": 1.0,
+    "ndcg_at_1": 1.0,
+    "evidence_coverage": 0.5909090909090909,
+    "source_correctness": 1.0,
+    "scope_isolated": 1.0,
+    "all_required_documents": 0.9090909090909091,
+    "complete_evidence": 0.45454545454545453,
+    "no_answer_empty": 0.0,
+    "estimated_context_tokens": 80.38461538461539,
+    "returned_chunks": 1.0
+  },
+  "categories": {
+    "cross_language": {
+      "query_count": 2,
+      "recall_at_1": 1.0,
+      "precision_at_1": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_1": 1.0,
+      "evidence_coverage": 1.0,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "all_required_documents": 1.0,
+      "complete_evidence": 1.0,
+      "estimated_context_tokens": 63.0,
+      "returned_chunks": 1.0
+    },
+    "language:en": {
+      "query_count": 12,
+      "recall_at_1": 0.95,
+      "precision_at_1": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_1": 1.0,
+      "evidence_coverage": 0.55,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "all_required_documents": 0.9,
+      "complete_evidence": 0.4,
+      "no_answer_empty": 0.0,
+      "estimated_context_tokens": 81.66666666666667,
+      "returned_chunks": 1.0
+    },
+    "language:pl": {
+      "query_count": 1,
+      "recall_at_1": 1.0,
+      "precision_at_1": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_1": 1.0,
+      "evidence_coverage": 1.0,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "all_required_documents": 1.0,
+      "complete_evidence": 1.0,
+      "estimated_context_tokens": 65.0,
+      "returned_chunks": 1.0
+    },
+    "no_answer": {
+      "query_count": 2,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "no_answer_empty": 0.0,
+      "estimated_context_tokens": 48.5,
+      "returned_chunks": 1.0
+    },
+    "phenomenon:comparison": {
+      "query_count": 1,
+      "recall_at_1": 1.0,
+      "precision_at_1": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_1": 1.0,
+      "evidence_coverage": 0.0,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "all_required_documents": 1.0,
+      "complete_evidence": 0.0,
+      "estimated_context_tokens": 16.0,
+      "returned_chunks": 1.0
+    },
+    "phenomenon:cross_language": {
+      "query_count": 1,
+      "recall_at_1": 1.0,
+      "precision_at_1": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_1": 1.0,
+      "evidence_coverage": 1.0,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "all_required_documents": 1.0,
+      "complete_evidence": 1.0,
+      "estimated_context_tokens": 61.0,
+      "returned_chunks": 1.0
+    },
+    "phenomenon:description_code": {
+      "query_count": 2,
+      "recall_at_1": 1.0,
+      "precision_at_1": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_1": 1.0,
+      "evidence_coverage": 1.0,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "all_required_documents": 1.0,
+      "complete_evidence": 1.0,
+      "estimated_context_tokens": 64.0,
+      "returned_chunks": 1.0
+    },
+    "phenomenon:description_table": {
+      "query_count": 1,
+      "recall_at_1": 1.0,
+      "precision_at_1": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_1": 1.0,
+      "evidence_coverage": 0.0,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "all_required_documents": 1.0,
+      "complete_evidence": 0.0,
+      "estimated_context_tokens": 29.0,
+      "returned_chunks": 1.0
+    },
+    "phenomenon:large_table": {
+      "query_count": 1,
+      "recall_at_1": 1.0,
+      "precision_at_1": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_1": 1.0,
+      "evidence_coverage": 0.0,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "all_required_documents": 1.0,
+      "complete_evidence": 0.0,
+      "estimated_context_tokens": 73.0,
+      "returned_chunks": 1.0
+    },
+    "phenomenon:long_code": {
+      "query_count": 1,
+      "recall_at_1": 1.0,
+      "precision_at_1": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_1": 1.0,
+      "evidence_coverage": 0.5,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "all_required_documents": 1.0,
+      "complete_evidence": 0.0,
+      "estimated_context_tokens": 262.0,
+      "returned_chunks": 1.0
+    },
+    "phenomenon:malformed": {
+      "query_count": 1,
+      "recall_at_1": 1.0,
+      "precision_at_1": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_1": 1.0,
+      "evidence_coverage": 1.0,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "all_required_documents": 1.0,
+      "complete_evidence": 1.0,
+      "estimated_context_tokens": 266.0,
+      "returned_chunks": 1.0
+    },
+    "phenomenon:multi_document": {
+      "query_count": 1,
+      "recall_at_1": 0.5,
+      "precision_at_1": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_1": 1.0,
+      "evidence_coverage": 0.5,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "all_required_documents": 0.0,
+      "complete_evidence": 0.0,
+      "estimated_context_tokens": 38.0,
+      "returned_chunks": 1.0
+    },
+    "phenomenon:no_answer": {
+      "query_count": 2,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "no_answer_empty": 0.0,
+      "estimated_context_tokens": 48.5,
+      "returned_chunks": 1.0
+    },
+    "phenomenon:procedure": {
+      "query_count": 1,
+      "recall_at_1": 1.0,
+      "precision_at_1": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_1": 1.0,
+      "evidence_coverage": 0.5,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "all_required_documents": 1.0,
+      "complete_evidence": 0.0,
+      "estimated_context_tokens": 38.0,
+      "returned_chunks": 1.0
+    },
+    "phenomenon:similar_sections": {
+      "query_count": 1,
+      "recall_at_1": 1.0,
+      "precision_at_1": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_1": 1.0,
+      "evidence_coverage": 1.0,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "all_required_documents": 1.0,
+      "complete_evidence": 1.0,
+      "estimated_context_tokens": 37.0,
+      "returned_chunks": 1.0
+    },
+    "split:dev": {
+      "query_count": 4,
+      "recall_at_1": 1.0,
+      "precision_at_1": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_1": 1.0,
+      "evidence_coverage": 0.375,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "all_required_documents": 1.0,
+      "complete_evidence": 0.25,
+      "estimated_context_tokens": 50.75,
+      "returned_chunks": 1.0
+    },
+    "split:validation": {
+      "query_count": 9,
+      "recall_at_1": 0.9285714285714286,
+      "precision_at_1": 1.0,
+      "mrr": 1.0,
+      "ndcg_at_1": 1.0,
+      "evidence_coverage": 0.7142857142857143,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "all_required_documents": 0.8571428571428571,
+      "complete_evidence": 0.5714285714285714,
+      "no_answer_empty": 0.0,
+      "estimated_context_tokens": 93.55555555555556,
+      "returned_chunks": 1.0
+    }
+  },
+  "queries": [
+    {
+      "id": "h01",
+      "ranked_documents": [
+        "@knowledge/startup.md"
+      ],
+      "source_correctness": 1.0,
+      "scope_isolated": true,
+      "recall_at_1": 1.0,
+      "precision_at_1": 1.0,
+      "reciprocal_rank": 1.0,
+      "ndcg_at_1": 1.0,
+      "evidence_coverage": 1.0,
+      "missing_evidence": [],
+      "all_required_documents": true,
+      "complete_evidence": true,
+      "estimated_context_tokens": 63,
+      "returned_chunks": 1,
+      "returned_evidence": [
+        {
+          "id": "global:startup.md:1:0",
+          "document": "@knowledge/startup.md",
+          "score": 0.8830621838569641,
+          "text": "## Startup\nCommunication must be initialized before the actuator to reject stale commands.\n```python\ninitialize_communication()\nenable_actuator()\n```\nThis order is mandatory even after a warm restart."
+        }
+      ]
+    },
+    {
+      "id": "h02",
+      "ranked_documents": [
+        "@knowledge/motor.md"
+      ],
+      "source_correctness": 1.0,
+      "scope_isolated": true,
+      "recall_at_1": 1.0,
+      "precision_at_1": 1.0,
+      "reciprocal_rank": 1.0,
+      "ndcg_at_1": 1.0,
+      "evidence_coverage": 0.0,
+      "missing_evidence": [
+        {
+          "document_id": "@knowledge/motor.md",
+          "passage": "These measurements apply at nominal load and 20 C ambient temperature."
+        },
+        {
+          "document_id": "@knowledge/motor.md",
+          "passage": "| Voltage | 24 | V |"
+        },
+        {
+          "document_id": "@knowledge/motor.md",
+          "passage": "These ratings are not maximum operating limits."
+        }
+      ],
+      "all_required_documents": true,
+      "complete_evidence": false,
+      "estimated_context_tokens": 29,
+      "returned_chunks": 1,
+      "returned_evidence": [
+        {
+          "id": "global:motor.md:2:0",
+          "document": "@knowledge/motor.md",
+          "score": 0.5576542019844055,
+          "text": "## Maximum ratings\nThe emergency voltage ceiling is 29 V."
+        }
+      ]
+    },
+    {
+      "id": "h03",
+      "ranked_documents": [
+        "@knowledge/firmware.md"
+      ],
+      "source_correctness": 1.0,
+      "scope_isolated": true,
+      "recall_at_1": 1.0,
+      "precision_at_1": 1.0,
+      "reciprocal_rank": 1.0,
+      "ndcg_at_1": 1.0,
+      "evidence_coverage": 0.5,
+      "missing_evidence": [
+        {
+          "document_id": "@knowledge/firmware.md",
+          "passage": "29. Upload the image, then verify checksum 0x7A91 before restart."
+        }
+      ],
+      "all_required_documents": true,
+      "complete_evidence": false,
+      "estimated_context_tokens": 38,
+      "returned_chunks": 1,
+      "returned_evidence": [
+        {
+          "id": "global:firmware.md:1:0",
+          "document": "@knowledge/firmware.md",
+          "score": 0.681206464767456,
+          "text": "## Firmware update\nBefore starting, disconnect the actuator and create a firmware backup."
+        }
+      ]
+    },
+    {
+      "id": "h04",
+      "ranked_documents": [
+        "@knowledge/sensors.md"
+      ],
+      "source_correctness": 1.0,
+      "scope_isolated": true,
+      "recall_at_1": 1.0,
+      "precision_at_1": 1.0,
+      "reciprocal_rank": 1.0,
+      "ndcg_at_1": 1.0,
+      "evidence_coverage": 0.0,
+      "missing_evidence": [
+        {
+          "document_id": "@knowledge/sensors.md",
+          "passage": "| sensor-48 | 68 | 0.1 |"
+        },
+        {
+          "document_id": "@knowledge/sensors.md",
+          "passage": "Offset (mV)"
+        },
+        {
+          "document_id": "@knowledge/sensors.md",
+          "passage": "Offsets are measured in millivolts with the actuator disconnected."
+        }
+      ],
+      "all_required_documents": true,
+      "complete_evidence": false,
+      "estimated_context_tokens": 73,
+      "returned_chunks": 1,
+      "returned_evidence": [
+        {
+          "id": "global:sensors.md:1:2",
+          "document": "@knowledge/sensors.md",
+          "score": 0.7516890168190002,
+          "text": "or-58 | 78 | 0.1 |\n| sensor-59 | 79 | 0.1 |\n| sensor-60 | 80 | 0.1 |\n| sensor-61 | 81 | 0.1 |\n| sensor-62 | 82 | 0.1 |\n| sensor-63 | 83 | 0.1 |\n| sensor-64 | 84 | 0.1 |\nThese offsets are calibration corrections, not alarm thresholds."
+        }
+      ]
+    },
+    {
+      "id": "h05",
+      "ranked_documents": [
+        "@knowledge/sensors.md"
+      ],
+      "source_correctness": 1.0,
+      "scope_isolated": true,
+      "recall_at_1": 1.0,
+      "precision_at_1": 1.0,
+      "reciprocal_rank": 1.0,
+      "ndcg_at_1": 1.0,
+      "evidence_coverage": 0.0,
+      "missing_evidence": [
+        {
+          "document_id": "@knowledge/sensors.md",
+          "passage": "| sensor-02 | 22 | 0.1 |"
+        },
+        {
+          "document_id": "@knowledge/sensors.md",
+          "passage": "| sensor-61 | 81 | 0.1 |"
+        },
+        {
+          "document_id": "@knowledge/sensors.md",
+          "passage": "These offsets are calibration corrections, not alarm thresholds."
+        }
+      ],
+      "all_required_documents": true,
+      "complete_evidence": false,
+      "estimated_context_tokens": 16,
+      "returned_chunks": 1,
+      "returned_evidence": [
+        {
+          "id": "global:sensors.md:0:0",
+          "document": "@knowledge/sensors.md",
+          "score": 0.7389222383499146,
+          "text": "# Sensors"
+        }
+      ]
+    },
+    {
+      "id": "h06",
+      "ranked_documents": [
+        "@knowledge/recovery.md"
+      ],
+      "source_correctness": 1.0,
+      "scope_isolated": true,
+      "recall_at_1": 1.0,
+      "precision_at_1": 1.0,
+      "reciprocal_rank": 1.0,
+      "ndcg_at_1": 1.0,
+      "evidence_coverage": 1.0,
+      "missing_evidence": [],
+      "all_required_documents": true,
+      "complete_evidence": true,
+      "estimated_context_tokens": 65,
+      "returned_chunks": 1,
+      "returned_evidence": [
+        {
+          "id": "global:recovery.md:1:0",
+          "document": "@knowledge/recovery.md",
+          "score": 0.41871124505996704,
+          "text": "## Recovery order\nThe violet snapshot is approved only for the auxiliary controller.\n```sh\nstop_auxiliary\nrestore_snapshot violet\nverify_auxiliary\n```\nNever apply this snapshot to the main controller."
+        }
+      ]
+    },
+    {
+      "id": "h07",
+      "ranked_documents": [
+        "@knowledge/recovery.md"
+      ],
+      "source_correctness": 1.0,
+      "scope_isolated": true,
+      "recall_at_1": 1.0,
+      "precision_at_1": 1.0,
+      "reciprocal_rank": 1.0,
+      "ndcg_at_1": 1.0,
+      "evidence_coverage": 1.0,
+      "missing_evidence": [],
+      "all_required_documents": true,
+      "complete_evidence": true,
+      "estimated_context_tokens": 37,
+      "returned_chunks": 1,
+      "returned_evidence": [
+        {
+          "id": "global:recovery.md:2:0",
+          "document": "@knowledge/recovery.md",
+          "score": 0.8152559399604797,
+          "text": "## Main controller\nThe main controller uses the amber snapshot after manual approval."
+        }
+      ]
+    },
+    {
+      "id": "h08",
+      "ranked_documents": [
+        "@knowledge/polish.md"
+      ],
+      "source_correctness": 1.0,
+      "scope_isolated": true,
+      "recall_at_1": 1.0,
+      "precision_at_1": 1.0,
+      "reciprocal_rank": 1.0,
+      "ndcg_at_1": 1.0,
+      "evidence_coverage": 1.0,
+      "missing_evidence": [],
+      "all_required_documents": true,
+      "complete_evidence": true,
+      "estimated_context_tokens": 61,
+      "returned_chunks": 1,
+      "returned_evidence": [
+        {
+          "id": "global:polish.md:1:0",
+          "document": "@knowledge/polish.md",
+          "score": 0.5570011734962463,
+          "text": "## Zasilanie\nPrzed pomiarem odłącz silnik od sterownika.\n| Tryb | Napięcie (V) |\n| --- | --- |\n| nominalny | 48 |\n| serwisowy | 12 |\nWartości dotyczą napięcia wejściowego, nie wyjściowego."
+        }
+      ]
+    },
+    {
+      "id": "h09",
+      "ranked_documents": [
+        "@knowledge/acquisition.md"
+      ],
+      "source_correctness": 1.0,
+      "scope_isolated": true,
+      "recall_at_1": 1.0,
+      "precision_at_1": 1.0,
+      "reciprocal_rank": 1.0,
+      "ndcg_at_1": 1.0,
+      "evidence_coverage": 0.5,
+      "missing_evidence": [
+        {
+          "document_id": "@knowledge/acquisition.md",
+          "passage": "channel numbers are physical ports."
+        },
+        {
+          "document_id": "@knowledge/acquisition.md",
+          "passage": "The returned values are raw ADC counts, not calibrated temperatures."
+        }
+      ],
+      "all_required_documents": true,
+      "complete_evidence": false,
+      "estimated_context_tokens": 262,
+      "returned_chunks": 1,
+      "returned_evidence": [
+        {
+          "id": "global:acquisition.md:1:2",
+          "document": "@knowledge/acquisition.md",
+          "score": 0.6993989944458008,
+          "text": "ad_channel(31)\n\ndef sample_32():\n    return read_channel(32)\n\ndef sample_33():\n    return read_channel(33)\n\ndef sample_34():\n    return read_channel(34)\n\ndef sample_35():\n    return read_channel(35)\n\ndef sample_36():\n    return read_channel(36)\n\ndef sample_37():\n    return read_channel(37)\n\ndef sample_38():\n    return read_channel(38)\n\ndef sample_39():\n    return read_channel(39)\n\ndef sample_40():\n    return read_channel(40)\n\ndef sample_41():\n    return read_channel(41)\n\ndef sample_42():\n    return read_channel(42)\n\ndef sample_43():\n    return read_channel(43)\n\ndef sample_44():\n    return read_channel(44)\n\ndef sample_45():\n    return read_channel(45)\n\ndef sample_46():\n    return read_channel(46)\n\ndef sample_47():\n    return read_channel(47)\n\ndef sample_48():\n    return read_channel(48)\n\ndef sample_49():\n    return read_channel(49)\n\ndef sample_50():\n    return read_channel(50)\n\ndef sample_51():\n    return read_channel(51)\n\ndef sample_52():\n    return read_channel(52)"
+        }
+      ]
+    },
+    {
+      "id": "h10",
+      "ranked_documents": [
+        "@knowledge/unusual.md"
+      ],
+      "source_correctness": 1.0,
+      "scope_isolated": true,
+      "recall_at_1": 1.0,
+      "precision_at_1": 1.0,
+      "reciprocal_rank": 1.0,
+      "ndcg_at_1": 1.0,
+      "evidence_coverage": 1.0,
+      "missing_evidence": [],
+      "all_required_documents": true,
+      "complete_evidence": true,
+      "estimated_context_tokens": 266,
+      "returned_chunks": 1,
+      "returned_evidence": [
+        {
+          "id": "global:unusual.md:1:0",
+          "document": "@knowledge/unusual.md",
+          "score": 0.6721039414405823,
+          "text": "## Truncated example\nThe following payload is incomplete and must not be executed.\n~~~json\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+      ]
+    },
+    {
+      "id": "h11",
+      "ranked_documents": [
+        "@knowledge/firmware.md"
+      ],
+      "source_correctness": 1.0,
+      "scope_isolated": true,
+      "recall_at_1": 0.5,
+      "precision_at_1": 1.0,
+      "reciprocal_rank": 1.0,
+      "ndcg_at_1": 1.0,
+      "evidence_coverage": 0.5,
+      "missing_evidence": [
+        {
+          "document_id": "@knowledge/startup.md",
+          "passage": "Communication must be initialized before the actuator to reject stale commands."
+        }
+      ],
+      "all_required_documents": false,
+      "complete_evidence": false,
+      "estimated_context_tokens": 38,
+      "returned_chunks": 1,
+      "returned_evidence": [
+        {
+          "id": "global:firmware.md:1:0",
+          "document": "@knowledge/firmware.md",
+          "score": 0.6853384971618652,
+          "text": "## Firmware update\nBefore starting, disconnect the actuator and create a firmware backup."
+        }
+      ]
+    },
+    {
+      "id": "h12",
+      "ranked_documents": [
+        "@knowledge/motor.md"
+      ],
+      "source_correctness": 1.0,
+      "scope_isolated": true,
+      "no_answer_empty": false,
+      "estimated_context_tokens": 78,
+      "returned_chunks": 1,
+      "returned_evidence": [
+        {
+          "id": "global:motor.md:1:0",
+          "document": "@knowledge/motor.md",
+          "score": 0.5213972926139832,
+          "text": "## Nominal ratings\nThese measurements apply at nominal load and 20 C ambient temperature.\n| Parameter | Value | Unit |\n| --- | --- | --- |\n| Voltage | 24 | V |\n| Current | 2.5 | A |\n| Speed | 3000 | rpm |\nThese ratings are not maximum operating limits."
+        }
+      ]
+    },
+    {
+      "id": "h13",
+      "ranked_documents": [
+        "@knowledge/acquisition.md"
+      ],
+      "source_correctness": 1.0,
+      "scope_isolated": true,
+      "no_answer_empty": false,
+      "estimated_context_tokens": 19,
+      "returned_chunks": 1,
+      "returned_evidence": [
+        {
+          "id": "global:acquisition.md:0:0",
+          "document": "@knowledge/acquisition.md",
+          "score": 0.5233098864555359,
+          "text": "# Acquisition"
+        }
+      ]
+    }
+  ]
+}

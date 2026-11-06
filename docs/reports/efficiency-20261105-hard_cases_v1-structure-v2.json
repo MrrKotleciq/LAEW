@@ -1,0 +1,2053 @@
+{
+  "dataset_name": "laew-hard-cases",
+  "dataset_version": 1,
+  "dataset_sha256": "462340ca7fcdc5f7ddd5447e68dde2afdb3baf6d5c718a93d7c71f8597975664",
+  "corpus_sha256": {
+    "global/acquisition.md": "821b4225ae49968aff4e9024539e14230ef3aa0c2516e76a1160e848f84a4133",
+    "global/firmware.md": "532d463754e95859b9c1b031d2de8d3c2604873fed7b3a4997d06172f9fcaded",
+    "global/motor.md": "d037149f386a1231359a956f5bf29a07683ba12bbfd291d0db89d64449699d60",
+    "global/polish.md": "9219f95a5f73459d527c45517af2c0416733b38d0b9f9f5d74fd81b54230a08b",
+    "global/recovery.md": "977c8c381578c3cba7a089c9c647318925f36af19b13a195e79c1cbc504116a0",
+    "global/sensors.md": "93f5b7118c6de1d753032c9626fedf279fee926d556ce206f0aeddfffa718776",
+    "global/startup.md": "918b9d27a2d3bbf733a4206346f10cac5bf32702ae553dbeb1c710240a0207f3",
+    "global/unusual.md": "1934d6ba41fc71e8a8a894927d810db5f335bff44ca44c0d5262bc55b49229b3",
+    "project/private.md": "8daf0a60c4fead7981877b0e9f8262e634bcfe3593078200d31a6fb9066c2f64",
+    "README.md": "ffa809cefe90143fe31f1381ade34ab03b523bb2879d675de98dd062d31583ff"
+  },
+  "embedding_model": "laew-qwen3-embedding",
+  "embedding_endpoint": "http://127.0.0.1:8081/v1",
+  "embedding_dimensions": 1024,
+  "chroma_version": "1.5.9",
+  "retrieval_config_version": "vector-only-2b.1",
+  "top_k": 5,
+  "similarity_threshold": 0.3,
+  "max_context_tokens": 8000,
+  "chunking": {
+    "strategy": "structure-v2",
+    "size": 1000,
+    "overlap": 0,
+    "global_chunk_count": 25,
+    "mean_chars": 687.2,
+    "project_chunk_count": 1,
+    "embedding_count_both_scopes": 26,
+    "max_chars": 1000,
+    "sizes_chars": [
+      58,
+      86,
+      100,
+      202,
+      212,
+      215,
+      261,
+      354,
+      494,
+      696,
+      790,
+      964,
+      965,
+      965,
+      965,
+      968,
+      968,
+      979,
+      979,
+      980,
+      993,
+      993,
+      993,
+      1000,
+      1000
+    ],
+    "index_seconds_both_scopes": 38.23236179997912,
+    "prepare_seconds": 0.01769360003527254,
+    "small_chunks_under_64": 1,
+    "oversize_chunks": 0,
+    "synthetic_chars": 3508,
+    "indexed_chars": 17245,
+    "index_bytes": 1302856
+  },
+  "duration": 48.66684660001192,
+  "queries": [
+    {
+      "id": "h01",
+      "text": "Why initialize communication before enabling the actuator, including warm restarts?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/startup.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 177.18160001095384,
+          "tokens_estimated": 70,
+          "chunks": [
+            {
+              "id": "global:startup.md:structure-v2:0",
+              "document": "@knowledge/startup.md",
+              "score": 0.8687890768051147,
+              "text": "# Controller\n## Startup\nCommunication must be initialized before the actuator to reject stale commands.\n```python\ninitialize_communication()\nenable_actuator()\n```\nThis order is mandatory even after a warm restart.\n\n",
+              "section": "Startup"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/startup.md",
+            "@knowledge/firmware.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 170.3006000025198,
+          "tokens_estimated": 115,
+          "chunks": [
+            {
+              "id": "global:startup.md:structure-v2:0",
+              "document": "@knowledge/startup.md",
+              "score": 0.8687890768051147,
+              "text": "# Controller\n## Startup\nCommunication must be initialized before the actuator to reject stale commands.\n```python\ninitialize_communication()\nenable_actuator()\n```\nThis order is mandatory even after a warm restart.\n\n",
+              "section": "Startup"
+            },
+            {
+              "id": "global:firmware.md:structure-v2:0",
+              "document": "@knowledge/firmware.md",
+              "score": 0.6491564512252808,
+              "text": "# Service\n## Firmware update\nBefore starting, disconnect the actuator and create a firmware backup.\n",
+              "section": "Firmware update"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/startup.md",
+            "@knowledge/firmware.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 191.3670999929309,
+          "tokens_estimated": 754,
+          "chunks": [
+            {
+              "id": "global:startup.md:structure-v2:0",
+              "document": "@knowledge/startup.md",
+              "score": 0.8687890768051147,
+              "text": "# Controller\n## Startup\nCommunication must be initialized before the actuator to reject stale commands.\n```python\ninitialize_communication()\nenable_actuator()\n```\nThis order is mandatory even after a warm restart.\n\n",
+              "section": "Startup"
+            },
+            {
+              "id": "global:firmware.md:structure-v2:0",
+              "document": "@knowledge/firmware.md",
+              "score": 0.6491564512252808,
+              "text": "# Service\n## Firmware update\nBefore starting, disconnect the actuator and create a firmware backup.\n",
+              "section": "Firmware update"
+            },
+            {
+              "id": "global:firmware.md:structure-v2:4",
+              "document": "@knowledge/firmware.md",
+              "score": 0.6236775517463684,
+              "text": "[Related context]\nBefore starting, disconnect the actuator and create a firmware backup.\n1. Record diagnostic channel 1 and confirm stable communication before proceeding.\n2. Record diagnostic channel 2\n28. Record diagnostic channel 28 and confirm stable communication before proceeding.\n29. Upload the image, then verify checksum 0x7A91 before restart.\n",
+              "section": "Procedure"
+            },
+            {
+              "id": "global:firmware.md:structure-v2:3",
+              "document": "@knowledge/firmware.md",
+              "score": 0.5920920968055725,
+              "text": "[Related context]\nBefore starting, disconnect the actuator and create a firmware backup.\n1. Record diagnostic channel 1 and confirm stable communication before proceeding.\n2. Record diagnostic channel 2\n19. Record diagnostic channel 19 and confirm stable communication before proceeding.\n20. Record diagnostic channel 20 and confirm stable communication before proceeding.\n21. Record diagnostic channel 21 and confirm stable communication before proceeding.\n22. Record diagnostic channel 22 and confirm stable communication before proceeding.\n23. Record diagnostic channel 23 and confirm stable communication before proceeding.\n24. Record diagnostic channel 24 and confirm stable communication before proceeding.\n25. Record diagnostic channel 25 and confirm stable communication before proceeding.\n26. Record diagnostic channel 26 and confirm stable communication before proceeding.\n27. Record diagnostic channel 27 and confirm stable communication before proceeding.\n",
+              "section": "Procedure"
+            },
+            {
+              "id": "global:firmware.md:structure-v2:1",
+              "document": "@knowledge/firmware.md",
+              "score": 0.5907809734344482,
+              "text": "[Related context]\nBefore starting, disconnect the actuator and create a firmware backup.\n1. Record diagnostic channel 1 and confirm stable communication before proceeding.\n2. Record diagnostic channel 2\n### Procedure\n1. Record diagnostic channel 1 and confirm stable communication before proceeding.\n2. Record diagnostic channel 2 and confirm stable communication before proceeding.\n3. Record diagnostic channel 3 and confirm stable communication before proceeding.\n4. Record diagnostic channel 4 and confirm stable communication before proceeding.\n5. Record diagnostic channel 5 and confirm stable communication before proceeding.\n6. Record diagnostic channel 6 and confirm stable communication before proceeding.\n7. Record diagnostic channel 7 and confirm stable communication before proceeding.\n8. Record diagnostic channel 8 and confirm stable communication before proceeding.\n9. Record diagnostic channel 9 and confirm stable communication before proceeding.\n",
+              "section": "Procedure"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:startup.md:structure-v2:0",
+                "path": "@knowledge/startup.md",
+                "truncated": false
+              },
+              {
+                "id": "global:firmware.md:structure-v2:0",
+                "path": "@knowledge/firmware.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 115,
+            "retrieved_sources": [
+              "@knowledge/startup.md",
+              "@knowledge/firmware.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: startup.md > Controller > Startup]\n# Controller\n## Startup\nCommunication must be initialized before the actuator to reject stale commands.\n```python\ninitialize_communication()\nenable_actuator()\n```\nThis order is mandatory even after a warm restart.\n\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: firmware.md > Service > Firmware update]\n# Service\n## Firmware update\nBefore starting, disconnect the actuator and create a firmware backup.\n",
+            "tokens_estimated": 115
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "tokens_estimated": 115
+      }
+    },
+    {
+      "id": "h02",
+      "text": "Is 24 V a maximum motor limit, and under which conditions does it apply?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/motor.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 0.0,
+          "missing_evidence": [
+            {
+              "document_id": "@knowledge/motor.md",
+              "passage": "These measurements apply at nominal load and 20 C ambient temperature."
+            },
+            {
+              "document_id": "@knowledge/motor.md",
+              "passage": "| Voltage | 24 | V |"
+            },
+            {
+              "document_id": "@knowledge/motor.md",
+              "passage": "These ratings are not maximum operating limits."
+            }
+          ],
+          "all_required_documents": true,
+          "complete_evidence": false,
+          "elapsed_ms": 230.38829996949062,
+          "tokens_estimated": 31,
+          "chunks": [
+            {
+              "id": "global:motor.md:structure-v2:1",
+              "document": "@knowledge/motor.md",
+              "score": 0.5636584162712097,
+              "text": "## Maximum ratings\nThe emergency voltage ceiling is 29 V.\n",
+              "section": "Maximum ratings"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/motor.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 228.09140000026673,
+          "tokens_estimated": 115,
+          "chunks": [
+            {
+              "id": "global:motor.md:structure-v2:1",
+              "document": "@knowledge/motor.md",
+              "score": 0.5636584162712097,
+              "text": "## Maximum ratings\nThe emergency voltage ceiling is 29 V.\n",
+              "section": "Maximum ratings"
+            },
+            {
+              "id": "global:motor.md:structure-v2:0",
+              "document": "@knowledge/motor.md",
+              "score": 0.5287361145019531,
+              "text": "# Drive\n## Nominal ratings\nThese measurements apply at nominal load and 20 C ambient temperature.\n| Parameter | Value | Unit |\n| --- | --- | --- |\n| Voltage | 24 | V |\n| Current | 2.5 | A |\n| Speed | 3000 | rpm |\nThese ratings are not maximum operating limits.\n",
+              "section": "Nominal ratings"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/motor.md",
+            "@knowledge/polish.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 205.4391999845393,
+          "tokens_estimated": 184,
+          "chunks": [
+            {
+              "id": "global:motor.md:structure-v2:1",
+              "document": "@knowledge/motor.md",
+              "score": 0.5636584162712097,
+              "text": "## Maximum ratings\nThe emergency voltage ceiling is 29 V.\n",
+              "section": "Maximum ratings"
+            },
+            {
+              "id": "global:motor.md:structure-v2:0",
+              "document": "@knowledge/motor.md",
+              "score": 0.5287361145019531,
+              "text": "# Drive\n## Nominal ratings\nThese measurements apply at nominal load and 20 C ambient temperature.\n| Parameter | Value | Unit |\n| --- | --- | --- |\n| Voltage | 24 | V |\n| Current | 2.5 | A |\n| Speed | 3000 | rpm |\nThese ratings are not maximum operating limits.\n",
+              "section": "Nominal ratings"
+            },
+            {
+              "id": "global:polish.md:structure-v2:0",
+              "document": "@knowledge/polish.md",
+              "score": 0.3678579330444336,
+              "text": "# Instalacja\n## Zasilanie\nPrzed pomiarem odłącz silnik od sterownika.\n| Tryb | Napięcie (V) |\n| --- | --- |\n| nominalny | 48 |\n| serwisowy | 12 |\nWartości dotyczą napięcia wejściowego, nie wyjściowego.\n",
+              "section": "Zasilanie"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:motor.md:structure-v2:1",
+                "path": "@knowledge/motor.md",
+                "truncated": false
+              },
+              {
+                "id": "global:motor.md:structure-v2:0",
+                "path": "@knowledge/motor.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 115,
+            "retrieved_sources": [
+              "@knowledge/motor.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: motor.md > Drive > Maximum ratings]\n## Maximum ratings\nThe emergency voltage ceiling is 29 V.\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: motor.md > Drive > Nominal ratings]\n# Drive\n## Nominal ratings\nThese measurements apply at nominal load and 20 C ambient temperature.\n| Parameter | Value | Unit |\n| --- | --- | --- |\n| Voltage | 24 | V |\n| Current | 2.5 | A |\n| Speed | 3000 | rpm |\nThese ratings are not maximum operating limits.\n",
+            "tokens_estimated": 115
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "tokens_estimated": 115
+      }
+    },
+    {
+      "id": "h03",
+      "text": "What must be done before the firmware procedure and what checksum must be verified before restart?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/firmware.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 0.5,
+          "missing_evidence": [
+            {
+              "document_id": "@knowledge/firmware.md",
+              "passage": "29. Upload the image, then verify checksum 0x7A91 before restart."
+            }
+          ],
+          "all_required_documents": true,
+          "complete_evidence": false,
+          "elapsed_ms": 177.4407000048086,
+          "tokens_estimated": 43,
+          "chunks": [
+            {
+              "id": "global:firmware.md:structure-v2:0",
+              "document": "@knowledge/firmware.md",
+              "score": 0.6875649690628052,
+              "text": "# Service\n## Firmware update\nBefore starting, disconnect the actuator and create a firmware backup.\n",
+              "section": "Firmware update"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/firmware.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 201.3697000220418,
+          "tokens_estimated": 154,
+          "chunks": [
+            {
+              "id": "global:firmware.md:structure-v2:0",
+              "document": "@knowledge/firmware.md",
+              "score": 0.6875649690628052,
+              "text": "# Service\n## Firmware update\nBefore starting, disconnect the actuator and create a firmware backup.\n",
+              "section": "Firmware update"
+            },
+            {
+              "id": "global:firmware.md:structure-v2:4",
+              "document": "@knowledge/firmware.md",
+              "score": 0.6759423613548279,
+              "text": "[Related context]\nBefore starting, disconnect the actuator and create a firmware backup.\n1. Record diagnostic channel 1 and confirm stable communication before proceeding.\n2. Record diagnostic channel 2\n28. Record diagnostic channel 28 and confirm stable communication before proceeding.\n29. Upload the image, then verify checksum 0x7A91 before restart.\n",
+              "section": "Procedure"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/firmware.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 203.25150003191084,
+          "tokens_estimated": 947,
+          "chunks": [
+            {
+              "id": "global:firmware.md:structure-v2:0",
+              "document": "@knowledge/firmware.md",
+              "score": 0.6875649690628052,
+              "text": "# Service\n## Firmware update\nBefore starting, disconnect the actuator and create a firmware backup.\n",
+              "section": "Firmware update"
+            },
+            {
+              "id": "global:firmware.md:structure-v2:4",
+              "document": "@knowledge/firmware.md",
+              "score": 0.6759423613548279,
+              "text": "[Related context]\nBefore starting, disconnect the actuator and create a firmware backup.\n1. Record diagnostic channel 1 and confirm stable communication before proceeding.\n2. Record diagnostic channel 2\n28. Record diagnostic channel 28 and confirm stable communication before proceeding.\n29. Upload the image, then verify checksum 0x7A91 before restart.\n",
+              "section": "Procedure"
+            },
+            {
+              "id": "global:firmware.md:structure-v2:3",
+              "document": "@knowledge/firmware.md",
+              "score": 0.5573495030403137,
+              "text": "[Related context]\nBefore starting, disconnect the actuator and create a firmware backup.\n1. Record diagnostic channel 1 and confirm stable communication before proceeding.\n2. Record diagnostic channel 2\n19. Record diagnostic channel 19 and confirm stable communication before proceeding.\n20. Record diagnostic channel 20 and confirm stable communication before proceeding.\n21. Record diagnostic channel 21 and confirm stable communication before proceeding.\n22. Record diagnostic channel 22 and confirm stable communication before proceeding.\n23. Record diagnostic channel 23 and confirm stable communication before proceeding.\n24. Record diagnostic channel 24 and confirm stable communication before proceeding.\n25. Record diagnostic channel 25 and confirm stable communication before proceeding.\n26. Record diagnostic channel 26 and confirm stable communication before proceeding.\n27. Record diagnostic channel 27 and confirm stable communication before proceeding.\n",
+              "section": "Procedure"
+            },
+            {
+              "id": "global:firmware.md:structure-v2:2",
+              "document": "@knowledge/firmware.md",
+              "score": 0.5433897376060486,
+              "text": "[Related context]\nBefore starting, disconnect the actuator and create a firmware backup.\n1. Record diagnostic channel 1 and confirm stable communication before proceeding.\n2. Record diagnostic channel 2\n10. Record diagnostic channel 10 and confirm stable communication before proceeding.\n11. Record diagnostic channel 11 and confirm stable communication before proceeding.\n12. Record diagnostic channel 12 and confirm stable communication before proceeding.\n13. Record diagnostic channel 13 and confirm stable communication before proceeding.\n14. Record diagnostic channel 14 and confirm stable communication before proceeding.\n15. Record diagnostic channel 15 and confirm stable communication before proceeding.\n16. Record diagnostic channel 16 and confirm stable communication before proceeding.\n17. Record diagnostic channel 17 and confirm stable communication before proceeding.\n18. Record diagnostic channel 18 and confirm stable communication before proceeding.\n",
+              "section": "Procedure"
+            },
+            {
+              "id": "global:firmware.md:structure-v2:1",
+              "document": "@knowledge/firmware.md",
+              "score": 0.5276679992675781,
+              "text": "[Related context]\nBefore starting, disconnect the actuator and create a firmware backup.\n1. Record diagnostic channel 1 and confirm stable communication before proceeding.\n2. Record diagnostic channel 2\n### Procedure\n1. Record diagnostic channel 1 and confirm stable communication before proceeding.\n2. Record diagnostic channel 2 and confirm stable communication before proceeding.\n3. Record diagnostic channel 3 and confirm stable communication before proceeding.\n4. Record diagnostic channel 4 and confirm stable communication before proceeding.\n5. Record diagnostic channel 5 and confirm stable communication before proceeding.\n6. Record diagnostic channel 6 and confirm stable communication before proceeding.\n7. Record diagnostic channel 7 and confirm stable communication before proceeding.\n8. Record diagnostic channel 8 and confirm stable communication before proceeding.\n9. Record diagnostic channel 9 and confirm stable communication before proceeding.\n",
+              "section": "Procedure"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:firmware.md:structure-v2:0",
+                "path": "@knowledge/firmware.md",
+                "truncated": false
+              },
+              {
+                "id": "global:firmware.md:structure-v2:4",
+                "path": "@knowledge/firmware.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 154,
+            "retrieved_sources": [
+              "@knowledge/firmware.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: firmware.md > Service > Firmware update]\n# Service\n## Firmware update\nBefore starting, disconnect the actuator and create a firmware backup.\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: firmware.md > Service > Firmware update > Procedure]\n[Related context]\nBefore starting, disconnect the actuator and create a firmware backup.\n1. Record diagnostic channel 1 and confirm stable communication before proceeding.\n2. Record diagnostic channel 2\n28. Record diagnostic channel 28 and confirm stable communication before proceeding.\n29. Upload the image, then verify checksum 0x7A91 before restart.\n",
+            "tokens_estimated": 154
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "tokens_estimated": 154
+      }
+    },
+    {
+      "id": "h04",
+      "text": "What is the offset of sensor-48, its unit and the calibration safety condition?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/sensors.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 0.6666666666666667,
+          "missing_evidence": [
+            {
+              "document_id": "@knowledge/sensors.md",
+              "passage": "| sensor-48 | 68 | 0.1 |"
+            }
+          ],
+          "all_required_documents": true,
+          "complete_evidence": false,
+          "elapsed_ms": 205.86590003222227,
+          "tokens_estimated": 262,
+          "chunks": [
+            {
+              "id": "global:sensors.md:structure-v2:0",
+              "document": "@knowledge/sensors.md",
+              "score": 0.6674809455871582,
+              "text": "[Related context]\nOffsets are measured in millivolts with the actuator disconnected.\nThese offsets are calibration corrections, not alarm thresholds.\n# Sensors\n## Calibration\nOffsets are measured in millivolts with the actuator disconnected.\n| Sensor | Offset (mV) | Tolerance (mV) |\n| --- | --- | --- |\n| sensor-00 | 20 | 0.1 |\n| sensor-01 | 21 | 0.1 |\n| sensor-02 | 22 | 0.1 |\n| sensor-03 | 23 | 0.1 |\n| sensor-04 | 24 | 0.1 |\n| sensor-05 | 25 | 0.1 |\n| sensor-06 | 26 | 0.1 |\n| sensor-07 | 27 | 0.1 |\n| sensor-08 | 28 | 0.1 |\n| sensor-09 | 29 | 0.1 |\n| sensor-10 | 30 | 0.1 |\n| sensor-11 | 31 | 0.1 |\n| sensor-12 | 32 | 0.1 |\n| sensor-13 | 33 | 0.1 |\n| sensor-14 | 34 | 0.1 |\n| sensor-15 | 35 | 0.1 |\n| sensor-16 | 36 | 0.1 |\n| sensor-17 | 37 | 0.1 |\n| sensor-18 | 38 | 0.1 |\n| sensor-19 | 39 | 0.1 |\n| sensor-20 | 40 | 0.1 |\n| sensor-21 | 41 | 0.1 |\n| sensor-22 | 42 | 0.1 |\n| sensor-23 | 43 | 0.1 |\n| sensor-24 | 44 | 0.1 |\n| sensor-25 | 45 | 0.1 |\n| sensor-26 | 46 | 0.1 |\n",
+              "section": "Calibration"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/sensors.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 0.6666666666666667,
+          "missing_evidence": [
+            {
+              "document_id": "@knowledge/sensors.md",
+              "passage": "| sensor-48 | 68 | 0.1 |"
+            }
+          ],
+          "all_required_documents": true,
+          "complete_evidence": false,
+          "elapsed_ms": 302.5627000024542,
+          "tokens_estimated": 403,
+          "chunks": [
+            {
+              "id": "global:sensors.md:structure-v2:0",
+              "document": "@knowledge/sensors.md",
+              "score": 0.6674809455871582,
+              "text": "[Related context]\nOffsets are measured in millivolts with the actuator disconnected.\nThese offsets are calibration corrections, not alarm thresholds.\n# Sensors\n## Calibration\nOffsets are measured in millivolts with the actuator disconnected.\n| Sensor | Offset (mV) | Tolerance (mV) |\n| --- | --- | --- |\n| sensor-00 | 20 | 0.1 |\n| sensor-01 | 21 | 0.1 |\n| sensor-02 | 22 | 0.1 |\n| sensor-03 | 23 | 0.1 |\n| sensor-04 | 24 | 0.1 |\n| sensor-05 | 25 | 0.1 |\n| sensor-06 | 26 | 0.1 |\n| sensor-07 | 27 | 0.1 |\n| sensor-08 | 28 | 0.1 |\n| sensor-09 | 29 | 0.1 |\n| sensor-10 | 30 | 0.1 |\n| sensor-11 | 31 | 0.1 |\n| sensor-12 | 32 | 0.1 |\n| sensor-13 | 33 | 0.1 |\n| sensor-14 | 34 | 0.1 |\n| sensor-15 | 35 | 0.1 |\n| sensor-16 | 36 | 0.1 |\n| sensor-17 | 37 | 0.1 |\n| sensor-18 | 38 | 0.1 |\n| sensor-19 | 39 | 0.1 |\n| sensor-20 | 40 | 0.1 |\n| sensor-21 | 41 | 0.1 |\n| sensor-22 | 42 | 0.1 |\n| sensor-23 | 43 | 0.1 |\n| sensor-24 | 44 | 0.1 |\n| sensor-25 | 45 | 0.1 |\n| sensor-26 | 46 | 0.1 |\n",
+              "section": "Calibration"
+            },
+            {
+              "id": "global:sensors.md:structure-v2:2",
+              "document": "@knowledge/sensors.md",
+              "score": 0.6484345197677612,
+              "text": "[Related context]\nOffsets are measured in millivolts with the actuator disconnected.\nThese offsets are calibration corrections, not alarm thresholds.\n[Table columns]\n| Sensor | Offset (mV) | Tolerance (mV) |\n| --- | --- | --- |\n\n| sensor-57 | 77 | 0.1 |\n| sensor-58 | 78 | 0.1 |\n| sensor-59 | 79 | 0.1 |\n| sensor-60 | 80 | 0.1 |\n| sensor-61 | 81 | 0.1 |\n| sensor-62 | 82 | 0.1 |\n| sensor-63 | 83 | 0.1 |\n| sensor-64 | 84 | 0.1 |\nThese offsets are calibration corrections, not alarm thresholds.\n",
+              "section": "Calibration"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/sensors.md",
+            "@knowledge/polish.md",
+            "@knowledge/acquisition.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 266.53690001694486,
+          "tokens_estimated": 954,
+          "chunks": [
+            {
+              "id": "global:sensors.md:structure-v2:0",
+              "document": "@knowledge/sensors.md",
+              "score": 0.6674809455871582,
+              "text": "[Related context]\nOffsets are measured in millivolts with the actuator disconnected.\nThese offsets are calibration corrections, not alarm thresholds.\n# Sensors\n## Calibration\nOffsets are measured in millivolts with the actuator disconnected.\n| Sensor | Offset (mV) | Tolerance (mV) |\n| --- | --- | --- |\n| sensor-00 | 20 | 0.1 |\n| sensor-01 | 21 | 0.1 |\n| sensor-02 | 22 | 0.1 |\n| sensor-03 | 23 | 0.1 |\n| sensor-04 | 24 | 0.1 |\n| sensor-05 | 25 | 0.1 |\n| sensor-06 | 26 | 0.1 |\n| sensor-07 | 27 | 0.1 |\n| sensor-08 | 28 | 0.1 |\n| sensor-09 | 29 | 0.1 |\n| sensor-10 | 30 | 0.1 |\n| sensor-11 | 31 | 0.1 |\n| sensor-12 | 32 | 0.1 |\n| sensor-13 | 33 | 0.1 |\n| sensor-14 | 34 | 0.1 |\n| sensor-15 | 35 | 0.1 |\n| sensor-16 | 36 | 0.1 |\n| sensor-17 | 37 | 0.1 |\n| sensor-18 | 38 | 0.1 |\n| sensor-19 | 39 | 0.1 |\n| sensor-20 | 40 | 0.1 |\n| sensor-21 | 41 | 0.1 |\n| sensor-22 | 42 | 0.1 |\n| sensor-23 | 43 | 0.1 |\n| sensor-24 | 44 | 0.1 |\n| sensor-25 | 45 | 0.1 |\n| sensor-26 | 46 | 0.1 |\n",
+              "section": "Calibration"
+            },
+            {
+              "id": "global:sensors.md:structure-v2:2",
+              "document": "@knowledge/sensors.md",
+              "score": 0.6484345197677612,
+              "text": "[Related context]\nOffsets are measured in millivolts with the actuator disconnected.\nThese offsets are calibration corrections, not alarm thresholds.\n[Table columns]\n| Sensor | Offset (mV) | Tolerance (mV) |\n| --- | --- | --- |\n\n| sensor-57 | 77 | 0.1 |\n| sensor-58 | 78 | 0.1 |\n| sensor-59 | 79 | 0.1 |\n| sensor-60 | 80 | 0.1 |\n| sensor-61 | 81 | 0.1 |\n| sensor-62 | 82 | 0.1 |\n| sensor-63 | 83 | 0.1 |\n| sensor-64 | 84 | 0.1 |\nThese offsets are calibration corrections, not alarm thresholds.\n",
+              "section": "Calibration"
+            },
+            {
+              "id": "global:sensors.md:structure-v2:1",
+              "document": "@knowledge/sensors.md",
+              "score": 0.6450248956680298,
+              "text": "[Related context]\nOffsets are measured in millivolts with the actuator disconnected.\nThese offsets are calibration corrections, not alarm thresholds.\n[Table columns]\n| Sensor | Offset (mV) | Tolerance (mV) |\n| --- | --- | --- |\n\n| sensor-27 | 47 | 0.1 |\n| sensor-28 | 48 | 0.1 |\n| sensor-29 | 49 | 0.1 |\n| sensor-30 | 50 | 0.1 |\n| sensor-31 | 51 | 0.1 |\n| sensor-32 | 52 | 0.1 |\n| sensor-33 | 53 | 0.1 |\n| sensor-34 | 54 | 0.1 |\n| sensor-35 | 55 | 0.1 |\n| sensor-36 | 56 | 0.1 |\n| sensor-37 | 57 | 0.1 |\n| sensor-38 | 58 | 0.1 |\n| sensor-39 | 59 | 0.1 |\n| sensor-40 | 60 | 0.1 |\n| sensor-41 | 61 | 0.1 |\n| sensor-42 | 62 | 0.1 |\n| sensor-43 | 63 | 0.1 |\n| sensor-44 | 64 | 0.1 |\n| sensor-45 | 65 | 0.1 |\n| sensor-46 | 66 | 0.1 |\n| sensor-47 | 67 | 0.1 |\n| sensor-48 | 68 | 0.1 |\n| sensor-49 | 69 | 0.1 |\n| sensor-50 | 70 | 0.1 |\n| sensor-51 | 71 | 0.1 |\n| sensor-52 | 72 | 0.1 |\n| sensor-53 | 73 | 0.1 |\n| sensor-54 | 74 | 0.1 |\n| sensor-55 | 75 | 0.1 |\n| sensor-56 | 76 | 0.1 |\n",
+              "section": "Calibration"
+            },
+            {
+              "id": "global:polish.md:structure-v2:0",
+              "document": "@knowledge/polish.md",
+              "score": 0.41856956481933594,
+              "text": "# Instalacja\n## Zasilanie\nPrzed pomiarem odłącz silnik od sterownika.\n| Tryb | Napięcie (V) |\n| --- | --- |\n| nominalny | 48 |\n| serwisowy | 12 |\nWartości dotyczą napięcia wejściowego, nie wyjściowego.\n",
+              "section": "Zasilanie"
+            },
+            {
+              "id": "global:acquisition.md:structure-v2:3",
+              "document": "@knowledge/acquisition.md",
+              "score": 0.408447265625,
+              "text": "[Related context]\nThe acquisition functions require an isolated power supply; channel numbers are physical ports.\nThe returned values are raw ADC counts, not calibrated temperatures.\n[Code continuation: python]\ndef sample_49():\n    return read_channel(49)\n\ndef sample_50():\n    return read_channel(50)\n\ndef sample_51():\n    return read_channel(51)\n\ndef sample_52():\n    return read_channel(52)\n\ndef sample_53():\n    return read_channel(53)\n\ndef sample_54():\n    return read_channel(54)\n\ndef sample_55():\n    return read_channel(55)\n\ndef sample_56():\n    return read_channel(56)\n\ndef sample_57():\n    return read_channel(57)\n\ndef sample_58():\n    return read_channel(58)\n\ndef sample_59():\n    return read_channel(59)\n\n```\nThe returned values are raw ADC counts, not calibrated temperatures.\n",
+              "section": "Channel sampling"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:sensors.md:structure-v2:0",
+                "path": "@knowledge/sensors.md",
+                "truncated": false
+              },
+              {
+                "id": "global:sensors.md:structure-v2:2",
+                "path": "@knowledge/sensors.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 403,
+            "retrieved_sources": [
+              "@knowledge/sensors.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: sensors.md > Sensors > Calibration]\n[Related context]\nOffsets are measured in millivolts with the actuator disconnected.\nThese offsets are calibration corrections, not alarm thresholds.\n# Sensors\n## Calibration\nOffsets are measured in millivolts with the actuator disconnected.\n| Sensor | Offset (mV) | Tolerance (mV) |\n| --- | --- | --- |\n| sensor-00 | 20 | 0.1 |\n| sensor-01 | 21 | 0.1 |\n| sensor-02 | 22 | 0.1 |\n| sensor-03 | 23 | 0.1 |\n| sensor-04 | 24 | 0.1 |\n| sensor-05 | 25 | 0.1 |\n| sensor-06 | 26 | 0.1 |\n| sensor-07 | 27 | 0.1 |\n| sensor-08 | 28 | 0.1 |\n| sensor-09 | 29 | 0.1 |\n| sensor-10 | 30 | 0.1 |\n| sensor-11 | 31 | 0.1 |\n| sensor-12 | 32 | 0.1 |\n| sensor-13 | 33 | 0.1 |\n| sensor-14 | 34 | 0.1 |\n| sensor-15 | 35 | 0.1 |\n| sensor-16 | 36 | 0.1 |\n| sensor-17 | 37 | 0.1 |\n| sensor-18 | 38 | 0.1 |\n| sensor-19 | 39 | 0.1 |\n| sensor-20 | 40 | 0.1 |\n| sensor-21 | 41 | 0.1 |\n| sensor-22 | 42 | 0.1 |\n| sensor-23 | 43 | 0.1 |\n| sensor-24 | 44 | 0.1 |\n| sensor-25 | 45 | 0.1 |\n| sensor-26 | 46 | 0.1 |\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: sensors.md > Sensors > Calibration]\n[Related context]\nOffsets are measured in millivolts with the actuator disconnected.\nThese offsets are calibration corrections, not alarm thresholds.\n[Table columns]\n| Sensor | Offset (mV) | Tolerance (mV) |\n| --- | --- | --- |\n\n| sensor-57 | 77 | 0.1 |\n| sensor-58 | 78 | 0.1 |\n| sensor-59 | 79 | 0.1 |\n| sensor-60 | 80 | 0.1 |\n| sensor-61 | 81 | 0.1 |\n| sensor-62 | 82 | 0.1 |\n| sensor-63 | 83 | 0.1 |\n| sensor-64 | 84 | 0.1 |\nThese offsets are calibration corrections, not alarm thresholds.\n",
+            "tokens_estimated": 403
+          }
+        ],
+        "missing_evidence": [
+          {
+            "document_id": "@knowledge/sensors.md",
+            "passage": "| sensor-48 | 68 | 0.1 |"
+          }
+        ],
+        "evidence_coverage": 0.6666666666666667,
+        "complete_evidence": false,
+        "tokens_estimated": 403
+      }
+    },
+    {
+      "id": "h05",
+      "text": "Compare offsets of sensor-02 and sensor-61; are these alarm thresholds?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/sensors.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 0.6666666666666667,
+          "missing_evidence": [
+            {
+              "document_id": "@knowledge/sensors.md",
+              "passage": "| sensor-02 | 22 | 0.1 |"
+            }
+          ],
+          "all_required_documents": true,
+          "complete_evidence": false,
+          "elapsed_ms": 218.28950004419312,
+          "tokens_estimated": 140,
+          "chunks": [
+            {
+              "id": "global:sensors.md:structure-v2:2",
+              "document": "@knowledge/sensors.md",
+              "score": 0.6151729822158813,
+              "text": "[Related context]\nOffsets are measured in millivolts with the actuator disconnected.\nThese offsets are calibration corrections, not alarm thresholds.\n[Table columns]\n| Sensor | Offset (mV) | Tolerance (mV) |\n| --- | --- | --- |\n\n| sensor-57 | 77 | 0.1 |\n| sensor-58 | 78 | 0.1 |\n| sensor-59 | 79 | 0.1 |\n| sensor-60 | 80 | 0.1 |\n| sensor-61 | 81 | 0.1 |\n| sensor-62 | 82 | 0.1 |\n| sensor-63 | 83 | 0.1 |\n| sensor-64 | 84 | 0.1 |\nThese offsets are calibration corrections, not alarm thresholds.\n",
+              "section": "Calibration"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/sensors.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 200.25200000964105,
+          "tokens_estimated": 403,
+          "chunks": [
+            {
+              "id": "global:sensors.md:structure-v2:2",
+              "document": "@knowledge/sensors.md",
+              "score": 0.6151729822158813,
+              "text": "[Related context]\nOffsets are measured in millivolts with the actuator disconnected.\nThese offsets are calibration corrections, not alarm thresholds.\n[Table columns]\n| Sensor | Offset (mV) | Tolerance (mV) |\n| --- | --- | --- |\n\n| sensor-57 | 77 | 0.1 |\n| sensor-58 | 78 | 0.1 |\n| sensor-59 | 79 | 0.1 |\n| sensor-60 | 80 | 0.1 |\n| sensor-61 | 81 | 0.1 |\n| sensor-62 | 82 | 0.1 |\n| sensor-63 | 83 | 0.1 |\n| sensor-64 | 84 | 0.1 |\nThese offsets are calibration corrections, not alarm thresholds.\n",
+              "section": "Calibration"
+            },
+            {
+              "id": "global:sensors.md:structure-v2:0",
+              "document": "@knowledge/sensors.md",
+              "score": 0.5989596843719482,
+              "text": "[Related context]\nOffsets are measured in millivolts with the actuator disconnected.\nThese offsets are calibration corrections, not alarm thresholds.\n# Sensors\n## Calibration\nOffsets are measured in millivolts with the actuator disconnected.\n| Sensor | Offset (mV) | Tolerance (mV) |\n| --- | --- | --- |\n| sensor-00 | 20 | 0.1 |\n| sensor-01 | 21 | 0.1 |\n| sensor-02 | 22 | 0.1 |\n| sensor-03 | 23 | 0.1 |\n| sensor-04 | 24 | 0.1 |\n| sensor-05 | 25 | 0.1 |\n| sensor-06 | 26 | 0.1 |\n| sensor-07 | 27 | 0.1 |\n| sensor-08 | 28 | 0.1 |\n| sensor-09 | 29 | 0.1 |\n| sensor-10 | 30 | 0.1 |\n| sensor-11 | 31 | 0.1 |\n| sensor-12 | 32 | 0.1 |\n| sensor-13 | 33 | 0.1 |\n| sensor-14 | 34 | 0.1 |\n| sensor-15 | 35 | 0.1 |\n| sensor-16 | 36 | 0.1 |\n| sensor-17 | 37 | 0.1 |\n| sensor-18 | 38 | 0.1 |\n| sensor-19 | 39 | 0.1 |\n| sensor-20 | 40 | 0.1 |\n| sensor-21 | 41 | 0.1 |\n| sensor-22 | 42 | 0.1 |\n| sensor-23 | 43 | 0.1 |\n| sensor-24 | 44 | 0.1 |\n| sensor-25 | 45 | 0.1 |\n| sensor-26 | 46 | 0.1 |\n",
+              "section": "Calibration"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/sensors.md",
+            "@knowledge/unusual.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 206.5254000481218,
+          "tokens_estimated": 1131,
+          "chunks": [
+            {
+              "id": "global:sensors.md:structure-v2:2",
+              "document": "@knowledge/sensors.md",
+              "score": 0.6151729822158813,
+              "text": "[Related context]\nOffsets are measured in millivolts with the actuator disconnected.\nThese offsets are calibration corrections, not alarm thresholds.\n[Table columns]\n| Sensor | Offset (mV) | Tolerance (mV) |\n| --- | --- | --- |\n\n| sensor-57 | 77 | 0.1 |\n| sensor-58 | 78 | 0.1 |\n| sensor-59 | 79 | 0.1 |\n| sensor-60 | 80 | 0.1 |\n| sensor-61 | 81 | 0.1 |\n| sensor-62 | 82 | 0.1 |\n| sensor-63 | 83 | 0.1 |\n| sensor-64 | 84 | 0.1 |\nThese offsets are calibration corrections, not alarm thresholds.\n",
+              "section": "Calibration"
+            },
+            {
+              "id": "global:sensors.md:structure-v2:0",
+              "document": "@knowledge/sensors.md",
+              "score": 0.5989596843719482,
+              "text": "[Related context]\nOffsets are measured in millivolts with the actuator disconnected.\nThese offsets are calibration corrections, not alarm thresholds.\n# Sensors\n## Calibration\nOffsets are measured in millivolts with the actuator disconnected.\n| Sensor | Offset (mV) | Tolerance (mV) |\n| --- | --- | --- |\n| sensor-00 | 20 | 0.1 |\n| sensor-01 | 21 | 0.1 |\n| sensor-02 | 22 | 0.1 |\n| sensor-03 | 23 | 0.1 |\n| sensor-04 | 24 | 0.1 |\n| sensor-05 | 25 | 0.1 |\n| sensor-06 | 26 | 0.1 |\n| sensor-07 | 27 | 0.1 |\n| sensor-08 | 28 | 0.1 |\n| sensor-09 | 29 | 0.1 |\n| sensor-10 | 30 | 0.1 |\n| sensor-11 | 31 | 0.1 |\n| sensor-12 | 32 | 0.1 |\n| sensor-13 | 33 | 0.1 |\n| sensor-14 | 34 | 0.1 |\n| sensor-15 | 35 | 0.1 |\n| sensor-16 | 36 | 0.1 |\n| sensor-17 | 37 | 0.1 |\n| sensor-18 | 38 | 0.1 |\n| sensor-19 | 39 | 0.1 |\n| sensor-20 | 40 | 0.1 |\n| sensor-21 | 41 | 0.1 |\n| sensor-22 | 42 | 0.1 |\n| sensor-23 | 43 | 0.1 |\n| sensor-24 | 44 | 0.1 |\n| sensor-25 | 45 | 0.1 |\n| sensor-26 | 46 | 0.1 |\n",
+              "section": "Calibration"
+            },
+            {
+              "id": "global:sensors.md:structure-v2:1",
+              "document": "@knowledge/sensors.md",
+              "score": 0.5878587961196899,
+              "text": "[Related context]\nOffsets are measured in millivolts with the actuator disconnected.\nThese offsets are calibration corrections, not alarm thresholds.\n[Table columns]\n| Sensor | Offset (mV) | Tolerance (mV) |\n| --- | --- | --- |\n\n| sensor-27 | 47 | 0.1 |\n| sensor-28 | 48 | 0.1 |\n| sensor-29 | 49 | 0.1 |\n| sensor-30 | 50 | 0.1 |\n| sensor-31 | 51 | 0.1 |\n| sensor-32 | 52 | 0.1 |\n| sensor-33 | 53 | 0.1 |\n| sensor-34 | 54 | 0.1 |\n| sensor-35 | 55 | 0.1 |\n| sensor-36 | 56 | 0.1 |\n| sensor-37 | 57 | 0.1 |\n| sensor-38 | 58 | 0.1 |\n| sensor-39 | 59 | 0.1 |\n| sensor-40 | 60 | 0.1 |\n| sensor-41 | 61 | 0.1 |\n| sensor-42 | 62 | 0.1 |\n| sensor-43 | 63 | 0.1 |\n| sensor-44 | 64 | 0.1 |\n| sensor-45 | 65 | 0.1 |\n| sensor-46 | 66 | 0.1 |\n| sensor-47 | 67 | 0.1 |\n| sensor-48 | 68 | 0.1 |\n| sensor-49 | 69 | 0.1 |\n| sensor-50 | 70 | 0.1 |\n| sensor-51 | 71 | 0.1 |\n| sensor-52 | 72 | 0.1 |\n| sensor-53 | 73 | 0.1 |\n| sensor-54 | 74 | 0.1 |\n| sensor-55 | 75 | 0.1 |\n| sensor-56 | 76 | 0.1 |\n",
+              "section": "Calibration"
+            },
+            {
+              "id": "global:unusual.md:structure-v2:0",
+              "document": "@knowledge/unusual.md",
+              "score": 0.46779710054397583,
+              "text": "[Related context]\nThe following payload is incomplete and must not be executed.\n# Odd input\n## Truncated example\nThe following payload is incomplete and must not be executed.\n~~~json\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+              "section": "Truncated example"
+            },
+            {
+              "id": "global:unusual.md:structure-v2:2",
+              "document": "@knowledge/unusual.md",
+              "score": 0.4380800724029541,
+              "text": "[Related context]\nThe following payload is incomplete and must not be executed.\n[Code continuation: json]\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n",
+              "section": "Truncated example"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:sensors.md:structure-v2:2",
+                "path": "@knowledge/sensors.md",
+                "truncated": false
+              },
+              {
+                "id": "global:sensors.md:structure-v2:0",
+                "path": "@knowledge/sensors.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 403,
+            "retrieved_sources": [
+              "@knowledge/sensors.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: sensors.md > Sensors > Calibration]\n[Related context]\nOffsets are measured in millivolts with the actuator disconnected.\nThese offsets are calibration corrections, not alarm thresholds.\n[Table columns]\n| Sensor | Offset (mV) | Tolerance (mV) |\n| --- | --- | --- |\n\n| sensor-57 | 77 | 0.1 |\n| sensor-58 | 78 | 0.1 |\n| sensor-59 | 79 | 0.1 |\n| sensor-60 | 80 | 0.1 |\n| sensor-61 | 81 | 0.1 |\n| sensor-62 | 82 | 0.1 |\n| sensor-63 | 83 | 0.1 |\n| sensor-64 | 84 | 0.1 |\nThese offsets are calibration corrections, not alarm thresholds.\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: sensors.md > Sensors > Calibration]\n[Related context]\nOffsets are measured in millivolts with the actuator disconnected.\nThese offsets are calibration corrections, not alarm thresholds.\n# Sensors\n## Calibration\nOffsets are measured in millivolts with the actuator disconnected.\n| Sensor | Offset (mV) | Tolerance (mV) |\n| --- | --- | --- |\n| sensor-00 | 20 | 0.1 |\n| sensor-01 | 21 | 0.1 |\n| sensor-02 | 22 | 0.1 |\n| sensor-03 | 23 | 0.1 |\n| sensor-04 | 24 | 0.1 |\n| sensor-05 | 25 | 0.1 |\n| sensor-06 | 26 | 0.1 |\n| sensor-07 | 27 | 0.1 |\n| sensor-08 | 28 | 0.1 |\n| sensor-09 | 29 | 0.1 |\n| sensor-10 | 30 | 0.1 |\n| sensor-11 | 31 | 0.1 |\n| sensor-12 | 32 | 0.1 |\n| sensor-13 | 33 | 0.1 |\n| sensor-14 | 34 | 0.1 |\n| sensor-15 | 35 | 0.1 |\n| sensor-16 | 36 | 0.1 |\n| sensor-17 | 37 | 0.1 |\n| sensor-18 | 38 | 0.1 |\n| sensor-19 | 39 | 0.1 |\n| sensor-20 | 40 | 0.1 |\n| sensor-21 | 41 | 0.1 |\n| sensor-22 | 42 | 0.1 |\n| sensor-23 | 43 | 0.1 |\n| sensor-24 | 44 | 0.1 |\n| sensor-25 | 45 | 0.1 |\n| sensor-26 | 46 | 0.1 |\n",
+            "tokens_estimated": 403
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "tokens_estimated": 403
+      }
+    },
+    {
+      "id": "h06",
+      "text": "Którą migawkę przywrócić dla kontrolera pomocniczego i gdzie nie wolno jej użyć?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/recovery.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 274.9367999495007,
+          "tokens_estimated": 71,
+          "chunks": [
+            {
+              "id": "global:recovery.md:structure-v2:0",
+              "document": "@knowledge/recovery.md",
+              "score": 0.4203004240989685,
+              "text": "# Recovery\n## Recovery order\nThe violet snapshot is approved only for the auxiliary controller.\n```sh\nstop_auxiliary\nrestore_snapshot violet\nverify_auxiliary\n```\nNever apply this snapshot to the main controller.\n",
+              "section": "Recovery order"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/recovery.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 265.6084999907762,
+          "tokens_estimated": 112,
+          "chunks": [
+            {
+              "id": "global:recovery.md:structure-v2:0",
+              "document": "@knowledge/recovery.md",
+              "score": 0.4203004240989685,
+              "text": "# Recovery\n## Recovery order\nThe violet snapshot is approved only for the auxiliary controller.\n```sh\nstop_auxiliary\nrestore_snapshot violet\nverify_auxiliary\n```\nNever apply this snapshot to the main controller.\n",
+              "section": "Recovery order"
+            },
+            {
+              "id": "global:recovery.md:structure-v2:1",
+              "document": "@knowledge/recovery.md",
+              "score": 0.38332128524780273,
+              "text": "## Main controller\nThe main controller uses the amber snapshot after manual approval.\n",
+              "section": "Main controller"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/recovery.md",
+            "@knowledge/polish.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 297.4023999995552,
+          "tokens_estimated": 181,
+          "chunks": [
+            {
+              "id": "global:recovery.md:structure-v2:0",
+              "document": "@knowledge/recovery.md",
+              "score": 0.4203004240989685,
+              "text": "# Recovery\n## Recovery order\nThe violet snapshot is approved only for the auxiliary controller.\n```sh\nstop_auxiliary\nrestore_snapshot violet\nverify_auxiliary\n```\nNever apply this snapshot to the main controller.\n",
+              "section": "Recovery order"
+            },
+            {
+              "id": "global:recovery.md:structure-v2:1",
+              "document": "@knowledge/recovery.md",
+              "score": 0.38332128524780273,
+              "text": "## Main controller\nThe main controller uses the amber snapshot after manual approval.\n",
+              "section": "Main controller"
+            },
+            {
+              "id": "global:polish.md:structure-v2:0",
+              "document": "@knowledge/polish.md",
+              "score": 0.3106623888015747,
+              "text": "# Instalacja\n## Zasilanie\nPrzed pomiarem odłącz silnik od sterownika.\n| Tryb | Napięcie (V) |\n| --- | --- |\n| nominalny | 48 |\n| serwisowy | 12 |\nWartości dotyczą napięcia wejściowego, nie wyjściowego.\n",
+              "section": "Zasilanie"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:recovery.md:structure-v2:0",
+                "path": "@knowledge/recovery.md",
+                "truncated": false
+              },
+              {
+                "id": "global:recovery.md:structure-v2:1",
+                "path": "@knowledge/recovery.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 112,
+            "retrieved_sources": [
+              "@knowledge/recovery.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: recovery.md > Recovery > Recovery order]\n# Recovery\n## Recovery order\nThe violet snapshot is approved only for the auxiliary controller.\n```sh\nstop_auxiliary\nrestore_snapshot violet\nverify_auxiliary\n```\nNever apply this snapshot to the main controller.\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: recovery.md > Recovery > Main controller]\n## Main controller\nThe main controller uses the amber snapshot after manual approval.\n",
+            "tokens_estimated": 112
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "tokens_estimated": 112
+      }
+    },
+    {
+      "id": "h07",
+      "text": "Which snapshot is approved for the main controller?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/recovery.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 140.12579998234287,
+          "tokens_estimated": 40,
+          "chunks": [
+            {
+              "id": "global:recovery.md:structure-v2:1",
+              "document": "@knowledge/recovery.md",
+              "score": 0.8231381177902222,
+              "text": "## Main controller\nThe main controller uses the amber snapshot after manual approval.\n",
+              "section": "Main controller"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/recovery.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 135.71719999890774,
+          "tokens_estimated": 112,
+          "chunks": [
+            {
+              "id": "global:recovery.md:structure-v2:1",
+              "document": "@knowledge/recovery.md",
+              "score": 0.8231381177902222,
+              "text": "## Main controller\nThe main controller uses the amber snapshot after manual approval.\n",
+              "section": "Main controller"
+            },
+            {
+              "id": "global:recovery.md:structure-v2:0",
+              "document": "@knowledge/recovery.md",
+              "score": 0.729401171207428,
+              "text": "# Recovery\n## Recovery order\nThe violet snapshot is approved only for the auxiliary controller.\n```sh\nstop_auxiliary\nrestore_snapshot violet\nverify_auxiliary\n```\nNever apply this snapshot to the main controller.\n",
+              "section": "Recovery order"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/recovery.md",
+            "@knowledge/firmware.md",
+            "@knowledge/unusual.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 132.33619998209178,
+          "tokens_estimated": 621,
+          "chunks": [
+            {
+              "id": "global:recovery.md:structure-v2:1",
+              "document": "@knowledge/recovery.md",
+              "score": 0.8231381177902222,
+              "text": "## Main controller\nThe main controller uses the amber snapshot after manual approval.\n",
+              "section": "Main controller"
+            },
+            {
+              "id": "global:recovery.md:structure-v2:0",
+              "document": "@knowledge/recovery.md",
+              "score": 0.729401171207428,
+              "text": "# Recovery\n## Recovery order\nThe violet snapshot is approved only for the auxiliary controller.\n```sh\nstop_auxiliary\nrestore_snapshot violet\nverify_auxiliary\n```\nNever apply this snapshot to the main controller.\n",
+              "section": "Recovery order"
+            },
+            {
+              "id": "global:firmware.md:structure-v2:0",
+              "document": "@knowledge/firmware.md",
+              "score": 0.4298257827758789,
+              "text": "# Service\n## Firmware update\nBefore starting, disconnect the actuator and create a firmware backup.\n",
+              "section": "Firmware update"
+            },
+            {
+              "id": "global:unusual.md:structure-v2:0",
+              "document": "@knowledge/unusual.md",
+              "score": 0.424558162689209,
+              "text": "[Related context]\nThe following payload is incomplete and must not be executed.\n# Odd input\n## Truncated example\nThe following payload is incomplete and must not be executed.\n~~~json\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+              "section": "Truncated example"
+            },
+            {
+              "id": "global:unusual.md:structure-v2:2",
+              "document": "@knowledge/unusual.md",
+              "score": 0.38781243562698364,
+              "text": "[Related context]\nThe following payload is incomplete and must not be executed.\n[Code continuation: json]\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n",
+              "section": "Truncated example"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:recovery.md:structure-v2:1",
+                "path": "@knowledge/recovery.md",
+                "truncated": false
+              },
+              {
+                "id": "global:recovery.md:structure-v2:0",
+                "path": "@knowledge/recovery.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 112,
+            "retrieved_sources": [
+              "@knowledge/recovery.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: recovery.md > Recovery > Main controller]\n## Main controller\nThe main controller uses the amber snapshot after manual approval.\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: recovery.md > Recovery > Recovery order]\n# Recovery\n## Recovery order\nThe violet snapshot is approved only for the auxiliary controller.\n```sh\nstop_auxiliary\nrestore_snapshot violet\nverify_auxiliary\n```\nNever apply this snapshot to the main controller.\n",
+            "tokens_estimated": 112
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "tokens_estimated": 112
+      }
+    },
+    {
+      "id": "h08",
+      "text": "What voltage applies to nominal operation, what should be disconnected, and is it output voltage?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/polish.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 238.74150001211092,
+          "tokens_estimated": 67,
+          "chunks": [
+            {
+              "id": "global:polish.md:structure-v2:0",
+              "document": "@knowledge/polish.md",
+              "score": 0.5354595184326172,
+              "text": "# Instalacja\n## Zasilanie\nPrzed pomiarem odłącz silnik od sterownika.\n| Tryb | Napięcie (V) |\n| --- | --- |\n| nominalny | 48 |\n| serwisowy | 12 |\nWartości dotyczą napięcia wejściowego, nie wyjściowego.\n",
+              "section": "Zasilanie"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/polish.md",
+            "@knowledge/motor.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 195.7395999925211,
+          "tokens_estimated": 151,
+          "chunks": [
+            {
+              "id": "global:polish.md:structure-v2:0",
+              "document": "@knowledge/polish.md",
+              "score": 0.5354595184326172,
+              "text": "# Instalacja\n## Zasilanie\nPrzed pomiarem odłącz silnik od sterownika.\n| Tryb | Napięcie (V) |\n| --- | --- |\n| nominalny | 48 |\n| serwisowy | 12 |\nWartości dotyczą napięcia wejściowego, nie wyjściowego.\n",
+              "section": "Zasilanie"
+            },
+            {
+              "id": "global:motor.md:structure-v2:0",
+              "document": "@knowledge/motor.md",
+              "score": 0.475536584854126,
+              "text": "# Drive\n## Nominal ratings\nThese measurements apply at nominal load and 20 C ambient temperature.\n| Parameter | Value | Unit |\n| --- | --- | --- |\n| Voltage | 24 | V |\n| Current | 2.5 | A |\n| Speed | 3000 | rpm |\nThese ratings are not maximum operating limits.\n",
+              "section": "Nominal ratings"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/polish.md",
+            "@knowledge/motor.md",
+            "@knowledge/firmware.md",
+            "@knowledge/recovery.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 192.42219999432564,
+          "tokens_estimated": 301,
+          "chunks": [
+            {
+              "id": "global:polish.md:structure-v2:0",
+              "document": "@knowledge/polish.md",
+              "score": 0.5354595184326172,
+              "text": "# Instalacja\n## Zasilanie\nPrzed pomiarem odłącz silnik od sterownika.\n| Tryb | Napięcie (V) |\n| --- | --- |\n| nominalny | 48 |\n| serwisowy | 12 |\nWartości dotyczą napięcia wejściowego, nie wyjściowego.\n",
+              "section": "Zasilanie"
+            },
+            {
+              "id": "global:motor.md:structure-v2:0",
+              "document": "@knowledge/motor.md",
+              "score": 0.475536584854126,
+              "text": "# Drive\n## Nominal ratings\nThese measurements apply at nominal load and 20 C ambient temperature.\n| Parameter | Value | Unit |\n| --- | --- | --- |\n| Voltage | 24 | V |\n| Current | 2.5 | A |\n| Speed | 3000 | rpm |\nThese ratings are not maximum operating limits.\n",
+              "section": "Nominal ratings"
+            },
+            {
+              "id": "global:motor.md:structure-v2:1",
+              "document": "@knowledge/motor.md",
+              "score": 0.4654639959335327,
+              "text": "## Maximum ratings\nThe emergency voltage ceiling is 29 V.\n",
+              "section": "Maximum ratings"
+            },
+            {
+              "id": "global:firmware.md:structure-v2:0",
+              "document": "@knowledge/firmware.md",
+              "score": 0.3381671905517578,
+              "text": "# Service\n## Firmware update\nBefore starting, disconnect the actuator and create a firmware backup.\n",
+              "section": "Firmware update"
+            },
+            {
+              "id": "global:recovery.md:structure-v2:0",
+              "document": "@knowledge/recovery.md",
+              "score": 0.3262106776237488,
+              "text": "# Recovery\n## Recovery order\nThe violet snapshot is approved only for the auxiliary controller.\n```sh\nstop_auxiliary\nrestore_snapshot violet\nverify_auxiliary\n```\nNever apply this snapshot to the main controller.\n",
+              "section": "Recovery order"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:polish.md:structure-v2:0",
+                "path": "@knowledge/polish.md",
+                "truncated": false
+              },
+              {
+                "id": "global:motor.md:structure-v2:0",
+                "path": "@knowledge/motor.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 151,
+            "retrieved_sources": [
+              "@knowledge/polish.md",
+              "@knowledge/motor.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: polish.md > Instalacja > Zasilanie]\n# Instalacja\n## Zasilanie\nPrzed pomiarem odłącz silnik od sterownika.\n| Tryb | Napięcie (V) |\n| --- | --- |\n| nominalny | 48 |\n| serwisowy | 12 |\nWartości dotyczą napięcia wejściowego, nie wyjściowego.\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: motor.md > Drive > Nominal ratings]\n# Drive\n## Nominal ratings\nThese measurements apply at nominal load and 20 C ambient temperature.\n| Parameter | Value | Unit |\n| --- | --- | --- |\n| Voltage | 24 | V |\n| Current | 2.5 | A |\n| Speed | 3000 | rpm |\nThese ratings are not maximum operating limits.\n",
+            "tokens_estimated": 151
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "tokens_estimated": 151
+      }
+    },
+    {
+      "id": "h09",
+      "text": "What does sample_47 return and what do its channel and units mean?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/acquisition.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 200.84720000158995,
+          "tokens_estimated": 268,
+          "chunks": [
+            {
+              "id": "global:acquisition.md:structure-v2:2",
+              "document": "@knowledge/acquisition.md",
+              "score": 0.6060879230499268,
+              "text": "[Related context]\nThe acquisition functions require an isolated power supply; channel numbers are physical ports.\nThe returned values are raw ADC counts, not calibrated temperatures.\n[Code continuation: python]\ndef sample_32():\n    return read_channel(32)\n\ndef sample_33():\n    return read_channel(33)\n\ndef sample_34():\n    return read_channel(34)\n\ndef sample_35():\n    return read_channel(35)\n\ndef sample_36():\n    return read_channel(36)\n\ndef sample_37():\n    return read_channel(37)\n\ndef sample_38():\n    return read_channel(38)\n\ndef sample_39():\n    return read_channel(39)\n\ndef sample_40():\n    return read_channel(40)\n\ndef sample_41():\n    return read_channel(41)\n\ndef sample_42():\n    return read_channel(42)\n\ndef sample_43():\n    return read_channel(43)\n\ndef sample_44():\n    return read_channel(44)\n\ndef sample_45():\n    return read_channel(45)\n\ndef sample_46():\n    return read_channel(46)\n\ndef sample_47():\n    return read_channel(47)\n\ndef sample_48():\n    return read_channel(48)\n\n",
+              "section": "Channel sampling"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/acquisition.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 196.20219996431842,
+          "tokens_estimated": 538,
+          "chunks": [
+            {
+              "id": "global:acquisition.md:structure-v2:2",
+              "document": "@knowledge/acquisition.md",
+              "score": 0.6060879230499268,
+              "text": "[Related context]\nThe acquisition functions require an isolated power supply; channel numbers are physical ports.\nThe returned values are raw ADC counts, not calibrated temperatures.\n[Code continuation: python]\ndef sample_32():\n    return read_channel(32)\n\ndef sample_33():\n    return read_channel(33)\n\ndef sample_34():\n    return read_channel(34)\n\ndef sample_35():\n    return read_channel(35)\n\ndef sample_36():\n    return read_channel(36)\n\ndef sample_37():\n    return read_channel(37)\n\ndef sample_38():\n    return read_channel(38)\n\ndef sample_39():\n    return read_channel(39)\n\ndef sample_40():\n    return read_channel(40)\n\ndef sample_41():\n    return read_channel(41)\n\ndef sample_42():\n    return read_channel(42)\n\ndef sample_43():\n    return read_channel(43)\n\ndef sample_44():\n    return read_channel(44)\n\ndef sample_45():\n    return read_channel(45)\n\ndef sample_46():\n    return read_channel(46)\n\ndef sample_47():\n    return read_channel(47)\n\ndef sample_48():\n    return read_channel(48)\n\n",
+              "section": "Channel sampling"
+            },
+            {
+              "id": "global:acquisition.md:structure-v2:0",
+              "document": "@knowledge/acquisition.md",
+              "score": 0.6027861833572388,
+              "text": "[Related context]\nThe acquisition functions require an isolated power supply; channel numbers are physical ports.\nThe returned values are raw ADC counts, not calibrated temperatures.\n# Acquisition\n## Channel sampling\nThe acquisition functions require an isolated power supply; channel numbers are physical ports.\n```python\ndef sample_0():\n    return read_channel(0)\n\ndef sample_1():\n    return read_channel(1)\n\ndef sample_2():\n    return read_channel(2)\n\ndef sample_3():\n    return read_channel(3)\n\ndef sample_4():\n    return read_channel(4)\n\ndef sample_5():\n    return read_channel(5)\n\ndef sample_6():\n    return read_channel(6)\n\ndef sample_7():\n    return read_channel(7)\n\ndef sample_8():\n    return read_channel(8)\n\ndef sample_9():\n    return read_channel(9)\n\ndef sample_10():\n    return read_channel(10)\n\ndef sample_11():\n    return read_channel(11)\n\ndef sample_12():\n    return read_channel(12)\n\ndef sample_13():\n    return read_channel(13)\n\ndef sample_14():\n    return read_channel(14)\n\n",
+              "section": "Channel sampling"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/acquisition.md",
+            "@knowledge/unusual.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 215.81109997350723,
+          "tokens_estimated": 1297,
+          "chunks": [
+            {
+              "id": "global:acquisition.md:structure-v2:2",
+              "document": "@knowledge/acquisition.md",
+              "score": 0.6060879230499268,
+              "text": "[Related context]\nThe acquisition functions require an isolated power supply; channel numbers are physical ports.\nThe returned values are raw ADC counts, not calibrated temperatures.\n[Code continuation: python]\ndef sample_32():\n    return read_channel(32)\n\ndef sample_33():\n    return read_channel(33)\n\ndef sample_34():\n    return read_channel(34)\n\ndef sample_35():\n    return read_channel(35)\n\ndef sample_36():\n    return read_channel(36)\n\ndef sample_37():\n    return read_channel(37)\n\ndef sample_38():\n    return read_channel(38)\n\ndef sample_39():\n    return read_channel(39)\n\ndef sample_40():\n    return read_channel(40)\n\ndef sample_41():\n    return read_channel(41)\n\ndef sample_42():\n    return read_channel(42)\n\ndef sample_43():\n    return read_channel(43)\n\ndef sample_44():\n    return read_channel(44)\n\ndef sample_45():\n    return read_channel(45)\n\ndef sample_46():\n    return read_channel(46)\n\ndef sample_47():\n    return read_channel(47)\n\ndef sample_48():\n    return read_channel(48)\n\n",
+              "section": "Channel sampling"
+            },
+            {
+              "id": "global:acquisition.md:structure-v2:0",
+              "document": "@knowledge/acquisition.md",
+              "score": 0.6027861833572388,
+              "text": "[Related context]\nThe acquisition functions require an isolated power supply; channel numbers are physical ports.\nThe returned values are raw ADC counts, not calibrated temperatures.\n# Acquisition\n## Channel sampling\nThe acquisition functions require an isolated power supply; channel numbers are physical ports.\n```python\ndef sample_0():\n    return read_channel(0)\n\ndef sample_1():\n    return read_channel(1)\n\ndef sample_2():\n    return read_channel(2)\n\ndef sample_3():\n    return read_channel(3)\n\ndef sample_4():\n    return read_channel(4)\n\ndef sample_5():\n    return read_channel(5)\n\ndef sample_6():\n    return read_channel(6)\n\ndef sample_7():\n    return read_channel(7)\n\ndef sample_8():\n    return read_channel(8)\n\ndef sample_9():\n    return read_channel(9)\n\ndef sample_10():\n    return read_channel(10)\n\ndef sample_11():\n    return read_channel(11)\n\ndef sample_12():\n    return read_channel(12)\n\ndef sample_13():\n    return read_channel(13)\n\ndef sample_14():\n    return read_channel(14)\n\n",
+              "section": "Channel sampling"
+            },
+            {
+              "id": "global:acquisition.md:structure-v2:3",
+              "document": "@knowledge/acquisition.md",
+              "score": 0.602669894695282,
+              "text": "[Related context]\nThe acquisition functions require an isolated power supply; channel numbers are physical ports.\nThe returned values are raw ADC counts, not calibrated temperatures.\n[Code continuation: python]\ndef sample_49():\n    return read_channel(49)\n\ndef sample_50():\n    return read_channel(50)\n\ndef sample_51():\n    return read_channel(51)\n\ndef sample_52():\n    return read_channel(52)\n\ndef sample_53():\n    return read_channel(53)\n\ndef sample_54():\n    return read_channel(54)\n\ndef sample_55():\n    return read_channel(55)\n\ndef sample_56():\n    return read_channel(56)\n\ndef sample_57():\n    return read_channel(57)\n\ndef sample_58():\n    return read_channel(58)\n\ndef sample_59():\n    return read_channel(59)\n\n```\nThe returned values are raw ADC counts, not calibrated temperatures.\n",
+              "section": "Channel sampling"
+            },
+            {
+              "id": "global:acquisition.md:structure-v2:1",
+              "document": "@knowledge/acquisition.md",
+              "score": 0.5872213840484619,
+              "text": "[Related context]\nThe acquisition functions require an isolated power supply; channel numbers are physical ports.\nThe returned values are raw ADC counts, not calibrated temperatures.\n[Code continuation: python]\ndef sample_15():\n    return read_channel(15)\n\ndef sample_16():\n    return read_channel(16)\n\ndef sample_17():\n    return read_channel(17)\n\ndef sample_18():\n    return read_channel(18)\n\ndef sample_19():\n    return read_channel(19)\n\ndef sample_20():\n    return read_channel(20)\n\ndef sample_21():\n    return read_channel(21)\n\ndef sample_22():\n    return read_channel(22)\n\ndef sample_23():\n    return read_channel(23)\n\ndef sample_24():\n    return read_channel(24)\n\ndef sample_25():\n    return read_channel(25)\n\ndef sample_26():\n    return read_channel(26)\n\ndef sample_27():\n    return read_channel(27)\n\ndef sample_28():\n    return read_channel(28)\n\ndef sample_29():\n    return read_channel(29)\n\ndef sample_30():\n    return read_channel(30)\n\ndef sample_31():\n    return read_channel(31)\n\n",
+              "section": "Channel sampling"
+            },
+            {
+              "id": "global:unusual.md:structure-v2:0",
+              "document": "@knowledge/unusual.md",
+              "score": 0.4990135431289673,
+              "text": "[Related context]\nThe following payload is incomplete and must not be executed.\n# Odd input\n## Truncated example\nThe following payload is incomplete and must not be executed.\n~~~json\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+              "section": "Truncated example"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 1,
+            "fragments": [
+              {
+                "id": "global:acquisition.md:structure-v2:2",
+                "path": "@knowledge/acquisition.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 268,
+            "retrieved_sources": [
+              "@knowledge/acquisition.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: acquisition.md > Acquisition > Channel sampling]\n[Related context]\nThe acquisition functions require an isolated power supply; channel numbers are physical ports.\nThe returned values are raw ADC counts, not calibrated temperatures.\n[Code continuation: python]\ndef sample_32():\n    return read_channel(32)\n\ndef sample_33():\n    return read_channel(33)\n\ndef sample_34():\n    return read_channel(34)\n\ndef sample_35():\n    return read_channel(35)\n\ndef sample_36():\n    return read_channel(36)\n\ndef sample_37():\n    return read_channel(37)\n\ndef sample_38():\n    return read_channel(38)\n\ndef sample_39():\n    return read_channel(39)\n\ndef sample_40():\n    return read_channel(40)\n\ndef sample_41():\n    return read_channel(41)\n\ndef sample_42():\n    return read_channel(42)\n\ndef sample_43():\n    return read_channel(43)\n\ndef sample_44():\n    return read_channel(44)\n\ndef sample_45():\n    return read_channel(45)\n\ndef sample_46():\n    return read_channel(46)\n\ndef sample_47():\n    return read_channel(47)\n\ndef sample_48():\n    return read_channel(48)\n\n",
+            "tokens_estimated": 268
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "tokens_estimated": 268
+      }
+    },
+    {
+      "id": "h10",
+      "text": "Can the truncated payload be executed?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/unusual.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 97.68469998380169,
+          "tokens_estimated": 269,
+          "chunks": [
+            {
+              "id": "global:unusual.md:structure-v2:0",
+              "document": "@knowledge/unusual.md",
+              "score": 0.6732503771781921,
+              "text": "[Related context]\nThe following payload is incomplete and must not be executed.\n# Odd input\n## Truncated example\nThe following payload is incomplete and must not be executed.\n~~~json\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+              "section": "Truncated example"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/unusual.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 113.09639998944476,
+          "tokens_estimated": 463,
+          "chunks": [
+            {
+              "id": "global:unusual.md:structure-v2:0",
+              "document": "@knowledge/unusual.md",
+              "score": 0.6732503771781921,
+              "text": "[Related context]\nThe following payload is incomplete and must not be executed.\n# Odd input\n## Truncated example\nThe following payload is incomplete and must not be executed.\n~~~json\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+              "section": "Truncated example"
+            },
+            {
+              "id": "global:unusual.md:structure-v2:2",
+              "document": "@knowledge/unusual.md",
+              "score": 0.6508079171180725,
+              "text": "[Related context]\nThe following payload is incomplete and must not be executed.\n[Code continuation: json]\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n",
+              "section": "Truncated example"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/unusual.md",
+            "@knowledge/recovery.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 107.12160001276061,
+          "tokens_estimated": 847,
+          "chunks": [
+            {
+              "id": "global:unusual.md:structure-v2:0",
+              "document": "@knowledge/unusual.md",
+              "score": 0.6732503771781921,
+              "text": "[Related context]\nThe following payload is incomplete and must not be executed.\n# Odd input\n## Truncated example\nThe following payload is incomplete and must not be executed.\n~~~json\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+              "section": "Truncated example"
+            },
+            {
+              "id": "global:unusual.md:structure-v2:2",
+              "document": "@knowledge/unusual.md",
+              "score": 0.6508079171180725,
+              "text": "[Related context]\nThe following payload is incomplete and must not be executed.\n[Code continuation: json]\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n",
+              "section": "Truncated example"
+            },
+            {
+              "id": "global:unusual.md:structure-v2:1",
+              "document": "@knowledge/unusual.md",
+              "score": 0.5771711468696594,
+              "text": "[Related context]\nThe following payload is incomplete and must not be executed.\n[Code continuation: json]\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+              "section": "Truncated example"
+            },
+            {
+              "id": "global:recovery.md:structure-v2:1",
+              "document": "@knowledge/recovery.md",
+              "score": 0.4303455948829651,
+              "text": "## Main controller\nThe main controller uses the amber snapshot after manual approval.\n",
+              "section": "Main controller"
+            },
+            {
+              "id": "global:recovery.md:structure-v2:0",
+              "document": "@knowledge/recovery.md",
+              "score": 0.41047656536102295,
+              "text": "# Recovery\n## Recovery order\nThe violet snapshot is approved only for the auxiliary controller.\n```sh\nstop_auxiliary\nrestore_snapshot violet\nverify_auxiliary\n```\nNever apply this snapshot to the main controller.\n",
+              "section": "Recovery order"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:unusual.md:structure-v2:0",
+                "path": "@knowledge/unusual.md",
+                "truncated": false
+              },
+              {
+                "id": "global:unusual.md:structure-v2:2",
+                "path": "@knowledge/unusual.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 463,
+            "retrieved_sources": [
+              "@knowledge/unusual.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: unusual.md > Odd input > Truncated example]\n[Related context]\nThe following payload is incomplete and must not be executed.\n# Odd input\n## Truncated example\nThe following payload is incomplete and must not be executed.\n~~~json\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: unusual.md > Odd input > Truncated example]\n[Related context]\nThe following payload is incomplete and must not be executed.\n[Code continuation: json]\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n",
+            "tokens_estimated": 463
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "tokens_estimated": 463
+      }
+    },
+    {
+      "id": "h11",
+      "text": "Explain startup ordering and the safety condition before firmware updating.",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/firmware.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 0.5,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 0.6131471927654584,
+          "evidence_coverage": 0.5,
+          "missing_evidence": [
+            {
+              "document_id": "@knowledge/startup.md",
+              "passage": "Communication must be initialized before the actuator to reject stale commands."
+            }
+          ],
+          "all_required_documents": false,
+          "complete_evidence": false,
+          "elapsed_ms": 175.40659999940544,
+          "tokens_estimated": 43,
+          "chunks": [
+            {
+              "id": "global:firmware.md:structure-v2:0",
+              "document": "@knowledge/firmware.md",
+              "score": 0.6943556070327759,
+              "text": "# Service\n## Firmware update\nBefore starting, disconnect the actuator and create a firmware backup.\n",
+              "section": "Firmware update"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/firmware.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 0.5,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 0.6131471927654584,
+          "evidence_coverage": 0.5,
+          "missing_evidence": [
+            {
+              "document_id": "@knowledge/startup.md",
+              "passage": "Communication must be initialized before the actuator to reject stale commands."
+            }
+          ],
+          "all_required_documents": false,
+          "complete_evidence": false,
+          "elapsed_ms": 203.42469995375723,
+          "tokens_estimated": 154,
+          "chunks": [
+            {
+              "id": "global:firmware.md:structure-v2:0",
+              "document": "@knowledge/firmware.md",
+              "score": 0.6943556070327759,
+              "text": "# Service\n## Firmware update\nBefore starting, disconnect the actuator and create a firmware backup.\n",
+              "section": "Firmware update"
+            },
+            {
+              "id": "global:firmware.md:structure-v2:4",
+              "document": "@knowledge/firmware.md",
+              "score": 0.5321540236473083,
+              "text": "[Related context]\nBefore starting, disconnect the actuator and create a firmware backup.\n1. Record diagnostic channel 1 and confirm stable communication before proceeding.\n2. Record diagnostic channel 2\n28. Record diagnostic channel 28 and confirm stable communication before proceeding.\n29. Upload the image, then verify checksum 0x7A91 before restart.\n",
+              "section": "Procedure"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/firmware.md",
+            "@knowledge/startup.md",
+            "@knowledge/recovery.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.4,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 167.67360002268106,
+          "tokens_estimated": 563,
+          "chunks": [
+            {
+              "id": "global:firmware.md:structure-v2:0",
+              "document": "@knowledge/firmware.md",
+              "score": 0.6943556070327759,
+              "text": "# Service\n## Firmware update\nBefore starting, disconnect the actuator and create a firmware backup.\n",
+              "section": "Firmware update"
+            },
+            {
+              "id": "global:firmware.md:structure-v2:4",
+              "document": "@knowledge/firmware.md",
+              "score": 0.5321540236473083,
+              "text": "[Related context]\nBefore starting, disconnect the actuator and create a firmware backup.\n1. Record diagnostic channel 1 and confirm stable communication before proceeding.\n2. Record diagnostic channel 2\n28. Record diagnostic channel 28 and confirm stable communication before proceeding.\n29. Upload the image, then verify checksum 0x7A91 before restart.\n",
+              "section": "Procedure"
+            },
+            {
+              "id": "global:startup.md:structure-v2:0",
+              "document": "@knowledge/startup.md",
+              "score": 0.5203350186347961,
+              "text": "# Controller\n## Startup\nCommunication must be initialized before the actuator to reject stale commands.\n```python\ninitialize_communication()\nenable_actuator()\n```\nThis order is mandatory even after a warm restart.\n\n",
+              "section": "Startup"
+            },
+            {
+              "id": "global:recovery.md:structure-v2:0",
+              "document": "@knowledge/recovery.md",
+              "score": 0.48326706886291504,
+              "text": "# Recovery\n## Recovery order\nThe violet snapshot is approved only for the auxiliary controller.\n```sh\nstop_auxiliary\nrestore_snapshot violet\nverify_auxiliary\n```\nNever apply this snapshot to the main controller.\n",
+              "section": "Recovery order"
+            },
+            {
+              "id": "global:firmware.md:structure-v2:3",
+              "document": "@knowledge/firmware.md",
+              "score": 0.46005135774612427,
+              "text": "[Related context]\nBefore starting, disconnect the actuator and create a firmware backup.\n1. Record diagnostic channel 1 and confirm stable communication before proceeding.\n2. Record diagnostic channel 2\n19. Record diagnostic channel 19 and confirm stable communication before proceeding.\n20. Record diagnostic channel 20 and confirm stable communication before proceeding.\n21. Record diagnostic channel 21 and confirm stable communication before proceeding.\n22. Record diagnostic channel 22 and confirm stable communication before proceeding.\n23. Record diagnostic channel 23 and confirm stable communication before proceeding.\n24. Record diagnostic channel 24 and confirm stable communication before proceeding.\n25. Record diagnostic channel 25 and confirm stable communication before proceeding.\n26. Record diagnostic channel 26 and confirm stable communication before proceeding.\n27. Record diagnostic channel 27 and confirm stable communication before proceeding.\n",
+              "section": "Procedure"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:firmware.md:structure-v2:0",
+                "path": "@knowledge/firmware.md",
+                "truncated": false
+              },
+              {
+                "id": "global:firmware.md:structure-v2:4",
+                "path": "@knowledge/firmware.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 154,
+            "retrieved_sources": [
+              "@knowledge/firmware.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: firmware.md > Service > Firmware update]\n# Service\n## Firmware update\nBefore starting, disconnect the actuator and create a firmware backup.\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: firmware.md > Service > Firmware update > Procedure]\n[Related context]\nBefore starting, disconnect the actuator and create a firmware backup.\n1. Record diagnostic channel 1 and confirm stable communication before proceeding.\n2. Record diagnostic channel 2\n28. Record diagnostic channel 28 and confirm stable communication before proceeding.\n29. Upload the image, then verify checksum 0x7A91 before restart.\n",
+            "tokens_estimated": 154
+          }
+        ],
+        "missing_evidence": [
+          {
+            "document_id": "@knowledge/startup.md",
+            "passage": "Communication must be initialized before the actuator to reject stale commands."
+          }
+        ],
+        "evidence_coverage": 0.5,
+        "complete_evidence": false,
+        "tokens_estimated": 154
+      }
+    },
+    {
+      "id": "h12",
+      "text": "What is the approved maximum torque of the motor?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/motor.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "no_answer_empty": false,
+          "elapsed_ms": 153.8979000179097,
+          "tokens_estimated": 82,
+          "chunks": [
+            {
+              "id": "global:motor.md:structure-v2:0",
+              "document": "@knowledge/motor.md",
+              "score": 0.555892825126648,
+              "text": "# Drive\n## Nominal ratings\nThese measurements apply at nominal load and 20 C ambient temperature.\n| Parameter | Value | Unit |\n| --- | --- | --- |\n| Voltage | 24 | V |\n| Current | 2.5 | A |\n| Speed | 3000 | rpm |\nThese ratings are not maximum operating limits.\n",
+              "section": "Nominal ratings"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/motor.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "no_answer_empty": false,
+          "elapsed_ms": 154.08250002656132,
+          "tokens_estimated": 115,
+          "chunks": [
+            {
+              "id": "global:motor.md:structure-v2:0",
+              "document": "@knowledge/motor.md",
+              "score": 0.555892825126648,
+              "text": "# Drive\n## Nominal ratings\nThese measurements apply at nominal load and 20 C ambient temperature.\n| Parameter | Value | Unit |\n| --- | --- | --- |\n| Voltage | 24 | V |\n| Current | 2.5 | A |\n| Speed | 3000 | rpm |\nThese ratings are not maximum operating limits.\n",
+              "section": "Nominal ratings"
+            },
+            {
+              "id": "global:motor.md:structure-v2:1",
+              "document": "@knowledge/motor.md",
+              "score": 0.46627092361450195,
+              "text": "## Maximum ratings\nThe emergency voltage ceiling is 29 V.\n",
+              "section": "Maximum ratings"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/motor.md",
+            "@knowledge/polish.md",
+            "@knowledge/unusual.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "no_answer_empty": false,
+          "elapsed_ms": 139.79039998957887,
+          "tokens_estimated": 648,
+          "chunks": [
+            {
+              "id": "global:motor.md:structure-v2:0",
+              "document": "@knowledge/motor.md",
+              "score": 0.555892825126648,
+              "text": "# Drive\n## Nominal ratings\nThese measurements apply at nominal load and 20 C ambient temperature.\n| Parameter | Value | Unit |\n| --- | --- | --- |\n| Voltage | 24 | V |\n| Current | 2.5 | A |\n| Speed | 3000 | rpm |\nThese ratings are not maximum operating limits.\n",
+              "section": "Nominal ratings"
+            },
+            {
+              "id": "global:motor.md:structure-v2:1",
+              "document": "@knowledge/motor.md",
+              "score": 0.46627092361450195,
+              "text": "## Maximum ratings\nThe emergency voltage ceiling is 29 V.\n",
+              "section": "Maximum ratings"
+            },
+            {
+              "id": "global:polish.md:structure-v2:0",
+              "document": "@knowledge/polish.md",
+              "score": 0.43293482065200806,
+              "text": "# Instalacja\n## Zasilanie\nPrzed pomiarem odłącz silnik od sterownika.\n| Tryb | Napięcie (V) |\n| --- | --- |\n| nominalny | 48 |\n| serwisowy | 12 |\nWartości dotyczą napięcia wejściowego, nie wyjściowego.\n",
+              "section": "Zasilanie"
+            },
+            {
+              "id": "global:unusual.md:structure-v2:0",
+              "document": "@knowledge/unusual.md",
+              "score": 0.3516366481781006,
+              "text": "[Related context]\nThe following payload is incomplete and must not be executed.\n# Odd input\n## Truncated example\nThe following payload is incomplete and must not be executed.\n~~~json\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+              "section": "Truncated example"
+            },
+            {
+              "id": "global:unusual.md:structure-v2:2",
+              "document": "@knowledge/unusual.md",
+              "score": 0.3225998878479004,
+              "text": "[Related context]\nThe following payload is incomplete and must not be executed.\n[Code continuation: json]\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n",
+              "section": "Truncated example"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:motor.md:structure-v2:0",
+                "path": "@knowledge/motor.md",
+                "truncated": false
+              },
+              {
+                "id": "global:motor.md:structure-v2:1",
+                "path": "@knowledge/motor.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 115,
+            "retrieved_sources": [
+              "@knowledge/motor.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: motor.md > Drive > Nominal ratings]\n# Drive\n## Nominal ratings\nThese measurements apply at nominal load and 20 C ambient temperature.\n| Parameter | Value | Unit |\n| --- | --- | --- |\n| Voltage | 24 | V |\n| Current | 2.5 | A |\n| Speed | 3000 | rpm |\nThese ratings are not maximum operating limits.\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: motor.md > Drive > Maximum ratings]\n## Maximum ratings\nThe emergency voltage ceiling is 29 V.\n",
+            "tokens_estimated": 115
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": null,
+        "complete_evidence": null,
+        "tokens_estimated": 115
+      }
+    },
+    {
+      "id": "h13",
+      "text": "What private actuator password is recorded in the project?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/firmware.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "no_answer_empty": false,
+          "elapsed_ms": 121.88250001054257,
+          "tokens_estimated": 43,
+          "chunks": [
+            {
+              "id": "global:firmware.md:structure-v2:0",
+              "document": "@knowledge/firmware.md",
+              "score": 0.5320098400115967,
+              "text": "# Service\n## Firmware update\nBefore starting, disconnect the actuator and create a firmware backup.\n",
+              "section": "Firmware update"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/firmware.md",
+            "@knowledge/unusual.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "no_answer_empty": false,
+          "elapsed_ms": 130.88439998682588,
+          "tokens_estimated": 313,
+          "chunks": [
+            {
+              "id": "global:firmware.md:structure-v2:0",
+              "document": "@knowledge/firmware.md",
+              "score": 0.5320098400115967,
+              "text": "# Service\n## Firmware update\nBefore starting, disconnect the actuator and create a firmware backup.\n",
+              "section": "Firmware update"
+            },
+            {
+              "id": "global:unusual.md:structure-v2:0",
+              "document": "@knowledge/unusual.md",
+              "score": 0.47076940536499023,
+              "text": "[Related context]\nThe following payload is incomplete and must not be executed.\n# Odd input\n## Truncated example\nThe following payload is incomplete and must not be executed.\n~~~json\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+              "section": "Truncated example"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/firmware.md",
+            "@knowledge/unusual.md",
+            "@knowledge/startup.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "no_answer_empty": false,
+          "elapsed_ms": 146.95590001065284,
+          "tokens_estimated": 761,
+          "chunks": [
+            {
+              "id": "global:firmware.md:structure-v2:0",
+              "document": "@knowledge/firmware.md",
+              "score": 0.5320098400115967,
+              "text": "# Service\n## Firmware update\nBefore starting, disconnect the actuator and create a firmware backup.\n",
+              "section": "Firmware update"
+            },
+            {
+              "id": "global:unusual.md:structure-v2:0",
+              "document": "@knowledge/unusual.md",
+              "score": 0.47076940536499023,
+              "text": "[Related context]\nThe following payload is incomplete and must not be executed.\n# Odd input\n## Truncated example\nThe following payload is incomplete and must not be executed.\n~~~json\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+              "section": "Truncated example"
+            },
+            {
+              "id": "global:firmware.md:structure-v2:4",
+              "document": "@knowledge/firmware.md",
+              "score": 0.4518401622772217,
+              "text": "[Related context]\nBefore starting, disconnect the actuator and create a firmware backup.\n1. Record diagnostic channel 1 and confirm stable communication before proceeding.\n2. Record diagnostic channel 2\n28. Record diagnostic channel 28 and confirm stable communication before proceeding.\n29. Upload the image, then verify checksum 0x7A91 before restart.\n",
+              "section": "Procedure"
+            },
+            {
+              "id": "global:startup.md:structure-v2:0",
+              "document": "@knowledge/startup.md",
+              "score": 0.4439314007759094,
+              "text": "# Controller\n## Startup\nCommunication must be initialized before the actuator to reject stale commands.\n```python\ninitialize_communication()\nenable_actuator()\n```\nThis order is mandatory even after a warm restart.\n\n",
+              "section": "Startup"
+            },
+            {
+              "id": "global:firmware.md:structure-v2:2",
+              "document": "@knowledge/firmware.md",
+              "score": 0.438682496547699,
+              "text": "[Related context]\nBefore starting, disconnect the actuator and create a firmware backup.\n1. Record diagnostic channel 1 and confirm stable communication before proceeding.\n2. Record diagnostic channel 2\n10. Record diagnostic channel 10 and confirm stable communication before proceeding.\n11. Record diagnostic channel 11 and confirm stable communication before proceeding.\n12. Record diagnostic channel 12 and confirm stable communication before proceeding.\n13. Record diagnostic channel 13 and confirm stable communication before proceeding.\n14. Record diagnostic channel 14 and confirm stable communication before proceeding.\n15. Record diagnostic channel 15 and confirm stable communication before proceeding.\n16. Record diagnostic channel 16 and confirm stable communication before proceeding.\n17. Record diagnostic channel 17 and confirm stable communication before proceeding.\n18. Record diagnostic channel 18 and confirm stable communication before proceeding.\n",
+              "section": "Procedure"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:firmware.md:structure-v2:0",
+                "path": "@knowledge/firmware.md",
+                "truncated": false
+              },
+              {
+                "id": "global:unusual.md:structure-v2:0",
+                "path": "@knowledge/unusual.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 313,
+            "retrieved_sources": [
+              "@knowledge/firmware.md",
+              "@knowledge/unusual.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: firmware.md > Service > Firmware update]\n# Service\n## Firmware update\nBefore starting, disconnect the actuator and create a firmware backup.\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: unusual.md > Odd input > Truncated example]\n[Related context]\nThe following payload is incomplete and must not be executed.\n# Odd input\n## Truncated example\nThe following payload is incomplete and must not be executed.\n~~~json\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "tokens_estimated": 313
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": null,
+        "complete_evidence": null,
+        "tokens_estimated": 313
+      }
+    }
+  ],
+  "experiment_utc": "2026-11-05T17:49:33.591833+00:00",
+  "prefetch_note": "Tool output; separate scopes, max_results=2, 500 estimated tokens per scope. Provider delivery requires integration verification."
+}

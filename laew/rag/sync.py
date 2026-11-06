@@ -85,7 +85,8 @@ def synchronize_scope(kb, scope, *, force=False, lock_timeout=30, cancel=None):
             result = kb.synchronize(force=force, scope=scope)
             generation = uuid.uuid4().hex
             if process_lock:
-                process_lock.write_state({"state": "complete", "generation": generation})
+                process_lock.write_state({"state": "complete", "generation": generation,
+                                          "chunking_strategy": getattr(kb, "chunking_strategy", "legacy")})
         except Exception:
             with _guard:
                 entry["state"] = "synchronization failed"
@@ -99,6 +100,7 @@ def synchronize_scope(kb, scope, *, force=False, lock_timeout=30, cancel=None):
             entry["state"] = "successfully synchronized"
             entry["last_success"] = _now()
             entry["generation"] = generation
+            entry["chunking_strategy"] = getattr(kb, "chunking_strategy", "legacy")
         return result
     finally:
         if process_lock:
@@ -109,6 +111,8 @@ def synchronize_scope(kb, scope, *, force=False, lock_timeout=30, cancel=None):
 def freshness_error(kb, scope):
     status = sync_status(kb, scope)
     if status["state"] == "successfully synchronized":
+        if status.get("chunking_strategy", "legacy") != getattr(kb, "chunking_strategy", "legacy"):
+            return f"{scope} chunking strategy changed; synchronize before retrieval."
         return None
     label = f"project {kb.project_root}" if scope == "project" else "global knowledge"
     return (status["error"] or f"{label}: index freshness is unknown ({status['state']}). "

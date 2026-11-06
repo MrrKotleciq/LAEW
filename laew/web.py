@@ -796,7 +796,9 @@ class WorkspaceService:
                 assert self._executor is not None
                 self._register_memory_tool()
                 from laew.knowledge.routing import KnowledgeTurn
-                turn = KnowledgeTurn(lambda tool, op, args: self._call_tool(tool, op, args, None))
+                from laew.knowledge.sufficiency import configured_assessor
+                assessor = configured_assessor(load_manifest(self.manifest_path) if Path(self.manifest_path).exists() else {}, self._agent, self.cloud)
+                turn = KnowledgeTurn(lambda tool, op, args: self._call_tool(tool, op, args, None), assessor=assessor)
                 turn.prepare(self._executor, message.strip(), self._active_project_id, self.memory,
                              self._agent.tools.get("RagTool") if self._agent else None)
                 result = self._executor.run(message.strip(), stream=False, on_tool_call=turn.call,
@@ -983,9 +985,11 @@ class WorkspaceService:
                             raise StreamCancelled()
                     else:
                         emit({"type": "routing", "routing": diagnostics})
+                from laew.knowledge.sufficiency import configured_assessor
+                assessor = configured_assessor(load_manifest(self.manifest_path) if Path(self.manifest_path).exists() else {}, self._agent, self.cloud)
                 turn = KnowledgeTurn(
                     lambda tool, op, args: self._call_tool_checked(tool, op, args, emit, session_id, cancellation),
-                    notify=routing_event,
+                    notify=routing_event, assessor=assessor,
                 )
                 used_memories = turn.prepare(self._executor, message.strip(), self._active_project_id,
                                              self.memory, self._agent.tools.get("RagTool") if self._agent else None)

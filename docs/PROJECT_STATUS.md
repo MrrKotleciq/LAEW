@@ -14,6 +14,21 @@ read_when:
 
 ## Status
 
+2026-11-06 Memory Sufficiency and Horizon. The optional assessor evaluates
+recalled Memory evidence before Global RAG fallback. The default heuristic
+policy stays in effect unless model assessment is enabled. The opt-in
+Horizon-preferred mode records NLI signals and keeps the usual RAG fallback.
+See [Memory Sufficiency](memory-sufficiency.md), the
+[Ornith evaluation](reports/MEMORY_SUFFICIENCY_ORNITH_20261106.md), and the
+[Horizon service setup](../tools/horizon-sufficiency/README.md).
+
+2026-11-06 Knowledge Routing reliability. The shared CLI and Workbench routing
+recognizes more saved-context questions in Polish and English, and carries
+source restrictions through short follow-ups. The isolated comparison
+delivered all 57 historical evidence targets to the Chief adapter, up from 53.
+See the [routing comparison](reports/KNOWLEDGE_ROUTING_RELIABILITY.md) and the
+[follow-up evaluations](retrieval-reliability-evaluation.md).
+
 2026-11-04 Global Knowledge Curation: conversation proposals, versioned Review,
 approved Obsidian publication, and retryable Global RAG synchronization. See
 [Global Knowledge Curation](architecture/GLOBAL_KNOWLEDGE_CURATION.md) and the
@@ -86,7 +101,7 @@ roadmap work remain outside M17 completion.
 - **manifests/SYSTEM_MANIFEST.yaml** — System manifest v1.0 (workspace boundaries, model roles, tool policies, memory layers, RAG configuration)
 - **tools/** — Tool contracts for filesystem, git, terminal, web (each with CONTRACT.md and Python implementation)
 - **prompts/** — Layered prompt templates (core.md, chief-agent.md, architecture.md, research.md, code-review.md, debugging.md, documentation.md, rag.md)
-- **tests/** — Test specifications for security, agent, rag, workflow, multi-agent, console, CLI, web, benchmarking, and documentation validation (925 unit tests across 46 suites)
+- **tests/** — Test specifications for security, agent, rag, workflow, multi-agent, console, CLI, web, benchmarking, and documentation validation (1015 unit tests across 52 suites)
 - **docs/** — Architecture, principles, decisions, context, status, history, roadmap, performance, security, and source reference material
 - **.claude/** — Agent SDK configuration, settings, prompts, and skills (project-sync, research, architecture-review)
 - **laew/** — Python package (tool runtime wrappers, CLI, LLM provider, prompt management, agent loop, multi-agent coordination, RAG, workflow, evaluation)
@@ -132,7 +147,7 @@ roadmap work remain outside M17 completion.
   two documents/five chunks; unchanged synchronization embedded zero chunks.
   Existing LAEW and global collection records/vectors were unchanged.
 
-- **925 unit tests** collected across **46 test suites** (in `tests/unit`)
+- **1015 unit tests** collected across **52 test suites** (in `tests/unit`)
 - Earlier offline unit and component verification for M17: 887 passed, 2 skipped. Separate isolated live tests exercised ChromaDB, embeddings, the Chief Agent and a browser; M17 was still in progress at that stage.
 - 2026-10-28/29 final verification: 826 passed, 2 skipped, 1 deselected for
   `tests/unit tests/integration -m "not ollama"`; a focused RAG, process,

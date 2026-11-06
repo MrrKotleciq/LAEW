@@ -1,0 +1,2261 @@
+{
+  "model_requested": "gpt-5.6-luna",
+  "provider": "chatgpt",
+  "authorization": "existing ChatGPT OAuth registration",
+  "mode": "native read-only Chief Agent",
+  "model_call_limit": 22,
+  "planned_cases": [
+    "l01",
+    "l02",
+    "v20",
+    "v21",
+    "h11",
+    "h18",
+    "l03",
+    "l04",
+    "l05",
+    "l06",
+    "l07",
+    "l08",
+    "l09"
+  ],
+  "fixture_sha256": "7caf882238d9748e6d03cddbcc07c3059a0d2d00750d0dc78e0b2c10f2c4f3cf",
+  "cases": [
+    {
+      "id": "l01",
+      "dataset": "independent",
+      "conversation": null,
+      "question": "Rewrite this sentence by filling in the blank. First use MemoryTool recall with the query 'copper badge code'. Use only Memory. My copper badge code is ___.",
+      "reference": "Fill the blank with C-5819 after a real MemoryTool recall.",
+      "abstention_expected": false,
+      "tool_probe": "MemoryTool.recall",
+      "required": [
+        "memory"
+      ],
+      "forbidden": [],
+      "success": true,
+      "answer": "My copper badge code is **C-5819**.",
+      "bound_topic": false,
+      "source_policy": {
+        "memory_only": true,
+        "memory_excluded": false,
+        "only_scope": null,
+        "excluded_scopes": [],
+        "rag_disabled": true
+      },
+      "missing_searches": [],
+      "extra_searches": [],
+      "accuracy": {
+        "initial_sources": [],
+        "final_sources": [],
+        "executed_sources": [
+          "memory"
+        ],
+        "backend_calls": [
+          {
+            "scope": "memory",
+            "call_id": "call_fXR8fZHUgybugqFWAvjfZnqw",
+            "completed": true,
+            "returned": 1
+          }
+        ],
+        "evidence_atoms": [
+          {
+            "marker": "C-5819",
+            "expected_sources": [
+              "memory"
+            ],
+            "found_in": [
+              "memory"
+            ],
+            "prepared_in": [
+              "memory"
+            ],
+            "delivered_in": [
+              "memory"
+            ],
+            "first_dispatch_in": [],
+            "outcome": "delivered"
+          }
+        ],
+        "forbidden_delivered": [],
+        "required_without_selection": [
+          "memory"
+        ],
+        "selected_required_without_search": [],
+        "required_covered_without_search": [],
+        "required_without_search_or_evidence": [],
+        "memory_recall": {
+          "status": "not_selected",
+          "reason": "No clear request for saved personal or project context.",
+          "scopes": [
+            "user"
+          ]
+        },
+        "prefetch": [],
+        "follow_up": [],
+        "provider_dispatches": 2
+      },
+      "diagnostic_tools": [
+        {
+          "call_id": "call_fXR8fZHUgybugqFWAvjfZnqw",
+          "order": 1,
+          "iteration": 1,
+          "tool": "MemoryTool",
+          "operation": "recall",
+          "status": "completed",
+          "executed": true,
+          "reused": false,
+          "scope": null,
+          "elapsed_ms": 9.2,
+          "error_category": null,
+          "supplied": true,
+          "memory_recall": {
+            "status": "completed",
+            "error_category": null,
+            "scopes": [
+              "user"
+            ],
+            "candidates": 1,
+            "search_executed": true,
+            "mode": "FTS5",
+            "ids": [
+              "af8d81b1-ea4a-448a-8df0-1f83203abf71"
+            ],
+            "selected": 1,
+            "supplied": 1,
+            "assessment": {
+              "status": "unverified",
+              "reason": "Recall did not establish answer coverage for the requested information."
+            },
+            "escalation_skipped": "The user request can be answered without stored knowledge."
+          }
+        }
+      ],
+      "elapsed_ms": 5182.75,
+      "model_calls": [
+        {
+          "message_chars": 3628,
+          "tool_schema_chars": 2015,
+          "server_model": "gpt-5.6-luna",
+          "usage": {
+            "prompt_tokens": 982,
+            "completion_tokens": 36,
+            "total_tokens": 1018
+          },
+          "elapsed_ms": 2821.69
+        },
+        {
+          "message_chars": 3984,
+          "tool_schema_chars": 2015,
+          "server_model": "gpt-5.6-luna",
+          "usage": {
+            "prompt_tokens": 1162,
+            "completion_tokens": 16,
+            "total_tokens": 1178
+          },
+          "elapsed_ms": 2327.15
+        }
+      ],
+      "retrieved_context_chars": 153,
+      "reference_review": {
+        "correct": true,
+        "grounded": true,
+        "unsupported_domain_claim": false,
+        "missing_information": false,
+        "correct_abstention": null,
+        "false_abstention": false,
+        "source_restriction_compliant": true,
+        "failure_stage": null,
+        "notes": "Returned C-5819 after the real MemoryTool result reached the second dispatch."
+      },
+      "retrieval_quality": {
+        "initial_routing_recall": [
+          0,
+          1
+        ],
+        "final_source_selection_recall": [
+          0,
+          1
+        ],
+        "executed_retrieval_recall": [
+          1,
+          1
+        ],
+        "evidence_atom_coverage": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "id": "l02",
+      "dataset": "independent",
+      "conversation": null,
+      "question": "Rewrite this sentence by filling in the blank. First call RagTool with scope project and query 'calibration seal code'. Use only Project Knowledge. The calibration seal code is ___.",
+      "reference": "Fill the blank with SEAL-Z42 after a real project RagTool query.",
+      "abstention_expected": false,
+      "tool_probe": "RagTool.query",
+      "required": [
+        "project"
+      ],
+      "forbidden": [
+        "WRONG-110"
+      ],
+      "success": true,
+      "answer": "The calibration seal code is **SEAL-Z42**. [[@project/l02.md]]",
+      "bound_topic": false,
+      "source_policy": {
+        "memory_only": false,
+        "memory_excluded": false,
+        "only_scope": "project",
+        "excluded_scopes": [],
+        "rag_disabled": false
+      },
+      "missing_searches": [],
+      "extra_searches": [],
+      "accuracy": {
+        "initial_sources": [],
+        "final_sources": [],
+        "executed_sources": [
+          "project"
+        ],
+        "backend_calls": [
+          {
+            "scope": "project",
+            "call_id": "call_0AJh2DEUxZXffHOWeaNZP3uw",
+            "completed": true,
+            "returned": 2
+          }
+        ],
+        "evidence_atoms": [
+          {
+            "marker": "SEAL-Z42",
+            "expected_sources": [
+              "project"
+            ],
+            "found_in": [
+              "project"
+            ],
+            "prepared_in": [
+              "project"
+            ],
+            "delivered_in": [
+              "project"
+            ],
+            "first_dispatch_in": [],
+            "outcome": "delivered"
+          }
+        ],
+        "forbidden_delivered": [],
+        "required_without_selection": [
+          "project"
+        ],
+        "selected_required_without_search": [],
+        "required_covered_without_search": [],
+        "required_without_search_or_evidence": [],
+        "memory_recall": {
+          "status": "not_selected",
+          "reason": "No clear request for saved personal or project context.",
+          "scopes": [
+            "user",
+            "project"
+          ]
+        },
+        "prefetch": [],
+        "follow_up": [
+          {
+            "scope": "project",
+            "status": "found",
+            "chunks": 1,
+            "supplied": 1,
+            "search_executed": true,
+            "sources": [
+              "@project/l02.md"
+            ],
+            "duplicates_omitted": 0,
+            "elapsed_ms": 9.3,
+            "error": null,
+            "index_status": "freshness_verified",
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "project:l02.md:0:0",
+                "path": "@project/l02.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 22,
+            "retrieved_sources": [
+              "@project/l02.md"
+            ],
+            "call_id": "call_0AJh2DEUxZXffHOWeaNZP3uw",
+            "order": 1,
+            "reused": false
+          }
+        ],
+        "provider_dispatches": 2
+      },
+      "diagnostic_tools": [
+        {
+          "call_id": "call_0AJh2DEUxZXffHOWeaNZP3uw",
+          "order": 1,
+          "iteration": 1,
+          "tool": "RagTool",
+          "operation": "query",
+          "status": "completed",
+          "executed": true,
+          "reused": false,
+          "scope": "project",
+          "elapsed_ms": 9.4,
+          "error_category": null,
+          "supplied": true
+        }
+      ],
+      "elapsed_ms": 5297.98,
+      "model_calls": [
+        {
+          "message_chars": 4255,
+          "tool_schema_chars": 2307,
+          "server_model": "gpt-5.6-luna",
+          "usage": {
+            "prompt_tokens": 1147,
+            "completion_tokens": 49,
+            "total_tokens": 1196
+          },
+          "elapsed_ms": 2772.01
+        },
+        {
+          "message_chars": 4672,
+          "tool_schema_chars": 2307,
+          "server_model": "gpt-5.6-luna",
+          "usage": {
+            "prompt_tokens": 1332,
+            "completion_tokens": 23,
+            "total_tokens": 1355
+          },
+          "elapsed_ms": 2501.63
+        }
+      ],
+      "retrieved_context_chars": 125,
+      "reference_review": {
+        "correct": true,
+        "grounded": true,
+        "unsupported_domain_claim": false,
+        "missing_information": false,
+        "correct_abstention": null,
+        "false_abstention": false,
+        "source_restriction_compliant": true,
+        "failure_stage": null,
+        "notes": "Returned SEAL-Z42 and the project note after the real project RagTool result."
+      },
+      "retrieval_quality": {
+        "initial_routing_recall": [
+          0,
+          1
+        ],
+        "final_source_selection_recall": [
+          0,
+          1
+        ],
+        "executed_retrieval_recall": [
+          1,
+          1
+        ],
+        "evidence_atom_coverage": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "id": "v20",
+      "dataset": "validation",
+      "conversation": null,
+      "question": "Którą powieść wspomniałem?",
+      "reference": "Identify Solaris as the novel.",
+      "abstention_expected": false,
+      "tool_probe": null,
+      "required": [
+        "memory"
+      ],
+      "forbidden": [],
+      "success": true,
+      "answer": "Wspomniałeś powieść **„Solaris”**.",
+      "bound_topic": false,
+      "source_policy": {
+        "memory_only": false,
+        "memory_excluded": false,
+        "only_scope": null,
+        "excluded_scopes": [],
+        "rag_disabled": false
+      },
+      "missing_searches": [],
+      "extra_searches": [
+        "global"
+      ],
+      "accuracy": {
+        "initial_sources": [
+          "memory"
+        ],
+        "final_sources": [
+          "memory",
+          "global"
+        ],
+        "executed_sources": [
+          "global",
+          "memory"
+        ],
+        "backend_calls": [
+          {
+            "scope": "memory",
+            "call_id": null,
+            "completed": true,
+            "returned": 1
+          },
+          {
+            "scope": "global",
+            "call_id": null,
+            "completed": true,
+            "returned": 2
+          }
+        ],
+        "evidence_atoms": [
+          {
+            "marker": "Solaris",
+            "expected_sources": [
+              "global",
+              "memory"
+            ],
+            "found_in": [
+              "global",
+              "memory"
+            ],
+            "prepared_in": [
+              "global",
+              "memory"
+            ],
+            "delivered_in": [
+              "global",
+              "memory"
+            ],
+            "first_dispatch_in": [
+              "global",
+              "memory"
+            ],
+            "outcome": "delivered"
+          }
+        ],
+        "forbidden_delivered": [],
+        "required_without_selection": [],
+        "selected_required_without_search": [],
+        "required_covered_without_search": [],
+        "required_without_search_or_evidence": [],
+        "memory_recall": {
+          "status": "completed",
+          "reason": "The request concerns a personal fact, plan or preference.",
+          "scopes": [
+            "user"
+          ],
+          "invoked": true,
+          "candidates": 1,
+          "search_executed": true,
+          "mode": "FTS5",
+          "selected": 1,
+          "supplied": 1,
+          "prepared": 1,
+          "ids": [
+            "0ee588d6-5a9b-42bb-8e17-e006a0b16222"
+          ],
+          "estimated_context_size": 52,
+          "elapsed_ms": 7.0
+        },
+        "prefetch": [
+          {
+            "scope": "global",
+            "status": "found",
+            "chunks": 1,
+            "sources": [
+              "@knowledge/v20.md"
+            ],
+            "after_order": 0,
+            "supplied": 1,
+            "search_executed": true,
+            "duplicates_omitted": 0,
+            "elapsed_ms": 8.9,
+            "error": null,
+            "index_status": "freshness_verified",
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:v20.md:0:0",
+                "path": "@knowledge/v20.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 20,
+            "retrieved_sources": [
+              "@knowledge/v20.md"
+            ]
+          }
+        ],
+        "follow_up": [],
+        "provider_dispatches": 1
+      },
+      "diagnostic_tools": [],
+      "elapsed_ms": 2220.12,
+      "model_calls": [
+        {
+          "message_chars": 3703,
+          "tool_schema_chars": 2015,
+          "server_model": "gpt-5.6-luna",
+          "usage": {
+            "prompt_tokens": 1035,
+            "completion_tokens": 19,
+            "total_tokens": 1054
+          },
+          "elapsed_ms": 2187.38
+        }
+      ],
+      "retrieved_context_chars": 356,
+      "reference_review": {
+        "correct": true,
+        "grounded": true,
+        "unsupported_domain_claim": false,
+        "missing_information": false,
+        "correct_abstention": null,
+        "false_abstention": false,
+        "source_restriction_compliant": null,
+        "failure_stage": null,
+        "notes": "Correctly named Solaris."
+      },
+      "retrieval_quality": {
+        "initial_routing_recall": [
+          1,
+          1
+        ],
+        "final_source_selection_recall": [
+          1,
+          1
+        ],
+        "executed_retrieval_recall": [
+          1,
+          1
+        ],
+        "evidence_atom_coverage": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "id": "v21",
+      "dataset": "validation",
+      "conversation": null,
+      "question": "Who has my camera?",
+      "reference": "Identify Lena as the camera borrower.",
+      "abstention_expected": false,
+      "tool_probe": null,
+      "required": [
+        "memory",
+        "global"
+      ],
+      "forbidden": [],
+      "success": true,
+      "answer": "Your camera was borrowed by someone. The available context does not verify who.",
+      "bound_topic": false,
+      "source_policy": {
+        "memory_only": false,
+        "memory_excluded": false,
+        "only_scope": null,
+        "excluded_scopes": [],
+        "rag_disabled": false
+      },
+      "missing_searches": [],
+      "extra_searches": [],
+      "accuracy": {
+        "initial_sources": [
+          "memory"
+        ],
+        "final_sources": [
+          "memory",
+          "global"
+        ],
+        "executed_sources": [
+          "global",
+          "memory"
+        ],
+        "backend_calls": [
+          {
+            "scope": "memory",
+            "call_id": null,
+            "completed": true,
+            "returned": 1
+          },
+          {
+            "scope": "global",
+            "call_id": null,
+            "completed": true,
+            "returned": 2
+          }
+        ],
+        "evidence_atoms": [
+          {
+            "marker": "Lena",
+            "expected_sources": [
+              "global"
+            ],
+            "found_in": [
+              "global"
+            ],
+            "prepared_in": [
+              "global"
+            ],
+            "delivered_in": [
+              "global"
+            ],
+            "first_dispatch_in": [
+              "global"
+            ],
+            "outcome": "delivered"
+          }
+        ],
+        "forbidden_delivered": [],
+        "required_without_selection": [],
+        "selected_required_without_search": [],
+        "required_covered_without_search": [],
+        "required_without_search_or_evidence": [],
+        "memory_recall": {
+          "status": "completed",
+          "reason": "The request concerns a personal fact, plan or preference.",
+          "scopes": [
+            "user"
+          ],
+          "invoked": true,
+          "candidates": 1,
+          "search_executed": true,
+          "mode": "FTS5",
+          "selected": 1,
+          "supplied": 1,
+          "prepared": 1,
+          "ids": [
+            "547a0a13-2748-488a-9a6a-374c3368c269"
+          ],
+          "estimated_context_size": 54,
+          "elapsed_ms": 7.4
+        },
+        "prefetch": [
+          {
+            "scope": "global",
+            "status": "found",
+            "chunks": 1,
+            "sources": [
+              "@knowledge/v21.md"
+            ],
+            "after_order": 0,
+            "supplied": 1,
+            "search_executed": true,
+            "duplicates_omitted": 0,
+            "elapsed_ms": 3.4,
+            "error": null,
+            "index_status": "freshness_verified",
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:v21.md:0:0",
+                "path": "@knowledge/v21.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 21,
+            "retrieved_sources": [
+              "@knowledge/v21.md"
+            ]
+          }
+        ],
+        "follow_up": [],
+        "provider_dispatches": 1
+      },
+      "diagnostic_tools": [],
+      "elapsed_ms": 3777.49,
+      "model_calls": [
+        {
+          "message_chars": 3704,
+          "tool_schema_chars": 2015,
+          "server_model": "gpt-5.6-luna",
+          "usage": {
+            "prompt_tokens": 1025,
+            "completion_tokens": 19,
+            "total_tokens": 1044
+          },
+          "elapsed_ms": 3758.84
+        }
+      ],
+      "retrieved_context_chars": 365,
+      "reference_review": {
+        "correct": false,
+        "grounded": false,
+        "unsupported_domain_claim": false,
+        "missing_information": true,
+        "correct_abstention": null,
+        "false_abstention": true,
+        "source_restriction_compliant": null,
+        "failure_stage": "model_evidence_use",
+        "notes": "The answer acknowledged the loan but incorrectly said the borrower could not be verified. The first dispatch supplied the Global excerpt naming Lena. No borrower was invented."
+      },
+      "retrieval_quality": {
+        "initial_routing_recall": [
+          1,
+          2
+        ],
+        "final_source_selection_recall": [
+          2,
+          2
+        ],
+        "executed_retrieval_recall": [
+          2,
+          2
+        ],
+        "evidence_atom_coverage": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "id": "h11",
+      "dataset": "horizon_holdout",
+      "conversation": null,
+      "question": "Kiedy jest potwierdzony odbiór regału?",
+      "reference": "Give Friday at 16:00 as confirmed. Wednesday is tentative and must not be presented as confirmed.",
+      "abstention_expected": false,
+      "tool_probe": null,
+      "required": [
+        "memory",
+        "global"
+      ],
+      "forbidden": [],
+      "success": true,
+      "answer": "Potwierdzony odbiór regału jest **w piątek o 16:00**. Wcześniejsza informacja o środzie była niepewna. [knowledge: h11.md]",
+      "bound_topic": false,
+      "source_policy": {
+        "memory_only": false,
+        "memory_excluded": false,
+        "only_scope": null,
+        "excluded_scopes": [],
+        "rag_disabled": false
+      },
+      "missing_searches": [],
+      "extra_searches": [],
+      "accuracy": {
+        "initial_sources": [
+          "memory"
+        ],
+        "final_sources": [
+          "memory",
+          "global"
+        ],
+        "executed_sources": [
+          "global",
+          "memory"
+        ],
+        "backend_calls": [
+          {
+            "scope": "memory",
+            "call_id": null,
+            "completed": true,
+            "returned": 1
+          },
+          {
+            "scope": "global",
+            "call_id": null,
+            "completed": true,
+            "returned": 2
+          }
+        ],
+        "evidence_atoms": [
+          {
+            "marker": "piątek o 16",
+            "expected_sources": [
+              "global"
+            ],
+            "found_in": [
+              "global"
+            ],
+            "prepared_in": [
+              "global"
+            ],
+            "delivered_in": [
+              "global"
+            ],
+            "first_dispatch_in": [
+              "global"
+            ],
+            "outcome": "delivered"
+          }
+        ],
+        "forbidden_delivered": [],
+        "required_without_selection": [],
+        "selected_required_without_search": [],
+        "required_covered_without_search": [],
+        "required_without_search_or_evidence": [],
+        "memory_recall": {
+          "status": "completed",
+          "reason": "The request concerns a personal fact, plan or preference.",
+          "scopes": [
+            "user"
+          ],
+          "invoked": true,
+          "candidates": 1,
+          "search_executed": true,
+          "mode": "FTS5",
+          "selected": 1,
+          "supplied": 1,
+          "prepared": 1,
+          "ids": [
+            "b634f08b-803d-451e-8831-b935a9f0219d"
+          ],
+          "estimated_context_size": 54,
+          "elapsed_ms": 7.6
+        },
+        "prefetch": [
+          {
+            "scope": "global",
+            "status": "found",
+            "chunks": 1,
+            "sources": [
+              "@knowledge/h11.md"
+            ],
+            "after_order": 0,
+            "supplied": 1,
+            "search_executed": true,
+            "duplicates_omitted": 0,
+            "elapsed_ms": 2.7,
+            "error": null,
+            "index_status": "freshness_verified",
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:h11.md:0:0",
+                "path": "@knowledge/h11.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 24,
+            "retrieved_sources": [
+              "@knowledge/h11.md"
+            ]
+          }
+        ],
+        "follow_up": [],
+        "provider_dispatches": 1
+      },
+      "diagnostic_tools": [],
+      "elapsed_ms": 6205.93,
+      "model_calls": [
+        {
+          "message_chars": 3735,
+          "tool_schema_chars": 2015,
+          "server_model": "gpt-5.6-luna",
+          "usage": {
+            "prompt_tokens": 1053,
+            "completion_tokens": 96,
+            "total_tokens": 1149
+          },
+          "elapsed_ms": 6186.15
+        }
+      ],
+      "retrieved_context_chars": 376,
+      "reference_review": {
+        "correct": true,
+        "grounded": true,
+        "unsupported_domain_claim": false,
+        "missing_information": false,
+        "correct_abstention": null,
+        "false_abstention": false,
+        "source_restriction_compliant": null,
+        "failure_stage": null,
+        "notes": "Correctly distinguished confirmed Friday at 16:00 from tentative Wednesday."
+      },
+      "retrieval_quality": {
+        "initial_routing_recall": [
+          1,
+          2
+        ],
+        "final_source_selection_recall": [
+          2,
+          2
+        ],
+        "executed_retrieval_recall": [
+          2,
+          2
+        ],
+        "evidence_atom_coverage": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "id": "h18",
+      "dataset": "horizon_holdout",
+      "conversation": null,
+      "question": "Which battery size does my workshop scale need?",
+      "reference": "Give CR2032 as the workshop scale battery size.",
+      "abstention_expected": false,
+      "tool_probe": null,
+      "required": [
+        "memory"
+      ],
+      "forbidden": [],
+      "success": true,
+      "answer": "Your workshop scale needs **CR2032** batteries.",
+      "bound_topic": false,
+      "source_policy": {
+        "memory_only": false,
+        "memory_excluded": false,
+        "only_scope": null,
+        "excluded_scopes": [],
+        "rag_disabled": false
+      },
+      "missing_searches": [],
+      "extra_searches": [
+        "global"
+      ],
+      "accuracy": {
+        "initial_sources": [
+          "memory"
+        ],
+        "final_sources": [
+          "memory",
+          "global"
+        ],
+        "executed_sources": [
+          "global",
+          "memory"
+        ],
+        "backend_calls": [
+          {
+            "scope": "memory",
+            "call_id": null,
+            "completed": true,
+            "returned": 1
+          },
+          {
+            "scope": "global",
+            "call_id": null,
+            "completed": true,
+            "returned": 2
+          }
+        ],
+        "evidence_atoms": [
+          {
+            "marker": "CR2032",
+            "expected_sources": [
+              "global",
+              "memory"
+            ],
+            "found_in": [
+              "global",
+              "memory"
+            ],
+            "prepared_in": [
+              "global",
+              "memory"
+            ],
+            "delivered_in": [
+              "global",
+              "memory"
+            ],
+            "first_dispatch_in": [
+              "global",
+              "memory"
+            ],
+            "outcome": "delivered"
+          }
+        ],
+        "forbidden_delivered": [],
+        "required_without_selection": [],
+        "selected_required_without_search": [],
+        "required_covered_without_search": [],
+        "required_without_search_or_evidence": [],
+        "memory_recall": {
+          "status": "completed",
+          "reason": "The request concerns a personal fact, plan or preference.",
+          "scopes": [
+            "user"
+          ],
+          "invoked": true,
+          "candidates": 1,
+          "search_executed": true,
+          "mode": "FTS5",
+          "selected": 1,
+          "supplied": 1,
+          "prepared": 1,
+          "ids": [
+            "a323707b-ff97-444b-b776-f0d2803322a7"
+          ],
+          "estimated_context_size": 54,
+          "elapsed_ms": 7.3
+        },
+        "prefetch": [
+          {
+            "scope": "global",
+            "status": "found",
+            "chunks": 1,
+            "sources": [
+              "@knowledge/h18.md"
+            ],
+            "after_order": 0,
+            "supplied": 1,
+            "search_executed": true,
+            "duplicates_omitted": 0,
+            "elapsed_ms": 2.5,
+            "error": null,
+            "index_status": "freshness_verified",
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:h18.md:0:0",
+                "path": "@knowledge/h18.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 23,
+            "retrieved_sources": [
+              "@knowledge/h18.md"
+            ]
+          }
+        ],
+        "follow_up": [],
+        "provider_dispatches": 1
+      },
+      "diagnostic_tools": [],
+      "elapsed_ms": 2701.99,
+      "model_calls": [
+        {
+          "message_chars": 3744,
+          "tool_schema_chars": 2015,
+          "server_model": "gpt-5.6-luna",
+          "usage": {
+            "prompt_tokens": 1030,
+            "completion_tokens": 15,
+            "total_tokens": 1045
+          },
+          "elapsed_ms": 2683.83
+        }
+      ],
+      "retrieved_context_chars": 376,
+      "reference_review": {
+        "correct": true,
+        "grounded": true,
+        "unsupported_domain_claim": false,
+        "missing_information": false,
+        "correct_abstention": null,
+        "false_abstention": false,
+        "source_restriction_compliant": null,
+        "failure_stage": null,
+        "notes": "Correctly gave CR2032."
+      },
+      "retrieval_quality": {
+        "initial_routing_recall": [
+          1,
+          1
+        ],
+        "final_source_selection_recall": [
+          1,
+          1
+        ],
+        "executed_retrieval_recall": [
+          1,
+          1
+        ],
+        "evidence_atom_coverage": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "id": "l03",
+      "dataset": "independent",
+      "conversation": null,
+      "question": "Use only Project Knowledge. What nozzle size and target pressure are specified for the indigo pump?",
+      "reference": "Report both 1.8 mm and 2.6 bar as the project values.",
+      "abstention_expected": false,
+      "tool_probe": null,
+      "required": [
+        "project"
+      ],
+      "forbidden": [
+        "3.4 mm",
+        "9.1 bar"
+      ],
+      "success": true,
+      "answer": "The indigo pump uses a **1.8 mm nozzle** and has a target pressure of **2.6 bar**. (Project Knowledge: `l03.md`)",
+      "bound_topic": false,
+      "source_policy": {
+        "memory_only": false,
+        "memory_excluded": false,
+        "only_scope": "project",
+        "excluded_scopes": [],
+        "rag_disabled": false
+      },
+      "missing_searches": [],
+      "extra_searches": [],
+      "accuracy": {
+        "initial_sources": [
+          "project"
+        ],
+        "final_sources": [
+          "project"
+        ],
+        "executed_sources": [
+          "project"
+        ],
+        "backend_calls": [
+          {
+            "scope": "project",
+            "call_id": null,
+            "completed": true,
+            "returned": 2
+          }
+        ],
+        "evidence_atoms": [
+          {
+            "marker": "1.8 mm",
+            "expected_sources": [
+              "project"
+            ],
+            "found_in": [
+              "project"
+            ],
+            "prepared_in": [
+              "project"
+            ],
+            "delivered_in": [
+              "project"
+            ],
+            "first_dispatch_in": [
+              "project"
+            ],
+            "outcome": "delivered"
+          },
+          {
+            "marker": "2.6 bar",
+            "expected_sources": [
+              "project"
+            ],
+            "found_in": [
+              "project"
+            ],
+            "prepared_in": [
+              "project"
+            ],
+            "delivered_in": [
+              "project"
+            ],
+            "first_dispatch_in": [
+              "project"
+            ],
+            "outcome": "delivered"
+          }
+        ],
+        "forbidden_delivered": [],
+        "required_without_selection": [],
+        "selected_required_without_search": [],
+        "required_covered_without_search": [],
+        "required_without_search_or_evidence": [],
+        "memory_recall": {
+          "status": "not_selected",
+          "reason": "The user limited this turn to one Knowledge scope.",
+          "scopes": [
+            "user",
+            "project"
+          ]
+        },
+        "prefetch": [
+          {
+            "scope": "project",
+            "status": "found",
+            "chunks": 1,
+            "sources": [
+              "@project/l03.md"
+            ],
+            "after_order": 0,
+            "supplied": 1,
+            "search_executed": true,
+            "duplicates_omitted": 0,
+            "elapsed_ms": 4.3,
+            "error": null,
+            "index_status": "freshness_verified",
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "project:l03.md:0:0",
+                "path": "@project/l03.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 30,
+            "retrieved_sources": [
+              "@project/l03.md"
+            ]
+          }
+        ],
+        "follow_up": [],
+        "provider_dispatches": 1
+      },
+      "diagnostic_tools": [],
+      "elapsed_ms": 2851.87,
+      "model_calls": [
+        {
+          "message_chars": 4362,
+          "tool_schema_chars": 2307,
+          "server_model": "gpt-5.6-luna",
+          "usage": {
+            "prompt_tokens": 1180,
+            "completion_tokens": 39,
+            "total_tokens": 1219
+          },
+          "elapsed_ms": 2839.57
+        }
+      ],
+      "retrieved_context_chars": 314,
+      "reference_review": {
+        "correct": true,
+        "grounded": true,
+        "unsupported_domain_claim": false,
+        "missing_information": false,
+        "correct_abstention": null,
+        "false_abstention": false,
+        "source_restriction_compliant": true,
+        "failure_stage": null,
+        "notes": "Gave both project values and did not use the forbidden Global alternatives."
+      },
+      "retrieval_quality": {
+        "initial_routing_recall": [
+          1,
+          1
+        ],
+        "final_source_selection_recall": [
+          1,
+          1
+        ],
+        "executed_retrieval_recall": [
+          1,
+          1
+        ],
+        "evidence_atom_coverage": [
+          2,
+          2
+        ]
+      }
+    },
+    {
+      "id": "l04",
+      "dataset": "independent",
+      "conversation": null,
+      "question": "Use only Memory. What is my gate code?",
+      "reference": "Report the conflicting records G-204 and G-807 and decline to select a current code without confirmation.",
+      "abstention_expected": true,
+      "tool_probe": null,
+      "required": [
+        "memory"
+      ],
+      "forbidden": [],
+      "success": true,
+      "answer": "Memory contains two gate codes, so I can’t determine which is current:\n\n- G-204\n- G-807",
+      "bound_topic": false,
+      "source_policy": {
+        "memory_only": true,
+        "memory_excluded": false,
+        "only_scope": null,
+        "excluded_scopes": [],
+        "rag_disabled": true
+      },
+      "missing_searches": [],
+      "extra_searches": [],
+      "accuracy": {
+        "initial_sources": [
+          "memory"
+        ],
+        "final_sources": [
+          "memory"
+        ],
+        "executed_sources": [
+          "memory"
+        ],
+        "backend_calls": [
+          {
+            "scope": "memory",
+            "call_id": null,
+            "completed": true,
+            "returned": 2
+          }
+        ],
+        "evidence_atoms": [
+          {
+            "marker": "G-204",
+            "expected_sources": [
+              "memory"
+            ],
+            "found_in": [
+              "memory"
+            ],
+            "prepared_in": [
+              "memory"
+            ],
+            "delivered_in": [
+              "memory"
+            ],
+            "first_dispatch_in": [
+              "memory"
+            ],
+            "outcome": "delivered"
+          },
+          {
+            "marker": "G-807",
+            "expected_sources": [
+              "memory"
+            ],
+            "found_in": [
+              "memory"
+            ],
+            "prepared_in": [
+              "memory"
+            ],
+            "delivered_in": [
+              "memory"
+            ],
+            "first_dispatch_in": [
+              "memory"
+            ],
+            "outcome": "delivered"
+          }
+        ],
+        "forbidden_delivered": [],
+        "required_without_selection": [],
+        "selected_required_without_search": [],
+        "required_covered_without_search": [],
+        "required_without_search_or_evidence": [],
+        "memory_recall": {
+          "status": "completed",
+          "reason": "The user requested Long-Term Memory only.",
+          "scopes": [
+            "user"
+          ],
+          "invoked": true,
+          "candidates": 2,
+          "search_executed": true,
+          "mode": "FTS5",
+          "selected": 2,
+          "supplied": 2,
+          "prepared": 2,
+          "ids": [
+            "20099b43-7fe1-41d5-b194-8dfdcaf8689e",
+            "d4d232b9-b3b8-4253-b290-78fa571d7739"
+          ],
+          "estimated_context_size": 74,
+          "elapsed_ms": 7.9
+        },
+        "prefetch": [],
+        "follow_up": [],
+        "provider_dispatches": 1
+      },
+      "diagnostic_tools": [],
+      "elapsed_ms": 3370.87,
+      "model_calls": [
+        {
+          "message_chars": 3889,
+          "tool_schema_chars": 2015,
+          "server_model": "gpt-5.6-luna",
+          "usage": {
+            "prompt_tokens": 1083,
+            "completion_tokens": 54,
+            "total_tokens": 1137
+          },
+          "elapsed_ms": 3354.87
+        }
+      ],
+      "retrieved_context_chars": 530,
+      "reference_review": {
+        "correct": true,
+        "grounded": true,
+        "unsupported_domain_claim": false,
+        "missing_information": false,
+        "correct_abstention": true,
+        "false_abstention": false,
+        "source_restriction_compliant": true,
+        "failure_stage": null,
+        "notes": "Disclosed both stored codes and declined to choose the current code."
+      },
+      "retrieval_quality": {
+        "initial_routing_recall": [
+          1,
+          1
+        ],
+        "final_source_selection_recall": [
+          1,
+          1
+        ],
+        "executed_retrieval_recall": [
+          1,
+          1
+        ],
+        "evidence_atom_coverage": [
+          2,
+          2
+        ]
+      }
+    },
+    {
+      "id": "l05",
+      "dataset": "independent",
+      "conversation": null,
+      "question": "Użyj tylko pamięci. Gdzie odłożyłem fioletowy klucz imbusowy?",
+      "reference": "Say the permitted source does not establish the location. Do not invent a location or claim evidence from a different source.",
+      "abstention_expected": true,
+      "tool_probe": null,
+      "required": [
+        "memory"
+      ],
+      "forbidden": [],
+      "success": true,
+      "answer": "Nie mam w pamięci informacji, gdzie odłożyłeś fioletowy klucz imbusowy.",
+      "bound_topic": false,
+      "source_policy": {
+        "memory_only": true,
+        "memory_excluded": false,
+        "only_scope": null,
+        "excluded_scopes": [],
+        "rag_disabled": true
+      },
+      "missing_searches": [
+        "memory"
+      ],
+      "extra_searches": [],
+      "accuracy": {
+        "initial_sources": [
+          "memory"
+        ],
+        "final_sources": [
+          "memory"
+        ],
+        "executed_sources": [],
+        "backend_calls": [],
+        "evidence_atoms": [],
+        "forbidden_delivered": [],
+        "required_without_selection": [],
+        "selected_required_without_search": [
+          "memory"
+        ],
+        "required_covered_without_search": [],
+        "required_without_search_or_evidence": [
+          "memory"
+        ],
+        "memory_recall": {
+          "status": "no_results",
+          "reason": "The user requested Long-Term Memory only.",
+          "scopes": [
+            "user"
+          ],
+          "invoked": true,
+          "candidates": 0,
+          "search_executed": false,
+          "mode": "empty",
+          "selected": 0,
+          "supplied": 0,
+          "prepared": 0,
+          "ids": [],
+          "estimated_context_size": 0,
+          "elapsed_ms": 5.3
+        },
+        "prefetch": [],
+        "follow_up": [],
+        "provider_dispatches": 2
+      },
+      "diagnostic_tools": [
+        {
+          "call_id": "call_UEdM1i6U841s8d2qBrMeeRkx",
+          "order": 1,
+          "iteration": 1,
+          "tool": "MemoryTool",
+          "operation": "recall",
+          "status": "completed",
+          "executed": true,
+          "reused": false,
+          "scope": null,
+          "elapsed_ms": 4.5,
+          "error_category": null,
+          "supplied": true,
+          "memory_recall": {
+            "status": "no_results",
+            "error_category": null,
+            "scopes": [
+              "user"
+            ],
+            "candidates": 0,
+            "search_executed": false,
+            "mode": "empty",
+            "ids": [],
+            "selected": 0,
+            "supplied": 0,
+            "assessment": {
+              "status": "no_evidence",
+              "reason": "Memory Recall prepared no matching evidence within its limits."
+            },
+            "escalation_skipped": "The user excluded Global Knowledge for this turn."
+          }
+        }
+      ],
+      "elapsed_ms": 8542.23,
+      "model_calls": [
+        {
+          "message_chars": 3636,
+          "tool_schema_chars": 2015,
+          "server_model": "gpt-5.6-luna",
+          "usage": {
+            "prompt_tokens": 989,
+            "completion_tokens": 53,
+            "total_tokens": 1042
+          },
+          "elapsed_ms": 5756.45
+        },
+        {
+          "message_chars": 3892,
+          "tool_schema_chars": 2015,
+          "server_model": "gpt-5.6-luna",
+          "usage": {
+            "prompt_tokens": 1137,
+            "completion_tokens": 26,
+            "total_tokens": 1163
+          },
+          "elapsed_ms": 2761.78
+        }
+      ],
+      "retrieved_context_chars": 256,
+      "reference_review": {
+        "correct": true,
+        "grounded": true,
+        "unsupported_domain_claim": false,
+        "missing_information": null,
+        "correct_abstention": true,
+        "false_abstention": false,
+        "source_restriction_compliant": true,
+        "failure_stage": null,
+        "notes": "Correctly declined to invent a location. Both automatic and tool recall found no active rows before FTS."
+      },
+      "retrieval_quality": {
+        "initial_routing_recall": [
+          1,
+          1
+        ],
+        "final_source_selection_recall": [
+          1,
+          1
+        ],
+        "executed_retrieval_recall": [
+          0,
+          1
+        ],
+        "evidence_atom_coverage": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "l06",
+      "dataset": "independent",
+      "conversation": "red-case",
+      "question": "Use only Memory. What is my red case tag?",
+      "reference": "Give the tag RED-602.",
+      "abstention_expected": false,
+      "tool_probe": null,
+      "required": [
+        "memory"
+      ],
+      "forbidden": [],
+      "success": true,
+      "answer": "Your red case tag is **RED-602**.",
+      "bound_topic": false,
+      "source_policy": {
+        "memory_only": true,
+        "memory_excluded": false,
+        "only_scope": null,
+        "excluded_scopes": [],
+        "rag_disabled": true
+      },
+      "missing_searches": [],
+      "extra_searches": [],
+      "accuracy": {
+        "initial_sources": [
+          "memory"
+        ],
+        "final_sources": [
+          "memory"
+        ],
+        "executed_sources": [
+          "memory"
+        ],
+        "backend_calls": [
+          {
+            "scope": "memory",
+            "call_id": null,
+            "completed": true,
+            "returned": 2
+          }
+        ],
+        "evidence_atoms": [
+          {
+            "marker": "RED-602",
+            "expected_sources": [
+              "memory"
+            ],
+            "found_in": [
+              "memory"
+            ],
+            "prepared_in": [
+              "memory"
+            ],
+            "delivered_in": [
+              "memory"
+            ],
+            "first_dispatch_in": [
+              "memory"
+            ],
+            "outcome": "delivered"
+          }
+        ],
+        "forbidden_delivered": [],
+        "required_without_selection": [],
+        "selected_required_without_search": [],
+        "required_covered_without_search": [],
+        "required_without_search_or_evidence": [],
+        "memory_recall": {
+          "status": "completed",
+          "reason": "The user requested Long-Term Memory only.",
+          "scopes": [
+            "user"
+          ],
+          "invoked": true,
+          "candidates": 2,
+          "search_executed": true,
+          "mode": "FTS5",
+          "selected": 2,
+          "supplied": 2,
+          "prepared": 2,
+          "ids": [
+            "2d83aa58-62c3-4f61-b3ad-1a3a11ea9e5c",
+            "f3240aaf-6fd3-4472-8a9d-12b0851e07d5"
+          ],
+          "estimated_context_size": 81,
+          "elapsed_ms": 7.7
+        },
+        "prefetch": [],
+        "follow_up": [],
+        "provider_dispatches": 1
+      },
+      "diagnostic_tools": [],
+      "elapsed_ms": 3217.44,
+      "model_calls": [
+        {
+          "message_chars": 3920,
+          "tool_schema_chars": 2015,
+          "server_model": "gpt-5.6-luna",
+          "usage": {
+            "prompt_tokens": 1099,
+            "completion_tokens": 15,
+            "total_tokens": 1114
+          },
+          "elapsed_ms": 3201.34
+        }
+      ],
+      "retrieved_context_chars": 558,
+      "reference_review": {
+        "correct": true,
+        "grounded": true,
+        "unsupported_domain_claim": false,
+        "missing_information": false,
+        "correct_abstention": null,
+        "false_abstention": false,
+        "source_restriction_compliant": true,
+        "failure_stage": null,
+        "notes": "Correctly gave RED-602."
+      },
+      "retrieval_quality": {
+        "initial_routing_recall": [
+          1,
+          1
+        ],
+        "final_source_selection_recall": [
+          1,
+          1
+        ],
+        "executed_retrieval_recall": [
+          1,
+          1
+        ],
+        "evidence_atom_coverage": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "id": "l07",
+      "dataset": "independent",
+      "conversation": "red-case",
+      "question": "And where was it?",
+      "reference": "Resolve the reference to the red case and give cabinet COBALT-3.",
+      "abstention_expected": false,
+      "tool_probe": null,
+      "required": [
+        "memory"
+      ],
+      "forbidden": [],
+      "success": true,
+      "answer": "You left the red case in cabinet **COBALT-3**.",
+      "bound_topic": true,
+      "source_policy": {
+        "memory_only": true,
+        "memory_excluded": false,
+        "only_scope": null,
+        "excluded_scopes": [],
+        "rag_disabled": true
+      },
+      "missing_searches": [],
+      "extra_searches": [],
+      "accuracy": {
+        "initial_sources": [
+          "memory"
+        ],
+        "final_sources": [
+          "memory"
+        ],
+        "executed_sources": [
+          "memory"
+        ],
+        "backend_calls": [
+          {
+            "scope": "memory",
+            "call_id": null,
+            "completed": true,
+            "returned": 2
+          }
+        ],
+        "evidence_atoms": [
+          {
+            "marker": "COBALT-3",
+            "expected_sources": [
+              "memory"
+            ],
+            "found_in": [
+              "memory"
+            ],
+            "prepared_in": [
+              "memory"
+            ],
+            "delivered_in": [
+              "memory"
+            ],
+            "first_dispatch_in": [
+              "memory"
+            ],
+            "outcome": "delivered"
+          }
+        ],
+        "forbidden_delivered": [],
+        "required_without_selection": [],
+        "selected_required_without_search": [],
+        "required_covered_without_search": [],
+        "required_without_search_or_evidence": [],
+        "memory_recall": {
+          "status": "completed",
+          "reason": "The user requested Long-Term Memory only.",
+          "scopes": [
+            "user"
+          ],
+          "invoked": true,
+          "candidates": 2,
+          "search_executed": true,
+          "mode": "FTS5",
+          "selected": 2,
+          "supplied": 2,
+          "prepared": 2,
+          "ids": [
+            "2d83aa58-62c3-4f61-b3ad-1a3a11ea9e5c",
+            "f3240aaf-6fd3-4472-8a9d-12b0851e07d5"
+          ],
+          "estimated_context_size": 81,
+          "elapsed_ms": 8.0
+        },
+        "prefetch": [],
+        "follow_up": [],
+        "provider_dispatches": 1
+      },
+      "diagnostic_tools": [],
+      "elapsed_ms": 2380.4,
+      "model_calls": [
+        {
+          "message_chars": 3987,
+          "tool_schema_chars": 2015,
+          "server_model": "gpt-5.6-luna",
+          "usage": {
+            "prompt_tokens": 1129,
+            "completion_tokens": 19,
+            "total_tokens": 1148
+          },
+          "elapsed_ms": 2362.71
+        }
+      ],
+      "retrieved_context_chars": 575,
+      "reference_review": {
+        "correct": true,
+        "grounded": true,
+        "unsupported_domain_claim": false,
+        "missing_information": false,
+        "correct_abstention": null,
+        "false_abstention": false,
+        "source_restriction_compliant": true,
+        "failure_stage": null,
+        "notes": "Resolved the short follow-up to the red case and gave COBALT-3."
+      },
+      "retrieval_quality": {
+        "initial_routing_recall": [
+          1,
+          1
+        ],
+        "final_source_selection_recall": [
+          1,
+          1
+        ],
+        "executed_retrieval_recall": [
+          1,
+          1
+        ],
+        "evidence_atom_coverage": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "id": "l08",
+      "dataset": "independent",
+      "conversation": "red-case",
+      "question": "What is 2 + 2?",
+      "reference": "Answer 4. No retrieval is needed.",
+      "abstention_expected": false,
+      "tool_probe": null,
+      "required": [],
+      "forbidden": [],
+      "success": true,
+      "answer": "2 + 2 = **4**",
+      "bound_topic": false,
+      "source_policy": {
+        "memory_only": false,
+        "memory_excluded": false,
+        "only_scope": null,
+        "excluded_scopes": [],
+        "rag_disabled": false
+      },
+      "missing_searches": [],
+      "extra_searches": [],
+      "accuracy": {
+        "initial_sources": [],
+        "final_sources": [],
+        "executed_sources": [],
+        "backend_calls": [],
+        "evidence_atoms": [],
+        "forbidden_delivered": [],
+        "required_without_selection": [],
+        "selected_required_without_search": [],
+        "required_covered_without_search": [],
+        "required_without_search_or_evidence": [],
+        "memory_recall": {
+          "status": "not_selected",
+          "reason": "No clear request for saved personal or project context.",
+          "scopes": [
+            "user"
+          ]
+        },
+        "prefetch": [],
+        "follow_up": [],
+        "provider_dispatches": 1
+      },
+      "diagnostic_tools": [],
+      "elapsed_ms": 2081.64,
+      "model_calls": [
+        {
+          "message_chars": 3468,
+          "tool_schema_chars": 2015,
+          "server_model": "gpt-5.6-luna",
+          "usage": {
+            "prompt_tokens": 989,
+            "completion_tokens": 12,
+            "total_tokens": 1001
+          },
+          "elapsed_ms": 2072.72
+        }
+      ],
+      "retrieved_context_chars": 0,
+      "reference_review": {
+        "correct": true,
+        "grounded": true,
+        "unsupported_domain_claim": false,
+        "missing_information": false,
+        "correct_abstention": null,
+        "false_abstention": false,
+        "source_restriction_compliant": null,
+        "failure_stage": null,
+        "notes": "Computed 4 without retrieval."
+      },
+      "retrieval_quality": {
+        "initial_routing_recall": [
+          0,
+          0
+        ],
+        "final_source_selection_recall": [
+          0,
+          0
+        ],
+        "executed_retrieval_recall": [
+          0,
+          0
+        ],
+        "evidence_atom_coverage": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "l09",
+      "dataset": "independent",
+      "conversation": "red-case",
+      "question": "Back to the red case. Where did I leave it?",
+      "reference": "Give cabinet COBALT-3 for the earlier red case. The earlier conversation is an admissible context source, separate from current-turn retrieval.",
+      "abstention_expected": false,
+      "tool_probe": null,
+      "required": [
+        "memory"
+      ],
+      "forbidden": [],
+      "success": true,
+      "answer": "You left it in cabinet **COBALT-3**.",
+      "bound_topic": false,
+      "source_policy": {
+        "memory_only": false,
+        "memory_excluded": false,
+        "only_scope": null,
+        "excluded_scopes": [],
+        "rag_disabled": false
+      },
+      "missing_searches": [],
+      "extra_searches": [
+        "global"
+      ],
+      "accuracy": {
+        "initial_sources": [
+          "memory"
+        ],
+        "final_sources": [
+          "memory",
+          "global"
+        ],
+        "executed_sources": [
+          "global",
+          "memory"
+        ],
+        "backend_calls": [
+          {
+            "scope": "memory",
+            "call_id": null,
+            "completed": true,
+            "returned": 2
+          },
+          {
+            "scope": "global",
+            "call_id": null,
+            "completed": true,
+            "returned": 2
+          }
+        ],
+        "evidence_atoms": [
+          {
+            "marker": "COBALT-3",
+            "expected_sources": [
+              "memory"
+            ],
+            "found_in": [
+              "memory"
+            ],
+            "prepared_in": [
+              "memory"
+            ],
+            "delivered_in": [
+              "memory"
+            ],
+            "first_dispatch_in": [
+              "memory"
+            ],
+            "outcome": "delivered"
+          }
+        ],
+        "forbidden_delivered": [],
+        "required_without_selection": [],
+        "selected_required_without_search": [],
+        "required_covered_without_search": [],
+        "required_without_search_or_evidence": [],
+        "memory_recall": {
+          "status": "completed",
+          "reason": "The request concerns a personal fact, plan or preference.",
+          "scopes": [
+            "user"
+          ],
+          "invoked": true,
+          "candidates": 2,
+          "search_executed": true,
+          "mode": "FTS5",
+          "selected": 2,
+          "supplied": 2,
+          "prepared": 2,
+          "ids": [
+            "f3240aaf-6fd3-4472-8a9d-12b0851e07d5",
+            "2d83aa58-62c3-4f61-b3ad-1a3a11ea9e5c"
+          ],
+          "estimated_context_size": 81,
+          "elapsed_ms": 7.6
+        },
+        "prefetch": [
+          {
+            "scope": "global",
+            "status": "empty",
+            "chunks": 0,
+            "sources": [],
+            "after_order": 0,
+            "supplied": 0,
+            "search_executed": true,
+            "duplicates_omitted": 0,
+            "elapsed_ms": 3.2,
+            "error": null,
+            "index_status": "freshness_verified",
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [],
+            "estimated_context_size": 0,
+            "retrieved_sources": []
+          }
+        ],
+        "follow_up": [],
+        "provider_dispatches": 1
+      },
+      "diagnostic_tools": [],
+      "elapsed_ms": 3334.6,
+      "model_calls": [
+        {
+          "message_chars": 4075,
+          "tool_schema_chars": 2015,
+          "server_model": "gpt-5.6-luna",
+          "usage": {
+            "prompt_tokens": 1184,
+            "completion_tokens": 17,
+            "total_tokens": 1201
+          },
+          "elapsed_ms": 3315.24
+        }
+      ],
+      "retrieved_context_chars": 547,
+      "reference_review": {
+        "correct": true,
+        "grounded": true,
+        "unsupported_domain_claim": false,
+        "missing_information": false,
+        "correct_abstention": null,
+        "false_abstention": false,
+        "source_restriction_compliant": null,
+        "failure_stage": null,
+        "notes": "Correctly gave COBALT-3 after the intervening arithmetic turn. Both current Memory and the earlier reply made the fact available, so their individual influence cannot be identified."
+      },
+      "retrieval_quality": {
+        "initial_routing_recall": [
+          1,
+          1
+        ],
+        "final_source_selection_recall": [
+          1,
+          1
+        ],
+        "executed_retrieval_recall": [
+          1,
+          1
+        ],
+        "evidence_atom_coverage": [
+          1,
+          1
+        ]
+      }
+    }
+  ],
+  "catalog_verified": true,
+  "retrieval": {
+    "initial_routing_recall": [
+      10,
+      14
+    ],
+    "initial_routing_precision": [
+      10,
+      10
+    ],
+    "final_source_selection_recall": [
+      12,
+      14
+    ],
+    "final_source_selection_precision": [
+      12,
+      15
+    ],
+    "executed_retrieval_recall": [
+      13,
+      14
+    ],
+    "executed_retrieval_precision": [
+      13,
+      16
+    ],
+    "evidence_coverage": [
+      11,
+      11
+    ],
+    "evidence_atom_coverage": [
+      13,
+      13
+    ],
+    "evidence_atom_outcomes": {
+      "delivered": 13
+    },
+    "backend_calls_attempted": 16,
+    "backend_calls_completed": 16,
+    "forbidden_evidence_cases": 0,
+    "required_without_selection": 2,
+    "selected_required_without_search": 1,
+    "required_covered_without_search": 0,
+    "required_without_search_or_evidence": 1
+  },
+  "retrieval_excluding_tool_probes": {
+    "initial_routing_recall": [
+      10,
+      12
+    ],
+    "initial_routing_precision": [
+      10,
+      10
+    ],
+    "final_source_selection_recall": [
+      12,
+      12
+    ],
+    "final_source_selection_precision": [
+      12,
+      15
+    ],
+    "executed_retrieval_recall": [
+      11,
+      12
+    ],
+    "executed_retrieval_precision": [
+      11,
+      14
+    ],
+    "evidence_coverage": [
+      9,
+      9
+    ],
+    "evidence_atom_coverage": [
+      11,
+      11
+    ],
+    "evidence_atom_outcomes": {
+      "delivered": 11
+    },
+    "backend_calls_attempted": 14,
+    "backend_calls_completed": 14,
+    "forbidden_evidence_cases": 0,
+    "required_without_selection": 0,
+    "selected_required_without_search": 1,
+    "required_covered_without_search": 0,
+    "required_without_search_or_evidence": 1
+  },
+  "answer_quality": {
+    "method": "Reference-based review of the recorded answers. No separate model judge was called.",
+    "correct_answer_rate": [
+      12,
+      13
+    ],
+    "grounded_answer_rate": [
+      12,
+      13
+    ],
+    "hallucination_rate": [
+      0,
+      13
+    ],
+    "missing_information_rate": [
+      1,
+      12
+    ],
+    "correct_abstention_rate": [
+      2,
+      2
+    ],
+    "false_abstentions": 1,
+    "source_restriction_compliance": [
+      7,
+      7
+    ],
+    "correct_when_all_labeled_evidence_delivered": [
+      10,
+      11
+    ]
+  },
+  "performance": {
+    "model_calls": 16,
+    "server_models": [
+      "gpt-5.6-luna"
+    ],
+    "latency_ms": {
+      "median": 3334.6,
+      "min": 2081.64,
+      "max": 8542.23,
+      "sum": 51165.31
+    },
+    "tokens": {
+      "prompt_tokens": 17556,
+      "completion_tokens": 508,
+      "total_tokens": 18064
+    },
+    "model_initiated_tools": {
+      "MemoryTool": 2,
+      "RagTool": 1
+    },
+    "adapter_message_chars": {
+      "median": 3890.5,
+      "min": 3468,
+      "max": 4672
+    },
+    "retrieved_context_chars": {
+      "median": 365,
+      "max": 575
+    }
+  },
+  "source_restrictions_scope": "Restricted turns assessed from completed backend scopes, delivered forbidden evidence, and answer review.",
+  "baseline_date": "2026-11-06"
+}

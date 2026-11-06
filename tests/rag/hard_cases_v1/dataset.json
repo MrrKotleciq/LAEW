@@ -1,0 +1,341 @@
+{
+  "id": "laew-hard-cases",
+  "version": 1,
+  "queries": [
+    {
+      "id": "h01",
+      "text": "Why initialize communication before enabling the actuator, including warm restarts?",
+      "language": "en",
+      "phenomenon": "description_code",
+      "split": "dev",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/startup.md"
+      ],
+      "relevance": {
+        "@knowledge/startup.md": 2
+      },
+      "no_answer": null,
+      "evidence": [
+        {
+          "document_id": "@knowledge/startup.md",
+          "passage": "Communication must be initialized before the actuator to reject stale commands."
+        },
+        {
+          "document_id": "@knowledge/startup.md",
+          "passage": "initialize_communication()"
+        },
+        {
+          "document_id": "@knowledge/startup.md",
+          "passage": "This order is mandatory even after a warm restart."
+        }
+      ]
+    },
+    {
+      "id": "h02",
+      "text": "Is 24 V a maximum motor limit, and under which conditions does it apply?",
+      "language": "en",
+      "phenomenon": "description_table",
+      "split": "dev",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/motor.md"
+      ],
+      "relevance": {
+        "@knowledge/motor.md": 2
+      },
+      "no_answer": null,
+      "evidence": [
+        {
+          "document_id": "@knowledge/motor.md",
+          "passage": "These measurements apply at nominal load and 20 C ambient temperature."
+        },
+        {
+          "document_id": "@knowledge/motor.md",
+          "passage": "| Voltage | 24 | V |"
+        },
+        {
+          "document_id": "@knowledge/motor.md",
+          "passage": "These ratings are not maximum operating limits."
+        }
+      ]
+    },
+    {
+      "id": "h03",
+      "text": "What must be done before the firmware procedure and what checksum must be verified before restart?",
+      "language": "en",
+      "phenomenon": "procedure",
+      "split": "dev",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/firmware.md"
+      ],
+      "relevance": {
+        "@knowledge/firmware.md": 2
+      },
+      "no_answer": null,
+      "evidence": [
+        {
+          "document_id": "@knowledge/firmware.md",
+          "passage": "Before starting, disconnect the actuator and create a firmware backup."
+        },
+        {
+          "document_id": "@knowledge/firmware.md",
+          "passage": "29. Upload the image, then verify checksum 0x7A91 before restart."
+        }
+      ]
+    },
+    {
+      "id": "h04",
+      "text": "What is the offset of sensor-48, its unit and the calibration safety condition?",
+      "language": "en",
+      "phenomenon": "large_table",
+      "split": "dev",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/sensors.md"
+      ],
+      "relevance": {
+        "@knowledge/sensors.md": 2
+      },
+      "no_answer": null,
+      "evidence": [
+        {
+          "document_id": "@knowledge/sensors.md",
+          "passage": "| sensor-48 | 68 | 0.1 |"
+        },
+        {
+          "document_id": "@knowledge/sensors.md",
+          "passage": "Offset (mV)"
+        },
+        {
+          "document_id": "@knowledge/sensors.md",
+          "passage": "Offsets are measured in millivolts with the actuator disconnected."
+        }
+      ]
+    },
+    {
+      "id": "h05",
+      "text": "Compare offsets of sensor-02 and sensor-61; are these alarm thresholds?",
+      "language": "en",
+      "phenomenon": "comparison",
+      "split": "validation",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/sensors.md"
+      ],
+      "relevance": {
+        "@knowledge/sensors.md": 2
+      },
+      "no_answer": null,
+      "evidence": [
+        {
+          "document_id": "@knowledge/sensors.md",
+          "passage": "| sensor-02 | 22 | 0.1 |"
+        },
+        {
+          "document_id": "@knowledge/sensors.md",
+          "passage": "| sensor-61 | 81 | 0.1 |"
+        },
+        {
+          "document_id": "@knowledge/sensors.md",
+          "passage": "These offsets are calibration corrections, not alarm thresholds."
+        }
+      ]
+    },
+    {
+      "id": "h06",
+      "text": "Którą migawkę przywrócić dla kontrolera pomocniczego i gdzie nie wolno jej użyć?",
+      "language": "pl",
+      "phenomenon": "description_code",
+      "split": "validation",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/recovery.md"
+      ],
+      "relevance": {
+        "@knowledge/recovery.md": 2
+      },
+      "no_answer": null,
+      "evidence": [
+        {
+          "document_id": "@knowledge/recovery.md",
+          "passage": "The violet snapshot is approved only for the auxiliary controller."
+        },
+        {
+          "document_id": "@knowledge/recovery.md",
+          "passage": "restore_snapshot violet"
+        },
+        {
+          "document_id": "@knowledge/recovery.md",
+          "passage": "Never apply this snapshot to the main controller."
+        }
+      ]
+    },
+    {
+      "id": "h07",
+      "text": "Which snapshot is approved for the main controller?",
+      "language": "en",
+      "phenomenon": "similar_sections",
+      "split": "validation",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/recovery.md"
+      ],
+      "relevance": {
+        "@knowledge/recovery.md": 2
+      },
+      "no_answer": null,
+      "evidence": [
+        {
+          "document_id": "@knowledge/recovery.md",
+          "passage": "The main controller uses the amber snapshot after manual approval."
+        }
+      ]
+    },
+    {
+      "id": "h08",
+      "text": "What voltage applies to nominal operation, what should be disconnected, and is it output voltage?",
+      "language": "en",
+      "phenomenon": "cross_language",
+      "split": "validation",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/polish.md"
+      ],
+      "relevance": {
+        "@knowledge/polish.md": 2
+      },
+      "no_answer": null,
+      "evidence": [
+        {
+          "document_id": "@knowledge/polish.md",
+          "passage": "Przed pomiarem odłącz silnik od sterownika."
+        },
+        {
+          "document_id": "@knowledge/polish.md",
+          "passage": "| nominalny | 48 |"
+        },
+        {
+          "document_id": "@knowledge/polish.md",
+          "passage": "Wartości dotyczą napięcia wejściowego, nie wyjściowego."
+        }
+      ]
+    },
+    {
+      "id": "h09",
+      "text": "What does sample_47 return and what do its channel and units mean?",
+      "language": "en",
+      "phenomenon": "long_code",
+      "split": "validation",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/acquisition.md"
+      ],
+      "relevance": {
+        "@knowledge/acquisition.md": 2
+      },
+      "no_answer": null,
+      "evidence": [
+        {
+          "document_id": "@knowledge/acquisition.md",
+          "passage": "def sample_47():"
+        },
+        {
+          "document_id": "@knowledge/acquisition.md",
+          "passage": "return read_channel(47)"
+        },
+        {
+          "document_id": "@knowledge/acquisition.md",
+          "passage": "channel numbers are physical ports."
+        },
+        {
+          "document_id": "@knowledge/acquisition.md",
+          "passage": "The returned values are raw ADC counts, not calibrated temperatures."
+        }
+      ]
+    },
+    {
+      "id": "h10",
+      "text": "Can the truncated payload be executed?",
+      "language": "en",
+      "phenomenon": "malformed",
+      "split": "validation",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/unusual.md"
+      ],
+      "relevance": {
+        "@knowledge/unusual.md": 2
+      },
+      "no_answer": null,
+      "evidence": [
+        {
+          "document_id": "@knowledge/unusual.md",
+          "passage": "The following payload is incomplete and must not be executed."
+        }
+      ]
+    },
+    {
+      "id": "h11",
+      "text": "Explain startup ordering and the safety condition before firmware updating.",
+      "language": "en",
+      "phenomenon": "multi_document",
+      "split": "validation",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/startup.md",
+        "@knowledge/firmware.md"
+      ],
+      "relevance": {
+        "@knowledge/startup.md": 2,
+        "@knowledge/firmware.md": 2
+      },
+      "no_answer": null,
+      "evidence": [
+        {
+          "document_id": "@knowledge/startup.md",
+          "passage": "Communication must be initialized before the actuator to reject stale commands."
+        },
+        {
+          "document_id": "@knowledge/firmware.md",
+          "passage": "Before starting, disconnect the actuator and create a firmware backup."
+        }
+      ]
+    },
+    {
+      "id": "h12",
+      "text": "What is the approved maximum torque of the motor?",
+      "language": "en",
+      "phenomenon": "no_answer",
+      "split": "validation",
+      "allowed_scope": "global",
+      "expected_document_ids": [],
+      "relevance": {},
+      "evidence": [],
+      "no_answer": "absent"
+    },
+    {
+      "id": "h13",
+      "text": "What private actuator password is recorded in the project?",
+      "language": "en",
+      "phenomenon": "no_answer",
+      "split": "validation",
+      "allowed_scope": "global",
+      "expected_document_ids": [],
+      "relevance": {},
+      "evidence": [],
+      "no_answer": "absent"
+    }
+  ],
+  "document_languages": {
+    "@knowledge/startup.md": "en",
+    "@knowledge/motor.md": "en",
+    "@knowledge/firmware.md": "en",
+    "@knowledge/sensors.md": "en",
+    "@knowledge/recovery.md": "en",
+    "@knowledge/polish.md": "pl",
+    "@knowledge/acquisition.md": "en",
+    "@knowledge/unusual.md": "en"
+  }
+}

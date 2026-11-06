@@ -345,7 +345,8 @@ class RAGPipeline:
         remaining = char_limit
 
         for chunk, score in chunks:
-            header = chunk.metadata.get("section_header")
+            path = chunk.metadata.get("section_path")
+            header = " > ".join(path) if path else chunk.metadata.get("section_header")
             tags = chunk.metadata.get("tags") or []
             backlinks = chunk.metadata.get("backlinks") or []
             frontmatter = chunk.metadata.get("frontmatter") or {}

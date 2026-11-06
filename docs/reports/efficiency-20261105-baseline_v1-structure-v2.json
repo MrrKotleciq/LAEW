@@ -1,0 +1,4343 @@
+{
+  "dataset_name": "laew-global-rag-mini",
+  "dataset_version": 1,
+  "dataset_sha256": "cbb337883bb34e2b5ae21502a763471d20b4a93b1f278d52c06b24243950370d",
+  "corpus_sha256": {
+    "global/arx.md": "1180799992ae03fd333219e5517882f12ed369ac86613ea116de6859520f4383",
+    "global/chroma.md": "ed876c43c7bd77f37329d1ac6ab5965e9b5597ab0118b15b1e1afd0630c8ae6b",
+    "global/drift.md": "5510eecca28f71d0fbc97ef7f101814fd5ff272b310b95a0c9ccc411b874a1b2",
+    "global/rls-database.md": "c98c9b5f97408d5123234fe16b3f56a13e9d1d15baa9e7ff82368bd8ebdaf1fd",
+    "global/rls.md": "eb9424d4d036b4616e1ce4ebc8d649ef64618d682b589d6a8f0d447245b58cae",
+    "global/sampling.md": "42de6f40e8ccf40c342360a3302b2ccf98fa4447384196a820b906a38424212a",
+    "global/telemetry.md": "42dc44a5a450604fd2544fa25ebf6ac1563c36e460b51ab3d85b10f64c4a9e52",
+    "global/timing.md": "2e84fa398cd5cea8342c1024a264e70f39f62bad155a532b44288108886706d2",
+    "global/vault.md": "3a57eeb11a958a59908b369a776e3781d5ffd15d156ce9ef85cf74adcec8f22d",
+    "project/local-only.md": "776d9fb1a352413633c579021657bd72ae9160666a0d4f55bf2e9c9a04c9a89c"
+  },
+  "embedding_model": "laew-qwen3-embedding",
+  "embedding_endpoint": "http://127.0.0.1:8081/v1",
+  "embedding_dimensions": 1024,
+  "chroma_version": "1.5.9",
+  "retrieval_config_version": "vector-only-2b.1",
+  "top_k": 5,
+  "similarity_threshold": 0.3,
+  "max_context_tokens": 8000,
+  "chunking": {
+    "strategy": "structure-v2",
+    "size": 1000,
+    "overlap": 0,
+    "global_chunk_count": 15,
+    "mean_chars": 109.66666666666667,
+    "project_chunk_count": 1,
+    "embedding_count_both_scopes": 16,
+    "max_chars": 158,
+    "sizes_chars": [
+      80,
+      83,
+      92,
+      95,
+      104,
+      104,
+      108,
+      111,
+      112,
+      115,
+      116,
+      117,
+      118,
+      132,
+      158
+    ],
+    "index_seconds_both_scopes": 4.866785100020934,
+    "prepare_seconds": 0.023938700032886118,
+    "small_chunks_under_64": 0,
+    "oversize_chunks": 0,
+    "synthetic_chars": 0,
+    "indexed_chars": 1711,
+    "index_bytes": 1179976
+  },
+  "duration": 24.050838899973314,
+  "queries": [
+    {
+      "id": "q01",
+      "text": "What sampling interval should I use for ARX identification?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/arx.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 141.7409999994561,
+          "tokens_estimated": 55,
+          "chunks": [
+            {
+              "id": "global:arx.md:structure-v2:0",
+              "document": "@knowledge/arx.md",
+              "score": 0.7410309314727783,
+              "text": "\n## Sampling\n\nUse a fixed sampling interval and record it with the ARX coefficients. Select model orders on calibration data only.\n\n",
+              "section": "Sampling"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/arx.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 159.51779996976256,
+          "tokens_estimated": 107,
+          "chunks": [
+            {
+              "id": "global:arx.md:structure-v2:0",
+              "document": "@knowledge/arx.md",
+              "score": 0.7410309314727783,
+              "text": "\n## Sampling\n\nUse a fixed sampling interval and record it with the ARX coefficients. Select model orders on calibration data only.\n\n",
+              "section": "Sampling"
+            },
+            {
+              "id": "global:arx.md:structure-v2:1",
+              "document": "@knowledge/arx.md",
+              "score": 0.5789502859115601,
+              "text": "## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+              "section": "Validation"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/arx.md",
+            "@knowledge/sampling.md",
+            "@knowledge/rls.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 163.98440004559234,
+          "tokens_estimated": 269,
+          "chunks": [
+            {
+              "id": "global:arx.md:structure-v2:0",
+              "document": "@knowledge/arx.md",
+              "score": 0.7410309314727783,
+              "text": "\n## Sampling\n\nUse a fixed sampling interval and record it with the ARX coefficients. Select model orders on calibration data only.\n\n",
+              "section": "Sampling"
+            },
+            {
+              "id": "global:arx.md:structure-v2:1",
+              "document": "@knowledge/arx.md",
+              "score": 0.5789502859115601,
+              "text": "## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+              "section": "Validation"
+            },
+            {
+              "id": "global:sampling.md:structure-v2:0",
+              "document": "@knowledge/sampling.md",
+              "score": 0.4374387264251709,
+              "text": "\n## Filtr wejściowy\n\nFiltr antyaliasingowy stosuje się przed przetwornikiem ADC. Po próbkowaniu nie da się odtworzyć utraconego rozróżnienia częstotliwości.\n\n",
+              "section": "Filtr wejściowy"
+            },
+            {
+              "id": "global:rls.md:structure-v2:0",
+              "document": "@knowledge/rls.md",
+              "score": 0.4358752965927124,
+              "text": "\n## Aktualizacja\n\nRLS aktualizuje parametry po każdej próbce bez ponownego dopasowania całej historii.\n\n",
+              "section": "Aktualizacja"
+            },
+            {
+              "id": "global:sampling.md:structure-v2:1",
+              "document": "@knowledge/sampling.md",
+              "score": 0.4322279691696167,
+              "text": "## Zegar\n\nZnaczniki czasu pozwalają wykryć jitter zegara przed analizą sygnału.\n",
+              "section": "Zegar"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:arx.md:structure-v2:0",
+                "path": "@knowledge/arx.md",
+                "truncated": false
+              },
+              {
+                "id": "global:arx.md:structure-v2:1",
+                "path": "@knowledge/arx.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 107,
+            "retrieved_sources": [
+              "@knowledge/arx.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: arx.md > Sampling > arx > type: docs > status: active]\n\n## Sampling\n\nUse a fixed sampling interval and record it with the ARX coefficients. Select model orders on calibration data only.\n\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: arx.md > Validation > arx > type: docs > status: active]\n## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+            "tokens_estimated": 107
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "tokens_estimated": 107
+      }
+    },
+    {
+      "id": "q02",
+      "text": "Jak zweryfikować model ARX na osobnym przebiegu?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/arx.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 0.0,
+          "missing_evidence": [
+            {
+              "document_id": "@knowledge/arx.md",
+              "section": "Validation",
+              "passage": "Estimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace."
+            }
+          ],
+          "all_required_documents": true,
+          "complete_evidence": false,
+          "elapsed_ms": 193.35349998436868,
+          "tokens_estimated": 55,
+          "chunks": [
+            {
+              "id": "global:arx.md:structure-v2:0",
+              "document": "@knowledge/arx.md",
+              "score": 0.6008262634277344,
+              "text": "\n## Sampling\n\nUse a fixed sampling interval and record it with the ARX coefficients. Select model orders on calibration data only.\n\n",
+              "section": "Sampling"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/arx.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 184.4829000183381,
+          "tokens_estimated": 107,
+          "chunks": [
+            {
+              "id": "global:arx.md:structure-v2:0",
+              "document": "@knowledge/arx.md",
+              "score": 0.6008262634277344,
+              "text": "\n## Sampling\n\nUse a fixed sampling interval and record it with the ARX coefficients. Select model orders on calibration data only.\n\n",
+              "section": "Sampling"
+            },
+            {
+              "id": "global:arx.md:structure-v2:1",
+              "document": "@knowledge/arx.md",
+              "score": 0.5241916179656982,
+              "text": "## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+              "section": "Validation"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/arx.md",
+            "@knowledge/rls.md",
+            "@knowledge/drift.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 183.25750000076368,
+          "tokens_estimated": 263,
+          "chunks": [
+            {
+              "id": "global:arx.md:structure-v2:0",
+              "document": "@knowledge/arx.md",
+              "score": 0.6008262634277344,
+              "text": "\n## Sampling\n\nUse a fixed sampling interval and record it with the ARX coefficients. Select model orders on calibration data only.\n\n",
+              "section": "Sampling"
+            },
+            {
+              "id": "global:arx.md:structure-v2:1",
+              "document": "@knowledge/arx.md",
+              "score": 0.5241916179656982,
+              "text": "## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+              "section": "Validation"
+            },
+            {
+              "id": "global:rls.md:structure-v2:0",
+              "document": "@knowledge/rls.md",
+              "score": 0.41733527183532715,
+              "text": "\n## Aktualizacja\n\nRLS aktualizuje parametry po każdej próbce bez ponownego dopasowania całej historii.\n\n",
+              "section": "Aktualizacja"
+            },
+            {
+              "id": "global:drift.md:structure-v2:0",
+              "document": "@knowledge/drift.md",
+              "score": 0.38934242725372314,
+              "text": "\n## Hipoteza\n\nPodejrzewamy zależność dryfu czujnika od temperatury obudowy. Hipoteza pozostaje niepotwierdzona.\n",
+              "section": "Hipoteza"
+            },
+            {
+              "id": "global:rls.md:structure-v2:1",
+              "document": "@knowledge/rls.md",
+              "score": 0.37999534606933594,
+              "text": "## Zapominanie\n\nWspółczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf.\n",
+              "section": "Zapominanie"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:arx.md:structure-v2:0",
+                "path": "@knowledge/arx.md",
+                "truncated": false
+              },
+              {
+                "id": "global:arx.md:structure-v2:1",
+                "path": "@knowledge/arx.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 107,
+            "retrieved_sources": [
+              "@knowledge/arx.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: arx.md > Sampling > arx > type: docs > status: active]\n\n## Sampling\n\nUse a fixed sampling interval and record it with the ARX coefficients. Select model orders on calibration data only.\n\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: arx.md > Validation > arx > type: docs > status: active]\n## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+            "tokens_estimated": 107
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "tokens_estimated": 107
+      }
+    },
+    {
+      "id": "q03",
+      "text": "How do I verify an identified model on unseen data?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/arx.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 140.78990003326908,
+          "tokens_estimated": 51,
+          "chunks": [
+            {
+              "id": "global:arx.md:structure-v2:1",
+              "document": "@knowledge/arx.md",
+              "score": 0.6535422801971436,
+              "text": "## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+              "section": "Validation"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/arx.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 146.6491000028327,
+          "tokens_estimated": 107,
+          "chunks": [
+            {
+              "id": "global:arx.md:structure-v2:1",
+              "document": "@knowledge/arx.md",
+              "score": 0.6535422801971436,
+              "text": "## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+              "section": "Validation"
+            },
+            {
+              "id": "global:arx.md:structure-v2:0",
+              "document": "@knowledge/arx.md",
+              "score": 0.43084609508514404,
+              "text": "\n## Sampling\n\nUse a fixed sampling interval and record it with the ARX coefficients. Select model orders on calibration data only.\n\n",
+              "section": "Sampling"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/arx.md",
+            "@knowledge/rls.md",
+            "@knowledge/vault.md",
+            "@knowledge/chroma.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 143.56650004629046,
+          "tokens_estimated": 259,
+          "chunks": [
+            {
+              "id": "global:arx.md:structure-v2:1",
+              "document": "@knowledge/arx.md",
+              "score": 0.6535422801971436,
+              "text": "## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+              "section": "Validation"
+            },
+            {
+              "id": "global:arx.md:structure-v2:0",
+              "document": "@knowledge/arx.md",
+              "score": 0.43084609508514404,
+              "text": "\n## Sampling\n\nUse a fixed sampling interval and record it with the ARX coefficients. Select model orders on calibration data only.\n\n",
+              "section": "Sampling"
+            },
+            {
+              "id": "global:rls.md:structure-v2:0",
+              "document": "@knowledge/rls.md",
+              "score": 0.4197729825973511,
+              "text": "\n## Aktualizacja\n\nRLS aktualizuje parametry po każdej próbce bez ponownego dopasowania całej historii.\n\n",
+              "section": "Aktualizacja"
+            },
+            {
+              "id": "global:vault.md:structure-v2:1",
+              "document": "@knowledge/vault.md",
+              "score": 0.3950319290161133,
+              "text": "## Konflikt\n\nJeśli hash docelowej notatki się zmienił, przygotuj świeżą propozycję zamiast nadpisywać plik.\n",
+              "section": "Konflikt"
+            },
+            {
+              "id": "global:chroma.md:structure-v2:0",
+              "document": "@knowledge/chroma.md",
+              "score": 0.39054304361343384,
+              "text": "\n## Recovery\n\nKeep the approved Markdown when Chroma is unavailable and retry indexing after recovery.\n\n",
+              "section": "Recovery"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:arx.md:structure-v2:1",
+                "path": "@knowledge/arx.md",
+                "truncated": false
+              },
+              {
+                "id": "global:arx.md:structure-v2:0",
+                "path": "@knowledge/arx.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 107,
+            "retrieved_sources": [
+              "@knowledge/arx.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: arx.md > Validation > arx > type: docs > status: active]\n## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: arx.md > Sampling > arx > type: docs > status: active]\n\n## Sampling\n\nUse a fixed sampling interval and record it with the ARX coefficients. Select model orders on calibration data only.\n\n",
+            "tokens_estimated": 107
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "tokens_estimated": 107
+      }
+    },
+    {
+      "id": "q04",
+      "text": "Jak działa aktualizacja parametrów RLS po nadejściu próbki?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/rls.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 199.18230001349002,
+          "tokens_estimated": 49,
+          "chunks": [
+            {
+              "id": "global:rls.md:structure-v2:0",
+              "document": "@knowledge/rls.md",
+              "score": 0.8355371952056885,
+              "text": "\n## Aktualizacja\n\nRLS aktualizuje parametry po każdej próbce bez ponownego dopasowania całej historii.\n\n",
+              "section": "Aktualizacja"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/rls.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 200.4861999885179,
+          "tokens_estimated": 102,
+          "chunks": [
+            {
+              "id": "global:rls.md:structure-v2:0",
+              "document": "@knowledge/rls.md",
+              "score": 0.8355371952056885,
+              "text": "\n## Aktualizacja\n\nRLS aktualizuje parametry po każdej próbce bez ponownego dopasowania całej historii.\n\n",
+              "section": "Aktualizacja"
+            },
+            {
+              "id": "global:rls.md:structure-v2:1",
+              "document": "@knowledge/rls.md",
+              "score": 0.4804466962814331,
+              "text": "## Zapominanie\n\nWspółczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf.\n",
+              "section": "Zapominanie"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/rls.md",
+            "@knowledge/rls-database.md",
+            "@knowledge/arx.md",
+            "@knowledge/vault.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 190.51929999841377,
+          "tokens_estimated": 262,
+          "chunks": [
+            {
+              "id": "global:rls.md:structure-v2:0",
+              "document": "@knowledge/rls.md",
+              "score": 0.8355371952056885,
+              "text": "\n## Aktualizacja\n\nRLS aktualizuje parametry po każdej próbce bez ponownego dopasowania całej historii.\n\n",
+              "section": "Aktualizacja"
+            },
+            {
+              "id": "global:rls.md:structure-v2:1",
+              "document": "@knowledge/rls.md",
+              "score": 0.4804466962814331,
+              "text": "## Zapominanie\n\nWspółczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf.\n",
+              "section": "Zapominanie"
+            },
+            {
+              "id": "global:rls-database.md:structure-v2:0",
+              "document": "@knowledge/rls-database.md",
+              "score": 0.4760805368423462,
+              "text": "\n## Policies\n\nIn PostgreSQL, RLS means row-level security. A policy restricts which rows a role can read or modify.\n",
+              "section": "Policies"
+            },
+            {
+              "id": "global:arx.md:structure-v2:1",
+              "document": "@knowledge/arx.md",
+              "score": 0.44461023807525635,
+              "text": "## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+              "section": "Validation"
+            },
+            {
+              "id": "global:vault.md:structure-v2:1",
+              "document": "@knowledge/vault.md",
+              "score": 0.39805924892425537,
+              "text": "## Konflikt\n\nJeśli hash docelowej notatki się zmienił, przygotuj świeżą propozycję zamiast nadpisywać plik.\n",
+              "section": "Konflikt"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:rls.md:structure-v2:0",
+                "path": "@knowledge/rls.md",
+                "truncated": false
+              },
+              {
+                "id": "global:rls.md:structure-v2:1",
+                "path": "@knowledge/rls.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 102,
+            "retrieved_sources": [
+              "@knowledge/rls.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: rls.md > Aktualizacja > rls > type: docs > status: active]\n\n## Aktualizacja\n\nRLS aktualizuje parametry po każdej próbce bez ponownego dopasowania całej historii.\n\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: rls.md > Zapominanie > rls > type: docs > status: active]\n## Zapominanie\n\nWspółczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf.\n",
+            "tokens_estimated": 102
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "tokens_estimated": 102
+      }
+    },
+    {
+      "id": "q05",
+      "text": "What effect does a forgetting factor below one have on recursive estimation?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/arx.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 0.0,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0,
+          "ndcg_at_5": 0.0,
+          "evidence_coverage": 0.0,
+          "missing_evidence": [
+            {
+              "document_id": "@knowledge/rls.md",
+              "section": "Zapominanie",
+              "passage": "Współczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf."
+            }
+          ],
+          "all_required_documents": false,
+          "complete_evidence": false,
+          "elapsed_ms": 165.4528000508435,
+          "tokens_estimated": 51,
+          "chunks": [
+            {
+              "id": "global:arx.md:structure-v2:1",
+              "document": "@knowledge/arx.md",
+              "score": 0.6135717034339905,
+              "text": "## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+              "section": "Validation"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/arx.md",
+            "@knowledge/rls.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 0.5,
+          "ndcg_at_5": 0.6309297535714574,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 138.7449000030756,
+          "tokens_estimated": 105,
+          "chunks": [
+            {
+              "id": "global:arx.md:structure-v2:1",
+              "document": "@knowledge/arx.md",
+              "score": 0.6135717034339905,
+              "text": "## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+              "section": "Validation"
+            },
+            {
+              "id": "global:rls.md:structure-v2:1",
+              "document": "@knowledge/rls.md",
+              "score": 0.5920548439025879,
+              "text": "## Zapominanie\n\nWspółczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf.\n",
+              "section": "Zapominanie"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/arx.md",
+            "@knowledge/rls.md",
+            "@knowledge/drift.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 0.5,
+          "ndcg_at_5": 0.6309297535714574,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 131.4247000264004,
+          "tokens_estimated": 263,
+          "chunks": [
+            {
+              "id": "global:arx.md:structure-v2:1",
+              "document": "@knowledge/arx.md",
+              "score": 0.6135717034339905,
+              "text": "## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+              "section": "Validation"
+            },
+            {
+              "id": "global:rls.md:structure-v2:1",
+              "document": "@knowledge/rls.md",
+              "score": 0.5920548439025879,
+              "text": "## Zapominanie\n\nWspółczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf.\n",
+              "section": "Zapominanie"
+            },
+            {
+              "id": "global:rls.md:structure-v2:0",
+              "document": "@knowledge/rls.md",
+              "score": 0.49863576889038086,
+              "text": "\n## Aktualizacja\n\nRLS aktualizuje parametry po każdej próbce bez ponownego dopasowania całej historii.\n\n",
+              "section": "Aktualizacja"
+            },
+            {
+              "id": "global:arx.md:structure-v2:0",
+              "document": "@knowledge/arx.md",
+              "score": 0.4511016607284546,
+              "text": "\n## Sampling\n\nUse a fixed sampling interval and record it with the ARX coefficients. Select model orders on calibration data only.\n\n",
+              "section": "Sampling"
+            },
+            {
+              "id": "global:drift.md:structure-v2:0",
+              "document": "@knowledge/drift.md",
+              "score": 0.40612053871154785,
+              "text": "\n## Hipoteza\n\nPodejrzewamy zależność dryfu czujnika od temperatury obudowy. Hipoteza pozostaje niepotwierdzona.\n",
+              "section": "Hipoteza"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:arx.md:structure-v2:1",
+                "path": "@knowledge/arx.md",
+                "truncated": false
+              },
+              {
+                "id": "global:rls.md:structure-v2:1",
+                "path": "@knowledge/rls.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 105,
+            "retrieved_sources": [
+              "@knowledge/arx.md",
+              "@knowledge/rls.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: arx.md > Validation > arx > type: docs > status: active]\n## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: rls.md > Zapominanie > rls > type: docs > status: active]\n## Zapominanie\n\nWspółczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf.\n",
+            "tokens_estimated": 105
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "tokens_estimated": 105
+      }
+    },
+    {
+      "id": "q06",
+      "text": "What does RLS mean when used to restrict PostgreSQL table rows?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/rls-database.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 145.86449996568263,
+          "tokens_estimated": 55,
+          "chunks": [
+            {
+              "id": "global:rls-database.md:structure-v2:0",
+              "document": "@knowledge/rls-database.md",
+              "score": 0.7724556922912598,
+              "text": "\n## Policies\n\nIn PostgreSQL, RLS means row-level security. A policy restricts which rows a role can read or modify.\n",
+              "section": "Policies"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/rls-database.md",
+            "@knowledge/rls.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 190.43249997776002,
+          "tokens_estimated": 105,
+          "chunks": [
+            {
+              "id": "global:rls-database.md:structure-v2:0",
+              "document": "@knowledge/rls-database.md",
+              "score": 0.7724556922912598,
+              "text": "\n## Policies\n\nIn PostgreSQL, RLS means row-level security. A policy restricts which rows a role can read or modify.\n",
+              "section": "Policies"
+            },
+            {
+              "id": "global:rls.md:structure-v2:0",
+              "document": "@knowledge/rls.md",
+              "score": 0.5219761729240417,
+              "text": "\n## Aktualizacja\n\nRLS aktualizuje parametry po każdej próbce bez ponownego dopasowania całej historii.\n\n",
+              "section": "Aktualizacja"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/rls-database.md",
+            "@knowledge/rls.md",
+            "@knowledge/arx.md",
+            "@knowledge/telemetry.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 352.8148999903351,
+          "tokens_estimated": 257,
+          "chunks": [
+            {
+              "id": "global:rls-database.md:structure-v2:0",
+              "document": "@knowledge/rls-database.md",
+              "score": 0.7724556922912598,
+              "text": "\n## Policies\n\nIn PostgreSQL, RLS means row-level security. A policy restricts which rows a role can read or modify.\n",
+              "section": "Policies"
+            },
+            {
+              "id": "global:rls.md:structure-v2:0",
+              "document": "@knowledge/rls.md",
+              "score": 0.5219761729240417,
+              "text": "\n## Aktualizacja\n\nRLS aktualizuje parametry po każdej próbce bez ponownego dopasowania całej historii.\n\n",
+              "section": "Aktualizacja"
+            },
+            {
+              "id": "global:arx.md:structure-v2:1",
+              "document": "@knowledge/arx.md",
+              "score": 0.4033292531967163,
+              "text": "## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+              "section": "Validation"
+            },
+            {
+              "id": "global:telemetry.md:structure-v2:1",
+              "document": "@knowledge/telemetry.md",
+              "score": 0.3732762336730957,
+              "text": "## Modbus\n\nA Modbus RTU frame uses a CRC to detect accidental transmission errors.\n",
+              "section": "Modbus"
+            },
+            {
+              "id": "global:rls.md:structure-v2:1",
+              "document": "@knowledge/rls.md",
+              "score": 0.36487263441085815,
+              "text": "## Zapominanie\n\nWspółczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf.\n",
+              "section": "Zapominanie"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:rls-database.md:structure-v2:0",
+                "path": "@knowledge/rls-database.md",
+                "truncated": false
+              },
+              {
+                "id": "global:rls.md:structure-v2:0",
+                "path": "@knowledge/rls.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 105,
+            "retrieved_sources": [
+              "@knowledge/rls-database.md",
+              "@knowledge/rls.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: rls-database.md > Policies > rls-database > type: docs > status: active]\n\n## Policies\n\nIn PostgreSQL, RLS means row-level security. A policy restricts which rows a role can read or modify.\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: rls.md > Aktualizacja > rls > type: docs > status: active]\n\n## Aktualizacja\n\nRLS aktualizuje parametry po każdej próbce bez ponownego dopasowania całej historii.\n\n",
+            "tokens_estimated": 105
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "tokens_estimated": 105
+      }
+    },
+    {
+      "id": "q07",
+      "text": "Jakie znaczenie ma RLS przy kontrolowaniu dostępu do wierszy?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/rls-database.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 217.7689999807626,
+          "tokens_estimated": 55,
+          "chunks": [
+            {
+              "id": "global:rls-database.md:structure-v2:0",
+              "document": "@knowledge/rls-database.md",
+              "score": 0.6244183778762817,
+              "text": "\n## Policies\n\nIn PostgreSQL, RLS means row-level security. A policy restricts which rows a role can read or modify.\n",
+              "section": "Policies"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/rls-database.md",
+            "@knowledge/rls.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 218.46130001358688,
+          "tokens_estimated": 105,
+          "chunks": [
+            {
+              "id": "global:rls-database.md:structure-v2:0",
+              "document": "@knowledge/rls-database.md",
+              "score": 0.6244183778762817,
+              "text": "\n## Policies\n\nIn PostgreSQL, RLS means row-level security. A policy restricts which rows a role can read or modify.\n",
+              "section": "Policies"
+            },
+            {
+              "id": "global:rls.md:structure-v2:0",
+              "document": "@knowledge/rls.md",
+              "score": 0.5106043815612793,
+              "text": "\n## Aktualizacja\n\nRLS aktualizuje parametry po każdej próbce bez ponownego dopasowania całej historii.\n\n",
+              "section": "Aktualizacja"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/rls-database.md",
+            "@knowledge/rls.md",
+            "@knowledge/sampling.md",
+            "@knowledge/telemetry.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 222.95699996175244,
+          "tokens_estimated": 249,
+          "chunks": [
+            {
+              "id": "global:rls-database.md:structure-v2:0",
+              "document": "@knowledge/rls-database.md",
+              "score": 0.6244183778762817,
+              "text": "\n## Policies\n\nIn PostgreSQL, RLS means row-level security. A policy restricts which rows a role can read or modify.\n",
+              "section": "Policies"
+            },
+            {
+              "id": "global:rls.md:structure-v2:0",
+              "document": "@knowledge/rls.md",
+              "score": 0.5106043815612793,
+              "text": "\n## Aktualizacja\n\nRLS aktualizuje parametry po każdej próbce bez ponownego dopasowania całej historii.\n\n",
+              "section": "Aktualizacja"
+            },
+            {
+              "id": "global:rls.md:structure-v2:1",
+              "document": "@knowledge/rls.md",
+              "score": 0.4023594260215759,
+              "text": "## Zapominanie\n\nWspółczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf.\n",
+              "section": "Zapominanie"
+            },
+            {
+              "id": "global:sampling.md:structure-v2:1",
+              "document": "@knowledge/sampling.md",
+              "score": 0.3473564386367798,
+              "text": "## Zegar\n\nZnaczniki czasu pozwalają wykryć jitter zegara przed analizą sygnału.\n",
+              "section": "Zegar"
+            },
+            {
+              "id": "global:telemetry.md:structure-v2:1",
+              "document": "@knowledge/telemetry.md",
+              "score": 0.3407636880874634,
+              "text": "## Modbus\n\nA Modbus RTU frame uses a CRC to detect accidental transmission errors.\n",
+              "section": "Modbus"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:rls-database.md:structure-v2:0",
+                "path": "@knowledge/rls-database.md",
+                "truncated": false
+              },
+              {
+                "id": "global:rls.md:structure-v2:0",
+                "path": "@knowledge/rls.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 105,
+            "retrieved_sources": [
+              "@knowledge/rls-database.md",
+              "@knowledge/rls.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: rls-database.md > Policies > rls-database > type: docs > status: active]\n\n## Policies\n\nIn PostgreSQL, RLS means row-level security. A policy restricts which rows a role can read or modify.\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: rls.md > Aktualizacja > rls > type: docs > status: active]\n\n## Aktualizacja\n\nRLS aktualizuje parametry po każdej próbce bez ponownego dopasowania całej historii.\n\n",
+            "tokens_estimated": 105
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "tokens_estimated": 105
+      }
+    },
+    {
+      "id": "q08",
+      "text": "Gdzie umieścić filtr antyaliasingowy względem ADC?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/sampling.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 175.996900012251,
+          "tokens_estimated": 65,
+          "chunks": [
+            {
+              "id": "global:sampling.md:structure-v2:0",
+              "document": "@knowledge/sampling.md",
+              "score": 0.727938175201416,
+              "text": "\n## Filtr wejściowy\n\nFiltr antyaliasingowy stosuje się przed przetwornikiem ADC. Po próbkowaniu nie da się odtworzyć utraconego rozróżnienia częstotliwości.\n\n",
+              "section": "Filtr wejściowy"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/sampling.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 176.5233000041917,
+          "tokens_estimated": 110,
+          "chunks": [
+            {
+              "id": "global:sampling.md:structure-v2:0",
+              "document": "@knowledge/sampling.md",
+              "score": 0.727938175201416,
+              "text": "\n## Filtr wejściowy\n\nFiltr antyaliasingowy stosuje się przed przetwornikiem ADC. Po próbkowaniu nie da się odtworzyć utraconego rozróżnienia częstotliwości.\n\n",
+              "section": "Filtr wejściowy"
+            },
+            {
+              "id": "global:sampling.md:structure-v2:1",
+              "document": "@knowledge/sampling.md",
+              "score": 0.4153757095336914,
+              "text": "## Zegar\n\nZnaczniki czasu pozwalają wykryć jitter zegara przed analizą sygnału.\n",
+              "section": "Zegar"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/sampling.md",
+            "@knowledge/rls.md",
+            "@knowledge/drift.md",
+            "@knowledge/arx.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 195.76959998812526,
+          "tokens_estimated": 272,
+          "chunks": [
+            {
+              "id": "global:sampling.md:structure-v2:0",
+              "document": "@knowledge/sampling.md",
+              "score": 0.727938175201416,
+              "text": "\n## Filtr wejściowy\n\nFiltr antyaliasingowy stosuje się przed przetwornikiem ADC. Po próbkowaniu nie da się odtworzyć utraconego rozróżnienia częstotliwości.\n\n",
+              "section": "Filtr wejściowy"
+            },
+            {
+              "id": "global:sampling.md:structure-v2:1",
+              "document": "@knowledge/sampling.md",
+              "score": 0.4153757095336914,
+              "text": "## Zegar\n\nZnaczniki czasu pozwalają wykryć jitter zegara przed analizą sygnału.\n",
+              "section": "Zegar"
+            },
+            {
+              "id": "global:rls.md:structure-v2:1",
+              "document": "@knowledge/rls.md",
+              "score": 0.3910750150680542,
+              "text": "## Zapominanie\n\nWspółczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf.\n",
+              "section": "Zapominanie"
+            },
+            {
+              "id": "global:drift.md:structure-v2:0",
+              "document": "@knowledge/drift.md",
+              "score": 0.3870464563369751,
+              "text": "\n## Hipoteza\n\nPodejrzewamy zależność dryfu czujnika od temperatury obudowy. Hipoteza pozostaje niepotwierdzona.\n",
+              "section": "Hipoteza"
+            },
+            {
+              "id": "global:arx.md:structure-v2:0",
+              "document": "@knowledge/arx.md",
+              "score": 0.3866615891456604,
+              "text": "\n## Sampling\n\nUse a fixed sampling interval and record it with the ARX coefficients. Select model orders on calibration data only.\n\n",
+              "section": "Sampling"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:sampling.md:structure-v2:0",
+                "path": "@knowledge/sampling.md",
+                "truncated": false
+              },
+              {
+                "id": "global:sampling.md:structure-v2:1",
+                "path": "@knowledge/sampling.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 110,
+            "retrieved_sources": [
+              "@knowledge/sampling.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: sampling.md > Filtr wejściowy > sampling > type: docs > status: active]\n\n## Filtr wejściowy\n\nFiltr antyaliasingowy stosuje się przed przetwornikiem ADC. Po próbkowaniu nie da się odtworzyć utraconego rozróżnienia częstotliwości.\n\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: sampling.md > Zegar > sampling > type: docs > status: active]\n## Zegar\n\nZnaczniki czasu pozwalają wykryć jitter zegara przed analizą sygnału.\n",
+            "tokens_estimated": 110
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "tokens_estimated": 110
+      }
+    },
+    {
+      "id": "q09",
+      "text": "How can I detect nonuniform sample timing?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/timing.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 0.0,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0,
+          "ndcg_at_5": 0.0,
+          "evidence_coverage": 0.0,
+          "missing_evidence": [
+            {
+              "document_id": "@knowledge/sampling.md",
+              "section": "Zegar",
+              "passage": "Znaczniki czasu pozwalają wykryć jitter zegara przed analizą sygnału."
+            }
+          ],
+          "all_required_documents": false,
+          "complete_evidence": false,
+          "elapsed_ms": 120.7243999815546,
+          "tokens_estimated": 50,
+          "chunks": [
+            {
+              "id": "global:timing.md:structure-v2:0",
+              "document": "@knowledge/timing.md",
+              "score": 0.6132555603981018,
+              "text": "\n## Clocks\n\nUse a monotonic clock for elapsed duration. Wall-clock time may jump during clock synchronization.\n",
+              "section": "Clocks"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/timing.md",
+            "@knowledge/sampling.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 0.5,
+          "ndcg_at_5": 0.6309297535714574,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 111.6148000000976,
+          "tokens_estimated": 95,
+          "chunks": [
+            {
+              "id": "global:timing.md:structure-v2:0",
+              "document": "@knowledge/timing.md",
+              "score": 0.6132555603981018,
+              "text": "\n## Clocks\n\nUse a monotonic clock for elapsed duration. Wall-clock time may jump during clock synchronization.\n",
+              "section": "Clocks"
+            },
+            {
+              "id": "global:sampling.md:structure-v2:1",
+              "document": "@knowledge/sampling.md",
+              "score": 0.5500479340553284,
+              "text": "## Zegar\n\nZnaczniki czasu pozwalają wykryć jitter zegara przed analizą sygnału.\n",
+              "section": "Zegar"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/timing.md",
+            "@knowledge/sampling.md",
+            "@knowledge/arx.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 0.5,
+          "ndcg_at_5": 0.6309297535714574,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 120.07589999120682,
+          "tokens_estimated": 271,
+          "chunks": [
+            {
+              "id": "global:timing.md:structure-v2:0",
+              "document": "@knowledge/timing.md",
+              "score": 0.6132555603981018,
+              "text": "\n## Clocks\n\nUse a monotonic clock for elapsed duration. Wall-clock time may jump during clock synchronization.\n",
+              "section": "Clocks"
+            },
+            {
+              "id": "global:sampling.md:structure-v2:1",
+              "document": "@knowledge/sampling.md",
+              "score": 0.5500479340553284,
+              "text": "## Zegar\n\nZnaczniki czasu pozwalają wykryć jitter zegara przed analizą sygnału.\n",
+              "section": "Zegar"
+            },
+            {
+              "id": "global:arx.md:structure-v2:0",
+              "document": "@knowledge/arx.md",
+              "score": 0.485636830329895,
+              "text": "\n## Sampling\n\nUse a fixed sampling interval and record it with the ARX coefficients. Select model orders on calibration data only.\n\n",
+              "section": "Sampling"
+            },
+            {
+              "id": "global:arx.md:structure-v2:1",
+              "document": "@knowledge/arx.md",
+              "score": 0.4845157861709595,
+              "text": "## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+              "section": "Validation"
+            },
+            {
+              "id": "global:sampling.md:structure-v2:0",
+              "document": "@knowledge/sampling.md",
+              "score": 0.4437434673309326,
+              "text": "\n## Filtr wejściowy\n\nFiltr antyaliasingowy stosuje się przed przetwornikiem ADC. Po próbkowaniu nie da się odtworzyć utraconego rozróżnienia częstotliwości.\n\n",
+              "section": "Filtr wejściowy"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:timing.md:structure-v2:0",
+                "path": "@knowledge/timing.md",
+                "truncated": false
+              },
+              {
+                "id": "global:sampling.md:structure-v2:1",
+                "path": "@knowledge/sampling.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 95,
+            "retrieved_sources": [
+              "@knowledge/timing.md",
+              "@knowledge/sampling.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: timing.md > Clocks > timing > type: docs > status: active]\n\n## Clocks\n\nUse a monotonic clock for elapsed duration. Wall-clock time may jump during clock synchronization.\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: sampling.md > Zegar > sampling > type: docs > status: active]\n## Zegar\n\nZnaczniki czasu pozwalają wykryć jitter zegara przed analizą sygnału.\n",
+            "tokens_estimated": 95
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "tokens_estimated": 95
+      }
+    },
+    {
+      "id": "q10",
+      "text": "Jakiego mechanizmu użyć, by nie nadpisać zmienionej notatki?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/vault.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 199.56729997647926,
+          "tokens_estimated": 50,
+          "chunks": [
+            {
+              "id": "global:vault.md:structure-v2:1",
+              "document": "@knowledge/vault.md",
+              "score": 0.5997207164764404,
+              "text": "## Konflikt\n\nJeśli hash docelowej notatki się zmienił, przygotuj świeżą propozycję zamiast nadpisywać plik.\n",
+              "section": "Konflikt"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/vault.md",
+            "@knowledge/rls.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 201.84340002015233,
+          "tokens_estimated": 103,
+          "chunks": [
+            {
+              "id": "global:vault.md:structure-v2:1",
+              "document": "@knowledge/vault.md",
+              "score": 0.5997207164764404,
+              "text": "## Konflikt\n\nJeśli hash docelowej notatki się zmienił, przygotuj świeżą propozycję zamiast nadpisywać plik.\n",
+              "section": "Konflikt"
+            },
+            {
+              "id": "global:rls.md:structure-v2:1",
+              "document": "@knowledge/rls.md",
+              "score": 0.41045093536376953,
+              "text": "## Zapominanie\n\nWspółczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf.\n",
+              "section": "Zapominanie"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/vault.md",
+            "@knowledge/rls.md",
+            "@knowledge/chroma.md",
+            "@knowledge/sampling.md",
+            "@knowledge/drift.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 194.52670001192018,
+          "tokens_estimated": 251,
+          "chunks": [
+            {
+              "id": "global:vault.md:structure-v2:1",
+              "document": "@knowledge/vault.md",
+              "score": 0.5997207164764404,
+              "text": "## Konflikt\n\nJeśli hash docelowej notatki się zmienił, przygotuj świeżą propozycję zamiast nadpisywać plik.\n",
+              "section": "Konflikt"
+            },
+            {
+              "id": "global:rls.md:structure-v2:1",
+              "document": "@knowledge/rls.md",
+              "score": 0.41045093536376953,
+              "text": "## Zapominanie\n\nWspółczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf.\n",
+              "section": "Zapominanie"
+            },
+            {
+              "id": "global:chroma.md:structure-v2:0",
+              "document": "@knowledge/chroma.md",
+              "score": 0.3800574541091919,
+              "text": "\n## Recovery\n\nKeep the approved Markdown when Chroma is unavailable and retry indexing after recovery.\n\n",
+              "section": "Recovery"
+            },
+            {
+              "id": "global:sampling.md:structure-v2:1",
+              "document": "@knowledge/sampling.md",
+              "score": 0.36701536178588867,
+              "text": "## Zegar\n\nZnaczniki czasu pozwalają wykryć jitter zegara przed analizą sygnału.\n",
+              "section": "Zegar"
+            },
+            {
+              "id": "global:drift.md:structure-v2:0",
+              "document": "@knowledge/drift.md",
+              "score": 0.3253580331802368,
+              "text": "\n## Hipoteza\n\nPodejrzewamy zależność dryfu czujnika od temperatury obudowy. Hipoteza pozostaje niepotwierdzona.\n",
+              "section": "Hipoteza"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:vault.md:structure-v2:1",
+                "path": "@knowledge/vault.md",
+                "truncated": false
+              },
+              {
+                "id": "global:rls.md:structure-v2:1",
+                "path": "@knowledge/rls.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 103,
+            "retrieved_sources": [
+              "@knowledge/vault.md",
+              "@knowledge/rls.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: vault.md > Konflikt > vault > type: docs > status: active]\n## Konflikt\n\nJeśli hash docelowej notatki się zmienił, przygotuj świeżą propozycję zamiast nadpisywać plik.\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: rls.md > Zapominanie > rls > type: docs > status: active]\n## Zapominanie\n\nWspółczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf.\n",
+            "tokens_estimated": 103
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "tokens_estimated": 103
+      }
+    },
+    {
+      "id": "q11",
+      "text": "What must happen before publishing a note into Obsidian?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/vault.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 0.0,
+          "missing_evidence": [
+            {
+              "document_id": "@knowledge/vault.md",
+              "section": "Akceptacja",
+              "passage": "Przed zapisem do vaulta użytkownik zatwierdza konkretną wersję propozycji."
+            }
+          ],
+          "all_required_documents": true,
+          "complete_evidence": false,
+          "elapsed_ms": 124.09729999490082,
+          "tokens_estimated": 50,
+          "chunks": [
+            {
+              "id": "global:vault.md:structure-v2:1",
+              "document": "@knowledge/vault.md",
+              "score": 0.5834385752677917,
+              "text": "## Konflikt\n\nJeśli hash docelowej notatki się zmienił, przygotuj świeżą propozycję zamiast nadpisywać plik.\n",
+              "section": "Konflikt"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/vault.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 128.09019995620474,
+          "tokens_estimated": 97,
+          "chunks": [
+            {
+              "id": "global:vault.md:structure-v2:1",
+              "document": "@knowledge/vault.md",
+              "score": 0.5834385752677917,
+              "text": "## Konflikt\n\nJeśli hash docelowej notatki się zmienił, przygotuj świeżą propozycję zamiast nadpisywać plik.\n",
+              "section": "Konflikt"
+            },
+            {
+              "id": "global:vault.md:structure-v2:0",
+              "document": "@knowledge/vault.md",
+              "score": 0.4766068458557129,
+              "text": "\n## Akceptacja\n\nPrzed zapisem do vaulta użytkownik zatwierdza konkretną wersję propozycji.\n\n",
+              "section": "Akceptacja"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/vault.md",
+            "@knowledge/chroma.md",
+            "@knowledge/rls.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 155.08619998581707,
+          "tokens_estimated": 249,
+          "chunks": [
+            {
+              "id": "global:vault.md:structure-v2:1",
+              "document": "@knowledge/vault.md",
+              "score": 0.5834385752677917,
+              "text": "## Konflikt\n\nJeśli hash docelowej notatki się zmienił, przygotuj świeżą propozycję zamiast nadpisywać plik.\n",
+              "section": "Konflikt"
+            },
+            {
+              "id": "global:vault.md:structure-v2:0",
+              "document": "@knowledge/vault.md",
+              "score": 0.4766068458557129,
+              "text": "\n## Akceptacja\n\nPrzed zapisem do vaulta użytkownik zatwierdza konkretną wersję propozycji.\n\n",
+              "section": "Akceptacja"
+            },
+            {
+              "id": "global:chroma.md:structure-v2:0",
+              "document": "@knowledge/chroma.md",
+              "score": 0.44736552238464355,
+              "text": "\n## Recovery\n\nKeep the approved Markdown when Chroma is unavailable and retry indexing after recovery.\n\n",
+              "section": "Recovery"
+            },
+            {
+              "id": "global:rls.md:structure-v2:1",
+              "document": "@knowledge/rls.md",
+              "score": 0.40656578540802,
+              "text": "## Zapominanie\n\nWspółczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf.\n",
+              "section": "Zapominanie"
+            },
+            {
+              "id": "global:chroma.md:structure-v2:1",
+              "document": "@knowledge/chroma.md",
+              "score": 0.3884042501449585,
+              "text": "## Deletion\n\nUpsert the current chunks and delete obsolete chunk IDs after a document shrinks.\n",
+              "section": "Deletion"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:vault.md:structure-v2:1",
+                "path": "@knowledge/vault.md",
+                "truncated": false
+              },
+              {
+                "id": "global:vault.md:structure-v2:0",
+                "path": "@knowledge/vault.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 97,
+            "retrieved_sources": [
+              "@knowledge/vault.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: vault.md > Konflikt > vault > type: docs > status: active]\n## Konflikt\n\nJeśli hash docelowej notatki się zmienił, przygotuj świeżą propozycję zamiast nadpisywać plik.\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: vault.md > Akceptacja > vault > type: docs > status: active]\n\n## Akceptacja\n\nPrzed zapisem do vaulta użytkownik zatwierdza konkretną wersję propozycji.\n\n",
+            "tokens_estimated": 97
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "tokens_estimated": 97
+      }
+    },
+    {
+      "id": "q12",
+      "text": "How do I recover indexing after Chroma becomes unavailable?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/chroma.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 104.24750001402572,
+          "tokens_estimated": 49,
+          "chunks": [
+            {
+              "id": "global:chroma.md:structure-v2:0",
+              "document": "@knowledge/chroma.md",
+              "score": 0.8423111438751221,
+              "text": "\n## Recovery\n\nKeep the approved Markdown when Chroma is unavailable and retry indexing after recovery.\n\n",
+              "section": "Recovery"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/chroma.md",
+            "@knowledge/vault.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 121.17030000081286,
+          "tokens_estimated": 100,
+          "chunks": [
+            {
+              "id": "global:chroma.md:structure-v2:0",
+              "document": "@knowledge/chroma.md",
+              "score": 0.8423111438751221,
+              "text": "\n## Recovery\n\nKeep the approved Markdown when Chroma is unavailable and retry indexing after recovery.\n\n",
+              "section": "Recovery"
+            },
+            {
+              "id": "global:vault.md:structure-v2:1",
+              "document": "@knowledge/vault.md",
+              "score": 0.517474889755249,
+              "text": "## Konflikt\n\nJeśli hash docelowej notatki się zmienił, przygotuj świeżą propozycję zamiast nadpisywać plik.\n",
+              "section": "Konflikt"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/chroma.md",
+            "@knowledge/vault.md",
+            "@knowledge/rls.md",
+            "@knowledge/arx.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 123.1131000095047,
+          "tokens_estimated": 254,
+          "chunks": [
+            {
+              "id": "global:chroma.md:structure-v2:0",
+              "document": "@knowledge/chroma.md",
+              "score": 0.8423111438751221,
+              "text": "\n## Recovery\n\nKeep the approved Markdown when Chroma is unavailable and retry indexing after recovery.\n\n",
+              "section": "Recovery"
+            },
+            {
+              "id": "global:vault.md:structure-v2:1",
+              "document": "@knowledge/vault.md",
+              "score": 0.517474889755249,
+              "text": "## Konflikt\n\nJeśli hash docelowej notatki się zmienił, przygotuj świeżą propozycję zamiast nadpisywać plik.\n",
+              "section": "Konflikt"
+            },
+            {
+              "id": "global:chroma.md:structure-v2:1",
+              "document": "@knowledge/chroma.md",
+              "score": 0.44147998094558716,
+              "text": "## Deletion\n\nUpsert the current chunks and delete obsolete chunk IDs after a document shrinks.\n",
+              "section": "Deletion"
+            },
+            {
+              "id": "global:rls.md:structure-v2:1",
+              "document": "@knowledge/rls.md",
+              "score": 0.41237521171569824,
+              "text": "## Zapominanie\n\nWspółczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf.\n",
+              "section": "Zapominanie"
+            },
+            {
+              "id": "global:arx.md:structure-v2:1",
+              "document": "@knowledge/arx.md",
+              "score": 0.38037335872650146,
+              "text": "## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+              "section": "Validation"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:chroma.md:structure-v2:0",
+                "path": "@knowledge/chroma.md",
+                "truncated": false
+              },
+              {
+                "id": "global:vault.md:structure-v2:1",
+                "path": "@knowledge/vault.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 100,
+            "retrieved_sources": [
+              "@knowledge/chroma.md",
+              "@knowledge/vault.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: chroma.md > Recovery > chroma > type: docs > status: active]\n\n## Recovery\n\nKeep the approved Markdown when Chroma is unavailable and retry indexing after recovery.\n\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: vault.md > Konflikt > vault > type: docs > status: active]\n## Konflikt\n\nJeśli hash docelowej notatki się zmienił, przygotuj świeżą propozycję zamiast nadpisywać plik.\n",
+            "tokens_estimated": 100
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "tokens_estimated": 100
+      }
+    },
+    {
+      "id": "q13",
+      "text": "Co zrobić ze starymi fragmentami po skróceniu dokumentu?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/vault.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 0.0,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0,
+          "ndcg_at_5": 0.0,
+          "evidence_coverage": 0.0,
+          "missing_evidence": [
+            {
+              "document_id": "@knowledge/chroma.md",
+              "section": "Deletion",
+              "passage": "Upsert the current chunks and delete obsolete chunk IDs after a document shrinks."
+            }
+          ],
+          "all_required_documents": false,
+          "complete_evidence": false,
+          "elapsed_ms": 148.58379994984716,
+          "tokens_estimated": 50,
+          "chunks": [
+            {
+              "id": "global:vault.md:structure-v2:1",
+              "document": "@knowledge/vault.md",
+              "score": 0.5007407069206238,
+              "text": "## Konflikt\n\nJeśli hash docelowej notatki się zmienił, przygotuj świeżą propozycję zamiast nadpisywać plik.\n",
+              "section": "Konflikt"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/vault.md",
+            "@knowledge/chroma.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 0.5,
+          "ndcg_at_5": 0.6309297535714574,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 133.36570002138615,
+          "tokens_estimated": 98,
+          "chunks": [
+            {
+              "id": "global:vault.md:structure-v2:1",
+              "document": "@knowledge/vault.md",
+              "score": 0.5007407069206238,
+              "text": "## Konflikt\n\nJeśli hash docelowej notatki się zmienił, przygotuj świeżą propozycję zamiast nadpisywać plik.\n",
+              "section": "Konflikt"
+            },
+            {
+              "id": "global:chroma.md:structure-v2:1",
+              "document": "@knowledge/chroma.md",
+              "score": 0.49423789978027344,
+              "text": "## Deletion\n\nUpsert the current chunks and delete obsolete chunk IDs after a document shrinks.\n",
+              "section": "Deletion"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/vault.md",
+            "@knowledge/chroma.md",
+            "@knowledge/rls.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 0.5,
+          "ndcg_at_5": 0.6309297535714574,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 141.57690003048629,
+          "tokens_estimated": 249,
+          "chunks": [
+            {
+              "id": "global:vault.md:structure-v2:1",
+              "document": "@knowledge/vault.md",
+              "score": 0.5007407069206238,
+              "text": "## Konflikt\n\nJeśli hash docelowej notatki się zmienił, przygotuj świeżą propozycję zamiast nadpisywać plik.\n",
+              "section": "Konflikt"
+            },
+            {
+              "id": "global:chroma.md:structure-v2:1",
+              "document": "@knowledge/chroma.md",
+              "score": 0.49423789978027344,
+              "text": "## Deletion\n\nUpsert the current chunks and delete obsolete chunk IDs after a document shrinks.\n",
+              "section": "Deletion"
+            },
+            {
+              "id": "global:chroma.md:structure-v2:0",
+              "document": "@knowledge/chroma.md",
+              "score": 0.4455574154853821,
+              "text": "\n## Recovery\n\nKeep the approved Markdown when Chroma is unavailable and retry indexing after recovery.\n\n",
+              "section": "Recovery"
+            },
+            {
+              "id": "global:rls.md:structure-v2:1",
+              "document": "@knowledge/rls.md",
+              "score": 0.34900814294815063,
+              "text": "## Zapominanie\n\nWspółczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf.\n",
+              "section": "Zapominanie"
+            },
+            {
+              "id": "global:vault.md:structure-v2:0",
+              "document": "@knowledge/vault.md",
+              "score": 0.3266914486885071,
+              "text": "\n## Akceptacja\n\nPrzed zapisem do vaulta użytkownik zatwierdza konkretną wersję propozycji.\n\n",
+              "section": "Akceptacja"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:vault.md:structure-v2:1",
+                "path": "@knowledge/vault.md",
+                "truncated": false
+              },
+              {
+                "id": "global:chroma.md:structure-v2:1",
+                "path": "@knowledge/chroma.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 98,
+            "retrieved_sources": [
+              "@knowledge/vault.md",
+              "@knowledge/chroma.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: vault.md > Konflikt > vault > type: docs > status: active]\n## Konflikt\n\nJeśli hash docelowej notatki się zmienił, przygotuj świeżą propozycję zamiast nadpisywać plik.\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: chroma.md > Deletion > chroma > type: docs > status: active]\n## Deletion\n\nUpsert the current chunks and delete obsolete chunk IDs after a document shrinks.\n",
+            "tokens_estimated": 98
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "tokens_estimated": 98
+      }
+    },
+    {
+      "id": "q14",
+      "text": "Which MQTT QoS may deliver a measurement twice and how should I handle it?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/telemetry.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 153.30240002367646,
+          "tokens_estimated": 52,
+          "chunks": [
+            {
+              "id": "global:telemetry.md:structure-v2:0",
+              "document": "@knowledge/telemetry.md",
+              "score": 0.8566747307777405,
+              "text": "\n## MQTT\n\nMQTT QoS 1 provides at-least-once delivery. Deduplicate measurements using a stable message identifier.\n\n",
+              "section": "MQTT"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/telemetry.md",
+            "@knowledge/rls.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 165.3986000455916,
+          "tokens_estimated": 106,
+          "chunks": [
+            {
+              "id": "global:telemetry.md:structure-v2:0",
+              "document": "@knowledge/telemetry.md",
+              "score": 0.8566747307777405,
+              "text": "\n## MQTT\n\nMQTT QoS 1 provides at-least-once delivery. Deduplicate measurements using a stable message identifier.\n\n",
+              "section": "MQTT"
+            },
+            {
+              "id": "global:rls.md:structure-v2:1",
+              "document": "@knowledge/rls.md",
+              "score": 0.4546717405319214,
+              "text": "## Zapominanie\n\nWspółczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf.\n",
+              "section": "Zapominanie"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/telemetry.md",
+            "@knowledge/rls.md",
+            "@knowledge/chroma.md",
+            "@knowledge/vault.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 165.61960004037246,
+          "tokens_estimated": 253,
+          "chunks": [
+            {
+              "id": "global:telemetry.md:structure-v2:0",
+              "document": "@knowledge/telemetry.md",
+              "score": 0.8566747307777405,
+              "text": "\n## MQTT\n\nMQTT QoS 1 provides at-least-once delivery. Deduplicate measurements using a stable message identifier.\n\n",
+              "section": "MQTT"
+            },
+            {
+              "id": "global:rls.md:structure-v2:1",
+              "document": "@knowledge/rls.md",
+              "score": 0.4546717405319214,
+              "text": "## Zapominanie\n\nWspółczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf.\n",
+              "section": "Zapominanie"
+            },
+            {
+              "id": "global:chroma.md:structure-v2:0",
+              "document": "@knowledge/chroma.md",
+              "score": 0.4172670841217041,
+              "text": "\n## Recovery\n\nKeep the approved Markdown when Chroma is unavailable and retry indexing after recovery.\n\n",
+              "section": "Recovery"
+            },
+            {
+              "id": "global:vault.md:structure-v2:1",
+              "document": "@knowledge/vault.md",
+              "score": 0.4098936915397644,
+              "text": "## Konflikt\n\nJeśli hash docelowej notatki się zmienił, przygotuj świeżą propozycję zamiast nadpisywać plik.\n",
+              "section": "Konflikt"
+            },
+            {
+              "id": "global:telemetry.md:structure-v2:1",
+              "document": "@knowledge/telemetry.md",
+              "score": 0.40710437297821045,
+              "text": "## Modbus\n\nA Modbus RTU frame uses a CRC to detect accidental transmission errors.\n",
+              "section": "Modbus"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:telemetry.md:structure-v2:0",
+                "path": "@knowledge/telemetry.md",
+                "truncated": false
+              },
+              {
+                "id": "global:rls.md:structure-v2:1",
+                "path": "@knowledge/rls.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 106,
+            "retrieved_sources": [
+              "@knowledge/telemetry.md",
+              "@knowledge/rls.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: telemetry.md > MQTT > telemetry > type: docs > status: active]\n\n## MQTT\n\nMQTT QoS 1 provides at-least-once delivery. Deduplicate measurements using a stable message identifier.\n\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: rls.md > Zapominanie > rls > type: docs > status: active]\n## Zapominanie\n\nWspółczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf.\n",
+            "tokens_estimated": 106
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "tokens_estimated": 106
+      }
+    },
+    {
+      "id": "q15",
+      "text": "Jaką rolę odgrywa CRC w ramce Modbus RTU?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/telemetry.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 155.12549999402836,
+          "tokens_estimated": 45,
+          "chunks": [
+            {
+              "id": "global:telemetry.md:structure-v2:1",
+              "document": "@knowledge/telemetry.md",
+              "score": 0.8023009300231934,
+              "text": "## Modbus\n\nA Modbus RTU frame uses a CRC to detect accidental transmission errors.\n",
+              "section": "Modbus"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/telemetry.md",
+            "@knowledge/arx.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 143.68199999444187,
+          "tokens_estimated": 98,
+          "chunks": [
+            {
+              "id": "global:telemetry.md:structure-v2:1",
+              "document": "@knowledge/telemetry.md",
+              "score": 0.8023009300231934,
+              "text": "## Modbus\n\nA Modbus RTU frame uses a CRC to detect accidental transmission errors.\n",
+              "section": "Modbus"
+            },
+            {
+              "id": "global:arx.md:structure-v2:1",
+              "document": "@knowledge/arx.md",
+              "score": 0.3302844762802124,
+              "text": "## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+              "section": "Validation"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/telemetry.md",
+            "@knowledge/arx.md",
+            "@knowledge/sampling.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 189.15999995078892,
+          "tokens_estimated": 218,
+          "chunks": [
+            {
+              "id": "global:telemetry.md:structure-v2:1",
+              "document": "@knowledge/telemetry.md",
+              "score": 0.8023009300231934,
+              "text": "## Modbus\n\nA Modbus RTU frame uses a CRC to detect accidental transmission errors.\n",
+              "section": "Modbus"
+            },
+            {
+              "id": "global:arx.md:structure-v2:1",
+              "document": "@knowledge/arx.md",
+              "score": 0.3302844762802124,
+              "text": "## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+              "section": "Validation"
+            },
+            {
+              "id": "global:sampling.md:structure-v2:0",
+              "document": "@knowledge/sampling.md",
+              "score": 0.3119542598724365,
+              "text": "\n## Filtr wejściowy\n\nFiltr antyaliasingowy stosuje się przed przetwornikiem ADC. Po próbkowaniu nie da się odtworzyć utraconego rozróżnienia częstotliwości.\n\n",
+              "section": "Filtr wejściowy"
+            },
+            {
+              "id": "global:telemetry.md:structure-v2:0",
+              "document": "@knowledge/telemetry.md",
+              "score": 0.30115455389022827,
+              "text": "\n## MQTT\n\nMQTT QoS 1 provides at-least-once delivery. Deduplicate measurements using a stable message identifier.\n\n",
+              "section": "MQTT"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:telemetry.md:structure-v2:1",
+                "path": "@knowledge/telemetry.md",
+                "truncated": false
+              },
+              {
+                "id": "global:arx.md:structure-v2:1",
+                "path": "@knowledge/arx.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 98,
+            "retrieved_sources": [
+              "@knowledge/telemetry.md",
+              "@knowledge/arx.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: telemetry.md > Modbus > telemetry > type: docs > status: active]\n## Modbus\n\nA Modbus RTU frame uses a CRC to detect accidental transmission errors.\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: arx.md > Validation > arx > type: docs > status: active]\n## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+            "tokens_estimated": 98
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "tokens_estimated": 98
+      }
+    },
+    {
+      "id": "q16",
+      "text": "Czy zależność dryfu od temperatury obudowy jest potwierdzona?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/drift.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 182.2447000304237,
+          "tokens_estimated": 51,
+          "chunks": [
+            {
+              "id": "global:drift.md:structure-v2:0",
+              "document": "@knowledge/drift.md",
+              "score": 0.7965118885040283,
+              "text": "\n## Hipoteza\n\nPodejrzewamy zależność dryfu czujnika od temperatury obudowy. Hipoteza pozostaje niepotwierdzona.\n",
+              "section": "Hipoteza"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/drift.md",
+            "@knowledge/rls.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 178.80190000869334,
+          "tokens_estimated": 105,
+          "chunks": [
+            {
+              "id": "global:drift.md:structure-v2:0",
+              "document": "@knowledge/drift.md",
+              "score": 0.7965118885040283,
+              "text": "\n## Hipoteza\n\nPodejrzewamy zależność dryfu czujnika od temperatury obudowy. Hipoteza pozostaje niepotwierdzona.\n",
+              "section": "Hipoteza"
+            },
+            {
+              "id": "global:rls.md:structure-v2:1",
+              "document": "@knowledge/rls.md",
+              "score": 0.3489638566970825,
+              "text": "## Zapominanie\n\nWspółczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf.\n",
+              "section": "Zapominanie"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/drift.md",
+            "@knowledge/rls.md",
+            "@knowledge/arx.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 182.38219997147098,
+          "tokens_estimated": 157,
+          "chunks": [
+            {
+              "id": "global:drift.md:structure-v2:0",
+              "document": "@knowledge/drift.md",
+              "score": 0.7965118885040283,
+              "text": "\n## Hipoteza\n\nPodejrzewamy zależność dryfu czujnika od temperatury obudowy. Hipoteza pozostaje niepotwierdzona.\n",
+              "section": "Hipoteza"
+            },
+            {
+              "id": "global:rls.md:structure-v2:1",
+              "document": "@knowledge/rls.md",
+              "score": 0.3489638566970825,
+              "text": "## Zapominanie\n\nWspółczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf.\n",
+              "section": "Zapominanie"
+            },
+            {
+              "id": "global:arx.md:structure-v2:1",
+              "document": "@knowledge/arx.md",
+              "score": 0.31103193759918213,
+              "text": "## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+              "section": "Validation"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:drift.md:structure-v2:0",
+                "path": "@knowledge/drift.md",
+                "truncated": false
+              },
+              {
+                "id": "global:rls.md:structure-v2:1",
+                "path": "@knowledge/rls.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 105,
+            "retrieved_sources": [
+              "@knowledge/drift.md",
+              "@knowledge/rls.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: drift.md > Hipoteza > drift > type: research > status: draft]\n\n## Hipoteza\n\nPodejrzewamy zależność dryfu czujnika od temperatury obudowy. Hipoteza pozostaje niepotwierdzona.\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: rls.md > Zapominanie > rls > type: docs > status: active]\n## Zapominanie\n\nWspółczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf.\n",
+            "tokens_estimated": 105
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "tokens_estimated": 105
+      }
+    },
+    {
+      "id": "q17",
+      "text": "Which clock should be used for timing a benchmark?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/timing.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 124.20729995938018,
+          "tokens_estimated": 50,
+          "chunks": [
+            {
+              "id": "global:timing.md:structure-v2:0",
+              "document": "@knowledge/timing.md",
+              "score": 0.6841439008712769,
+              "text": "\n## Clocks\n\nUse a monotonic clock for elapsed duration. Wall-clock time may jump during clock synchronization.\n",
+              "section": "Clocks"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/timing.md",
+            "@knowledge/sampling.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 117.4909999826923,
+          "tokens_estimated": 95,
+          "chunks": [
+            {
+              "id": "global:timing.md:structure-v2:0",
+              "document": "@knowledge/timing.md",
+              "score": 0.6841439008712769,
+              "text": "\n## Clocks\n\nUse a monotonic clock for elapsed duration. Wall-clock time may jump during clock synchronization.\n",
+              "section": "Clocks"
+            },
+            {
+              "id": "global:sampling.md:structure-v2:1",
+              "document": "@knowledge/sampling.md",
+              "score": 0.5321229696273804,
+              "text": "## Zegar\n\nZnaczniki czasu pozwalają wykryć jitter zegara przed analizą sygnału.\n",
+              "section": "Zegar"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/timing.md",
+            "@knowledge/sampling.md",
+            "@knowledge/arx.md",
+            "@knowledge/vault.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 123.0702999746427,
+          "tokens_estimated": 255,
+          "chunks": [
+            {
+              "id": "global:timing.md:structure-v2:0",
+              "document": "@knowledge/timing.md",
+              "score": 0.6841439008712769,
+              "text": "\n## Clocks\n\nUse a monotonic clock for elapsed duration. Wall-clock time may jump during clock synchronization.\n",
+              "section": "Clocks"
+            },
+            {
+              "id": "global:sampling.md:structure-v2:1",
+              "document": "@knowledge/sampling.md",
+              "score": 0.5321229696273804,
+              "text": "## Zegar\n\nZnaczniki czasu pozwalają wykryć jitter zegara przed analizą sygnału.\n",
+              "section": "Zegar"
+            },
+            {
+              "id": "global:arx.md:structure-v2:1",
+              "document": "@knowledge/arx.md",
+              "score": 0.4401995539665222,
+              "text": "## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+              "section": "Validation"
+            },
+            {
+              "id": "global:vault.md:structure-v2:1",
+              "document": "@knowledge/vault.md",
+              "score": 0.3919987678527832,
+              "text": "## Konflikt\n\nJeśli hash docelowej notatki się zmienił, przygotuj świeżą propozycję zamiast nadpisywać plik.\n",
+              "section": "Konflikt"
+            },
+            {
+              "id": "global:arx.md:structure-v2:0",
+              "document": "@knowledge/arx.md",
+              "score": 0.38676905632019043,
+              "text": "\n## Sampling\n\nUse a fixed sampling interval and record it with the ARX coefficients. Select model orders on calibration data only.\n\n",
+              "section": "Sampling"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:timing.md:structure-v2:0",
+                "path": "@knowledge/timing.md",
+                "truncated": false
+              },
+              {
+                "id": "global:sampling.md:structure-v2:1",
+                "path": "@knowledge/sampling.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 95,
+            "retrieved_sources": [
+              "@knowledge/timing.md",
+              "@knowledge/sampling.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: timing.md > Clocks > timing > type: docs > status: active]\n\n## Clocks\n\nUse a monotonic clock for elapsed duration. Wall-clock time may jump during clock synchronization.\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: sampling.md > Zegar > sampling > type: docs > status: active]\n## Zegar\n\nZnaczniki czasu pozwalają wykryć jitter zegara przed analizą sygnału.\n",
+            "tokens_estimated": 95
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "tokens_estimated": 95
+      }
+    },
+    {
+      "id": "q18",
+      "text": "Jak zmierzyć czas przebiegu mimo skoku zegara systemowego?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/sampling.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 0.0,
+          "precision_at_5": 0.0,
+          "reciprocal_rank": 0.0,
+          "ndcg_at_5": 0.0,
+          "evidence_coverage": 0.0,
+          "missing_evidence": [
+            {
+              "document_id": "@knowledge/timing.md",
+              "section": "Clocks",
+              "passage": "Use a monotonic clock for elapsed duration. Wall-clock time may jump during clock synchronization."
+            }
+          ],
+          "all_required_documents": false,
+          "complete_evidence": false,
+          "elapsed_ms": 186.47679995046929,
+          "tokens_estimated": 43,
+          "chunks": [
+            {
+              "id": "global:sampling.md:structure-v2:1",
+              "document": "@knowledge/sampling.md",
+              "score": 0.6330406665802002,
+              "text": "## Zegar\n\nZnaczniki czasu pozwalają wykryć jitter zegara przed analizą sygnału.\n",
+              "section": "Zegar"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/sampling.md",
+            "@knowledge/timing.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 0.5,
+          "ndcg_at_5": 0.6309297535714574,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 156.0493999859318,
+          "tokens_estimated": 95,
+          "chunks": [
+            {
+              "id": "global:sampling.md:structure-v2:1",
+              "document": "@knowledge/sampling.md",
+              "score": 0.6330406665802002,
+              "text": "## Zegar\n\nZnaczniki czasu pozwalają wykryć jitter zegara przed analizą sygnału.\n",
+              "section": "Zegar"
+            },
+            {
+              "id": "global:timing.md:structure-v2:0",
+              "document": "@knowledge/timing.md",
+              "score": 0.5566021800041199,
+              "text": "\n## Clocks\n\nUse a monotonic clock for elapsed duration. Wall-clock time may jump during clock synchronization.\n",
+              "section": "Clocks"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/sampling.md",
+            "@knowledge/timing.md",
+            "@knowledge/rls.md",
+            "@knowledge/drift.md",
+            "@knowledge/vault.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 0.5,
+          "ndcg_at_5": 0.6309297535714574,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 157.2926999651827,
+          "tokens_estimated": 252,
+          "chunks": [
+            {
+              "id": "global:sampling.md:structure-v2:1",
+              "document": "@knowledge/sampling.md",
+              "score": 0.6330406665802002,
+              "text": "## Zegar\n\nZnaczniki czasu pozwalają wykryć jitter zegara przed analizą sygnału.\n",
+              "section": "Zegar"
+            },
+            {
+              "id": "global:timing.md:structure-v2:0",
+              "document": "@knowledge/timing.md",
+              "score": 0.5566021800041199,
+              "text": "\n## Clocks\n\nUse a monotonic clock for elapsed duration. Wall-clock time may jump during clock synchronization.\n",
+              "section": "Clocks"
+            },
+            {
+              "id": "global:rls.md:structure-v2:1",
+              "document": "@knowledge/rls.md",
+              "score": 0.4176774024963379,
+              "text": "## Zapominanie\n\nWspółczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf.\n",
+              "section": "Zapominanie"
+            },
+            {
+              "id": "global:drift.md:structure-v2:0",
+              "document": "@knowledge/drift.md",
+              "score": 0.39649635553359985,
+              "text": "\n## Hipoteza\n\nPodejrzewamy zależność dryfu czujnika od temperatury obudowy. Hipoteza pozostaje niepotwierdzona.\n",
+              "section": "Hipoteza"
+            },
+            {
+              "id": "global:vault.md:structure-v2:1",
+              "document": "@knowledge/vault.md",
+              "score": 0.3600046634674072,
+              "text": "## Konflikt\n\nJeśli hash docelowej notatki się zmienił, przygotuj świeżą propozycję zamiast nadpisywać plik.\n",
+              "section": "Konflikt"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:sampling.md:structure-v2:1",
+                "path": "@knowledge/sampling.md",
+                "truncated": false
+              },
+              {
+                "id": "global:timing.md:structure-v2:0",
+                "path": "@knowledge/timing.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 95,
+            "retrieved_sources": [
+              "@knowledge/sampling.md",
+              "@knowledge/timing.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: sampling.md > Zegar > sampling > type: docs > status: active]\n## Zegar\n\nZnaczniki czasu pozwalają wykryć jitter zegara przed analizą sygnału.\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: timing.md > Clocks > timing > type: docs > status: active]\n\n## Clocks\n\nUse a monotonic clock for elapsed duration. Wall-clock time may jump during clock synchronization.\n",
+            "tokens_estimated": 95
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "tokens_estimated": 95
+      }
+    },
+    {
+      "id": "q19",
+      "text": "Po publikacji notatki co zrobić z plikiem, gdy Chroma jest niedostępna? Uwzględnij warunek zapisu.",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/chroma.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 0.5,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 0.6131471927654584,
+          "evidence_coverage": 0.5,
+          "missing_evidence": [
+            {
+              "document_id": "@knowledge/vault.md",
+              "section": "Akceptacja",
+              "passage": "Przed zapisem do vaulta użytkownik zatwierdza konkretną wersję propozycji."
+            }
+          ],
+          "all_required_documents": false,
+          "complete_evidence": false,
+          "elapsed_ms": 262.79329997487366,
+          "tokens_estimated": 49,
+          "chunks": [
+            {
+              "id": "global:chroma.md:structure-v2:0",
+              "document": "@knowledge/chroma.md",
+              "score": 0.622263491153717,
+              "text": "\n## Recovery\n\nKeep the approved Markdown when Chroma is unavailable and retry indexing after recovery.\n\n",
+              "section": "Recovery"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/chroma.md",
+            "@knowledge/vault.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.4,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 0.5,
+          "missing_evidence": [
+            {
+              "document_id": "@knowledge/vault.md",
+              "section": "Akceptacja",
+              "passage": "Przed zapisem do vaulta użytkownik zatwierdza konkretną wersję propozycji."
+            }
+          ],
+          "all_required_documents": true,
+          "complete_evidence": false,
+          "elapsed_ms": 308.64399997517467,
+          "tokens_estimated": 100,
+          "chunks": [
+            {
+              "id": "global:chroma.md:structure-v2:0",
+              "document": "@knowledge/chroma.md",
+              "score": 0.622263491153717,
+              "text": "\n## Recovery\n\nKeep the approved Markdown when Chroma is unavailable and retry indexing after recovery.\n\n",
+              "section": "Recovery"
+            },
+            {
+              "id": "global:vault.md:structure-v2:1",
+              "document": "@knowledge/vault.md",
+              "score": 0.5732103586196899,
+              "text": "## Konflikt\n\nJeśli hash docelowej notatki się zmienił, przygotuj świeżą propozycję zamiast nadpisywać plik.\n",
+              "section": "Konflikt"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/chroma.md",
+            "@knowledge/vault.md",
+            "@knowledge/rls.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.4,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 334.2504999600351,
+          "tokens_estimated": 249,
+          "chunks": [
+            {
+              "id": "global:chroma.md:structure-v2:0",
+              "document": "@knowledge/chroma.md",
+              "score": 0.622263491153717,
+              "text": "\n## Recovery\n\nKeep the approved Markdown when Chroma is unavailable and retry indexing after recovery.\n\n",
+              "section": "Recovery"
+            },
+            {
+              "id": "global:vault.md:structure-v2:1",
+              "document": "@knowledge/vault.md",
+              "score": 0.5732103586196899,
+              "text": "## Konflikt\n\nJeśli hash docelowej notatki się zmienił, przygotuj świeżą propozycję zamiast nadpisywać plik.\n",
+              "section": "Konflikt"
+            },
+            {
+              "id": "global:rls.md:structure-v2:1",
+              "document": "@knowledge/rls.md",
+              "score": 0.37291502952575684,
+              "text": "## Zapominanie\n\nWspółczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf.\n",
+              "section": "Zapominanie"
+            },
+            {
+              "id": "global:chroma.md:structure-v2:1",
+              "document": "@knowledge/chroma.md",
+              "score": 0.3620032072067261,
+              "text": "## Deletion\n\nUpsert the current chunks and delete obsolete chunk IDs after a document shrinks.\n",
+              "section": "Deletion"
+            },
+            {
+              "id": "global:vault.md:structure-v2:0",
+              "document": "@knowledge/vault.md",
+              "score": 0.3372461795806885,
+              "text": "\n## Akceptacja\n\nPrzed zapisem do vaulta użytkownik zatwierdza konkretną wersję propozycji.\n\n",
+              "section": "Akceptacja"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:chroma.md:structure-v2:0",
+                "path": "@knowledge/chroma.md",
+                "truncated": false
+              },
+              {
+                "id": "global:vault.md:structure-v2:1",
+                "path": "@knowledge/vault.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 100,
+            "retrieved_sources": [
+              "@knowledge/chroma.md",
+              "@knowledge/vault.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: chroma.md > Recovery > chroma > type: docs > status: active]\n\n## Recovery\n\nKeep the approved Markdown when Chroma is unavailable and retry indexing after recovery.\n\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: vault.md > Konflikt > vault > type: docs > status: active]\n## Konflikt\n\nJeśli hash docelowej notatki się zmienił, przygotuj świeżą propozycję zamiast nadpisywać plik.\n",
+            "tokens_estimated": 100
+          }
+        ],
+        "missing_evidence": [
+          {
+            "document_id": "@knowledge/vault.md",
+            "section": "Akceptacja",
+            "passage": "Przed zapisem do vaulta użytkownik zatwierdza konkretną wersję propozycji."
+          }
+        ],
+        "evidence_coverage": 0.5,
+        "complete_evidence": false,
+        "tokens_estimated": 100
+      }
+    },
+    {
+      "id": "q20",
+      "text": "Which method updates estimates online and how should an ARX model be validated separately?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/arx.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 0.5,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 0.6131471927654584,
+          "evidence_coverage": 0.5,
+          "missing_evidence": [
+            {
+              "document_id": "@knowledge/rls.md",
+              "section": "Aktualizacja",
+              "passage": "RLS aktualizuje parametry po każdej próbce bez ponownego dopasowania całej historii."
+            }
+          ],
+          "all_required_documents": false,
+          "complete_evidence": false,
+          "elapsed_ms": 176.67350004194304,
+          "tokens_estimated": 51,
+          "chunks": [
+            {
+              "id": "global:arx.md:structure-v2:1",
+              "document": "@knowledge/arx.md",
+              "score": 0.687453031539917,
+              "text": "## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+              "section": "Validation"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/arx.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 0.5,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 0.6131471927654584,
+          "evidence_coverage": 0.5,
+          "missing_evidence": [
+            {
+              "document_id": "@knowledge/rls.md",
+              "section": "Aktualizacja",
+              "passage": "RLS aktualizuje parametry po każdej próbce bez ponownego dopasowania całej historii."
+            }
+          ],
+          "all_required_documents": false,
+          "complete_evidence": false,
+          "elapsed_ms": 163.36429998045787,
+          "tokens_estimated": 107,
+          "chunks": [
+            {
+              "id": "global:arx.md:structure-v2:1",
+              "document": "@knowledge/arx.md",
+              "score": 0.687453031539917,
+              "text": "## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+              "section": "Validation"
+            },
+            {
+              "id": "global:arx.md:structure-v2:0",
+              "document": "@knowledge/arx.md",
+              "score": 0.6391603350639343,
+              "text": "\n## Sampling\n\nUse a fixed sampling interval and record it with the ARX coefficients. Select model orders on calibration data only.\n\n",
+              "section": "Sampling"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/arx.md",
+            "@knowledge/rls.md",
+            "@knowledge/telemetry.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.4,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 172.6805999642238,
+          "tokens_estimated": 257,
+          "chunks": [
+            {
+              "id": "global:arx.md:structure-v2:1",
+              "document": "@knowledge/arx.md",
+              "score": 0.687453031539917,
+              "text": "## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+              "section": "Validation"
+            },
+            {
+              "id": "global:arx.md:structure-v2:0",
+              "document": "@knowledge/arx.md",
+              "score": 0.6391603350639343,
+              "text": "\n## Sampling\n\nUse a fixed sampling interval and record it with the ARX coefficients. Select model orders on calibration data only.\n\n",
+              "section": "Sampling"
+            },
+            {
+              "id": "global:rls.md:structure-v2:0",
+              "document": "@knowledge/rls.md",
+              "score": 0.5502559542655945,
+              "text": "\n## Aktualizacja\n\nRLS aktualizuje parametry po każdej próbce bez ponownego dopasowania całej historii.\n\n",
+              "section": "Aktualizacja"
+            },
+            {
+              "id": "global:rls.md:structure-v2:1",
+              "document": "@knowledge/rls.md",
+              "score": 0.4395943284034729,
+              "text": "## Zapominanie\n\nWspółczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf.\n",
+              "section": "Zapominanie"
+            },
+            {
+              "id": "global:telemetry.md:structure-v2:1",
+              "document": "@knowledge/telemetry.md",
+              "score": 0.3804432153701782,
+              "text": "## Modbus\n\nA Modbus RTU frame uses a CRC to detect accidental transmission errors.\n",
+              "section": "Modbus"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:arx.md:structure-v2:1",
+                "path": "@knowledge/arx.md",
+                "truncated": false
+              },
+              {
+                "id": "global:arx.md:structure-v2:0",
+                "path": "@knowledge/arx.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 107,
+            "retrieved_sources": [
+              "@knowledge/arx.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: arx.md > Validation > arx > type: docs > status: active]\n## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: arx.md > Sampling > arx > type: docs > status: active]\n\n## Sampling\n\nUse a fixed sampling interval and record it with the ARX coefficients. Select model orders on calibration data only.\n\n",
+            "tokens_estimated": 107
+          }
+        ],
+        "missing_evidence": [
+          {
+            "document_id": "@knowledge/rls.md",
+            "section": "Aktualizacja",
+            "passage": "RLS aktualizuje parametry po każdej próbce bez ponownego dopasowania całej historii."
+          }
+        ],
+        "evidence_coverage": 0.5,
+        "complete_evidence": false,
+        "tokens_estimated": 107
+      }
+    },
+    {
+      "id": "q21",
+      "text": "Jak ograniczyć aliasing przed konwersją i jak sprawdzić odstępy próbek w modelu ARX?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/sampling.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 0.5,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 0.6131471927654584,
+          "evidence_coverage": 0.5,
+          "missing_evidence": [
+            {
+              "document_id": "@knowledge/arx.md",
+              "section": "Sampling",
+              "passage": "Use a fixed sampling interval and record it with the ARX coefficients. Select model orders on calibration data only."
+            }
+          ],
+          "all_required_documents": false,
+          "complete_evidence": false,
+          "elapsed_ms": 210.3709999937564,
+          "tokens_estimated": 65,
+          "chunks": [
+            {
+              "id": "global:sampling.md:structure-v2:0",
+              "document": "@knowledge/sampling.md",
+              "score": 0.625356137752533,
+              "text": "\n## Filtr wejściowy\n\nFiltr antyaliasingowy stosuje się przed przetwornikiem ADC. Po próbkowaniu nie da się odtworzyć utraconego rozróżnienia częstotliwości.\n\n",
+              "section": "Filtr wejściowy"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/sampling.md",
+            "@knowledge/arx.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.4,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 189.69299999298528,
+          "tokens_estimated": 121,
+          "chunks": [
+            {
+              "id": "global:sampling.md:structure-v2:0",
+              "document": "@knowledge/sampling.md",
+              "score": 0.625356137752533,
+              "text": "\n## Filtr wejściowy\n\nFiltr antyaliasingowy stosuje się przed przetwornikiem ADC. Po próbkowaniu nie da się odtworzyć utraconego rozróżnienia częstotliwości.\n\n",
+              "section": "Filtr wejściowy"
+            },
+            {
+              "id": "global:arx.md:structure-v2:0",
+              "document": "@knowledge/arx.md",
+              "score": 0.5819626450538635,
+              "text": "\n## Sampling\n\nUse a fixed sampling interval and record it with the ARX coefficients. Select model orders on calibration data only.\n\n",
+              "section": "Sampling"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/sampling.md",
+            "@knowledge/arx.md",
+            "@knowledge/rls.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.4,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 214.5684999995865,
+          "tokens_estimated": 272,
+          "chunks": [
+            {
+              "id": "global:sampling.md:structure-v2:0",
+              "document": "@knowledge/sampling.md",
+              "score": 0.625356137752533,
+              "text": "\n## Filtr wejściowy\n\nFiltr antyaliasingowy stosuje się przed przetwornikiem ADC. Po próbkowaniu nie da się odtworzyć utraconego rozróżnienia częstotliwości.\n\n",
+              "section": "Filtr wejściowy"
+            },
+            {
+              "id": "global:arx.md:structure-v2:0",
+              "document": "@knowledge/arx.md",
+              "score": 0.5819626450538635,
+              "text": "\n## Sampling\n\nUse a fixed sampling interval and record it with the ARX coefficients. Select model orders on calibration data only.\n\n",
+              "section": "Sampling"
+            },
+            {
+              "id": "global:arx.md:structure-v2:1",
+              "document": "@knowledge/arx.md",
+              "score": 0.5221757888793945,
+              "text": "## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+              "section": "Validation"
+            },
+            {
+              "id": "global:rls.md:structure-v2:1",
+              "document": "@knowledge/rls.md",
+              "score": 0.4477272629737854,
+              "text": "## Zapominanie\n\nWspółczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf.\n",
+              "section": "Zapominanie"
+            },
+            {
+              "id": "global:sampling.md:structure-v2:1",
+              "document": "@knowledge/sampling.md",
+              "score": 0.4295806288719177,
+              "text": "## Zegar\n\nZnaczniki czasu pozwalają wykryć jitter zegara przed analizą sygnału.\n",
+              "section": "Zegar"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:sampling.md:structure-v2:0",
+                "path": "@knowledge/sampling.md",
+                "truncated": false
+              },
+              {
+                "id": "global:arx.md:structure-v2:0",
+                "path": "@knowledge/arx.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 121,
+            "retrieved_sources": [
+              "@knowledge/sampling.md",
+              "@knowledge/arx.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: sampling.md > Filtr wejściowy > sampling > type: docs > status: active]\n\n## Filtr wejściowy\n\nFiltr antyaliasingowy stosuje się przed przetwornikiem ADC. Po próbkowaniu nie da się odtworzyć utraconego rozróżnienia częstotliwości.\n\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: arx.md > Sampling > arx > type: docs > status: active]\n\n## Sampling\n\nUse a fixed sampling interval and record it with the ARX coefficients. Select model orders on calibration data only.\n\n",
+            "tokens_estimated": 121
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "tokens_estimated": 121
+      }
+    },
+    {
+      "id": "q22",
+      "text": "How do I measure runtime duration and detect sampling jitter?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/timing.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 0.5,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 0.6131471927654584,
+          "evidence_coverage": 0.5,
+          "missing_evidence": [
+            {
+              "document_id": "@knowledge/sampling.md",
+              "section": "Zegar",
+              "passage": "Znaczniki czasu pozwalają wykryć jitter zegara przed analizą sygnału."
+            }
+          ],
+          "all_required_documents": false,
+          "complete_evidence": false,
+          "elapsed_ms": 112.85999999381602,
+          "tokens_estimated": 50,
+          "chunks": [
+            {
+              "id": "global:timing.md:structure-v2:0",
+              "document": "@knowledge/timing.md",
+              "score": 0.6076388359069824,
+              "text": "\n## Clocks\n\nUse a monotonic clock for elapsed duration. Wall-clock time may jump during clock synchronization.\n",
+              "section": "Clocks"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/timing.md",
+            "@knowledge/sampling.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.4,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 113.18530002608895,
+          "tokens_estimated": 95,
+          "chunks": [
+            {
+              "id": "global:timing.md:structure-v2:0",
+              "document": "@knowledge/timing.md",
+              "score": 0.6076388359069824,
+              "text": "\n## Clocks\n\nUse a monotonic clock for elapsed duration. Wall-clock time may jump during clock synchronization.\n",
+              "section": "Clocks"
+            },
+            {
+              "id": "global:sampling.md:structure-v2:1",
+              "document": "@knowledge/sampling.md",
+              "score": 0.5722582340240479,
+              "text": "## Zegar\n\nZnaczniki czasu pozwalają wykryć jitter zegara przed analizą sygnału.\n",
+              "section": "Zegar"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/timing.md",
+            "@knowledge/sampling.md",
+            "@knowledge/arx.md",
+            "@knowledge/rls.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.4,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 121.26750004244968,
+          "tokens_estimated": 257,
+          "chunks": [
+            {
+              "id": "global:timing.md:structure-v2:0",
+              "document": "@knowledge/timing.md",
+              "score": 0.6076388359069824,
+              "text": "\n## Clocks\n\nUse a monotonic clock for elapsed duration. Wall-clock time may jump during clock synchronization.\n",
+              "section": "Clocks"
+            },
+            {
+              "id": "global:sampling.md:structure-v2:1",
+              "document": "@knowledge/sampling.md",
+              "score": 0.5722582340240479,
+              "text": "## Zegar\n\nZnaczniki czasu pozwalają wykryć jitter zegara przed analizą sygnału.\n",
+              "section": "Zegar"
+            },
+            {
+              "id": "global:arx.md:structure-v2:0",
+              "document": "@knowledge/arx.md",
+              "score": 0.4899026155471802,
+              "text": "\n## Sampling\n\nUse a fixed sampling interval and record it with the ARX coefficients. Select model orders on calibration data only.\n\n",
+              "section": "Sampling"
+            },
+            {
+              "id": "global:arx.md:structure-v2:1",
+              "document": "@knowledge/arx.md",
+              "score": 0.4697663187980652,
+              "text": "## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+              "section": "Validation"
+            },
+            {
+              "id": "global:rls.md:structure-v2:1",
+              "document": "@knowledge/rls.md",
+              "score": 0.4522954225540161,
+              "text": "## Zapominanie\n\nWspółczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf.\n",
+              "section": "Zapominanie"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:timing.md:structure-v2:0",
+                "path": "@knowledge/timing.md",
+                "truncated": false
+              },
+              {
+                "id": "global:sampling.md:structure-v2:1",
+                "path": "@knowledge/sampling.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 95,
+            "retrieved_sources": [
+              "@knowledge/timing.md",
+              "@knowledge/sampling.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: timing.md > Clocks > timing > type: docs > status: active]\n\n## Clocks\n\nUse a monotonic clock for elapsed duration. Wall-clock time may jump during clock synchronization.\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: sampling.md > Zegar > sampling > type: docs > status: active]\n## Zegar\n\nZnaczniki czasu pozwalają wykryć jitter zegara przed analizą sygnału.\n",
+            "tokens_estimated": 95
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "tokens_estimated": 95
+      }
+    },
+    {
+      "id": "q23",
+      "text": "What is the installed CUDA driver version on the lab workstation?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/arx.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "no_answer_empty": false,
+          "elapsed_ms": 124.46760002058,
+          "tokens_estimated": 51,
+          "chunks": [
+            {
+              "id": "global:arx.md:structure-v2:1",
+              "document": "@knowledge/arx.md",
+              "score": 0.40151798725128174,
+              "text": "## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+              "section": "Validation"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/arx.md",
+            "@knowledge/chroma.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "no_answer_empty": false,
+          "elapsed_ms": 135.84180001635104,
+          "tokens_estimated": 102,
+          "chunks": [
+            {
+              "id": "global:arx.md:structure-v2:1",
+              "document": "@knowledge/arx.md",
+              "score": 0.40151798725128174,
+              "text": "## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+              "section": "Validation"
+            },
+            {
+              "id": "global:chroma.md:structure-v2:0",
+              "document": "@knowledge/chroma.md",
+              "score": 0.3738155961036682,
+              "text": "\n## Recovery\n\nKeep the approved Markdown when Chroma is unavailable and retry indexing after recovery.\n\n",
+              "section": "Recovery"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/arx.md",
+            "@knowledge/chroma.md",
+            "@knowledge/vault.md",
+            "@knowledge/timing.md",
+            "@knowledge/drift.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "no_answer_empty": false,
+          "elapsed_ms": 115.04359997343272,
+          "tokens_estimated": 257,
+          "chunks": [
+            {
+              "id": "global:arx.md:structure-v2:1",
+              "document": "@knowledge/arx.md",
+              "score": 0.40151798725128174,
+              "text": "## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+              "section": "Validation"
+            },
+            {
+              "id": "global:chroma.md:structure-v2:0",
+              "document": "@knowledge/chroma.md",
+              "score": 0.3738155961036682,
+              "text": "\n## Recovery\n\nKeep the approved Markdown when Chroma is unavailable and retry indexing after recovery.\n\n",
+              "section": "Recovery"
+            },
+            {
+              "id": "global:vault.md:structure-v2:1",
+              "document": "@knowledge/vault.md",
+              "score": 0.36690014600753784,
+              "text": "## Konflikt\n\nJeśli hash docelowej notatki się zmienił, przygotuj świeżą propozycję zamiast nadpisywać plik.\n",
+              "section": "Konflikt"
+            },
+            {
+              "id": "global:timing.md:structure-v2:0",
+              "document": "@knowledge/timing.md",
+              "score": 0.3659301996231079,
+              "text": "\n## Clocks\n\nUse a monotonic clock for elapsed duration. Wall-clock time may jump during clock synchronization.\n",
+              "section": "Clocks"
+            },
+            {
+              "id": "global:drift.md:structure-v2:0",
+              "document": "@knowledge/drift.md",
+              "score": 0.34702783823013306,
+              "text": "\n## Hipoteza\n\nPodejrzewamy zależność dryfu czujnika od temperatury obudowy. Hipoteza pozostaje niepotwierdzona.\n",
+              "section": "Hipoteza"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:arx.md:structure-v2:1",
+                "path": "@knowledge/arx.md",
+                "truncated": false
+              },
+              {
+                "id": "global:chroma.md:structure-v2:0",
+                "path": "@knowledge/chroma.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 102,
+            "retrieved_sources": [
+              "@knowledge/arx.md",
+              "@knowledge/chroma.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: arx.md > Validation > arx > type: docs > status: active]\n## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: chroma.md > Recovery > chroma > type: docs > status: active]\n\n## Recovery\n\nKeep the approved Markdown when Chroma is unavailable and retry indexing after recovery.\n\n",
+            "tokens_estimated": 102
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": null,
+        "complete_evidence": null,
+        "tokens_estimated": 102
+      }
+    },
+    {
+      "id": "q24",
+      "text": "Jaka jest masa satelity JUICE?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [],
+          "source_correctness": null,
+          "scope_isolated": true,
+          "no_answer_empty": true,
+          "elapsed_ms": 108.73460001312196,
+          "tokens_estimated": 0,
+          "chunks": []
+        },
+        "2": {
+          "ranked_documents": [],
+          "source_correctness": null,
+          "scope_isolated": true,
+          "no_answer_empty": true,
+          "elapsed_ms": 98.84729998884723,
+          "tokens_estimated": 0,
+          "chunks": []
+        },
+        "5": {
+          "ranked_documents": [],
+          "source_correctness": null,
+          "scope_isolated": true,
+          "no_answer_empty": true,
+          "elapsed_ms": 103.11679996084422,
+          "tokens_estimated": 0,
+          "chunks": []
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [],
+            "estimated_context_size": 0,
+            "retrieved_sources": [],
+            "context": "",
+            "tokens_estimated": 0
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": null,
+        "complete_evidence": null,
+        "tokens_estimated": 0
+      }
+    },
+    {
+      "id": "q25",
+      "text": "What exact voltage offset is the private project sensor calibrated to?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/drift.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "no_answer_empty": false,
+          "elapsed_ms": 132.75340001564473,
+          "tokens_estimated": 51,
+          "chunks": [
+            {
+              "id": "global:drift.md:structure-v2:0",
+              "document": "@knowledge/drift.md",
+              "score": 0.5110597610473633,
+              "text": "\n## Hipoteza\n\nPodejrzewamy zależność dryfu czujnika od temperatury obudowy. Hipoteza pozostaje niepotwierdzona.\n",
+              "section": "Hipoteza"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/drift.md",
+            "@knowledge/arx.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "no_answer_empty": false,
+          "elapsed_ms": 131.4892999944277,
+          "tokens_estimated": 104,
+          "chunks": [
+            {
+              "id": "global:drift.md:structure-v2:0",
+              "document": "@knowledge/drift.md",
+              "score": 0.5110597610473633,
+              "text": "\n## Hipoteza\n\nPodejrzewamy zależność dryfu czujnika od temperatury obudowy. Hipoteza pozostaje niepotwierdzona.\n",
+              "section": "Hipoteza"
+            },
+            {
+              "id": "global:arx.md:structure-v2:1",
+              "document": "@knowledge/arx.md",
+              "score": 0.49037861824035645,
+              "text": "## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+              "section": "Validation"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/drift.md",
+            "@knowledge/arx.md",
+            "@knowledge/sampling.md",
+            "@knowledge/vault.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "no_answer_empty": false,
+          "elapsed_ms": 126.57409999519587,
+          "tokens_estimated": 256,
+          "chunks": [
+            {
+              "id": "global:drift.md:structure-v2:0",
+              "document": "@knowledge/drift.md",
+              "score": 0.5110597610473633,
+              "text": "\n## Hipoteza\n\nPodejrzewamy zależność dryfu czujnika od temperatury obudowy. Hipoteza pozostaje niepotwierdzona.\n",
+              "section": "Hipoteza"
+            },
+            {
+              "id": "global:arx.md:structure-v2:1",
+              "document": "@knowledge/arx.md",
+              "score": 0.49037861824035645,
+              "text": "## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+              "section": "Validation"
+            },
+            {
+              "id": "global:sampling.md:structure-v2:1",
+              "document": "@knowledge/sampling.md",
+              "score": 0.4130796194076538,
+              "text": "## Zegar\n\nZnaczniki czasu pozwalają wykryć jitter zegara przed analizą sygnału.\n",
+              "section": "Zegar"
+            },
+            {
+              "id": "global:arx.md:structure-v2:0",
+              "document": "@knowledge/arx.md",
+              "score": 0.4021646976470947,
+              "text": "\n## Sampling\n\nUse a fixed sampling interval and record it with the ARX coefficients. Select model orders on calibration data only.\n\n",
+              "section": "Sampling"
+            },
+            {
+              "id": "global:vault.md:structure-v2:1",
+              "document": "@knowledge/vault.md",
+              "score": 0.39266103506088257,
+              "text": "## Konflikt\n\nJeśli hash docelowej notatki się zmienił, przygotuj świeżą propozycję zamiast nadpisywać plik.\n",
+              "section": "Konflikt"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:drift.md:structure-v2:0",
+                "path": "@knowledge/drift.md",
+                "truncated": false
+              },
+              {
+                "id": "global:arx.md:structure-v2:1",
+                "path": "@knowledge/arx.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 104,
+            "retrieved_sources": [
+              "@knowledge/drift.md",
+              "@knowledge/arx.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: drift.md > Hipoteza > drift > type: research > status: draft]\n\n## Hipoteza\n\nPodejrzewamy zależność dryfu czujnika od temperatury obudowy. Hipoteza pozostaje niepotwierdzona.\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: arx.md > Validation > arx > type: docs > status: active]\n## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+            "tokens_estimated": 104
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": null,
+        "complete_evidence": null,
+        "tokens_estimated": 104
+      }
+    },
+    {
+      "id": "q26",
+      "text": "Jaka jest częstotliwość rezonansowa konkretnego czujnika?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/sampling.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "no_answer_empty": false,
+          "elapsed_ms": 191.82910001836717,
+          "tokens_estimated": 43,
+          "chunks": [
+            {
+              "id": "global:sampling.md:structure-v2:1",
+              "document": "@knowledge/sampling.md",
+              "score": 0.44281673431396484,
+              "text": "## Zegar\n\nZnaczniki czasu pozwalają wykryć jitter zegara przed analizą sygnału.\n",
+              "section": "Zegar"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/sampling.md",
+            "@knowledge/drift.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "no_answer_empty": false,
+          "elapsed_ms": 190.27000002097338,
+          "tokens_estimated": 96,
+          "chunks": [
+            {
+              "id": "global:sampling.md:structure-v2:1",
+              "document": "@knowledge/sampling.md",
+              "score": 0.44281673431396484,
+              "text": "## Zegar\n\nZnaczniki czasu pozwalają wykryć jitter zegara przed analizą sygnału.\n",
+              "section": "Zegar"
+            },
+            {
+              "id": "global:drift.md:structure-v2:0",
+              "document": "@knowledge/drift.md",
+              "score": 0.4049720764160156,
+              "text": "\n## Hipoteza\n\nPodejrzewamy zależność dryfu czujnika od temperatury obudowy. Hipoteza pozostaje niepotwierdzona.\n",
+              "section": "Hipoteza"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/sampling.md",
+            "@knowledge/drift.md",
+            "@knowledge/rls.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "no_answer_empty": false,
+          "elapsed_ms": 162.11610002210364,
+          "tokens_estimated": 216,
+          "chunks": [
+            {
+              "id": "global:sampling.md:structure-v2:1",
+              "document": "@knowledge/sampling.md",
+              "score": 0.44281673431396484,
+              "text": "## Zegar\n\nZnaczniki czasu pozwalają wykryć jitter zegara przed analizą sygnału.\n",
+              "section": "Zegar"
+            },
+            {
+              "id": "global:drift.md:structure-v2:0",
+              "document": "@knowledge/drift.md",
+              "score": 0.4049720764160156,
+              "text": "\n## Hipoteza\n\nPodejrzewamy zależność dryfu czujnika od temperatury obudowy. Hipoteza pozostaje niepotwierdzona.\n",
+              "section": "Hipoteza"
+            },
+            {
+              "id": "global:rls.md:structure-v2:1",
+              "document": "@knowledge/rls.md",
+              "score": 0.3168768882751465,
+              "text": "## Zapominanie\n\nWspółczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf.\n",
+              "section": "Zapominanie"
+            },
+            {
+              "id": "global:sampling.md:structure-v2:0",
+              "document": "@knowledge/sampling.md",
+              "score": 0.3137861490249634,
+              "text": "\n## Filtr wejściowy\n\nFiltr antyaliasingowy stosuje się przed przetwornikiem ADC. Po próbkowaniu nie da się odtworzyć utraconego rozróżnienia częstotliwości.\n\n",
+              "section": "Filtr wejściowy"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:sampling.md:structure-v2:1",
+                "path": "@knowledge/sampling.md",
+                "truncated": false
+              },
+              {
+                "id": "global:drift.md:structure-v2:0",
+                "path": "@knowledge/drift.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 96,
+            "retrieved_sources": [
+              "@knowledge/sampling.md",
+              "@knowledge/drift.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: sampling.md > Zegar > sampling > type: docs > status: active]\n## Zegar\n\nZnaczniki czasu pozwalają wykryć jitter zegara przed analizą sygnału.\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: drift.md > Hipoteza > drift > type: research > status: draft]\n\n## Hipoteza\n\nPodejrzewamy zależność dryfu czujnika od temperatury obudowy. Hipoteza pozostaje niepotwierdzona.\n",
+            "tokens_estimated": 96
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": null,
+        "complete_evidence": null,
+        "tokens_estimated": 96
+      }
+    },
+    {
+      "id": "q27",
+      "text": "In RLS parameter estimation, how do newer observations receive more weight?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/rls.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 0.8262346571285599,
+          "evidence_coverage": 0.0,
+          "missing_evidence": [
+            {
+              "document_id": "@knowledge/rls.md",
+              "section": "Zapominanie",
+              "passage": "Współczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf."
+            }
+          ],
+          "all_required_documents": true,
+          "complete_evidence": false,
+          "elapsed_ms": 151.63790003862232,
+          "tokens_estimated": 49,
+          "chunks": [
+            {
+              "id": "global:rls.md:structure-v2:0",
+              "document": "@knowledge/rls.md",
+              "score": 0.7198978662490845,
+              "text": "\n## Aktualizacja\n\nRLS aktualizuje parametry po każdej próbce bez ponownego dopasowania całej historii.\n\n",
+              "section": "Aktualizacja"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/rls.md",
+            "@knowledge/arx.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.4,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 0.0,
+          "missing_evidence": [
+            {
+              "document_id": "@knowledge/rls.md",
+              "section": "Zapominanie",
+              "passage": "Współczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf."
+            }
+          ],
+          "all_required_documents": true,
+          "complete_evidence": false,
+          "elapsed_ms": 134.0654999949038,
+          "tokens_estimated": 101,
+          "chunks": [
+            {
+              "id": "global:rls.md:structure-v2:0",
+              "document": "@knowledge/rls.md",
+              "score": 0.7198978662490845,
+              "text": "\n## Aktualizacja\n\nRLS aktualizuje parametry po każdej próbce bez ponownego dopasowania całej historii.\n\n",
+              "section": "Aktualizacja"
+            },
+            {
+              "id": "global:arx.md:structure-v2:1",
+              "document": "@knowledge/arx.md",
+              "score": 0.5542865991592407,
+              "text": "## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+              "section": "Validation"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/rls.md",
+            "@knowledge/arx.md",
+            "@knowledge/rls-database.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.4,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 152.71220001159236,
+          "tokens_estimated": 267,
+          "chunks": [
+            {
+              "id": "global:rls.md:structure-v2:0",
+              "document": "@knowledge/rls.md",
+              "score": 0.7198978662490845,
+              "text": "\n## Aktualizacja\n\nRLS aktualizuje parametry po każdej próbce bez ponownego dopasowania całej historii.\n\n",
+              "section": "Aktualizacja"
+            },
+            {
+              "id": "global:arx.md:structure-v2:1",
+              "document": "@knowledge/arx.md",
+              "score": 0.5542865991592407,
+              "text": "## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+              "section": "Validation"
+            },
+            {
+              "id": "global:rls.md:structure-v2:1",
+              "document": "@knowledge/rls.md",
+              "score": 0.5306894183158875,
+              "text": "## Zapominanie\n\nWspółczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf.\n",
+              "section": "Zapominanie"
+            },
+            {
+              "id": "global:rls-database.md:structure-v2:0",
+              "document": "@knowledge/rls-database.md",
+              "score": 0.42803955078125,
+              "text": "\n## Policies\n\nIn PostgreSQL, RLS means row-level security. A policy restricts which rows a role can read or modify.\n",
+              "section": "Policies"
+            },
+            {
+              "id": "global:arx.md:structure-v2:0",
+              "document": "@knowledge/arx.md",
+              "score": 0.41946184635162354,
+              "text": "\n## Sampling\n\nUse a fixed sampling interval and record it with the ARX coefficients. Select model orders on calibration data only.\n\n",
+              "section": "Sampling"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:rls.md:structure-v2:0",
+                "path": "@knowledge/rls.md",
+                "truncated": false
+              },
+              {
+                "id": "global:arx.md:structure-v2:1",
+                "path": "@knowledge/arx.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 101,
+            "retrieved_sources": [
+              "@knowledge/rls.md",
+              "@knowledge/arx.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: rls.md > Aktualizacja > rls > type: docs > status: active]\n\n## Aktualizacja\n\nRLS aktualizuje parametry po każdej próbce bez ponownego dopasowania całej historii.\n\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: arx.md > Validation > arx > type: docs > status: active]\n## Validation\n\nEstimate parameters on calibration data. Check residual autocorrelation on a separate held-out trace.\n",
+            "tokens_estimated": 101
+          }
+        ],
+        "missing_evidence": [
+          {
+            "document_id": "@knowledge/rls.md",
+            "section": "Zapominanie",
+            "passage": "Współczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf."
+          }
+        ],
+        "evidence_coverage": 0.0,
+        "complete_evidence": false,
+        "tokens_estimated": 101
+      }
+    },
+    {
+      "id": "q28",
+      "text": "Jak ograniczyć duplikaty pomiarów w MQTT przy dostarczaniu co najmniej raz?",
+      "scope": "global",
+      "runs": {
+        "1": {
+          "ranked_documents": [
+            "@knowledge/telemetry.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 180.98840001039207,
+          "tokens_estimated": 52,
+          "chunks": [
+            {
+              "id": "global:telemetry.md:structure-v2:0",
+              "document": "@knowledge/telemetry.md",
+              "score": 0.7793936133384705,
+              "text": "\n## MQTT\n\nMQTT QoS 1 provides at-least-once delivery. Deduplicate measurements using a stable message identifier.\n\n",
+              "section": "MQTT"
+            }
+          ]
+        },
+        "2": {
+          "ranked_documents": [
+            "@knowledge/telemetry.md",
+            "@knowledge/rls.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 218.92109996406361,
+          "tokens_estimated": 106,
+          "chunks": [
+            {
+              "id": "global:telemetry.md:structure-v2:0",
+              "document": "@knowledge/telemetry.md",
+              "score": 0.7793936133384705,
+              "text": "\n## MQTT\n\nMQTT QoS 1 provides at-least-once delivery. Deduplicate measurements using a stable message identifier.\n\n",
+              "section": "MQTT"
+            },
+            {
+              "id": "global:rls.md:structure-v2:1",
+              "document": "@knowledge/rls.md",
+              "score": 0.4658516049385071,
+              "text": "## Zapominanie\n\nWspółczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf.\n",
+              "section": "Zapominanie"
+            }
+          ]
+        },
+        "5": {
+          "ranked_documents": [
+            "@knowledge/telemetry.md",
+            "@knowledge/rls.md",
+            "@knowledge/vault.md",
+            "@knowledge/chroma.md"
+          ],
+          "source_correctness": 1.0,
+          "scope_isolated": true,
+          "recall_at_5": 1.0,
+          "precision_at_5": 0.2,
+          "reciprocal_rank": 1.0,
+          "ndcg_at_5": 1.0,
+          "evidence_coverage": 1.0,
+          "missing_evidence": [],
+          "all_required_documents": true,
+          "complete_evidence": true,
+          "elapsed_ms": 209.6464000060223,
+          "tokens_estimated": 253,
+          "chunks": [
+            {
+              "id": "global:telemetry.md:structure-v2:0",
+              "document": "@knowledge/telemetry.md",
+              "score": 0.7793936133384705,
+              "text": "\n## MQTT\n\nMQTT QoS 1 provides at-least-once delivery. Deduplicate measurements using a stable message identifier.\n\n",
+              "section": "MQTT"
+            },
+            {
+              "id": "global:rls.md:structure-v2:1",
+              "document": "@knowledge/rls.md",
+              "score": 0.4658516049385071,
+              "text": "## Zapominanie\n\nWspółczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf.\n",
+              "section": "Zapominanie"
+            },
+            {
+              "id": "global:vault.md:structure-v2:1",
+              "document": "@knowledge/vault.md",
+              "score": 0.38359886407852173,
+              "text": "## Konflikt\n\nJeśli hash docelowej notatki się zmienił, przygotuj świeżą propozycję zamiast nadpisywać plik.\n",
+              "section": "Konflikt"
+            },
+            {
+              "id": "global:telemetry.md:structure-v2:1",
+              "document": "@knowledge/telemetry.md",
+              "score": 0.3821948766708374,
+              "text": "## Modbus\n\nA Modbus RTU frame uses a CRC to detect accidental transmission errors.\n",
+              "section": "Modbus"
+            },
+            {
+              "id": "global:chroma.md:structure-v2:0",
+              "document": "@knowledge/chroma.md",
+              "score": 0.3799549341201782,
+              "text": "\n## Recovery\n\nKeep the approved Markdown when Chroma is unavailable and retry indexing after recovery.\n\n",
+              "section": "Recovery"
+            }
+          ]
+        }
+      },
+      "prefetch": {
+        "scopes": [
+          {
+            "scope": "global",
+            "search_executed": true,
+            "candidates": 2,
+            "budget_omitted": 0,
+            "fragments": [
+              {
+                "id": "global:telemetry.md:structure-v2:0",
+                "path": "@knowledge/telemetry.md",
+                "truncated": false
+              },
+              {
+                "id": "global:rls.md:structure-v2:1",
+                "path": "@knowledge/rls.md",
+                "truncated": false
+              }
+            ],
+            "estimated_context_size": 106,
+            "retrieved_sources": [
+              "@knowledge/telemetry.md",
+              "@knowledge/rls.md"
+            ],
+            "context": "[GLOBAL KNOWLEDGE @knowledge: telemetry.md > MQTT > telemetry > type: docs > status: active]\n\n## MQTT\n\nMQTT QoS 1 provides at-least-once delivery. Deduplicate measurements using a stable message identifier.\n\n\n\n---\n\n[GLOBAL KNOWLEDGE @knowledge: rls.md > Zapominanie > rls > type: docs > status: active]\n## Zapominanie\n\nWspółczynnik zapominania lambda poniżej jedności zwiększa wagę nowszych próbek i pomaga śledzić dryf.\n",
+            "tokens_estimated": 106
+          }
+        ],
+        "missing_evidence": [],
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "tokens_estimated": 106
+      }
+    }
+  ],
+  "experiment_utc": "2026-11-05T17:47:13.235497+00:00",
+  "prefetch_note": "Tool output; separate scopes, max_results=2, 500 estimated tokens per scope. Provider delivery requires integration verification."
+}

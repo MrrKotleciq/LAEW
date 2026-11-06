@@ -1,3 +1,5 @@
+name: laew
+
 services:
   chromadb:
     image: chromadb/chroma:latest
@@ -17,6 +19,31 @@ services:
       - ./config/searxng/settings.yml:/etc/searxng/settings.yml:ro
       - searxng_cache:/var/cache/searxng
 
+  horizon-sufficiency:
+    build:
+      context: ./tools/horizon-sufficiency
+    image: laew/horizon-sufficiency:local
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8082:8082"
+    environment:
+      HF_HOME: /models/hf
+      MODEL_ID: Horizon-Labs/multilingual-zeroshot-small
+      MODEL_REVISION: 17af5f8a728d101ce33a9bffad227b0cd005e95e
+      MODEL_ONNX_FILE: onnx/model.onnx
+      ORT_INTRA_OP_THREADS: "2"
+      MAX_INPUT_TOKENS: "1024"
+    volumes:
+      - horizon-model-cache:/models/hf
+    cpus: 2.0
+    mem_limit: 2g
+    security_opt:
+      - no-new-privileges:true
+
 volumes:
   chroma_data:
   searxng_cache:
+  horizon-model-cache:
+    # Retain the existing physical volume across the Compose project migration.
+    external: true
+    name: laew-horizon_horizon-model-cache

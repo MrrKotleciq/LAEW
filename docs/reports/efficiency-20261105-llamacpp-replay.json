@@ -1,0 +1,866 @@
+{
+  "method": "Measured RagTool contexts replayed through AgentExecutor and the llama.cpp adapter payload builder, with network I/O mocked. Routing was forced to the dataset scopes; no chat model was called.",
+  "results": [
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-legacy.json",
+      "query_id": "q01",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-legacy.json",
+      "query_id": "q02",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-legacy.json",
+      "query_id": "q03",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-legacy.json",
+      "query_id": "q04",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-legacy.json",
+      "query_id": "q05",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-legacy.json",
+      "query_id": "q06",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-legacy.json",
+      "query_id": "q07",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-legacy.json",
+      "query_id": "q08",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-legacy.json",
+      "query_id": "q09",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 0.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-legacy.json",
+      "query_id": "q10",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-legacy.json",
+      "query_id": "q11",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 0.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-legacy.json",
+      "query_id": "q12",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-legacy.json",
+      "query_id": "q13",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-legacy.json",
+      "query_id": "q14",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-legacy.json",
+      "query_id": "q15",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-legacy.json",
+      "query_id": "q16",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-legacy.json",
+      "query_id": "q17",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-legacy.json",
+      "query_id": "q18",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-legacy.json",
+      "query_id": "q19",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 0.5
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-legacy.json",
+      "query_id": "q20",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 0.5
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-legacy.json",
+      "query_id": "q21",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-legacy.json",
+      "query_id": "q22",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 0.5
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-legacy.json",
+      "query_id": "q23",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": null
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-legacy.json",
+      "query_id": "q24",
+      "all_contexts_received": true,
+      "context_count": 0,
+      "prefetch_evidence_coverage": null
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-legacy.json",
+      "query_id": "q25",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": null
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-legacy.json",
+      "query_id": "q26",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": null
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-legacy.json",
+      "query_id": "q27",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 0.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-legacy.json",
+      "query_id": "q28",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v1.json",
+      "query_id": "q01",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v1.json",
+      "query_id": "q02",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v1.json",
+      "query_id": "q03",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v1.json",
+      "query_id": "q04",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v1.json",
+      "query_id": "q05",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v1.json",
+      "query_id": "q06",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v1.json",
+      "query_id": "q07",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v1.json",
+      "query_id": "q08",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v1.json",
+      "query_id": "q09",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v1.json",
+      "query_id": "q10",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v1.json",
+      "query_id": "q11",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v1.json",
+      "query_id": "q12",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v1.json",
+      "query_id": "q13",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v1.json",
+      "query_id": "q14",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v1.json",
+      "query_id": "q15",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v1.json",
+      "query_id": "q16",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v1.json",
+      "query_id": "q17",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v1.json",
+      "query_id": "q18",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v1.json",
+      "query_id": "q19",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 0.5
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v1.json",
+      "query_id": "q20",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 0.5
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v1.json",
+      "query_id": "q21",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v1.json",
+      "query_id": "q22",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v1.json",
+      "query_id": "q23",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": null
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v1.json",
+      "query_id": "q24",
+      "all_contexts_received": true,
+      "context_count": 0,
+      "prefetch_evidence_coverage": null
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v1.json",
+      "query_id": "q25",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": null
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v1.json",
+      "query_id": "q26",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": null
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v1.json",
+      "query_id": "q27",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 0.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v1.json",
+      "query_id": "q28",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v2.json",
+      "query_id": "q01",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v2.json",
+      "query_id": "q02",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v2.json",
+      "query_id": "q03",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v2.json",
+      "query_id": "q04",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v2.json",
+      "query_id": "q05",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v2.json",
+      "query_id": "q06",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v2.json",
+      "query_id": "q07",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v2.json",
+      "query_id": "q08",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v2.json",
+      "query_id": "q09",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v2.json",
+      "query_id": "q10",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v2.json",
+      "query_id": "q11",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v2.json",
+      "query_id": "q12",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v2.json",
+      "query_id": "q13",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v2.json",
+      "query_id": "q14",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v2.json",
+      "query_id": "q15",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v2.json",
+      "query_id": "q16",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v2.json",
+      "query_id": "q17",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v2.json",
+      "query_id": "q18",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v2.json",
+      "query_id": "q19",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 0.5
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v2.json",
+      "query_id": "q20",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 0.5
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v2.json",
+      "query_id": "q21",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v2.json",
+      "query_id": "q22",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v2.json",
+      "query_id": "q23",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": null
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v2.json",
+      "query_id": "q24",
+      "all_contexts_received": true,
+      "context_count": 0,
+      "prefetch_evidence_coverage": null
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v2.json",
+      "query_id": "q25",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": null
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v2.json",
+      "query_id": "q26",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": null
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v2.json",
+      "query_id": "q27",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 0.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-baseline_v1-structure-v2.json",
+      "query_id": "q28",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-legacy.json",
+      "query_id": "h01",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-legacy.json",
+      "query_id": "h02",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-legacy.json",
+      "query_id": "h03",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-legacy.json",
+      "query_id": "h04",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 0.33333333333333337
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-legacy.json",
+      "query_id": "h05",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 0.6666666666666667
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-legacy.json",
+      "query_id": "h06",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-legacy.json",
+      "query_id": "h07",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-legacy.json",
+      "query_id": "h08",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-legacy.json",
+      "query_id": "h09",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 0.5
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-legacy.json",
+      "query_id": "h10",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-legacy.json",
+      "query_id": "h11",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-legacy.json",
+      "query_id": "h12",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": null
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-legacy.json",
+      "query_id": "h13",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": null
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-structure-v1.json",
+      "query_id": "h01",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 0.6666666666666667
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-structure-v1.json",
+      "query_id": "h02",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 0.33333333333333337
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-structure-v1.json",
+      "query_id": "h03",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-structure-v1.json",
+      "query_id": "h04",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 0.33333333333333337
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-structure-v1.json",
+      "query_id": "h05",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 0.33333333333333337
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-structure-v1.json",
+      "query_id": "h06",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 0.33333333333333337
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-structure-v1.json",
+      "query_id": "h07",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-structure-v1.json",
+      "query_id": "h08",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 0.6666666666666667
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-structure-v1.json",
+      "query_id": "h09",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 0.25
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-structure-v1.json",
+      "query_id": "h10",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-structure-v1.json",
+      "query_id": "h11",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 0.5
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-structure-v1.json",
+      "query_id": "h12",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": null
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-structure-v1.json",
+      "query_id": "h13",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": null
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-structure-v2.json",
+      "query_id": "h01",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-structure-v2.json",
+      "query_id": "h02",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-structure-v2.json",
+      "query_id": "h03",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-structure-v2.json",
+      "query_id": "h04",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 0.6666666666666667
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-structure-v2.json",
+      "query_id": "h05",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-structure-v2.json",
+      "query_id": "h06",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-structure-v2.json",
+      "query_id": "h07",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-structure-v2.json",
+      "query_id": "h08",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-structure-v2.json",
+      "query_id": "h09",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-structure-v2.json",
+      "query_id": "h10",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 1.0
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-structure-v2.json",
+      "query_id": "h11",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": 0.5
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-structure-v2.json",
+      "query_id": "h12",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": null
+    },
+    {
+      "input": "docs/reports\\efficiency-20261105-hard_cases_v1-structure-v2.json",
+      "query_id": "h13",
+      "all_contexts_received": true,
+      "context_count": 1,
+      "prefetch_evidence_coverage": null
+    }
+  ]
+}

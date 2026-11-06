@@ -1,0 +1,19 @@
+{
+  "historical": [
+    {"id":"v20","dataset":"validation","reference":"Identify Solaris as the novel."},
+    {"id":"v21","dataset":"validation","reference":"Identify Lena as the camera borrower."},
+    {"id":"h11","dataset":"horizon_holdout","reference":"Give Friday at 16:00 as confirmed. Wednesday is tentative and must not be presented as confirmed."},
+    {"id":"h18","dataset":"horizon_holdout","reference":"Give CR2032 as the workshop scale battery size."}
+  ],
+  "independent": [
+    {"id":"l01","tool_probe":"MemoryTool.recall","question":"Rewrite this sentence by filling in the blank. First use MemoryTool recall with the query 'copper badge code'. Use only Memory. My copper badge code is ___.","required":["memory"],"memory":["Copper badge code: C-5819."],"evidence":["C-5819"],"reference":"Fill the blank with C-5819 after a real MemoryTool recall."},
+    {"id":"l02","tool_probe":"RagTool.query","question":"Rewrite this sentence by filling in the blank. First call RagTool with scope project and query 'calibration seal code'. Use only Project Knowledge. The calibration seal code is ___.","in_project":true,"required":["project"],"project":"The calibration seal code is SEAL-Z42.","global":"A retired example lists the seal code as WRONG-110.","evidence":["SEAL-Z42"],"forbidden":["WRONG-110"],"reference":"Fill the blank with SEAL-Z42 after a real project RagTool query."},
+    {"id":"l03","question":"Use only Project Knowledge. What nozzle size and target pressure are specified for the indigo pump?","in_project":true,"required":["project"],"project":"The indigo pump uses a 1.8 mm nozzle and a target pressure of 2.6 bar.","global":"A generic indigo pump example uses a 3.4 mm nozzle and 9.1 bar.","evidence":["1.8 mm","2.6 bar"],"forbidden":["3.4 mm","9.1 bar"],"reference":"Report both 1.8 mm and 2.6 bar as the project values."},
+    {"id":"l04","question":"Use only Memory. What is my gate code?","required":["memory"],"memory":["Gate code: G-204.","Gate code: G-807."],"evidence":["G-204","G-807"],"abstention":true,"reference":"Report the conflicting records G-204 and G-807 and decline to select a current code without confirmation."},
+    {"id":"l05","question":"Użyj tylko pamięci. Gdzie odłożyłem fioletowy klucz imbusowy?","required":["memory"],"abstention":true,"reference":"Say the permitted source does not establish the location. Do not invent a location or claim evidence from a different source."},
+    {"id":"l06","conversation":"red-case","question":"Use only Memory. What is my red case tag?","required":["memory"],"memory":["Red case tag: RED-602.","I left the red case in cabinet COBALT-3."],"evidence":["RED-602"],"reference":"Give the tag RED-602."},
+    {"id":"l07","conversation":"red-case","question":"And where was it?","required":["memory"],"evidence":["COBALT-3"],"reference":"Resolve the reference to the red case and give cabinet COBALT-3."},
+    {"id":"l08","conversation":"red-case","question":"What is 2 + 2?","required":[],"reference":"Answer 4. No retrieval is needed."},
+    {"id":"l09","conversation":"red-case","question":"Back to the red case. Where did I leave it?","required":["memory"],"evidence":["COBALT-3"],"reference":"Give cabinet COBALT-3 for the earlier red case. The earlier conversation is an admissible context source, separate from current-turn retrieval."}
+  ]
+}

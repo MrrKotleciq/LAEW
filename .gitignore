@@ -1,7 +1,13 @@
-# Environment
+# Local environment and credentials
 .env
 .env.*
 !.env.example
+/credentials.local.json
+/oauth-tokens.local.json
+*.pem
+*.key
+*.crt
+secrets/
 
 # Python
 __pycache__/
@@ -9,6 +15,7 @@ __pycache__/
 *.pyo
 .venv/
 venv/
+.virtualenv/
 env/
 laew.egg-info/
 
@@ -31,12 +38,35 @@ Release/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.hypothesis/
+.coverage
+.coverage.*
+htmlcov/
+# Preserve the two benchmark baselines already versioned in this repository.
+/.benchmarks/*
+!/.benchmarks/Windows-CPython-3.14-64bit/
+/.benchmarks/Windows-CPython-3.14-64bit/*
+!/.benchmarks/Windows-CPython-3.14-64bit/0001_649414a49d5a4dc4b01203998778f9876b437529_20260916_204756_uncommitted-changes.json
+!/.benchmarks/Windows-CPython-3.14-64bit/0002_rag.json
 
-# LAEW runtime
+# Local test and evaluation workspaces
+/.pytest-*/
+/.phase2-unit-*/
+/.context-eval-temp/
+/.evidence-eval-*/
+/.luna-eval-*/
+/.memory-eval-*/
+/.routing-eval-*/
+/bandit_report.json
+
+# LAEW runtime and transient output
 logs/
 temp/
 runtime/
 data/
+*.log
+*.tmp
+*.swp
 
 # Models
 models/
@@ -49,6 +79,19 @@ chroma/
 *.db
 *.sqlite
 *.sqlite3
+# Allow intentionally committed test databases while excluding SQLite sidecars.
+!/tests/**/*.db
+!/tests/**/*.sqlite
+!/tests/**/*.sqlite3
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite-journal
+*.sqlite-shm
+*.sqlite-wal
+*.sqlite3-journal
+*.sqlite3-shm
+*.sqlite3-wal
 
 # IDE
 .vscode/
@@ -57,12 +100,7 @@ chroma/
 # OS
 .DS_Store
 Thumbs.db
-
-# Secrets
-*.pem
-*.key
-*.crt
-secrets/
+Desktop.ini
 
 # ECC
 ECC/

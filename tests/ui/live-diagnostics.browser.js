@@ -88,6 +88,7 @@ async function main() {
     await expectPanel(/started\s+FilesystemTool/);
     await expectPanel(/failed\s+Model request\s+Iteration 1 · Attempt 1/);
     await expectPanel(/selected\s+Knowledge escalation/);
+    await expectPanel(/Project Knowledge skipped\. Project Knowledge is unavailable in General Chat/);
     assert.equal(await evaluate('document.querySelector(".tab.active").textContent'), 'Run');
     assert.equal(await evaluate('document.querySelector("#cancel").hidden'), false);
     await release('tool');
@@ -118,6 +119,7 @@ async function main() {
     await expectPanel(/started\s+MemoryTool · recall/);
     await release('recall');
     await expectPanel(/completed\s+MemoryTool · recall[\s\S]*started\s+Global Knowledge automatic fallback/);
+    await expectPanel(/failed\s+Horizon NLI[\s\S]*TimeoutError[\s\S]*skipped\s+Active model fallback/);
     await release('fallback');
     await click('#tab-sources');
     await expectPanel(/Automatic fallback after MemoryTool · found/);
@@ -133,7 +135,8 @@ async function main() {
     await expectPanel(/Turn 2 · cancelled/);
     await click('#tab-sources');
     await expectPanel(/Automatic fallback after MemoryTool · found/);
-    await expectPanel(/Model-initiated MemoryTool recall · No matching active memories returned/);
+    await expectPanel(/Model-initiated MemoryTool recall[\s\S]*1 selected · 1 supplied to provider adapter/);
+    await expectPanel(/Horizon NLI · failed[\s\S]*Active model fallback · skipped/);
     await choose(1);
     assert.doesNotMatch(await text(), /Automatic fallback after MemoryTool/);
     assert.doesNotMatch(await text(), /Model-initiated MemoryTool recall/);

@@ -45,8 +45,9 @@ LAEW/
 ├── docs/           # Project documentation
 ├── manifests/      # System manifests
 ├── prompts/        # Version-controlled prompts
-├── tests/          # Unit and specification tests
-├── tools/          # Tool contracts
+├── tests/          # Unit, integration, UI, and evaluation tests
+├── tools/          # Tool contracts and the Horizon NLI service
+├── docker-compose.yml  # Local ChromaDB, SearXNG, and Horizon services
 ├── pyproject.toml  # Package build configuration (PEP 621)
 └── README.md
 ```
@@ -111,7 +112,8 @@ in one persistent, exploratory session. Use `help` within the console to list co
 
 ## Project Status
 
-Current stage: Milestone 12 (Interactive Testing Console)
+Milestones 1–17 are complete. See the [project status](docs/PROJECT_STATUS.md)
+for current work and dated validation results.
 
 The repository implements:
 - Declarative foundation with system manifest and tool contracts
@@ -122,6 +124,15 @@ The repository implements:
 - Persistent knowledge store backed by ChromaDB in Docker (falls back to in-memory store when unavailable)
 - Provider registry + factory with timeout/base_url configuration (Milestone 11)
 - PEP 621 packaging via `pyproject.toml` with install guides (Milestone 11)
-- 471 unit tests across 26 test suites
+- Workbench and CLI knowledge routing with scoped source selection and long-term memory
+- Optional memory sufficiency assessment and advisory Horizon NLI
+
+See [retrieval reliability evaluation](docs/retrieval-reliability-evaluation.md),
+[memory sufficiency configuration](docs/memory-sufficiency.md), and
+[Horizon service setup](tools/horizon-sufficiency/README.md).
+
+Run the offline regression from a source checkout with
+`python -m pytest tests -m "not live and not ollama"` and the JavaScript unit
+tests with `node --test tests/ui/*.test.js`.
 
 See `docs/ROADMAP.md` for the development roadmap and future milestones.

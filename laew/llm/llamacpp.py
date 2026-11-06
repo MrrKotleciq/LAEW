@@ -172,6 +172,8 @@ class LlamaCppProvider(LLMProvider):
         temperature: float = 0.7,
         max_tokens: Optional[int] = None,
         stop: Optional[list[str]] = None,
+        *,
+        session: requests.Session | None = None,
     ) -> LLMResponse:
         """
         Generate a completion via llama.cpp's ``/v1/chat/completions``.
@@ -182,6 +184,7 @@ class LlamaCppProvider(LLMProvider):
             temperature: Sampling temperature (0.0-1.0)
             max_tokens: Maximum tokens to generate
             stop: Stop sequences
+            session: Optional HTTP session for an isolated request policy.
 
         Returns:
             LLMResponse with generated content and metadata.
@@ -194,7 +197,8 @@ class LlamaCppProvider(LLMProvider):
             messages, model, temperature, max_tokens, stop
         )
 
-        response = self._request(url, payload)
+        request_options = {"session": session} if session is not None else {}
+        response = self._request(url, payload, **request_options)
 
         try:
             data = response.json()

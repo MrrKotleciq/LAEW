@@ -638,7 +638,9 @@ def cmd_chat(args) -> int:
                 break
 
             from laew.knowledge.routing import KnowledgeTurn
-            turn = KnowledgeTurn(lambda tool, op, kwargs: console_call(permission_broker, tool, op, kwargs, "cli-chat"))
+            from laew.knowledge.sufficiency import configured_assessor
+            turn = KnowledgeTurn(lambda tool, op, kwargs: console_call(permission_broker, tool, op, kwargs, "cli-chat"),
+                                 assessor=configured_assessor(manifest, agent))
             def prepare():
                 turn.prepare(executor, user_input, project_id, lambda: memory, agent.tools.get("RagTool"))
                 if turn.diagnostics["memory_requested"]:

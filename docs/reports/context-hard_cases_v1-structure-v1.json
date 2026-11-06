@@ -1,0 +1,1001 @@
+{
+  "dataset_name": "laew-hard-cases",
+  "dataset_version": 1,
+  "dataset_sha256": "462340ca7fcdc5f7ddd5447e68dde2afdb3baf6d5c718a93d7c71f8597975664",
+  "corpus_sha256": {
+    "global/acquisition.md": "821b4225ae49968aff4e9024539e14230ef3aa0c2516e76a1160e848f84a4133",
+    "global/firmware.md": "532d463754e95859b9c1b031d2de8d3c2604873fed7b3a4997d06172f9fcaded",
+    "global/motor.md": "d037149f386a1231359a956f5bf29a07683ba12bbfd291d0db89d64449699d60",
+    "global/polish.md": "9219f95a5f73459d527c45517af2c0416733b38d0b9f9f5d74fd81b54230a08b",
+    "global/recovery.md": "977c8c381578c3cba7a089c9c647318925f36af19b13a195e79c1cbc504116a0",
+    "global/sensors.md": "93f5b7118c6de1d753032c9626fedf279fee926d556ce206f0aeddfffa718776",
+    "global/startup.md": "918b9d27a2d3bbf733a4206346f10cac5bf32702ae553dbeb1c710240a0207f3",
+    "global/unusual.md": "1934d6ba41fc71e8a8a894927d810db5f335bff44ca44c0d5262bc55b49229b3",
+    "project/private.md": "8daf0a60c4fead7981877b0e9f8262e634bcfe3593078200d31a6fb9066c2f64"
+  },
+  "embedding_model": "laew-qwen3-embedding",
+  "embedding_endpoint": "http://127.0.0.1:8081/v1",
+  "embedding_dimensions": 1024,
+  "chroma_version": "1.5.9",
+  "retrieval_config_version": "vector-only-2b.1",
+  "top_k": 5,
+  "similarity_threshold": 0.3,
+  "max_context_tokens": 8000,
+  "chunking": {
+    "strategy": "structure-v1",
+    "size": 1000,
+    "overlap": 0,
+    "global_chunk_count": 44,
+    "mean_chars": 312.1363636363636,
+    "project_chunk_count": 1,
+    "embedding_count_both_scopes": 45,
+    "max_chars": 1000,
+    "sizes_chars": [
+      8,
+      8,
+      10,
+      10,
+      11,
+      12,
+      13,
+      13,
+      14,
+      48,
+      50,
+      52,
+      56,
+      57,
+      58,
+      59,
+      65,
+      66,
+      69,
+      72,
+      76,
+      82,
+      83,
+      85,
+      86,
+      90,
+      90,
+      91,
+      115,
+      116,
+      301,
+      576,
+      762,
+      786,
+      931,
+      935,
+      936,
+      936,
+      951,
+      973,
+      987,
+      995,
+      1000,
+      1000
+    ],
+    "index_seconds_both_scopes": 24.254361400031485,
+    "prepare_seconds": 0.01015049999114126,
+    "small_chunks_under_64": 16,
+    "oversize_chunks": 0,
+    "synthetic_chars": 0,
+    "indexed_chars": 13799,
+    "index_bytes": 1409352
+  },
+  "duration": 26.31332570000086,
+  "overall": {
+    "query_count": 13,
+    "recall_at_5": 1.0,
+    "precision_at_5": 0.21818181818181823,
+    "mrr": 1.0,
+    "ndcg_at_5": 1.0,
+    "evidence_coverage": 0.9090909090909091,
+    "source_correctness": 1.0,
+    "scope_isolated": 1.0,
+    "all_required_documents": 1.0,
+    "complete_evidence": 0.7272727272727273,
+    "no_answer_empty": 0.0,
+    "estimated_context_tokens": 368.15384615384613,
+    "returned_chunks": 5.0
+  },
+  "categories": {
+    "cross_language": {
+      "query_count": 2,
+      "recall_at_5": 1.0,
+      "precision_at_5": 0.2,
+      "mrr": 1.0,
+      "ndcg_at_5": 1.0,
+      "evidence_coverage": 0.6666666666666667,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "all_required_documents": 1.0,
+      "complete_evidence": 0.0,
+      "estimated_context_tokens": 177.0,
+      "returned_chunks": 5.0
+    },
+    "language:en": {
+      "query_count": 12,
+      "recall_at_5": 1.0,
+      "precision_at_5": 0.22000000000000003,
+      "mrr": 1.0,
+      "ndcg_at_5": 1.0,
+      "evidence_coverage": 0.9333333333333333,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "all_required_documents": 1.0,
+      "complete_evidence": 0.8,
+      "no_answer_empty": 0.0,
+      "estimated_context_tokens": 384.1666666666667,
+      "returned_chunks": 5.0
+    },
+    "language:pl": {
+      "query_count": 1,
+      "recall_at_5": 1.0,
+      "precision_at_5": 0.2,
+      "mrr": 1.0,
+      "ndcg_at_5": 1.0,
+      "evidence_coverage": 0.6666666666666667,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "all_required_documents": 1.0,
+      "complete_evidence": 0.0,
+      "estimated_context_tokens": 176.0,
+      "returned_chunks": 5.0
+    },
+    "no_answer": {
+      "query_count": 2,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "no_answer_empty": 0.0,
+      "estimated_context_tokens": 171.5,
+      "returned_chunks": 5.0
+    },
+    "phenomenon:comparison": {
+      "query_count": 1,
+      "recall_at_5": 1.0,
+      "precision_at_5": 0.2,
+      "mrr": 1.0,
+      "ndcg_at_5": 1.0,
+      "evidence_coverage": 0.6666666666666667,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "all_required_documents": 1.0,
+      "complete_evidence": 0.0,
+      "estimated_context_tokens": 393.0,
+      "returned_chunks": 5.0
+    },
+    "phenomenon:cross_language": {
+      "query_count": 1,
+      "recall_at_5": 1.0,
+      "precision_at_5": 0.2,
+      "mrr": 1.0,
+      "ndcg_at_5": 1.0,
+      "evidence_coverage": 0.6666666666666667,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "all_required_documents": 1.0,
+      "complete_evidence": 0.0,
+      "estimated_context_tokens": 178.0,
+      "returned_chunks": 5.0
+    },
+    "phenomenon:description_code": {
+      "query_count": 2,
+      "recall_at_5": 1.0,
+      "precision_at_5": 0.2,
+      "mrr": 1.0,
+      "ndcg_at_5": 1.0,
+      "evidence_coverage": 0.8333333333333334,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "all_required_documents": 1.0,
+      "complete_evidence": 0.5,
+      "estimated_context_tokens": 180.0,
+      "returned_chunks": 5.0
+    },
+    "phenomenon:description_table": {
+      "query_count": 1,
+      "recall_at_5": 1.0,
+      "precision_at_5": 0.2,
+      "mrr": 1.0,
+      "ndcg_at_5": 1.0,
+      "evidence_coverage": 1.0,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "all_required_documents": 1.0,
+      "complete_evidence": 1.0,
+      "estimated_context_tokens": 187.0,
+      "returned_chunks": 5.0
+    },
+    "phenomenon:large_table": {
+      "query_count": 1,
+      "recall_at_5": 1.0,
+      "precision_at_5": 0.2,
+      "mrr": 1.0,
+      "ndcg_at_5": 1.0,
+      "evidence_coverage": 1.0,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "all_required_documents": 1.0,
+      "complete_evidence": 1.0,
+      "estimated_context_tokens": 563.0,
+      "returned_chunks": 5.0
+    },
+    "phenomenon:long_code": {
+      "query_count": 1,
+      "recall_at_5": 1.0,
+      "precision_at_5": 0.2,
+      "mrr": 1.0,
+      "ndcg_at_5": 1.0,
+      "evidence_coverage": 1.0,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "all_required_documents": 1.0,
+      "complete_evidence": 1.0,
+      "estimated_context_tokens": 841.0,
+      "returned_chunks": 5.0
+    },
+    "phenomenon:malformed": {
+      "query_count": 1,
+      "recall_at_5": 1.0,
+      "precision_at_5": 0.2,
+      "mrr": 1.0,
+      "ndcg_at_5": 1.0,
+      "evidence_coverage": 1.0,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "all_required_documents": 1.0,
+      "complete_evidence": 1.0,
+      "estimated_context_tokens": 698.0,
+      "returned_chunks": 5.0
+    },
+    "phenomenon:multi_document": {
+      "query_count": 1,
+      "recall_at_5": 1.0,
+      "precision_at_5": 0.4,
+      "mrr": 1.0,
+      "ndcg_at_5": 1.0,
+      "evidence_coverage": 1.0,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "all_required_documents": 1.0,
+      "complete_evidence": 1.0,
+      "estimated_context_tokens": 311.0,
+      "returned_chunks": 5.0
+    },
+    "phenomenon:no_answer": {
+      "query_count": 2,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "no_answer_empty": 0.0,
+      "estimated_context_tokens": 171.5,
+      "returned_chunks": 5.0
+    },
+    "phenomenon:procedure": {
+      "query_count": 1,
+      "recall_at_5": 1.0,
+      "precision_at_5": 0.2,
+      "mrr": 1.0,
+      "ndcg_at_5": 1.0,
+      "evidence_coverage": 1.0,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "all_required_documents": 1.0,
+      "complete_evidence": 1.0,
+      "estimated_context_tokens": 750.0,
+      "returned_chunks": 5.0
+    },
+    "phenomenon:similar_sections": {
+      "query_count": 1,
+      "recall_at_5": 1.0,
+      "precision_at_5": 0.2,
+      "mrr": 1.0,
+      "ndcg_at_5": 1.0,
+      "evidence_coverage": 1.0,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "all_required_documents": 1.0,
+      "complete_evidence": 1.0,
+      "estimated_context_tokens": 162.0,
+      "returned_chunks": 5.0
+    },
+    "split:dev": {
+      "query_count": 4,
+      "recall_at_5": 1.0,
+      "precision_at_5": 0.2,
+      "mrr": 1.0,
+      "ndcg_at_5": 1.0,
+      "evidence_coverage": 1.0,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "all_required_documents": 1.0,
+      "complete_evidence": 1.0,
+      "estimated_context_tokens": 421.0,
+      "returned_chunks": 5.0
+    },
+    "split:validation": {
+      "query_count": 9,
+      "recall_at_5": 1.0,
+      "precision_at_5": 0.2285714285714286,
+      "mrr": 1.0,
+      "ndcg_at_5": 1.0,
+      "evidence_coverage": 0.8571428571428571,
+      "source_correctness": 1.0,
+      "scope_isolated": 1.0,
+      "all_required_documents": 1.0,
+      "complete_evidence": 0.5714285714285714,
+      "no_answer_empty": 0.0,
+      "estimated_context_tokens": 344.6666666666667,
+      "returned_chunks": 5.0
+    }
+  },
+  "queries": [
+    {
+      "id": "h01",
+      "ranked_documents": [
+        "@knowledge/startup.md",
+        "@knowledge/firmware.md",
+        "@knowledge/acquisition.md"
+      ],
+      "source_correctness": 1.0,
+      "scope_isolated": true,
+      "recall_at_5": 1.0,
+      "precision_at_5": 0.2,
+      "reciprocal_rank": 1.0,
+      "ndcg_at_5": 1.0,
+      "evidence_coverage": 1.0,
+      "missing_evidence": [],
+      "all_required_documents": true,
+      "complete_evidence": true,
+      "estimated_context_tokens": 184,
+      "returned_chunks": 5,
+      "returned_evidence": [
+        {
+          "id": "global:startup.md:structure-v1:1",
+          "document": "@knowledge/startup.md",
+          "score": 0.8438267111778259,
+          "text": "## Startup\nCommunication must be initialized before the actuator to reject stale commands.\n"
+        },
+        {
+          "id": "global:startup.md:structure-v1:2",
+          "document": "@knowledge/startup.md",
+          "score": 0.7751342058181763,
+          "text": "```python\ninitialize_communication()\nenable_actuator()\n```\n"
+        },
+        {
+          "id": "global:firmware.md:structure-v1:1",
+          "document": "@knowledge/firmware.md",
+          "score": 0.639912486076355,
+          "text": "## Firmware update\nBefore starting, disconnect the actuator and create a firmware backup.\n"
+        },
+        {
+          "id": "global:startup.md:structure-v1:3",
+          "document": "@knowledge/startup.md",
+          "score": 0.6028070449829102,
+          "text": "This order is mandatory even after a warm restart.\n\n"
+        },
+        {
+          "id": "global:acquisition.md:structure-v1:5",
+          "document": "@knowledge/acquisition.md",
+          "score": 0.5171431303024292,
+          "text": "The returned values are raw ADC counts, not calibrated temperatures.\n"
+        }
+      ]
+    },
+    {
+      "id": "h02",
+      "ranked_documents": [
+        "@knowledge/motor.md",
+        "@knowledge/polish.md"
+      ],
+      "source_correctness": 1.0,
+      "scope_isolated": true,
+      "recall_at_5": 1.0,
+      "precision_at_5": 0.2,
+      "reciprocal_rank": 1.0,
+      "ndcg_at_5": 1.0,
+      "evidence_coverage": 1.0,
+      "missing_evidence": [],
+      "all_required_documents": true,
+      "complete_evidence": true,
+      "estimated_context_tokens": 187,
+      "returned_chunks": 5,
+      "returned_evidence": [
+        {
+          "id": "global:motor.md:structure-v1:4",
+          "document": "@knowledge/motor.md",
+          "score": 0.6037840247154236,
+          "text": "## Maximum ratings\nThe emergency voltage ceiling is 29 V.\n"
+        },
+        {
+          "id": "global:motor.md:structure-v1:2",
+          "document": "@knowledge/motor.md",
+          "score": 0.5088483095169067,
+          "text": "| Parameter | Value | Unit |\n| --- | --- | --- |\n| Voltage | 24 | V |\n| Current | 2.5 | A |\n| Speed | 3000 | rpm |\n"
+        },
+        {
+          "id": "global:motor.md:structure-v1:3",
+          "document": "@knowledge/motor.md",
+          "score": 0.5075003504753113,
+          "text": "These ratings are not maximum operating limits.\n"
+        },
+        {
+          "id": "global:motor.md:structure-v1:1",
+          "document": "@knowledge/motor.md",
+          "score": 0.4170997142791748,
+          "text": "## Nominal ratings\nThese measurements apply at nominal load and 20 C ambient temperature.\n"
+        },
+        {
+          "id": "global:polish.md:structure-v1:2",
+          "document": "@knowledge/polish.md",
+          "score": 0.4160703420639038,
+          "text": "| Tryb | Napięcie (V) |\n| --- | --- |\n| nominalny | 48 |\n| serwisowy | 12 |\n"
+        }
+      ]
+    },
+    {
+      "id": "h03",
+      "ranked_documents": [
+        "@knowledge/firmware.md",
+        "@knowledge/startup.md"
+      ],
+      "source_correctness": 1.0,
+      "scope_isolated": true,
+      "recall_at_5": 1.0,
+      "precision_at_5": 0.2,
+      "reciprocal_rank": 1.0,
+      "ndcg_at_5": 1.0,
+      "evidence_coverage": 1.0,
+      "missing_evidence": [],
+      "all_required_documents": true,
+      "complete_evidence": true,
+      "estimated_context_tokens": 750,
+      "returned_chunks": 5,
+      "returned_evidence": [
+        {
+          "id": "global:firmware.md:structure-v1:1",
+          "document": "@knowledge/firmware.md",
+          "score": 0.7023667097091675,
+          "text": "## Firmware update\nBefore starting, disconnect the actuator and create a firmware backup.\n"
+        },
+        {
+          "id": "global:firmware.md:structure-v1:4",
+          "document": "@knowledge/firmware.md",
+          "score": 0.681885838508606,
+          "text": "23. Record diagnostic channel 23 and confirm stable communication before proceeding.\n24. Record diagnostic channel 24 and confirm stable communication before proceeding.\n25. Record diagnostic channel 25 and confirm stable communication before proceeding.\n26. Record diagnostic channel 26 and confirm stable communication before proceeding.\n27. Record diagnostic channel 27 and confirm stable communication before proceeding.\n28. Record diagnostic channel 28 and confirm stable communication before proceeding.\n29. Upload the image, then verify checksum 0x7A91 before restart.\n"
+        },
+        {
+          "id": "global:firmware.md:structure-v1:2",
+          "document": "@knowledge/firmware.md",
+          "score": 0.5852991342544556,
+          "text": "### Procedure\n1. Record diagnostic channel 1 and confirm stable communication before proceeding.\n2. Record diagnostic channel 2 and confirm stable communication before proceeding.\n3. Record diagnostic channel 3 and confirm stable communication before proceeding.\n4. Record diagnostic channel 4 and confirm stable communication before proceeding.\n5. Record diagnostic channel 5 and confirm stable communication before proceeding.\n6. Record diagnostic channel 6 and confirm stable communication before proceeding.\n7. Record diagnostic channel 7 and confirm stable communication before proceeding.\n8. Record diagnostic channel 8 and confirm stable communication before proceeding.\n9. Record diagnostic channel 9 and confirm stable communication before proceeding.\n10. Record diagnostic channel 10 and confirm stable communication before proceeding.\n11. Record diagnostic channel 11 and confirm stable communication before proceeding.\n"
+        },
+        {
+          "id": "global:startup.md:structure-v1:3",
+          "document": "@knowledge/startup.md",
+          "score": 0.5583432912826538,
+          "text": "This order is mandatory even after a warm restart.\n\n"
+        },
+        {
+          "id": "global:firmware.md:structure-v1:3",
+          "document": "@knowledge/firmware.md",
+          "score": 0.5376592874526978,
+          "text": "12. Record diagnostic channel 12 and confirm stable communication before proceeding.\n13. Record diagnostic channel 13 and confirm stable communication before proceeding.\n14. Record diagnostic channel 14 and confirm stable communication before proceeding.\n15. Record diagnostic channel 15 and confirm stable communication before proceeding.\n16. Record diagnostic channel 16 and confirm stable communication before proceeding.\n17. Record diagnostic channel 17 and confirm stable communication before proceeding.\n18. Record diagnostic channel 18 and confirm stable communication before proceeding.\n19. Record diagnostic channel 19 and confirm stable communication before proceeding.\n20. Record diagnostic channel 20 and confirm stable communication before proceeding.\n21. Record diagnostic channel 21 and confirm stable communication before proceeding.\n22. Record diagnostic channel 22 and confirm stable communication before proceeding.\n"
+        }
+      ]
+    },
+    {
+      "id": "h04",
+      "ranked_documents": [
+        "@knowledge/sensors.md"
+      ],
+      "source_correctness": 1.0,
+      "scope_isolated": true,
+      "recall_at_5": 1.0,
+      "precision_at_5": 0.2,
+      "reciprocal_rank": 1.0,
+      "ndcg_at_5": 1.0,
+      "evidence_coverage": 1.0,
+      "missing_evidence": [],
+      "all_required_documents": true,
+      "complete_evidence": true,
+      "estimated_context_tokens": 563,
+      "returned_chunks": 5,
+      "returned_evidence": [
+        {
+          "id": "global:sensors.md:structure-v1:4",
+          "document": "@knowledge/sensors.md",
+          "score": 0.7742723226547241,
+          "text": "These offsets are calibration corrections, not alarm thresholds.\n"
+        },
+        {
+          "id": "global:sensors.md:structure-v1:1",
+          "document": "@knowledge/sensors.md",
+          "score": 0.7081612348556519,
+          "text": "## Calibration\nOffsets are measured in millivolts with the actuator disconnected.\n"
+        },
+        {
+          "id": "global:sensors.md:structure-v1:3",
+          "document": "@knowledge/sensors.md",
+          "score": 0.6481893062591553,
+          "text": "| Sensor | Offset (mV) | Tolerance (mV) |\n| --- | --- | --- |\n| sensor-37 | 57 | 0.1 |\n| sensor-38 | 58 | 0.1 |\n| sensor-39 | 59 | 0.1 |\n| sensor-40 | 60 | 0.1 |\n| sensor-41 | 61 | 0.1 |\n| sensor-42 | 62 | 0.1 |\n| sensor-43 | 63 | 0.1 |\n| sensor-44 | 64 | 0.1 |\n| sensor-45 | 65 | 0.1 |\n| sensor-46 | 66 | 0.1 |\n| sensor-47 | 67 | 0.1 |\n| sensor-48 | 68 | 0.1 |\n| sensor-49 | 69 | 0.1 |\n| sensor-50 | 70 | 0.1 |\n| sensor-51 | 71 | 0.1 |\n| sensor-52 | 72 | 0.1 |\n| sensor-53 | 73 | 0.1 |\n| sensor-54 | 74 | 0.1 |\n| sensor-55 | 75 | 0.1 |\n| sensor-56 | 76 | 0.1 |\n| sensor-57 | 77 | 0.1 |\n| sensor-58 | 78 | 0.1 |\n| sensor-59 | 79 | 0.1 |\n| sensor-60 | 80 | 0.1 |\n| sensor-61 | 81 | 0.1 |\n| sensor-62 | 82 | 0.1 |\n| sensor-63 | 83 | 0.1 |\n| sensor-64 | 84 | 0.1 |\n"
+        },
+        {
+          "id": "global:sensors.md:structure-v1:2",
+          "document": "@knowledge/sensors.md",
+          "score": 0.6454310417175293,
+          "text": "| Sensor | Offset (mV) | Tolerance (mV) |\n| --- | --- | --- |\n| sensor-00 | 20 | 0.1 |\n| sensor-01 | 21 | 0.1 |\n| sensor-02 | 22 | 0.1 |\n| sensor-03 | 23 | 0.1 |\n| sensor-04 | 24 | 0.1 |\n| sensor-05 | 25 | 0.1 |\n| sensor-06 | 26 | 0.1 |\n| sensor-07 | 27 | 0.1 |\n| sensor-08 | 28 | 0.1 |\n| sensor-09 | 29 | 0.1 |\n| sensor-10 | 30 | 0.1 |\n| sensor-11 | 31 | 0.1 |\n| sensor-12 | 32 | 0.1 |\n| sensor-13 | 33 | 0.1 |\n| sensor-14 | 34 | 0.1 |\n| sensor-15 | 35 | 0.1 |\n| sensor-16 | 36 | 0.1 |\n| sensor-17 | 37 | 0.1 |\n| sensor-18 | 38 | 0.1 |\n| sensor-19 | 39 | 0.1 |\n| sensor-20 | 40 | 0.1 |\n| sensor-21 | 41 | 0.1 |\n| sensor-22 | 42 | 0.1 |\n| sensor-23 | 43 | 0.1 |\n| sensor-24 | 44 | 0.1 |\n| sensor-25 | 45 | 0.1 |\n| sensor-26 | 46 | 0.1 |\n| sensor-27 | 47 | 0.1 |\n| sensor-28 | 48 | 0.1 |\n| sensor-29 | 49 | 0.1 |\n| sensor-30 | 50 | 0.1 |\n| sensor-31 | 51 | 0.1 |\n| sensor-32 | 52 | 0.1 |\n| sensor-33 | 53 | 0.1 |\n| sensor-34 | 54 | 0.1 |\n| sensor-35 | 55 | 0.1 |\n| sensor-36 | 56 | 0.1 |\n"
+        },
+        {
+          "id": "global:sensors.md:structure-v1:0",
+          "document": "@knowledge/sensors.md",
+          "score": 0.57735276222229,
+          "text": "# Sensors\n"
+        }
+      ]
+    },
+    {
+      "id": "h05",
+      "ranked_documents": [
+        "@knowledge/sensors.md",
+        "@knowledge/acquisition.md"
+      ],
+      "source_correctness": 1.0,
+      "scope_isolated": true,
+      "recall_at_5": 1.0,
+      "precision_at_5": 0.2,
+      "reciprocal_rank": 1.0,
+      "ndcg_at_5": 1.0,
+      "evidence_coverage": 0.6666666666666667,
+      "missing_evidence": [
+        {
+          "document_id": "@knowledge/sensors.md",
+          "passage": "| sensor-61 | 81 | 0.1 |"
+        }
+      ],
+      "all_required_documents": true,
+      "complete_evidence": false,
+      "estimated_context_tokens": 393,
+      "returned_chunks": 5,
+      "returned_evidence": [
+        {
+          "id": "global:sensors.md:structure-v1:4",
+          "document": "@knowledge/sensors.md",
+          "score": 0.7564611434936523,
+          "text": "These offsets are calibration corrections, not alarm thresholds.\n"
+        },
+        {
+          "id": "global:sensors.md:structure-v1:0",
+          "document": "@knowledge/sensors.md",
+          "score": 0.6899245977401733,
+          "text": "# Sensors\n"
+        },
+        {
+          "id": "global:acquisition.md:structure-v1:5",
+          "document": "@knowledge/acquisition.md",
+          "score": 0.6406958103179932,
+          "text": "The returned values are raw ADC counts, not calibrated temperatures.\n"
+        },
+        {
+          "id": "global:sensors.md:structure-v1:1",
+          "document": "@knowledge/sensors.md",
+          "score": 0.5792249441146851,
+          "text": "## Calibration\nOffsets are measured in millivolts with the actuator disconnected.\n"
+        },
+        {
+          "id": "global:sensors.md:structure-v1:2",
+          "document": "@knowledge/sensors.md",
+          "score": 0.5687295794487,
+          "text": "| Sensor | Offset (mV) | Tolerance (mV) |\n| --- | --- | --- |\n| sensor-00 | 20 | 0.1 |\n| sensor-01 | 21 | 0.1 |\n| sensor-02 | 22 | 0.1 |\n| sensor-03 | 23 | 0.1 |\n| sensor-04 | 24 | 0.1 |\n| sensor-05 | 25 | 0.1 |\n| sensor-06 | 26 | 0.1 |\n| sensor-07 | 27 | 0.1 |\n| sensor-08 | 28 | 0.1 |\n| sensor-09 | 29 | 0.1 |\n| sensor-10 | 30 | 0.1 |\n| sensor-11 | 31 | 0.1 |\n| sensor-12 | 32 | 0.1 |\n| sensor-13 | 33 | 0.1 |\n| sensor-14 | 34 | 0.1 |\n| sensor-15 | 35 | 0.1 |\n| sensor-16 | 36 | 0.1 |\n| sensor-17 | 37 | 0.1 |\n| sensor-18 | 38 | 0.1 |\n| sensor-19 | 39 | 0.1 |\n| sensor-20 | 40 | 0.1 |\n| sensor-21 | 41 | 0.1 |\n| sensor-22 | 42 | 0.1 |\n| sensor-23 | 43 | 0.1 |\n| sensor-24 | 44 | 0.1 |\n| sensor-25 | 45 | 0.1 |\n| sensor-26 | 46 | 0.1 |\n| sensor-27 | 47 | 0.1 |\n| sensor-28 | 48 | 0.1 |\n| sensor-29 | 49 | 0.1 |\n| sensor-30 | 50 | 0.1 |\n| sensor-31 | 51 | 0.1 |\n| sensor-32 | 52 | 0.1 |\n| sensor-33 | 53 | 0.1 |\n| sensor-34 | 54 | 0.1 |\n| sensor-35 | 55 | 0.1 |\n| sensor-36 | 56 | 0.1 |\n"
+        }
+      ]
+    },
+    {
+      "id": "h06",
+      "ranked_documents": [
+        "@knowledge/recovery.md",
+        "@knowledge/polish.md",
+        "@knowledge/startup.md"
+      ],
+      "source_correctness": 1.0,
+      "scope_isolated": true,
+      "recall_at_5": 1.0,
+      "precision_at_5": 0.2,
+      "reciprocal_rank": 1.0,
+      "ndcg_at_5": 1.0,
+      "evidence_coverage": 0.6666666666666667,
+      "missing_evidence": [
+        {
+          "document_id": "@knowledge/recovery.md",
+          "passage": "restore_snapshot violet"
+        }
+      ],
+      "all_required_documents": true,
+      "complete_evidence": false,
+      "estimated_context_tokens": 176,
+      "returned_chunks": 5,
+      "returned_evidence": [
+        {
+          "id": "global:recovery.md:structure-v1:4",
+          "document": "@knowledge/recovery.md",
+          "score": 0.44134098291397095,
+          "text": "## Main controller\nThe main controller uses the amber snapshot after manual approval.\n"
+        },
+        {
+          "id": "global:recovery.md:structure-v1:3",
+          "document": "@knowledge/recovery.md",
+          "score": 0.4239661693572998,
+          "text": "Never apply this snapshot to the main controller.\n"
+        },
+        {
+          "id": "global:recovery.md:structure-v1:1",
+          "document": "@knowledge/recovery.md",
+          "score": 0.3928767442703247,
+          "text": "## Recovery order\nThe violet snapshot is approved only for the auxiliary controller.\n"
+        },
+        {
+          "id": "global:polish.md:structure-v1:1",
+          "document": "@knowledge/polish.md",
+          "score": 0.35126030445098877,
+          "text": "## Zasilanie\nPrzed pomiarem odłącz silnik od sterownika.\n"
+        },
+        {
+          "id": "global:startup.md:structure-v1:3",
+          "document": "@knowledge/startup.md",
+          "score": 0.31049931049346924,
+          "text": "This order is mandatory even after a warm restart.\n\n"
+        }
+      ]
+    },
+    {
+      "id": "h07",
+      "ranked_documents": [
+        "@knowledge/recovery.md",
+        "@knowledge/startup.md"
+      ],
+      "source_correctness": 1.0,
+      "scope_isolated": true,
+      "recall_at_5": 1.0,
+      "precision_at_5": 0.2,
+      "reciprocal_rank": 1.0,
+      "ndcg_at_5": 1.0,
+      "evidence_coverage": 1.0,
+      "missing_evidence": [],
+      "all_required_documents": true,
+      "complete_evidence": true,
+      "estimated_context_tokens": 162,
+      "returned_chunks": 5,
+      "returned_evidence": [
+        {
+          "id": "global:recovery.md:structure-v1:3",
+          "document": "@knowledge/recovery.md",
+          "score": 0.810593843460083,
+          "text": "Never apply this snapshot to the main controller.\n"
+        },
+        {
+          "id": "global:recovery.md:structure-v1:4",
+          "document": "@knowledge/recovery.md",
+          "score": 0.8054918646812439,
+          "text": "## Main controller\nThe main controller uses the amber snapshot after manual approval.\n"
+        },
+        {
+          "id": "global:recovery.md:structure-v1:1",
+          "document": "@knowledge/recovery.md",
+          "score": 0.7076800465583801,
+          "text": "## Recovery order\nThe violet snapshot is approved only for the auxiliary controller.\n"
+        },
+        {
+          "id": "global:startup.md:structure-v1:0",
+          "document": "@knowledge/startup.md",
+          "score": 0.5497260093688965,
+          "text": "# Controller\n"
+        },
+        {
+          "id": "global:startup.md:structure-v1:3",
+          "document": "@knowledge/startup.md",
+          "score": 0.543482780456543,
+          "text": "This order is mandatory even after a warm restart.\n\n"
+        }
+      ]
+    },
+    {
+      "id": "h08",
+      "ranked_documents": [
+        "@knowledge/polish.md",
+        "@knowledge/motor.md"
+      ],
+      "source_correctness": 1.0,
+      "scope_isolated": true,
+      "recall_at_5": 1.0,
+      "precision_at_5": 0.2,
+      "reciprocal_rank": 1.0,
+      "ndcg_at_5": 1.0,
+      "evidence_coverage": 0.6666666666666667,
+      "missing_evidence": [
+        {
+          "document_id": "@knowledge/polish.md",
+          "passage": "Przed pomiarem odłącz silnik od sterownika."
+        }
+      ],
+      "all_required_documents": true,
+      "complete_evidence": false,
+      "estimated_context_tokens": 178,
+      "returned_chunks": 5,
+      "returned_evidence": [
+        {
+          "id": "global:polish.md:structure-v1:3",
+          "document": "@knowledge/polish.md",
+          "score": 0.533374547958374,
+          "text": "Wartości dotyczą napięcia wejściowego, nie wyjściowego.\n"
+        },
+        {
+          "id": "global:polish.md:structure-v1:2",
+          "document": "@knowledge/polish.md",
+          "score": 0.51999831199646,
+          "text": "| Tryb | Napięcie (V) |\n| --- | --- |\n| nominalny | 48 |\n| serwisowy | 12 |\n"
+        },
+        {
+          "id": "global:motor.md:structure-v1:2",
+          "document": "@knowledge/motor.md",
+          "score": 0.48379087448120117,
+          "text": "| Parameter | Value | Unit |\n| --- | --- | --- |\n| Voltage | 24 | V |\n| Current | 2.5 | A |\n| Speed | 3000 | rpm |\n"
+        },
+        {
+          "id": "global:motor.md:structure-v1:4",
+          "document": "@knowledge/motor.md",
+          "score": 0.4637569189071655,
+          "text": "## Maximum ratings\nThe emergency voltage ceiling is 29 V.\n"
+        },
+        {
+          "id": "global:motor.md:structure-v1:3",
+          "document": "@knowledge/motor.md",
+          "score": 0.4516386389732361,
+          "text": "These ratings are not maximum operating limits.\n"
+        }
+      ]
+    },
+    {
+      "id": "h09",
+      "ranked_documents": [
+        "@knowledge/acquisition.md"
+      ],
+      "source_correctness": 1.0,
+      "scope_isolated": true,
+      "recall_at_5": 1.0,
+      "precision_at_5": 0.2,
+      "reciprocal_rank": 1.0,
+      "ndcg_at_5": 1.0,
+      "evidence_coverage": 1.0,
+      "missing_evidence": [],
+      "all_required_documents": true,
+      "complete_evidence": true,
+      "estimated_context_tokens": 841,
+      "returned_chunks": 5,
+      "returned_evidence": [
+        {
+          "id": "global:acquisition.md:structure-v1:5",
+          "document": "@knowledge/acquisition.md",
+          "score": 0.7696836590766907,
+          "text": "The returned values are raw ADC counts, not calibrated temperatures.\n"
+        },
+        {
+          "id": "global:acquisition.md:structure-v1:3",
+          "document": "@knowledge/acquisition.md",
+          "score": 0.7547439336776733,
+          "text": "    return read_channel(21)\n\ndef sample_22():\n    return read_channel(22)\n\ndef sample_23():\n    return read_channel(23)\n\ndef sample_24():\n    return read_channel(24)\n\ndef sample_25():\n    return read_channel(25)\n\ndef sample_26():\n    return read_channel(26)\n\ndef sample_27():\n    return read_channel(27)\n\ndef sample_28():\n    return read_channel(28)\n\ndef sample_29():\n    return read_channel(29)\n\ndef sample_30():\n    return read_channel(30)\n\ndef sample_31():\n    return read_channel(31)\n\ndef sample_32():\n    return read_channel(32)\n\ndef sample_33():\n    return read_channel(33)\n\ndef sample_34():\n    return read_channel(34)\n\ndef sample_35():\n    return read_channel(35)\n\ndef sample_36():\n    return read_channel(36)\n\ndef sample_37():\n    return read_channel(37)\n\ndef sample_38():\n    return read_channel(38)\n\ndef sample_39():\n    return read_channel(39)\n\ndef sample_40():\n    return read_channel(40)\n\ndef sample_41():\n    return read_channel(41)\n\ndef sample_42():\n    return read_channel(42)\n\n"
+        },
+        {
+          "id": "global:acquisition.md:structure-v1:4",
+          "document": "@knowledge/acquisition.md",
+          "score": 0.6960567235946655,
+          "text": "def sample_43():\n    return read_channel(43)\n\ndef sample_44():\n    return read_channel(44)\n\ndef sample_45():\n    return read_channel(45)\n\ndef sample_46():\n    return read_channel(46)\n\ndef sample_47():\n    return read_channel(47)\n\ndef sample_48():\n    return read_channel(48)\n\ndef sample_49():\n    return read_channel(49)\n\ndef sample_50():\n    return read_channel(50)\n\ndef sample_51():\n    return read_channel(51)\n\ndef sample_52():\n    return read_channel(52)\n\ndef sample_53():\n    return read_channel(53)\n\ndef sample_54():\n    return read_channel(54)\n\ndef sample_55():\n    return read_channel(55)\n\ndef sample_56():\n    return read_channel(56)\n\ndef sample_57():\n    return read_channel(57)\n\ndef sample_58():\n    return read_channel(58)\n\ndef sample_59():\n    return read_channel(59)\n\n```\n"
+        },
+        {
+          "id": "global:acquisition.md:structure-v1:2",
+          "document": "@knowledge/acquisition.md",
+          "score": 0.6298916339874268,
+          "text": "```python\ndef sample_0():\n    return read_channel(0)\n\ndef sample_1():\n    return read_channel(1)\n\ndef sample_2():\n    return read_channel(2)\n\ndef sample_3():\n    return read_channel(3)\n\ndef sample_4():\n    return read_channel(4)\n\ndef sample_5():\n    return read_channel(5)\n\ndef sample_6():\n    return read_channel(6)\n\ndef sample_7():\n    return read_channel(7)\n\ndef sample_8():\n    return read_channel(8)\n\ndef sample_9():\n    return read_channel(9)\n\ndef sample_10():\n    return read_channel(10)\n\ndef sample_11():\n    return read_channel(11)\n\ndef sample_12():\n    return read_channel(12)\n\ndef sample_13():\n    return read_channel(13)\n\ndef sample_14():\n    return read_channel(14)\n\ndef sample_15():\n    return read_channel(15)\n\ndef sample_16():\n    return read_channel(16)\n\ndef sample_17():\n    return read_channel(17)\n\ndef sample_18():\n    return read_channel(18)\n\ndef sample_19():\n    return read_channel(19)\n\ndef sample_20():\n    return read_channel(20)\n\ndef sample_21():\n"
+        },
+        {
+          "id": "global:acquisition.md:structure-v1:1",
+          "document": "@knowledge/acquisition.md",
+          "score": 0.6106795072555542,
+          "text": "## Channel sampling\nThe acquisition functions require an isolated power supply; channel numbers are physical ports.\n"
+        }
+      ]
+    },
+    {
+      "id": "h10",
+      "ranked_documents": [
+        "@knowledge/unusual.md"
+      ],
+      "source_correctness": 1.0,
+      "scope_isolated": true,
+      "recall_at_5": 1.0,
+      "precision_at_5": 0.2,
+      "reciprocal_rank": 1.0,
+      "ndcg_at_5": 1.0,
+      "evidence_coverage": 1.0,
+      "missing_evidence": [],
+      "all_required_documents": true,
+      "complete_evidence": true,
+      "estimated_context_tokens": 698,
+      "returned_chunks": 5,
+      "returned_evidence": [
+        {
+          "id": "global:unusual.md:structure-v1:1",
+          "document": "@knowledge/unusual.md",
+          "score": 0.80901038646698,
+          "text": "## Truncated example\nThe following payload is incomplete and must not be executed.\n"
+        },
+        {
+          "id": "global:unusual.md:structure-v1:5",
+          "document": "@knowledge/unusual.md",
+          "score": 0.6298573613166809,
+          "text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n"
+        },
+        {
+          "id": "global:unusual.md:structure-v1:2",
+          "document": "@knowledge/unusual.md",
+          "score": 0.6209433674812317,
+          "text": "~~~json\n"
+        },
+        {
+          "id": "global:unusual.md:structure-v1:3",
+          "document": "@knowledge/unusual.md",
+          "score": 0.6097415089607239,
+          "text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        },
+        {
+          "id": "global:unusual.md:structure-v1:4",
+          "document": "@knowledge/unusual.md",
+          "score": 0.6097415089607239,
+          "text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+      ]
+    },
+    {
+      "id": "h11",
+      "ranked_documents": [
+        "@knowledge/firmware.md",
+        "@knowledge/startup.md",
+        "@knowledge/recovery.md"
+      ],
+      "source_correctness": 1.0,
+      "scope_isolated": true,
+      "recall_at_5": 1.0,
+      "precision_at_5": 0.4,
+      "reciprocal_rank": 1.0,
+      "ndcg_at_5": 1.0,
+      "evidence_coverage": 1.0,
+      "missing_evidence": [],
+      "all_required_documents": true,
+      "complete_evidence": true,
+      "estimated_context_tokens": 311,
+      "returned_chunks": 5,
+      "returned_evidence": [
+        {
+          "id": "global:firmware.md:structure-v1:1",
+          "document": "@knowledge/firmware.md",
+          "score": 0.7079850435256958,
+          "text": "## Firmware update\nBefore starting, disconnect the actuator and create a firmware backup.\n"
+        },
+        {
+          "id": "global:startup.md:structure-v1:3",
+          "document": "@knowledge/startup.md",
+          "score": 0.657589852809906,
+          "text": "This order is mandatory even after a warm restart.\n\n"
+        },
+        {
+          "id": "global:startup.md:structure-v1:1",
+          "document": "@knowledge/startup.md",
+          "score": 0.589524507522583,
+          "text": "## Startup\nCommunication must be initialized before the actuator to reject stale commands.\n"
+        },
+        {
+          "id": "global:recovery.md:structure-v1:3",
+          "document": "@knowledge/recovery.md",
+          "score": 0.5751150846481323,
+          "text": "Never apply this snapshot to the main controller.\n"
+        },
+        {
+          "id": "global:firmware.md:structure-v1:4",
+          "document": "@knowledge/firmware.md",
+          "score": 0.5382924675941467,
+          "text": "23. Record diagnostic channel 23 and confirm stable communication before proceeding.\n24. Record diagnostic channel 24 and confirm stable communication before proceeding.\n25. Record diagnostic channel 25 and confirm stable communication before proceeding.\n26. Record diagnostic channel 26 and confirm stable communication before proceeding.\n27. Record diagnostic channel 27 and confirm stable communication before proceeding.\n28. Record diagnostic channel 28 and confirm stable communication before proceeding.\n29. Upload the image, then verify checksum 0x7A91 before restart.\n"
+        }
+      ]
+    },
+    {
+      "id": "h12",
+      "ranked_documents": [
+        "@knowledge/motor.md"
+      ],
+      "source_correctness": 1.0,
+      "scope_isolated": true,
+      "no_answer_empty": false,
+      "estimated_context_tokens": 165,
+      "returned_chunks": 5,
+      "returned_evidence": [
+        {
+          "id": "global:motor.md:structure-v1:2",
+          "document": "@knowledge/motor.md",
+          "score": 0.565330982208252,
+          "text": "| Parameter | Value | Unit |\n| --- | --- | --- |\n| Voltage | 24 | V |\n| Current | 2.5 | A |\n| Speed | 3000 | rpm |\n"
+        },
+        {
+          "id": "global:motor.md:structure-v1:3",
+          "document": "@knowledge/motor.md",
+          "score": 0.5212844014167786,
+          "text": "These ratings are not maximum operating limits.\n"
+        },
+        {
+          "id": "global:motor.md:structure-v1:4",
+          "document": "@knowledge/motor.md",
+          "score": 0.5148571133613586,
+          "text": "## Maximum ratings\nThe emergency voltage ceiling is 29 V.\n"
+        },
+        {
+          "id": "global:motor.md:structure-v1:0",
+          "document": "@knowledge/motor.md",
+          "score": 0.45025885105133057,
+          "text": "# Drive\n"
+        },
+        {
+          "id": "global:motor.md:structure-v1:1",
+          "document": "@knowledge/motor.md",
+          "score": 0.447925329208374,
+          "text": "## Nominal ratings\nThese measurements apply at nominal load and 20 C ambient temperature.\n"
+        }
+      ]
+    },
+    {
+      "id": "h13",
+      "ranked_documents": [
+        "@knowledge/firmware.md",
+        "@knowledge/sensors.md",
+        "@knowledge/startup.md",
+        "@knowledge/acquisition.md",
+        "@knowledge/unusual.md"
+      ],
+      "source_correctness": 1.0,
+      "scope_isolated": true,
+      "no_answer_empty": false,
+      "estimated_context_tokens": 178,
+      "returned_chunks": 5,
+      "returned_evidence": [
+        {
+          "id": "global:firmware.md:structure-v1:1",
+          "document": "@knowledge/firmware.md",
+          "score": 0.5389915704727173,
+          "text": "## Firmware update\nBefore starting, disconnect the actuator and create a firmware backup.\n"
+        },
+        {
+          "id": "global:sensors.md:structure-v1:0",
+          "document": "@knowledge/sensors.md",
+          "score": 0.5003732442855835,
+          "text": "# Sensors\n"
+        },
+        {
+          "id": "global:startup.md:structure-v1:1",
+          "document": "@knowledge/startup.md",
+          "score": 0.4939004182815552,
+          "text": "## Startup\nCommunication must be initialized before the actuator to reject stale commands.\n"
+        },
+        {
+          "id": "global:acquisition.md:structure-v1:5",
+          "document": "@knowledge/acquisition.md",
+          "score": 0.4878994822502136,
+          "text": "The returned values are raw ADC counts, not calibrated temperatures.\n"
+        },
+        {
+          "id": "global:unusual.md:structure-v1:1",
+          "document": "@knowledge/unusual.md",
+          "score": 0.47051572799682617,
+          "text": "## Truncated example\nThe following payload is incomplete and must not be executed.\n"
+        }
+      ]
+    }
+  ]
+}

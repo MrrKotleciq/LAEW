@@ -1,0 +1,12 @@
+[
+  {"id":"c01","question":"Check @project and @knowledge for the gauge settings.","in_project":true,"required":["global","project"],"global":"The shared gauge setting is ATOM-SHARED.","project":"The project gauge setting is ATOM-PROJECT.","evidence":["ATOM-SHARED","ATOM-PROJECT"]},
+  {"id":"c02","question":"Check Global Knowledge for both bench readings.","required":["global"],"rag_context_tokens":30,"global":"The first reading is ATOM-NEAR. A long explanation separates the first and second readings on this deliberately budget-limited fixture. The second reading is ATOM-FAR.","evidence":["ATOM-NEAR","ATOM-FAR"]},
+  {"id":"c03","question":"What is 2 + 2?","required":[]},
+  {"id":"c04","question":"What is an embedding?","required":["global"],"global":"The requested label is Long-Term Memory.","evidence":["Long-Term Memory"]},
+  {"id":"c05","question":"Check Global Knowledge for the relay.","required":["global"],"rag_unavailable":true,"global":"The relay identifier is ATOM-RELAY.","evidence":["ATOM-RELAY"]},
+  {"id":"c06","question":"Check Global Knowledge for ATOM-UNRECORDED.","required":["global"],"global":"The catalog has a heading but no recorded value.","evidence":["ATOM-UNRECORDED"]},
+  {"id":"c07","question":"Use only Global Knowledge for the gasket.","required":["global"],"global":"The gasket identifier is ATOM-GASKET.","evidence":["ATOM-GASKET"],"tool_queries":[{"query":"Use only Global Knowledge for the gasket.","scope":"global","max_results":2},{"query":"Check the gasket again","scope":"global","max_results":2}]},
+  {"id":"c08","question":"What is an embedding?","required":["global"],"global":"The stored embedding example is ATOM-EXAMPLE.","evidence":["ATOM-EXAMPLE"],"tool_queries":[{"query":"Find the stored embedding example","scope":"global","max_results":2}]},
+  {"id":"c09","question":"Do not use Global Knowledge.","required":[],"global":"The restricted note contains ATOM-RESTRICTED.","forbidden":["ATOM-RESTRICTED"],"tool_queries":[{"query":"Read the restricted note","scope":"global","max_results":2}]},
+  {"id":"c10","question":"What is my calibration code?","required":["memory"],"memory":["Calibration code: ATOM-CODE."],"evidence":["ATOM-CODE"]}
+]

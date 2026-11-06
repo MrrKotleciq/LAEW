@@ -1,0 +1,5041 @@
+{
+  "validation": {
+    "sha256": "b72857256f4589b710a95829eb36e7ac9afe99948734a8de703219f590f7e8f4",
+    "metrics": {
+      "cases": 24,
+      "false_memory_routing_rate": [
+        0,
+        0
+      ],
+      "memory_routing_recall": [
+        24,
+        24
+      ],
+      "routing_recall": [
+        24,
+        24
+      ],
+      "routing_precision": [
+        40,
+        46
+      ],
+      "missed_retrieval_rate": [
+        0,
+        40
+      ],
+      "unnecessary_retrieval_rate": [
+        6,
+        46
+      ],
+      "required_scopes_without_backend_search": [
+        2,
+        40
+      ],
+      "unnecessary_backend_searches": [
+        6,
+        44
+      ],
+      "evidence_coverage": [
+        22,
+        22
+      ],
+      "unexpected_evidence_cases": 0,
+      "memory_invocations": 24,
+      "backend_searches": 44,
+      "routing_ms": 23.04,
+      "elapsed_ms": 384.15,
+      "retrieval_ms": 352.6,
+      "context_chars": 8417,
+      "adapter_calls": 24,
+      "assessment_calls": 0
+    },
+    "cases": [
+      {
+        "id": "v01",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "weak_match",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "cello": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 15.57,
+        "elapsed_ms": 39.86,
+        "retrieval_ms": 23.7,
+        "context_chars": 375,
+        "adapter_calls": 1
+      },
+      {
+        "id": "v02",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "włoskiego": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.34,
+        "elapsed_ms": 15.02,
+        "retrieval_ms": 13.0,
+        "context_chars": 383,
+        "adapter_calls": 1
+      },
+      {
+        "id": "v03",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "sufficient",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {},
+        "rag_status": {},
+        "evidence": {
+          "7452": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.24,
+        "elapsed_ms": 10.16,
+        "retrieval_ms": 9.4,
+        "context_chars": 197,
+        "adapter_calls": 1
+      },
+      {
+        "id": "v04",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "sufficient",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {},
+        "rag_status": {},
+        "evidence": {
+          "8631": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.75,
+        "elapsed_ms": 10.1,
+        "retrieval_ms": 9.2,
+        "context_chars": 198,
+        "adapter_calls": 1
+      },
+      {
+        "id": "v05",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "attic": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.23,
+        "elapsed_ms": 14.47,
+        "retrieval_ms": 14.1,
+        "context_chars": 366,
+        "adapter_calls": 1
+      },
+      {
+        "id": "v06",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "garażu": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.25,
+        "elapsed_ms": 14.37,
+        "retrieval_ms": 13.9,
+        "context_chars": 360,
+        "adapter_calls": 1
+      },
+      {
+        "id": "v07",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "19 February": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.25,
+        "elapsed_ms": 15.92,
+        "retrieval_ms": 15.5,
+        "context_chars": 381,
+        "adapter_calls": 1
+      },
+      {
+        "id": "v08",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "drawer 23": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.25,
+        "elapsed_ms": 13.3,
+        "retrieval_ms": 12.6,
+        "context_chars": 387,
+        "adapter_calls": 1
+      },
+      {
+        "id": "v09",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "Nora": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.27,
+        "elapsed_ms": 14.16,
+        "retrieval_ms": 13.6,
+        "context_chars": 380,
+        "adapter_calls": 1
+      },
+      {
+        "id": "v10",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 2,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "41 after reassignment": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.24,
+        "elapsed_ms": 16.5,
+        "retrieval_ms": 16.0,
+        "context_chars": 463,
+        "adapter_calls": 1
+      },
+      {
+        "id": "v11",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "9 Birch Avenue": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.26,
+        "elapsed_ms": 16.48,
+        "retrieval_ms": 15.8,
+        "context_chars": 406,
+        "adapter_calls": 1
+      },
+      {
+        "id": "v12",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "Clara Schumann": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.28,
+        "elapsed_ms": 16.94,
+        "retrieval_ms": 16.3,
+        "context_chars": 372,
+        "adapter_calls": 1
+      },
+      {
+        "id": "v13",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "global"
+        ],
+        "memory_status": "no_results",
+        "memory_invoked": true,
+        "memory_supplied": 0,
+        "assessment": "no_evidence",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "zieloną glazurą": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.36,
+        "elapsed_ms": 12.94,
+        "retrieval_ms": 12.4,
+        "context_chars": 163,
+        "adapter_calls": 1
+      },
+      {
+        "id": "v14",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request asks for structured personal profile information.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "2024": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.38,
+        "elapsed_ms": 15.97,
+        "retrieval_ms": 15.1,
+        "context_chars": 376,
+        "adapter_calls": 1
+      },
+      {
+        "id": "v15",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.34,
+        "elapsed_ms": 15.38,
+        "retrieval_ms": 14.8,
+        "context_chars": 369,
+        "adapter_calls": 1
+      },
+      {
+        "id": "v16",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "Sapporo": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.41,
+        "elapsed_ms": 16.2,
+        "retrieval_ms": 15.4,
+        "context_chars": 388,
+        "adapter_calls": 1
+      },
+      {
+        "id": "v17",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "7 marca": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.32,
+        "elapsed_ms": 14.79,
+        "retrieval_ms": 14.2,
+        "context_chars": 372,
+        "adapter_calls": 1
+      },
+      {
+        "id": "v18",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "Thursday": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.34,
+        "elapsed_ms": 16.32,
+        "retrieval_ms": 15.7,
+        "context_chars": 385,
+        "adapter_calls": 1
+      },
+      {
+        "id": "v19",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "Solaris": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.31,
+        "elapsed_ms": 15.86,
+        "retrieval_ms": 15.3,
+        "context_chars": 360,
+        "adapter_calls": 1
+      },
+      {
+        "id": "v20",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "Solaris": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.43,
+        "elapsed_ms": 16.27,
+        "retrieval_ms": 15.5,
+        "context_chars": 356,
+        "adapter_calls": 1
+      },
+      {
+        "id": "v21",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "Lena": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.22,
+        "elapsed_ms": 16.71,
+        "retrieval_ms": 16.3,
+        "context_chars": 365,
+        "adapter_calls": 1
+      },
+      {
+        "id": "v22",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "studio cupboard": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.32,
+        "elapsed_ms": 16.69,
+        "retrieval_ms": 16.1,
+        "context_chars": 367,
+        "adapter_calls": 1
+      },
+      {
+        "id": "v23",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "global"
+        ],
+        "memory_status": "no_results",
+        "memory_invoked": true,
+        "memory_supplied": 0,
+        "assessment": "no_evidence",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.35,
+        "elapsed_ms": 13.69,
+        "retrieval_ms": 13.2,
+        "context_chars": 153,
+        "adapter_calls": 1
+      },
+      {
+        "id": "v24",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 2,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "moved to the cellar": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.33,
+        "elapsed_ms": 16.05,
+        "retrieval_ms": 15.5,
+        "context_chars": 495,
+        "adapter_calls": 1
+      }
+    ]
+  },
+  "horizon_holdout": {
+    "sha256": "bde5bbfccba97d5f6052325e9c62cf038768485307c64ce4d85ec58737f0a36b",
+    "metrics": {
+      "cases": 18,
+      "false_memory_routing_rate": [
+        0,
+        0
+      ],
+      "memory_routing_recall": [
+        18,
+        18
+      ],
+      "routing_recall": [
+        18,
+        18
+      ],
+      "routing_precision": [
+        29,
+        35
+      ],
+      "missed_retrieval_rate": [
+        0,
+        29
+      ],
+      "unnecessary_retrieval_rate": [
+        6,
+        35
+      ],
+      "required_scopes_without_backend_search": [
+        1,
+        29
+      ],
+      "unnecessary_backend_searches": [
+        6,
+        34
+      ],
+      "evidence_coverage": [
+        17,
+        17
+      ],
+      "unexpected_evidence_cases": 0,
+      "memory_invocations": 18,
+      "backend_searches": 34,
+      "routing_ms": 7.43,
+      "elapsed_ms": 305.68,
+      "retrieval_ms": 293.4,
+      "context_chars": 6757,
+      "adapter_calls": 18,
+      "assessment_calls": 0
+    },
+    "cases": [
+      {
+        "id": "h01",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "sufficient",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {},
+        "rag_status": {},
+        "evidence": {
+          "genmaicha": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.38,
+        "elapsed_ms": 13.91,
+        "retrieval_ms": 13.3,
+        "context_chars": 204,
+        "adapter_calls": 1
+      },
+      {
+        "id": "h02",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "weak_match",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "accordion": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.31,
+        "elapsed_ms": 24.93,
+        "retrieval_ms": 24.3,
+        "context_chars": 396,
+        "adapter_calls": 1
+      },
+      {
+        "id": "h03",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "grafitowy": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.49,
+        "elapsed_ms": 17.11,
+        "retrieval_ms": 16.4,
+        "context_chars": 382,
+        "adapter_calls": 1
+      },
+      {
+        "id": "h04",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "April 17": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.53,
+        "elapsed_ms": 17.67,
+        "retrieval_ms": 16.8,
+        "context_chars": 388,
+        "adapter_calls": 1
+      },
+      {
+        "id": "h05",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "Whitby": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.43,
+        "elapsed_ms": 17.03,
+        "retrieval_ms": 16.3,
+        "context_chars": 399,
+        "adapter_calls": 1
+      },
+      {
+        "id": "h06",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "18:45": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.41,
+        "elapsed_ms": 17.05,
+        "retrieval_ms": 16.3,
+        "context_chars": 376,
+        "adapter_calls": 1
+      },
+      {
+        "id": "h07",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "Pannett Hall": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.53,
+        "elapsed_ms": 15.91,
+        "retrieval_ms": 15.1,
+        "context_chars": 395,
+        "adapter_calls": 1
+      },
+      {
+        "id": "h08",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "Studio Eleven": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.25,
+        "elapsed_ms": 16.99,
+        "retrieval_ms": 16.5,
+        "context_chars": 385,
+        "adapter_calls": 1
+      },
+      {
+        "id": "h09",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 2,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "Oak Room": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.34,
+        "elapsed_ms": 17.13,
+        "retrieval_ms": 16.6,
+        "context_chars": 480,
+        "adapter_calls": 1
+      },
+      {
+        "id": "h10",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "Heritage": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.28,
+        "elapsed_ms": 17.24,
+        "retrieval_ms": 16.7,
+        "context_chars": 409,
+        "adapter_calls": 1
+      },
+      {
+        "id": "h11",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "piątek o 16": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.92,
+        "elapsed_ms": 16.9,
+        "retrieval_ms": 15.6,
+        "context_chars": 376,
+        "adapter_calls": 1
+      },
+      {
+        "id": "h12",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "drawer 14": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.51,
+        "elapsed_ms": 15.38,
+        "retrieval_ms": 14.7,
+        "context_chars": 385,
+        "adapter_calls": 1
+      },
+      {
+        "id": "h13",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.26,
+        "elapsed_ms": 17.21,
+        "retrieval_ms": 16.7,
+        "context_chars": 385,
+        "adapter_calls": 1
+      },
+      {
+        "id": "h14",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "global"
+        ],
+        "memory_status": "no_results",
+        "memory_invoked": true,
+        "memory_supplied": 0,
+        "assessment": "no_evidence",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "HPX-337": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.38,
+        "elapsed_ms": 15.58,
+        "retrieval_ms": 14.9,
+        "context_chars": 161,
+        "adapter_calls": 1
+      },
+      {
+        "id": "h15",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "Hotel Meridian": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.39,
+        "elapsed_ms": 16.06,
+        "retrieval_ms": 15.4,
+        "context_chars": 397,
+        "adapter_calls": 1
+      },
+      {
+        "id": "h16",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "MicroFour": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.28,
+        "elapsed_ms": 16.93,
+        "retrieval_ms": 16.4,
+        "context_chars": 440,
+        "adapter_calls": 1
+      },
+      {
+        "id": "h17",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "loose floorboard": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.35,
+        "elapsed_ms": 16.7,
+        "retrieval_ms": 16.0,
+        "context_chars": 423,
+        "adapter_calls": 1
+      },
+      {
+        "id": "h18",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "CR2032": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.39,
+        "elapsed_ms": 15.95,
+        "retrieval_ms": 15.4,
+        "context_chars": 376,
+        "adapter_calls": 1
+      }
+    ]
+  },
+  "horizon_strategy_holdout": {
+    "sha256": "baeb35441552bda9f849c081108670efb2c632f84601b77ebc37f0f23d9ac013",
+    "metrics": {
+      "cases": 18,
+      "false_memory_routing_rate": [
+        0,
+        0
+      ],
+      "memory_routing_recall": [
+        18,
+        18
+      ],
+      "routing_recall": [
+        18,
+        18
+      ],
+      "routing_precision": [
+        30,
+        35
+      ],
+      "missed_retrieval_rate": [
+        0,
+        30
+      ],
+      "unnecessary_retrieval_rate": [
+        5,
+        35
+      ],
+      "required_scopes_without_backend_search": [
+        1,
+        30
+      ],
+      "unnecessary_backend_searches": [
+        5,
+        34
+      ],
+      "evidence_coverage": [
+        18,
+        18
+      ],
+      "unexpected_evidence_cases": 0,
+      "memory_invocations": 18,
+      "backend_searches": 34,
+      "routing_ms": 5.53,
+      "elapsed_ms": 292.53,
+      "retrieval_ms": 281.9,
+      "context_chars": 6791,
+      "adapter_calls": 18,
+      "assessment_calls": 0
+    },
+    "cases": [
+      {
+        "id": "s01",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "dry cabinet": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.25,
+        "elapsed_ms": 23.22,
+        "retrieval_ms": 22.7,
+        "context_chars": 388,
+        "adapter_calls": 1
+      },
+      {
+        "id": "s02",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "czerwonej skrzynce": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.36,
+        "elapsed_ms": 17.1,
+        "retrieval_ms": 16.5,
+        "context_chars": 394,
+        "adapter_calls": 1
+      },
+      {
+        "id": "s03",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "drawer Seven": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.23,
+        "elapsed_ms": 15.99,
+        "retrieval_ms": 15.5,
+        "context_chars": 384,
+        "adapter_calls": 1
+      },
+      {
+        "id": "s04",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "pod biurkiem": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.26,
+        "elapsed_ms": 15.91,
+        "retrieval_ms": 15.3,
+        "context_chars": 389,
+        "adapter_calls": 1
+      },
+      {
+        "id": "s05",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "dispatch office": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.38,
+        "elapsed_ms": 16.23,
+        "retrieval_ms": 15.6,
+        "context_chars": 409,
+        "adapter_calls": 1
+      },
+      {
+        "id": "s06",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "Anika": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.29,
+        "elapsed_ms": 16.86,
+        "retrieval_ms": 16.3,
+        "context_chars": 409,
+        "adapter_calls": 1
+      },
+      {
+        "id": "s07",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 2,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "after the shift": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.26,
+        "elapsed_ms": 18.14,
+        "retrieval_ms": 17.6,
+        "context_chars": 545,
+        "adapter_calls": 1
+      },
+      {
+        "id": "s08",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "below shelf B": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.28,
+        "elapsed_ms": 14.85,
+        "retrieval_ms": 14.3,
+        "context_chars": 378,
+        "adapter_calls": 1
+      },
+      {
+        "id": "s09",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "desk drawer": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.34,
+        "elapsed_ms": 14.82,
+        "retrieval_ms": 14.2,
+        "context_chars": 388,
+        "adapter_calls": 1
+      },
+      {
+        "id": "s10",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "szufladzie reżyserki": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.25,
+        "elapsed_ms": 17.41,
+        "retrieval_ms": 16.9,
+        "context_chars": 392,
+        "adapter_calls": 1
+      },
+      {
+        "id": "s11",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "K79": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.48,
+        "elapsed_ms": 17.55,
+        "retrieval_ms": 16.7,
+        "context_chars": 387,
+        "adapter_calls": 1
+      },
+      {
+        "id": "s12",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "czwartek": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.32,
+        "elapsed_ms": 15.31,
+        "retrieval_ms": 14.7,
+        "context_chars": 375,
+        "adapter_calls": 1
+      },
+      {
+        "id": "s13",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "Friday morning": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.38,
+        "elapsed_ms": 15.79,
+        "retrieval_ms": 15.1,
+        "context_chars": 403,
+        "adapter_calls": 1
+      },
+      {
+        "id": "s14",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "global"
+        ],
+        "memory_status": "no_results",
+        "memory_invoked": true,
+        "memory_supplied": 0,
+        "assessment": "no_evidence",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "upper rack": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.37,
+        "elapsed_ms": 13.14,
+        "retrieval_ms": 12.5,
+        "context_chars": 161,
+        "adapter_calls": 1
+      },
+      {
+        "id": "s15",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "sufficient",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {},
+        "rag_status": {},
+        "evidence": {
+          "CX-42": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.33,
+        "elapsed_ms": 12.7,
+        "retrieval_ms": 12.1,
+        "context_chars": 202,
+        "adapter_calls": 1
+      },
+      {
+        "id": "s16",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "under the workbench": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.23,
+        "elapsed_ms": 15.5,
+        "retrieval_ms": 15.0,
+        "context_chars": 380,
+        "adapter_calls": 1
+      },
+      {
+        "id": "s17",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "za imadłem": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.27,
+        "elapsed_ms": 16.98,
+        "retrieval_ms": 16.4,
+        "context_chars": 416,
+        "adapter_calls": 1
+      },
+      {
+        "id": "s18",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "northeast entrance": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.25,
+        "elapsed_ms": 15.03,
+        "retrieval_ms": 14.5,
+        "context_chars": 391,
+        "adapter_calls": 1
+      }
+    ]
+  },
+  "knowledge_routing": {
+    "sha256": "c32e58cf3be3bc810ecefab49fe95d5ed11c7c822bc3b2bb4bd2af76c9765b52",
+    "metrics": {
+      "cases": 36,
+      "false_memory_routing_rate": [
+        0,
+        19
+      ],
+      "memory_routing_recall": [
+        17,
+        17
+      ],
+      "routing_recall": [
+        36,
+        36
+      ],
+      "routing_precision": [
+        32,
+        41
+      ],
+      "missed_retrieval_rate": [
+        0,
+        32
+      ],
+      "unnecessary_retrieval_rate": [
+        9,
+        41
+      ],
+      "required_scopes_without_backend_search": [
+        3,
+        32
+      ],
+      "unnecessary_backend_searches": [
+        9,
+        38
+      ],
+      "evidence_coverage": [
+        22,
+        22
+      ],
+      "unexpected_evidence_cases": 0,
+      "memory_invocations": 17,
+      "backend_searches": 38,
+      "routing_ms": 18.32,
+      "elapsed_ms": 351.56,
+      "retrieval_ms": 325.6,
+      "context_chars": 9046,
+      "adapter_calls": 36,
+      "assessment_calls": 0
+    },
+    "cases": [
+      {
+        "id": "r01",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {
+          "Dolinę Białego": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.54,
+        "elapsed_ms": 23.23,
+        "retrieval_ms": 22.4,
+        "context_chars": 460,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r02",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {
+          "Zawadzką": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.48,
+        "elapsed_ms": 17.96,
+        "retrieval_ms": 17.2,
+        "context_chars": 451,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r03",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {
+          "Priya": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.31,
+        "elapsed_ms": 17.28,
+        "retrieval_ms": 16.6,
+        "context_chars": 436,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r04",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {
+          "48V DC": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.36,
+        "elapsed_ms": 18.16,
+        "retrieval_ms": 17.5,
+        "context_chars": 432,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r05",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {
+          "Iwona": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.6,
+        "elapsed_ms": 15.2,
+        "retrieval_ms": 14.3,
+        "context_chars": 439,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r06",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {
+          "cabinet A17": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.52,
+        "elapsed_ms": 16.26,
+        "retrieval_ms": 15.5,
+        "context_chars": 453,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r07",
+        "required": [
+          "global"
+        ],
+        "selected": [
+          "global"
+        ],
+        "initial": [
+          "global"
+        ],
+        "searched": [
+          "global"
+        ],
+        "memory_status": "not_selected",
+        "memory_invoked": false,
+        "memory_supplied": 0,
+        "assessment": null,
+        "assessment_calls": 0,
+        "reason": "Explicit knowledge scope.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "GT-201": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.63,
+        "elapsed_ms": 8.9,
+        "retrieval_ms": 8.1,
+        "context_chars": 161,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r08",
+        "required": [
+          "project"
+        ],
+        "selected": [
+          "project"
+        ],
+        "initial": [
+          "project"
+        ],
+        "searched": [
+          "project"
+        ],
+        "memory_status": "not_selected",
+        "memory_invoked": false,
+        "memory_supplied": 0,
+        "assessment": null,
+        "assessment_calls": 0,
+        "reason": "Explicit knowledge scope.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "project": 1
+        },
+        "rag_status": {
+          "project": "found"
+        },
+        "evidence": {
+          "HAWK-12": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.51,
+        "elapsed_ms": 11.66,
+        "retrieval_ms": 11.0,
+        "context_chars": 165,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r09",
+        "required": [
+          "global",
+          "project"
+        ],
+        "selected": [
+          "global",
+          "project"
+        ],
+        "initial": [
+          "global",
+          "project"
+        ],
+        "searched": [
+          "global",
+          "project"
+        ],
+        "memory_status": "not_selected",
+        "memory_invoked": false,
+        "memory_supplied": 0,
+        "assessment": null,
+        "assessment_calls": 0,
+        "reason": "Explicit knowledge scope.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1,
+          "project": 1
+        },
+        "rag_status": {
+          "global": "found",
+          "project": "found"
+        },
+        "evidence": {
+          "Tamsin": true,
+          "CF-77": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.65,
+        "elapsed_ms": 12.98,
+        "retrieval_ms": 12.1,
+        "context_chars": 328,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r10",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "w schowku": true,
+          "Hubert Wilk": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.96,
+        "elapsed_ms": 18.65,
+        "retrieval_ms": 17.3,
+        "context_chars": 389,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r11",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The follow-up refers to the recent conversation topic.",
+        "bound_topic": true,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {
+          "rack J19": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.66,
+        "elapsed_ms": 18.39,
+        "retrieval_ms": 17.4,
+        "context_chars": 446,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r12",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The follow-up refers to the recent conversation topic.",
+        "bound_topic": true,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {
+          "sali R14": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.74,
+        "elapsed_ms": 16.54,
+        "retrieval_ms": 15.5,
+        "context_chars": 460,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r13",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {
+          "box FS7": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.49,
+        "elapsed_ms": 17.28,
+        "retrieval_ms": 16.3,
+        "context_chars": 448,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r14",
+        "required": [
+          "project"
+        ],
+        "selected": [
+          "project"
+        ],
+        "initial": [
+          "project"
+        ],
+        "searched": [
+          "project"
+        ],
+        "memory_status": "not_selected",
+        "memory_invoked": false,
+        "memory_supplied": 0,
+        "assessment": null,
+        "assessment_calls": 0,
+        "reason": "The follow-up refers to the recent conversation topic.",
+        "bound_topic": true,
+        "rag_supplied": {
+          "project": 1
+        },
+        "rag_status": {
+          "project": "found"
+        },
+        "evidence": {
+          "850 Celsius": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.63,
+        "elapsed_ms": 7.57,
+        "retrieval_ms": 6.8,
+        "context_chars": 293,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r15",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The follow-up refers to the recent conversation topic.",
+        "bound_topic": true,
+        "rag_supplied": {},
+        "rag_status": {},
+        "evidence": {
+          "locker G42": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.48,
+        "elapsed_ms": 12.62,
+        "retrieval_ms": 11.9,
+        "context_chars": 488,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r16",
+        "required": [
+          "project"
+        ],
+        "selected": [
+          "project"
+        ],
+        "initial": [
+          "project"
+        ],
+        "searched": [
+          "project"
+        ],
+        "memory_status": "not_selected",
+        "memory_invoked": false,
+        "memory_supplied": 0,
+        "assessment": null,
+        "assessment_calls": 0,
+        "reason": "The follow-up asks for documentation about the recent topic.",
+        "bound_topic": true,
+        "rag_supplied": {
+          "project": 1
+        },
+        "rag_status": {
+          "project": "found"
+        },
+        "evidence": {
+          "SX-14": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 1.3,
+        "elapsed_ms": 7.63,
+        "retrieval_ms": 6.2,
+        "context_chars": 267,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r17",
+        "required": [],
+        "selected": [],
+        "initial": [],
+        "searched": [],
+        "memory_status": "not_selected",
+        "memory_invoked": false,
+        "memory_supplied": 0,
+        "assessment": null,
+        "assessment_calls": 0,
+        "reason": "No clear need for stored knowledge; RagTool remains available.",
+        "bound_topic": false,
+        "rag_supplied": {},
+        "rag_status": {},
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.49,
+        "elapsed_ms": 0.6,
+        "retrieval_ms": 0,
+        "context_chars": 0,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r18",
+        "required": [],
+        "selected": [],
+        "initial": [],
+        "searched": [],
+        "memory_status": "not_selected",
+        "memory_invoked": false,
+        "memory_supplied": 0,
+        "assessment": null,
+        "assessment_calls": 0,
+        "reason": "No clear need for stored knowledge; RagTool remains available.",
+        "bound_topic": false,
+        "rag_supplied": {},
+        "rag_status": {},
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.51,
+        "elapsed_ms": 0.61,
+        "retrieval_ms": 0,
+        "context_chars": 0,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r19",
+        "required": [],
+        "selected": [],
+        "initial": [],
+        "searched": [],
+        "memory_status": "not_selected",
+        "memory_invoked": false,
+        "memory_supplied": 0,
+        "assessment": null,
+        "assessment_calls": 0,
+        "reason": "No clear need for stored knowledge; RagTool remains available.",
+        "bound_topic": false,
+        "rag_supplied": {},
+        "rag_status": {},
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.52,
+        "elapsed_ms": 0.63,
+        "retrieval_ms": 0,
+        "context_chars": 0,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r20",
+        "required": [],
+        "selected": [],
+        "initial": [],
+        "searched": [],
+        "memory_status": "not_selected",
+        "memory_invoked": false,
+        "memory_supplied": 0,
+        "assessment": null,
+        "assessment_calls": 0,
+        "reason": "No clear need for stored knowledge; RagTool remains available.",
+        "bound_topic": false,
+        "rag_supplied": {},
+        "rag_status": {},
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.48,
+        "elapsed_ms": 0.59,
+        "retrieval_ms": 0,
+        "context_chars": 0,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r21",
+        "required": [],
+        "selected": [],
+        "initial": [],
+        "searched": [],
+        "memory_status": "not_selected",
+        "memory_invoked": false,
+        "memory_supplied": 0,
+        "assessment": null,
+        "assessment_calls": 0,
+        "reason": "No clear need for stored knowledge; RagTool remains available.",
+        "bound_topic": false,
+        "rag_supplied": {},
+        "rag_status": {},
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.36,
+        "elapsed_ms": 0.45,
+        "retrieval_ms": 0,
+        "context_chars": 0,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r22",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "Wednesday at 11:30": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.51,
+        "elapsed_ms": 17.29,
+        "retrieval_ms": 16.5,
+        "context_chars": 411,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r23",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "czwartek o 9": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.47,
+        "elapsed_ms": 18.14,
+        "retrieval_ms": 17.4,
+        "context_chars": 381,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r24",
+        "required": [],
+        "selected": [],
+        "initial": [],
+        "searched": [],
+        "memory_status": "not_selected",
+        "memory_invoked": false,
+        "memory_supplied": 0,
+        "assessment": null,
+        "assessment_calls": 0,
+        "reason": "No clear need for stored knowledge; RagTool remains available.",
+        "bound_topic": false,
+        "rag_supplied": {},
+        "rag_status": {},
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.43,
+        "elapsed_ms": 0.54,
+        "retrieval_ms": 0,
+        "context_chars": 0,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r25",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "global"
+        ],
+        "memory_status": "no_results",
+        "memory_invoked": true,
+        "memory_supplied": 0,
+        "assessment": "no_evidence",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.24,
+        "elapsed_ms": 13.01,
+        "retrieval_ms": 12.5,
+        "context_chars": 245,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r26",
+        "required": [],
+        "selected": [],
+        "initial": [],
+        "searched": [],
+        "memory_status": "not_selected",
+        "memory_invoked": false,
+        "memory_supplied": 0,
+        "assessment": null,
+        "assessment_calls": 0,
+        "reason": "Project Knowledge is unavailable in General Chat.",
+        "bound_topic": false,
+        "rag_supplied": {},
+        "rag_status": {},
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.23,
+        "elapsed_ms": 0.32,
+        "retrieval_ms": 0,
+        "context_chars": 176,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r27",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "global"
+        ],
+        "memory_status": "no_results",
+        "memory_invoked": true,
+        "memory_supplied": 0,
+        "assessment": "no_evidence",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.35,
+        "elapsed_ms": 13.4,
+        "retrieval_ms": 12.8,
+        "context_chars": 245,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r28",
+        "required": [],
+        "selected": [],
+        "initial": [],
+        "searched": [],
+        "memory_status": "not_selected",
+        "memory_invoked": false,
+        "memory_supplied": 0,
+        "assessment": null,
+        "assessment_calls": 0,
+        "reason": "No clear need for stored knowledge; RagTool remains available.",
+        "bound_topic": false,
+        "rag_supplied": {},
+        "rag_status": {},
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.62,
+        "elapsed_ms": 0.75,
+        "retrieval_ms": 0,
+        "context_chars": 0,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r29",
+        "required": [
+          "global"
+        ],
+        "selected": [
+          "global"
+        ],
+        "initial": [
+          "global"
+        ],
+        "searched": [
+          "global"
+        ],
+        "memory_status": "not_selected",
+        "memory_invoked": false,
+        "memory_supplied": 0,
+        "assessment": null,
+        "assessment_calls": 0,
+        "reason": "The user requested one knowledge scope only.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "AW-654": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.42,
+        "elapsed_ms": 4.51,
+        "retrieval_ms": 3.9,
+        "context_chars": 362,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r30",
+        "required": [
+          "global"
+        ],
+        "selected": [
+          "global"
+        ],
+        "initial": [
+          "global"
+        ],
+        "searched": [
+          "global"
+        ],
+        "memory_status": "not_selected",
+        "memory_invoked": false,
+        "memory_supplied": 0,
+        "assessment": null,
+        "assessment_calls": 0,
+        "reason": "The user excluded Long-Term Memory.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "skrzynce P13": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.66,
+        "elapsed_ms": 5.49,
+        "retrieval_ms": 4.7,
+        "context_chars": 251,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r31",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The user requested Long-Term Memory only.",
+        "bound_topic": true,
+        "rag_supplied": {},
+        "rag_status": {},
+        "evidence": {
+          "Finley": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.39,
+        "elapsed_ms": 13.16,
+        "retrieval_ms": 12.5,
+        "context_chars": 458,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r32",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "global"
+        ],
+        "memory_status": "no_results",
+        "memory_invoked": true,
+        "memory_supplied": 0,
+        "assessment": "no_evidence",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.29,
+        "elapsed_ms": 12.99,
+        "retrieval_ms": 12.4,
+        "context_chars": 245,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r33",
+        "required": [],
+        "selected": [],
+        "initial": [],
+        "searched": [],
+        "memory_status": "not_selected",
+        "memory_invoked": false,
+        "memory_supplied": 0,
+        "assessment": null,
+        "assessment_calls": 0,
+        "reason": "No clear need for stored knowledge; RagTool remains available.",
+        "bound_topic": false,
+        "rag_supplied": {},
+        "rag_status": {},
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.3,
+        "elapsed_ms": 0.38,
+        "retrieval_ms": 0,
+        "context_chars": 0,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r34",
+        "required": [],
+        "selected": [],
+        "initial": [],
+        "searched": [],
+        "memory_status": "not_selected",
+        "memory_invoked": false,
+        "memory_supplied": 0,
+        "assessment": null,
+        "assessment_calls": 0,
+        "reason": "No clear need for stored knowledge; RagTool remains available.",
+        "bound_topic": false,
+        "rag_supplied": {},
+        "rag_status": {},
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.31,
+        "elapsed_ms": 0.42,
+        "retrieval_ms": 0,
+        "context_chars": 0,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r35",
+        "required": [],
+        "selected": [],
+        "initial": [],
+        "searched": [],
+        "memory_status": "not_selected",
+        "memory_invoked": false,
+        "memory_supplied": 0,
+        "assessment": null,
+        "assessment_calls": 0,
+        "reason": "The request is based on supplied material.",
+        "bound_topic": false,
+        "rag_supplied": {},
+        "rag_status": {},
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.28,
+        "elapsed_ms": 0.39,
+        "retrieval_ms": 0,
+        "context_chars": 0,
+        "adapter_calls": 1
+      },
+      {
+        "id": "r36",
+        "required": [
+          "project"
+        ],
+        "selected": [
+          "project"
+        ],
+        "initial": [
+          "project"
+        ],
+        "searched": [
+          "project"
+        ],
+        "memory_status": "not_selected",
+        "memory_invoked": false,
+        "memory_supplied": 0,
+        "assessment": null,
+        "assessment_calls": 0,
+        "reason": "Explicit knowledge scope.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "project": 1
+        },
+        "rag_status": {
+          "project": "found"
+        },
+        "evidence": {
+          "19 June": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.6,
+        "elapsed_ms": 7.58,
+        "retrieval_ms": 6.8,
+        "context_chars": 156,
+        "adapter_calls": 1
+      }
+    ]
+  },
+  "routing_intent": {
+    "sha256": "4bc7726c578ce3f41fbdfe6fb63f0377ebc32bed455cb2fd325b9ddecc8f39c8",
+    "metrics": {
+      "cases": 36,
+      "false_memory_routing_rate": [
+        12,
+        22
+      ],
+      "memory_routing_recall": [
+        11,
+        14
+      ],
+      "routing_recall": [
+        32,
+        36
+      ],
+      "routing_precision": [
+        16,
+        51
+      ],
+      "missed_retrieval_rate": [
+        4,
+        20
+      ],
+      "unnecessary_retrieval_rate": [
+        35,
+        51
+      ],
+      "required_scopes_without_backend_search": [
+        4,
+        20
+      ],
+      "unnecessary_backend_searches": [
+        23,
+        39
+      ],
+      "evidence_coverage": [
+        15,
+        19
+      ],
+      "unexpected_evidence_cases": 0,
+      "memory_invocations": 23,
+      "backend_searches": 39,
+      "routing_ms": 16.04,
+      "elapsed_ms": 385.54,
+      "retrieval_ms": 361.8,
+      "context_chars": 9052,
+      "adapter_calls": 36,
+      "assessment_calls": 0
+    },
+    "cases": [
+      {
+        "id": "i01",
+        "required": [],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "global"
+        ],
+        "memory_status": "no_results",
+        "memory_invoked": true,
+        "memory_supplied": 0,
+        "assessment": "no_evidence",
+        "assessment_calls": 0,
+        "reason": "The request asks for structured personal profile information.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.41,
+        "elapsed_ms": 19.17,
+        "retrieval_ms": 18.6,
+        "context_chars": 245,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i02",
+        "required": [],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "global"
+        ],
+        "memory_status": "no_results",
+        "memory_invoked": true,
+        "memory_supplied": 0,
+        "assessment": "no_evidence",
+        "assessment_calls": 0,
+        "reason": "The request asks for structured personal profile information.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.37,
+        "elapsed_ms": 12.2,
+        "retrieval_ms": 11.6,
+        "context_chars": 245,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i03",
+        "required": [],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "global"
+        ],
+        "memory_status": "no_results",
+        "memory_invoked": true,
+        "memory_supplied": 0,
+        "assessment": "no_evidence",
+        "assessment_calls": 0,
+        "reason": "The request asks for structured personal profile information.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.55,
+        "elapsed_ms": 14.15,
+        "retrieval_ms": 13.3,
+        "context_chars": 245,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i04",
+        "required": [],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "global"
+        ],
+        "memory_status": "no_results",
+        "memory_invoked": true,
+        "memory_supplied": 0,
+        "assessment": "no_evidence",
+        "assessment_calls": 0,
+        "reason": "The request asks for structured personal profile information.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.38,
+        "elapsed_ms": 13.58,
+        "retrieval_ms": 13.0,
+        "context_chars": 245,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i05",
+        "required": [],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory",
+          "global"
+        ],
+        "searched": [
+          "global"
+        ],
+        "memory_status": "no_results",
+        "memory_invoked": true,
+        "memory_supplied": 0,
+        "assessment": "no_evidence",
+        "assessment_calls": 0,
+        "reason": "The request asks for technical details or recorded knowledge.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.32,
+        "elapsed_ms": 13.03,
+        "retrieval_ms": 12.5,
+        "context_chars": 245,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i06",
+        "required": [],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory",
+          "global"
+        ],
+        "searched": [
+          "global"
+        ],
+        "memory_status": "no_results",
+        "memory_invoked": true,
+        "memory_supplied": 0,
+        "assessment": "no_evidence",
+        "assessment_calls": 0,
+        "reason": "The request asks for technical details or recorded knowledge.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.28,
+        "elapsed_ms": 13.14,
+        "retrieval_ms": 12.7,
+        "context_chars": 245,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i07",
+        "required": [],
+        "selected": [],
+        "initial": [],
+        "searched": [],
+        "memory_status": "not_selected",
+        "memory_invoked": false,
+        "memory_supplied": 0,
+        "assessment": null,
+        "assessment_calls": 0,
+        "reason": "No clear need for stored knowledge; RagTool remains available.",
+        "bound_topic": false,
+        "rag_supplied": {},
+        "rag_status": {},
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.57,
+        "elapsed_ms": 0.66,
+        "retrieval_ms": 0,
+        "context_chars": 0,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i08",
+        "required": [],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory",
+          "global"
+        ],
+        "searched": [
+          "global"
+        ],
+        "memory_status": "no_results",
+        "memory_invoked": true,
+        "memory_supplied": 0,
+        "assessment": "no_evidence",
+        "assessment_calls": 0,
+        "reason": "The request asks for technical details or recorded knowledge.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.51,
+        "elapsed_ms": 13.49,
+        "retrieval_ms": 12.8,
+        "context_chars": 245,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i09",
+        "required": [],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "global"
+        ],
+        "memory_status": "no_results",
+        "memory_invoked": true,
+        "memory_supplied": 0,
+        "assessment": "no_evidence",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.6,
+        "elapsed_ms": 13.09,
+        "retrieval_ms": 12.2,
+        "context_chars": 245,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i10",
+        "required": [],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "global"
+        ],
+        "memory_status": "no_results",
+        "memory_invoked": true,
+        "memory_supplied": 0,
+        "assessment": "no_evidence",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.37,
+        "elapsed_ms": 12.32,
+        "retrieval_ms": 11.8,
+        "context_chars": 245,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i11",
+        "required": [],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "global"
+        ],
+        "memory_status": "no_results",
+        "memory_invoked": true,
+        "memory_supplied": 0,
+        "assessment": "no_evidence",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.68,
+        "elapsed_ms": 14.15,
+        "retrieval_ms": 13.2,
+        "context_chars": 245,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i12",
+        "required": [],
+        "selected": [],
+        "initial": [],
+        "searched": [],
+        "memory_status": "not_selected",
+        "memory_invoked": false,
+        "memory_supplied": 0,
+        "assessment": null,
+        "assessment_calls": 0,
+        "reason": "No clear need for stored knowledge; RagTool remains available.",
+        "bound_topic": false,
+        "rag_supplied": {},
+        "rag_status": {},
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.45,
+        "elapsed_ms": 0.53,
+        "retrieval_ms": 0,
+        "context_chars": 0,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i13",
+        "required": [],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "global"
+        ],
+        "memory_status": "no_results",
+        "memory_invoked": true,
+        "memory_supplied": 0,
+        "assessment": "no_evidence",
+        "assessment_calls": 0,
+        "reason": "The request asks for structured personal profile information.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.4,
+        "elapsed_ms": 12.89,
+        "retrieval_ms": 12.2,
+        "context_chars": 245,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i14",
+        "required": [],
+        "selected": [],
+        "initial": [],
+        "searched": [],
+        "memory_status": "not_selected",
+        "memory_invoked": false,
+        "memory_supplied": 0,
+        "assessment": null,
+        "assessment_calls": 0,
+        "reason": "No clear need for stored knowledge; RagTool remains available.",
+        "bound_topic": false,
+        "rag_supplied": {},
+        "rag_status": {},
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.36,
+        "elapsed_ms": 0.45,
+        "retrieval_ms": 0,
+        "context_chars": 0,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i15",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {
+          "Luminex": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.32,
+        "elapsed_ms": 16.86,
+        "retrieval_ms": 16.2,
+        "context_chars": 440,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i16",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {
+          "Wydziale Mechaniki": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.4,
+        "elapsed_ms": 15.57,
+        "retrieval_ms": 14.9,
+        "context_chars": 457,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i17",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {
+          "Asteria": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.47,
+        "elapsed_ms": 16.99,
+        "retrieval_ms": 16.2,
+        "context_chars": 453,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i18",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {
+          "Meridian": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.35,
+        "elapsed_ms": 16.82,
+        "retrieval_ms": 16.1,
+        "context_chars": 443,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i19",
+        "required": [
+          "memory"
+        ],
+        "selected": [],
+        "initial": [],
+        "searched": [],
+        "memory_status": "not_selected",
+        "memory_invoked": false,
+        "memory_supplied": 0,
+        "assessment": null,
+        "assessment_calls": 0,
+        "reason": "No clear need for stored knowledge; RagTool remains available.",
+        "bound_topic": false,
+        "rag_supplied": {},
+        "rag_status": {},
+        "evidence": {
+          "Doroty Młynarskiej": false
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.43,
+        "elapsed_ms": 0.57,
+        "retrieval_ms": 0,
+        "context_chars": 0,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i20",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {
+          "Wiktor": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.29,
+        "elapsed_ms": 16.28,
+        "retrieval_ms": 15.7,
+        "context_chars": 446,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i21",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {
+          "14 March at noon": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.27,
+        "elapsed_ms": 16.91,
+        "retrieval_ms": 16.3,
+        "context_chars": 454,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i22",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {
+          "wtorek o 17": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.56,
+        "elapsed_ms": 19.86,
+        "retrieval_ms": 18.9,
+        "context_chars": 459,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i23",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The follow-up refers to the recent conversation topic.",
+        "bound_topic": true,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {
+          "16 April": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.84,
+        "elapsed_ms": 19.75,
+        "retrieval_ms": 18.5,
+        "context_chars": 481,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i24",
+        "required": [],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "global"
+        ],
+        "memory_status": "no_results",
+        "memory_invoked": true,
+        "memory_supplied": 0,
+        "assessment": "no_evidence",
+        "assessment_calls": 0,
+        "reason": "The follow-up refers to the recent conversation topic.",
+        "bound_topic": true,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.6,
+        "elapsed_ms": 13.6,
+        "retrieval_ms": 12.7,
+        "context_chars": 245,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i25",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The user asked to recall saved context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {
+          "Nivalis": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.49,
+        "elapsed_ms": 15.52,
+        "retrieval_ms": 14.8,
+        "context_chars": 447,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i26",
+        "required": [
+          "global"
+        ],
+        "selected": [
+          "global"
+        ],
+        "initial": [
+          "global"
+        ],
+        "searched": [
+          "global"
+        ],
+        "memory_status": "not_selected",
+        "memory_invoked": false,
+        "memory_supplied": 0,
+        "assessment": null,
+        "assessment_calls": 0,
+        "reason": "The user requested one knowledge scope only.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "Crane Safety G12": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.28,
+        "elapsed_ms": 4.3,
+        "retrieval_ms": 3.9,
+        "context_chars": 290,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i27",
+        "required": [
+          "project"
+        ],
+        "selected": [
+          "project"
+        ],
+        "initial": [
+          "project"
+        ],
+        "searched": [
+          "project"
+        ],
+        "memory_status": "not_selected",
+        "memory_invoked": false,
+        "memory_supplied": 0,
+        "assessment": null,
+        "assessment_calls": 0,
+        "reason": "The user requested one knowledge scope only.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "project": 1
+        },
+        "rag_status": {
+          "project": "found"
+        },
+        "evidence": {
+          "cutover D-44": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.26,
+        "elapsed_ms": 11.43,
+        "retrieval_ms": 11.0,
+        "context_chars": 289,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i28",
+        "required": [
+          "global"
+        ],
+        "selected": [
+          "global"
+        ],
+        "initial": [
+          "global"
+        ],
+        "searched": [
+          "global"
+        ],
+        "memory_status": "not_selected",
+        "memory_invoked": false,
+        "memory_supplied": 0,
+        "assessment": null,
+        "assessment_calls": 0,
+        "reason": "The user excluded Long-Term Memory.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "Orion Instruments": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.66,
+        "elapsed_ms": 4.48,
+        "retrieval_ms": 3.7,
+        "context_chars": 253,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i29",
+        "required": [],
+        "selected": [],
+        "initial": [],
+        "searched": [],
+        "memory_status": "not_selected",
+        "memory_invoked": false,
+        "memory_supplied": 0,
+        "assessment": null,
+        "assessment_calls": 0,
+        "reason": "No clear need for stored knowledge; RagTool remains available.",
+        "bound_topic": false,
+        "rag_supplied": {},
+        "rag_status": {},
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.28,
+        "elapsed_ms": 0.37,
+        "retrieval_ms": 0,
+        "context_chars": 0,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i30",
+        "required": [
+          "memory"
+        ],
+        "selected": [],
+        "initial": [],
+        "searched": [],
+        "memory_status": "not_selected",
+        "memory_invoked": false,
+        "memory_supplied": 0,
+        "assessment": null,
+        "assessment_calls": 0,
+        "reason": "No clear need for stored knowledge; RagTool remains available.",
+        "bound_topic": false,
+        "rag_supplied": {},
+        "rag_status": {},
+        "evidence": {
+          "Helikon": false
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.49,
+        "elapsed_ms": 0.59,
+        "retrieval_ms": 0,
+        "context_chars": 0,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i31",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request refers to existing personal or shared context.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {
+          "Baltic supplier": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.52,
+        "elapsed_ms": 15.92,
+        "retrieval_ms": 15.1,
+        "context_chars": 473,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i32",
+        "required": [
+          "memory"
+        ],
+        "selected": [
+          "global"
+        ],
+        "initial": [
+          "global"
+        ],
+        "searched": [
+          "global"
+        ],
+        "memory_status": "not_selected",
+        "memory_invoked": false,
+        "memory_supplied": 0,
+        "assessment": null,
+        "assessment_calls": 0,
+        "reason": "The request asks for technical details or recorded knowledge.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 0
+        },
+        "rag_status": {
+          "global": "empty"
+        },
+        "evidence": {
+          "kolor bursztynowy": false
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.54,
+        "elapsed_ms": 4.79,
+        "retrieval_ms": 4.1,
+        "context_chars": 142,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i33",
+        "required": [],
+        "selected": [],
+        "initial": [],
+        "searched": [],
+        "memory_status": "not_selected",
+        "memory_invoked": false,
+        "memory_supplied": 0,
+        "assessment": null,
+        "assessment_calls": 0,
+        "reason": "No clear need for stored knowledge; RagTool remains available.",
+        "bound_topic": false,
+        "rag_supplied": {},
+        "rag_status": {},
+        "evidence": {},
+        "unexpected_evidence": [],
+        "routing_ms": 0.28,
+        "elapsed_ms": 0.37,
+        "retrieval_ms": 0,
+        "context_chars": 0,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i34",
+        "required": [
+          "memory",
+          "global"
+        ],
+        "selected": [
+          "memory",
+          "global"
+        ],
+        "initial": [
+          "memory",
+          "global"
+        ],
+        "searched": [
+          "memory",
+          "global"
+        ],
+        "memory_status": "completed",
+        "memory_invoked": true,
+        "memory_supplied": 1,
+        "assessment": "unverified",
+        "assessment_calls": 0,
+        "reason": "The request asks for technical details or recorded knowledge.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "Vega workstation": true,
+          "T4 enclosure": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.29,
+        "elapsed_ms": 16.59,
+        "retrieval_ms": 16.1,
+        "context_chars": 396,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i35",
+        "required": [
+          "global"
+        ],
+        "selected": [
+          "global"
+        ],
+        "initial": [
+          "global"
+        ],
+        "searched": [
+          "global"
+        ],
+        "memory_status": "not_selected",
+        "memory_invoked": false,
+        "memory_supplied": 0,
+        "assessment": null,
+        "assessment_calls": 0,
+        "reason": "The request asks for technical details or recorded knowledge.",
+        "bound_topic": false,
+        "rag_supplied": {
+          "global": 1
+        },
+        "rag_status": {
+          "global": "found"
+        },
+        "evidence": {
+          "NORD-12": true
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.56,
+        "elapsed_ms": 4.4,
+        "retrieval_ms": 3.7,
+        "context_chars": 189,
+        "adapter_calls": 1
+      },
+      {
+        "id": "i36",
+        "required": [
+          "project"
+        ],
+        "selected": [],
+        "initial": [],
+        "searched": [],
+        "memory_status": "not_selected",
+        "memory_invoked": false,
+        "memory_supplied": 0,
+        "assessment": null,
+        "assessment_calls": 0,
+        "reason": "No clear need for stored knowledge; RagTool remains available.",
+        "bound_topic": false,
+        "rag_supplied": {},
+        "rag_status": {},
+        "evidence": {
+          "K-17": false
+        },
+        "unexpected_evidence": [],
+        "routing_ms": 0.61,
+        "elapsed_ms": 0.72,
+        "retrieval_ms": 0,
+        "context_chars": 0,
+        "adapter_calls": 1
+      }
+    ]
+  }
+}

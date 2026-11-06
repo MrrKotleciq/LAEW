@@ -1,0 +1,233 @@
+{
+  "id": "laew-structure-stress",
+  "version": 1,
+  "queries": [
+    {
+      "id": "s01",
+      "language": "en",
+      "text": "How does automatic recall use local memory?",
+      "phenomenon": "structural",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/architecture.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/architecture.md",
+          "section": "Recall",
+          "passage": "Automatic recall checks the local memory before invoking retrieval."
+        }
+      ],
+      "relevance": {
+        "@knowledge/architecture.md": 2
+      },
+      "no_answer": null
+    },
+    {
+      "id": "s02",
+      "language": "en",
+      "text": "Which backup is used for deployment recall?",
+      "phenomenon": "structural",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/architecture.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/architecture.md",
+          "section": "Recall",
+          "passage": "Deployment recall restores the amber backup, not the local memory."
+        }
+      ],
+      "relevance": {
+        "@knowledge/architecture.md": 2
+      },
+      "no_answer": null
+    },
+    {
+      "id": "s03",
+      "language": "en",
+      "text": "What does verify_release return?",
+      "phenomenon": "structural",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/architecture.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/architecture.md",
+          "section": "Code",
+          "passage": "return \"VERIFIED-813\""
+        }
+      ],
+      "relevance": {
+        "@knowledge/architecture.md": 2
+      },
+      "no_answer": null
+    },
+    {
+      "id": "s04",
+      "language": "en",
+      "text": "What is required before the release procedure?",
+      "phenomenon": "structural",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/operations.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/operations.md",
+          "section": "Procedure",
+          "passage": "Prerequisite: obtain the signed release token."
+        }
+      ],
+      "relevance": {
+        "@knowledge/operations.md": 2
+      },
+      "no_answer": null
+    },
+    {
+      "id": "s05",
+      "language": "en",
+      "text": "What is the second release procedure step?",
+      "phenomenon": "structural",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/operations.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/operations.md",
+          "section": "Procedure",
+          "passage": "2. Verify the release token."
+        }
+      ],
+      "relevance": {
+        "@knowledge/operations.md": 2
+      },
+      "no_answer": null
+    },
+    {
+      "id": "s06",
+      "language": "en",
+      "text": "What is the production telemetry timeout?",
+      "phenomenon": "structural",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/operations.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/operations.md",
+          "section": "Thresholds",
+          "passage": "| production | 41 seconds |"
+        }
+      ],
+      "relevance": {
+        "@knowledge/operations.md": 2
+      },
+      "no_answer": null
+    },
+    {
+      "id": "s07",
+      "language": "pl",
+      "text": "Co sprawdzić przed uruchomieniem?",
+      "phenomenon": "structural",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/bilingual.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/bilingual.md",
+          "section": "Walidacja",
+          "passage": "Przed uruchomieniem sprawdź podpis pakietu i zapisz wynik kontroli."
+        }
+      ],
+      "relevance": {
+        "@knowledge/bilingual.md": 2
+      },
+      "no_answer": null
+    },
+    {
+      "id": "s08",
+      "language": "en",
+      "text": "What snapshot should be restored after a service failure?",
+      "phenomenon": "structural",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/bilingual.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/bilingual.md",
+          "section": "Recovery",
+          "passage": "When the service fails, restore the violet snapshot before retrying."
+        }
+      ],
+      "relevance": {
+        "@knowledge/bilingual.md": 2
+      },
+      "no_answer": null
+    },
+    {
+      "id": "s09",
+      "language": "en",
+      "text": "What is the value of entry_95 in the long code?",
+      "phenomenon": "structural",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/large.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/large.md",
+          "section": "Long code",
+          "passage": "entry_95 = 95"
+        }
+      ],
+      "relevance": {
+        "@knowledge/large.md": 2
+      },
+      "no_answer": null
+    },
+    {
+      "id": "s10",
+      "language": "en",
+      "text": "What is the value of key95 in the large table?",
+      "phenomenon": "structural",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/large.md"
+      ],
+      "evidence": [
+        {
+          "document_id": "@knowledge/large.md",
+          "section": "Large table",
+          "passage": "| key95 | value95 |"
+        }
+      ],
+      "relevance": {
+        "@knowledge/large.md": 2
+      },
+      "no_answer": null
+    },
+    {
+      "id": "s11",
+      "language": "en",
+      "text": "What is the orbital mass of the satellite?",
+      "phenomenon": "no_answer",
+      "allowed_scope": "global",
+      "expected_document_ids": [],
+      "evidence": [],
+      "relevance": {},
+      "no_answer": "absent"
+    }
+  ],
+  "document_languages": {
+    "@knowledge/architecture.md": "en",
+    "@knowledge/operations.md": "en",
+    "@knowledge/bilingual.md": "pl",
+    "@knowledge/large.md": "en"
+  }
+}

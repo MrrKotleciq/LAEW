@@ -20,6 +20,8 @@ from laew.rag.config import global_source_exclusions as resolve_global_exclusion
 from laew.rag.identity import project_collection_name
 from laew.rag.obsidian import FRONTMATTER_RE, NOTE_METADATA_VERSION, parse_note
 from laew.rag.vector_store import ChromaVectorStore, DocumentChunk, VectorStore
+from laew.rag.markdown_chunker import structure_chunks
+from laew.rag.contextual_chunker import contextual_chunks
 
 
 class KnowledgeScope(str, Enum):
@@ -63,6 +65,7 @@ class KnowledgeBase:
         vector_store_config: Optional[dict] = None,
         project_source_allowlist: Optional[List[str]] = None,
         global_source_exclusions: Optional[List[str] | tuple[str, ...]] = None,
+        chunking_strategy: str = "legacy",
     ):
         """
         Initialize knowledge base.
@@ -85,6 +88,9 @@ class KnowledgeBase:
         self.embedding_model_id = embedding_model_identity(embedding_service)
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
+        if chunking_strategy not in ("legacy", "structure-v1", "structure-v2"):
+            raise ValueError("Unknown chunking strategy")
+        self.chunking_strategy = chunking_strategy
         self._vector_store_config = vector_store_config
         if (self.project_root is not None and (vector_store_config or {}).get("enabled") and
                 project_collection_name(self.project_root) ==
@@ -211,6 +217,8 @@ class KnowledgeBase:
             raise FileNotFoundError(f"Project memory root is unavailable: {self.project_root}")
         if self._project_loaded and not force:
             return
+        if self.chunking_strategy in ("structure-v1", "structure-v2") and self._project_store.sync_records("project"):
+            raise RuntimeError("Structure-aware loading into a populated store requires synchronization.")
         if self._roots_overlap(self.project_root, self.knowledge_root):
             raise ValueError(
                 "Project and knowledge roots overlap; configure them as "
@@ -254,6 +262,8 @@ class KnowledgeBase:
             raise FileNotFoundError(f"Global knowledge vault is unavailable: {self.knowledge_root}")
         if self._vault_loaded and not force:
             return
+        if self.chunking_strategy in ("structure-v1", "structure-v2") and self._global_store.sync_records("global"):
+            raise RuntimeError("Structure-aware loading into a populated store requires synchronization.")
         if (
             not force
             and isinstance(self._global_store, ChromaVectorStore)
@@ -339,7 +349,8 @@ class KnowledgeBase:
                         raise RuntimeError(f"Cannot safely scan {path}: {exc}") from exc
                     content = path.read_text(encoding="utf-8")
                     fingerprint = hashlib.sha256(json.dumps(
-                        [content, self.chunk_size, self.chunk_overlap, self.embedding_model_id],
+                        [content, self.chunk_size, self.chunk_overlap, self.embedding_model_id]
+                        + ([self.chunking_strategy] if self.chunking_strategy != "legacy" else []),
                         ensure_ascii=False, separators=(",", ":"),
                     ).encode("utf-8")).hexdigest()
                     files[relative] = (path, content, fingerprint)
@@ -418,6 +429,8 @@ class KnowledgeBase:
             store: Vector store to populate
         """
         chunks = []
+        if self.chunking_strategy in ("structure-v1", "structure-v2") and store.sync_records(source):
+            raise RuntimeError("Structure-aware loading into a populated store requires synchronization.")
         root = directory.resolve()
 
         for md_file in directory.rglob("*.md"):
@@ -485,6 +498,37 @@ class KnowledgeBase:
         # Strip frontmatter before section extraction so chunk text stays clean
         # of YAML and reflects only the note body.
         body = self._strip_frontmatter(content)
+        if self.chunking_strategy in ("structure-v1", "structure-v2"):
+            specs = (contextual_chunks(body, self.chunk_size) if self.chunking_strategy == "structure-v2"
+                     else structure_chunks(body, self.chunk_size))
+            body_offset = len(content) - len(body)
+            line_offset = content[:body_offset].count("\n")
+            if not specs:
+                return []
+            inputs = [("Section: " + " > ".join(s.path)[:self.chunk_size // 4] + "\n" if s.path else "") + s.text for s in specs]
+            if self.chunking_strategy == "structure-v2":
+                inputs = [s.text for s in specs]
+            try:
+                embeddings = self.embedding_service.embed_batch(inputs) if embed else [None] * len(specs)
+            except (ValueError, RuntimeError) as exc:
+                raise RuntimeError(f"Failed to embed {source} knowledge chunks from {file_path}: {exc}") from exc
+            if len(embeddings) != len(specs):
+                raise RuntimeError("Embedding service returned an incorrect vector count.")
+            return [DocumentChunk(
+                chunk_id=f"{source}:{file_path.relative_to(base_dir)}:{self.chunking_strategy}:{i}",
+                text=s.text, embedding=embedding, source=source,
+                file_path=str(file_path.relative_to(base_dir)),
+                metadata={"section_header": s.path[-1] if s.path else "",
+                          "section_path": list(s.path), "chunk_index": i,
+                          "start_line": s.start_line + line_offset, "end_line": s.end_line + line_offset,
+                          "start_offset": s.start_offset + body_offset, "end_offset": s.end_offset + body_offset,
+                          "content_type": s.kind, "code_language": s.language,
+                          "chunking_strategy": self.chunking_strategy,
+                          **({"context_spans": [[a + body_offset, z + body_offset] for a,z in s.context_spans],
+                              "synthetic_chars": s.synthetic_chars, "limited_context": s.limited_context,
+                              "block_id": s.block_id} if self.chunking_strategy == "structure-v2" else {}),
+                          **obsidian_metadata},
+            ) for i, (s, embedding) in enumerate(zip(specs, embeddings))]
         sections = self._extract_sections(body)
 
         chunk_specs = []

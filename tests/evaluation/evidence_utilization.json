@@ -1,0 +1,6 @@
+[
+  {"id":"e01","question":"Who picked up my spare tripod?","memory":["My spare tripod was picked up by someone."],"global":"My spare tripod was picked up by Nika.","required":["memory","global"],"evidence":["Nika"],"reference":"Identify Nika as the person who picked up the tripod."},
+  {"id":"e02","question":"Kto odebrał moją tubę z mapami?","memory":["Moją tubę z mapami odebrano, ale nie zapisano kto."],"global":"Moją tubę z mapami odebrał Oskar.","required":["memory","global"],"evidence":["Oskar"],"reference":"Identify Oskar as the person who picked up the map tube."},
+  {"id":"e03","question":"Where did I leave my spare meter?","memory":["I left my spare meter somewhere in the workshop."],"global":"I left my spare meter in drawer JN-73 in the workshop.","required":["memory","global"],"evidence":["JN-73"],"reference":"Identify workshop drawer JN-73 as the location of the spare meter."},
+  {"id":"e04","question":"Check Memory and Global Knowledge. Which gate code is currently active for my workshop?","memory":["My workshop gate code is K-146. The record has no date."],"global":"The workshop gate code is K-392. The note has no date.","required":["memory","global"],"evidence":["K-146","K-392"],"abstention":true,"reference":"Report both conflicting codes and do not pick a current code without evidence."}
+]

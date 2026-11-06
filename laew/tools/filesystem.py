@@ -5,11 +5,26 @@ import hashlib
 import re
 import tempfile
 from collections import Counter
+from contextlib import contextmanager
+from contextvars import ContextVar
 from pathlib import Path
 from typing import Optional
 
 from laew.security import PathResolver, PathResolverError
 from laew.tools.base import ErrorCode, Tool, ToolResult, has_scoped_approval
+
+
+_read_path_allowed = ContextVar("filesystem_read_path_allowed", default=None)
+
+
+@contextmanager
+def filesystem_read_filter(allowed):
+    """Apply an additional per-call restriction to paths visited by a read."""
+    token = _read_path_allowed.set(allowed)
+    try:
+        yield
+    finally:
+        _read_path_allowed.reset(token)
 
 
 def coerce_line_number(value, param_name: str) -> int:
@@ -286,16 +301,23 @@ class FilesystemTool(Tool):
 
     def _resolve_path(self, path: str) -> Path:
         """Resolve aliased path to absolute path."""
-        return self.resolver.resolve(path)
+        resolved = self.resolver.resolve(path)
+        allowed = _read_path_allowed.get()
+        if allowed is not None and not allowed(resolved):
+            raise PathResolverError("The user excluded this evidence source for this turn.")
+        return resolved
 
-    def _safe_general_entry(self, path: Path) -> bool:
-        if self.resolver.project_root is not None:
-            return True
+    def _readable_entry(self, path: Path) -> bool:
+        allowed = _read_path_allowed.get()
         try:
+            if allowed is not None and not allowed(path.resolve()):
+                return False
+            if self.resolver.project_root is not None:
+                return True
             return (not path.is_symlink()
                     and not (hasattr(path, "is_junction") and path.is_junction())
                     and self.resolver.is_within_root(path, "@knowledge"))
-        except OSError:
+        except (OSError, RuntimeError):
             return False
 
     def view_file(self, file_path: str, start_line: int = 1, end_line: Optional[int] = None) -> ToolResult:
@@ -460,7 +482,7 @@ class FilesystemTool(Tool):
                 return
             try:
                 for entry in path.iterdir():
-                    if not self._safe_general_entry(entry):
+                    if not self._readable_entry(entry):
                         continue
                     stat = entry.stat()
                     entries.append({
@@ -507,7 +529,7 @@ class FilesystemTool(Tool):
 
         try:
             for match in resolved.rglob(pattern):
-                if not self._safe_general_entry(match):
+                if not self._readable_entry(match):
                     continue
                 if entry_type == "file" and not match.is_file():
                     continue
@@ -584,7 +606,7 @@ class FilesystemTool(Tool):
             search_file(resolved)
         elif resolved.is_dir():
             for file_path in resolved.rglob("*"):
-                if self._safe_general_entry(file_path) and file_path.is_file():
+                if self._readable_entry(file_path) and file_path.is_file():
                     search_file(file_path)
 
         return ToolResult.ok({"results": results})

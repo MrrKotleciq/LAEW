@@ -1,0 +1,323 @@
+{
+  "legacy": [
+    {
+      "rank": 1,
+      "id": "global:vault.md:1:0",
+      "score": 0.5764824151992798,
+      "section": "Konflikt",
+      "chars": 107
+    },
+    {
+      "rank": 2,
+      "id": "global:chroma.md:0:0",
+      "score": 0.5700516104698181,
+      "section": "Recovery",
+      "chars": 101
+    },
+    {
+      "rank": 3,
+      "id": "global:chroma.md:1:0",
+      "score": 0.3662077784538269,
+      "section": "Deletion",
+      "chars": 94
+    },
+    {
+      "rank": 4,
+      "id": "global:rls.md:1:0",
+      "score": 0.34784582257270813,
+      "section": "Zapominanie",
+      "chars": 117
+    },
+    {
+      "rank": 5,
+      "id": "global:drift.md:0:0",
+      "score": 0.3246588706970215,
+      "section": "Hipoteza",
+      "chars": 110
+    },
+    {
+      "rank": 6,
+      "id": "global:vault.md:0:0",
+      "score": 0.3093699514865875,
+      "section": "Akceptacja",
+      "chars": 89
+    },
+    {
+      "rank": 7,
+      "id": "global:sampling.md:1:0",
+      "score": 0.29390960931777954,
+      "section": "Zegar",
+      "chars": 79
+    },
+    {
+      "rank": 8,
+      "id": "global:sampling.md:0:0",
+      "score": 0.28225797414779663,
+      "section": "Filtr wej\u015bciowy",
+      "chars": 155
+    },
+    {
+      "rank": 9,
+      "id": "global:arx.md:1:0",
+      "score": 0.2544214129447937,
+      "section": "Validation",
+      "chars": 116
+    },
+    {
+      "rank": 10,
+      "id": "global:telemetry.md:0:0",
+      "score": 0.23028293251991272,
+      "section": "MQTT",
+      "chars": 112
+    },
+    {
+      "rank": 11,
+      "id": "global:telemetry.md:1:0",
+      "score": 0.22681309282779694,
+      "section": "Modbus",
+      "chars": 82
+    },
+    {
+      "rank": 12,
+      "id": "global:rls.md:0:0",
+      "score": 0.2137603461742401,
+      "section": "Aktualizacja",
+      "chars": 101
+    },
+    {
+      "rank": 13,
+      "id": "global:arx.md:0:0",
+      "score": 0.21225479245185852,
+      "section": "Sampling",
+      "chars": 129
+    },
+    {
+      "rank": 14,
+      "id": "global:timing.md:0:0",
+      "score": 0.20885246992111206,
+      "section": "Clocks",
+      "chars": 109
+    },
+    {
+      "rank": 15,
+      "id": "global:rls-database.md:0:0",
+      "score": 0.17752501368522644,
+      "section": "Policies",
+      "chars": 114
+    }
+  ],
+  "structure-v1": [
+    {
+      "rank": 1,
+      "id": "global:chroma.md:structure-v1:0",
+      "score": 0.586361289024353,
+      "section": "Recovery",
+      "chars": 104
+    },
+    {
+      "rank": 2,
+      "id": "global:vault.md:structure-v1:1",
+      "score": 0.5480645895004272,
+      "section": "Konflikt",
+      "chars": 108
+    },
+    {
+      "rank": 3,
+      "id": "global:chroma.md:structure-v1:1",
+      "score": 0.3955267667770386,
+      "section": "Deletion",
+      "chars": 95
+    },
+    {
+      "rank": 4,
+      "id": "global:rls.md:structure-v1:1",
+      "score": 0.3671438992023468,
+      "section": "Zapominanie",
+      "chars": 118
+    },
+    {
+      "rank": 5,
+      "id": "global:drift.md:structure-v1:0",
+      "score": 0.33499741554260254,
+      "section": "Hipoteza",
+      "chars": 112
+    },
+    {
+      "rank": 6,
+      "id": "global:vault.md:structure-v1:0",
+      "score": 0.32758718729019165,
+      "section": "Akceptacja",
+      "chars": 92
+    },
+    {
+      "rank": 7,
+      "id": "global:sampling.md:structure-v1:1",
+      "score": 0.30433526635169983,
+      "section": "Zegar",
+      "chars": 80
+    },
+    {
+      "rank": 8,
+      "id": "global:arx.md:structure-v1:1",
+      "score": 0.28470519185066223,
+      "section": "Validation",
+      "chars": 117
+    },
+    {
+      "rank": 9,
+      "id": "global:sampling.md:structure-v1:0",
+      "score": 0.27277883887290955,
+      "section": "Filtr wej\u015bciowy",
+      "chars": 158
+    },
+    {
+      "rank": 10,
+      "id": "global:telemetry.md:structure-v1:1",
+      "score": 0.2340187132358551,
+      "section": "Modbus",
+      "chars": 83
+    },
+    {
+      "rank": 11,
+      "id": "global:timing.md:structure-v1:0",
+      "score": 0.224588081240654,
+      "section": "Clocks",
+      "chars": 111
+    },
+    {
+      "rank": 12,
+      "id": "global:rls.md:structure-v1:0",
+      "score": 0.2227105051279068,
+      "section": "Aktualizacja",
+      "chars": 104
+    },
+    {
+      "rank": 13,
+      "id": "global:telemetry.md:structure-v1:0",
+      "score": 0.21831455826759338,
+      "section": "MQTT",
+      "chars": 115
+    },
+    {
+      "rank": 14,
+      "id": "global:arx.md:structure-v1:0",
+      "score": 0.20952458679676056,
+      "section": "Sampling",
+      "chars": 132
+    },
+    {
+      "rank": 15,
+      "id": "global:rls-database.md:structure-v1:0",
+      "score": 0.19388332962989807,
+      "section": "Policies",
+      "chars": 116
+    }
+  ],
+  "structure-v2": [
+    {
+      "rank": 1,
+      "id": "global:chroma.md:structure-v2:0",
+      "score": 0.6222633123397827,
+      "section": "Recovery",
+      "chars": 104
+    },
+    {
+      "rank": 2,
+      "id": "global:vault.md:structure-v2:1",
+      "score": 0.5732103586196899,
+      "section": "Konflikt",
+      "chars": 108
+    },
+    {
+      "rank": 3,
+      "id": "global:rls.md:structure-v2:1",
+      "score": 0.3729148805141449,
+      "section": "Zapominanie",
+      "chars": 118
+    },
+    {
+      "rank": 4,
+      "id": "global:chroma.md:structure-v2:1",
+      "score": 0.3620030879974365,
+      "section": "Deletion",
+      "chars": 95
+    },
+    {
+      "rank": 5,
+      "id": "global:vault.md:structure-v2:0",
+      "score": 0.3372461795806885,
+      "section": "Akceptacja",
+      "chars": 92
+    },
+    {
+      "rank": 6,
+      "id": "global:drift.md:structure-v2:0",
+      "score": 0.3161551356315613,
+      "section": "Hipoteza",
+      "chars": 112
+    },
+    {
+      "rank": 7,
+      "id": "global:sampling.md:structure-v2:1",
+      "score": 0.3051164746284485,
+      "section": "Zegar",
+      "chars": 80
+    },
+    {
+      "rank": 8,
+      "id": "global:sampling.md:structure-v2:0",
+      "score": 0.27497267723083496,
+      "section": "Filtr wej\u015bciowy",
+      "chars": 158
+    },
+    {
+      "rank": 9,
+      "id": "global:arx.md:structure-v2:1",
+      "score": 0.2641187906265259,
+      "section": "Validation",
+      "chars": 117
+    },
+    {
+      "rank": 10,
+      "id": "global:telemetry.md:structure-v2:1",
+      "score": 0.23322616517543793,
+      "section": "Modbus",
+      "chars": 83
+    },
+    {
+      "rank": 11,
+      "id": "global:telemetry.md:structure-v2:0",
+      "score": 0.22700349986553192,
+      "section": "MQTT",
+      "chars": 115
+    },
+    {
+      "rank": 12,
+      "id": "global:rls.md:structure-v2:0",
+      "score": 0.2175942212343216,
+      "section": "Aktualizacja",
+      "chars": 104
+    },
+    {
+      "rank": 13,
+      "id": "global:timing.md:structure-v2:0",
+      "score": 0.21201130747795105,
+      "section": "Clocks",
+      "chars": 111
+    },
+    {
+      "rank": 14,
+      "id": "global:arx.md:structure-v2:0",
+      "score": 0.20092500746250153,
+      "section": "Sampling",
+      "chars": 132
+    },
+    {
+      "rank": 15,
+      "id": "global:rls-database.md:structure-v2:0",
+      "score": 0.17697066068649292,
+      "section": "Policies",
+      "chars": 116
+    }
+  ]
+}

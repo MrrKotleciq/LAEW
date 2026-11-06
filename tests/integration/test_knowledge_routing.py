@@ -5,8 +5,8 @@ from uuid import uuid4
 import pytest
 
 from laew.agent import Agent, AgentConfig, AgentExecutor
-from laew.knowledge.routing import KnowledgeTurn, route_sources
-from laew.llm.base import LLMResponse
+from laew.knowledge.routing import KnowledgeTurn, resolve_turn, route_sources
+from laew.llm.base import LLMMessage, LLMResponse, MessageRole
 from laew.rag.sync import synchronize_scope
 from laew.runtime import build_rag_tool
 from laew.security.permissions import PermissionBroker
@@ -38,6 +38,12 @@ EDUCATION = "Jaką edukację zakończyłem?"
     ("Translate: What is vector indexing?", False, False, ()),
     ("What is 2 + 2?", False, False, ()),
     ("How do I use a drill press?", False, False, ()),
+    ("Which GPU should I buy?", False, False, ()),
+    ("What is an embedding?", True, False, ()),
+    ("Co to jest indeksowanie?", True, False, ()),
+    ("Who borrowed my flute?", False, True, ()),
+    ("What is the confirmed date for the dress rehearsal?", False, True, ()),
+    ("Jaki jest ustalony termin przesłuchania?", False, True, ()),
     ("Based on the supplied text, which seat did I book? Seat 15C.", False, False, ()),
     ("Jak zapakować mój rower do samolotu?", False, False, ()),
     (EDUCATION, False, True, ()),
@@ -84,6 +90,27 @@ def test_source_classification(message, in_project, memory, scopes):
     route = route_sources(message, in_project=in_project)
     assert (route.memory, route.scopes) == (memory, scopes)
     assert route.reason
+
+
+@pytest.mark.parametrize("follow_up", ["Where did I put it?", "Gdzie ją odłożyłam?", "A gdzie odłożyłam ją?"])
+def test_follow_up_with_object_pronoun_keeps_the_topic_and_policy(follow_up):
+    topic = "Use only Memory. What is my label printer serial number?"
+    decision, query, bound = resolve_turn(
+        follow_up, [LLMMessage(MessageRole.USER, topic)], in_project=False,
+    )
+    assert bound and decision.memory and decision.memory_only
+    assert query == f"{topic}\n{follow_up}"
+
+
+def test_documentation_follow_up_does_not_change_an_exclusive_scope():
+    topic = "Use only Project Knowledge for the label printer."
+    history = [LLMMessage(MessageRole.USER, content) for content in (
+        topic, "Find more details in the documentation.",
+    )]
+    decision, query, bound = resolve_turn("And its limitations?", history, in_project=True)
+
+    assert bound and decision.scopes == ("project",) and decision.only_scope == "project"
+    assert query.startswith(topic)
 
 
 class Embedding:
@@ -366,7 +393,8 @@ def test_bound_topic_and_explicit_source_switch_at_first_request(isolated_runtim
     turns = [
         ("Explain the architecture of our incremental indexing system.", ["project"], False, "PROJECT-4281"),
         ("A jakie są ograniczenia?", ["project"], True, "PROJECT-4281"),
-        ("Check Global Knowledge", ["global"], True, "GLOBAL-7319"),
+        ("Check only Global Knowledge", ["global"], True, "GLOBAL-7319"),
+        ("And its limitations?", ["global"], True, "GLOBAL-7319"),
         ("What are my preferences?", ["global"], False, "local inference"),
         ("Find more details in the documentation.", ["global"], True, "GLOBAL-7319"),
         ("Write a birthday card.", [], False, None),
@@ -381,11 +409,14 @@ def test_bound_topic_and_explicit_source_switch_at_first_request(isolated_runtim
         if message == "What are my preferences?":
             expected.add("GLOBAL-7319")
         assert {value for value in ("PROJECT-4281", "GLOBAL-7319", "local inference") if value in context} == expected
-    assert len(fixture.embedding.queries) == 5
+        if message in {"Check only Global Knowledge", "And its limitations?"}:
+            denied = turn.call(tool, "query", {"query": "incremental indexing", "scope": "project"})
+            assert denied.error_code == "ERR_UNAUTHORIZED"
+    assert len(fixture.embedding.queries) == 6
     assert "incremental indexing" in fixture.embedding.queries[1]
     assert fixture.embedding.queries[2] == fixture.embedding.queries[0]
-    assert "my preferences" in fixture.embedding.queries[3]
     assert "my preferences" in fixture.embedding.queries[4]
+    assert "my preferences" in fixture.embedding.queries[5]
 
 
 @pytest.mark.parametrize("other_value", [None, "42", "unknown"])
@@ -494,6 +525,176 @@ def test_explicit_source_limits_also_apply_to_filesystem_reads(isolated_runtime)
     turn.prepare(executor, "Use only Global Knowledge.", "active", lambda: None, None)
     assert not turn.call(filesystem, "view_file", {"file_path": "@projects/other/README.md"}).success
     assert turn.call(filesystem, "view_file", {"file_path": "@knowledge/fixture.md"}).success
+    turn.prepare(executor, "Rewrite this. Use only Project Knowledge.", "active", lambda: None, None)
+    assert not turn.call(filesystem, "view_file", {"file_path": "@projects/other/README.md"}).success
+    assert turn.call(filesystem, "view_file", {"file_path": "README.md"}).success
+
+
+@pytest.mark.parametrize("message,allowed", [
+    ("Przetłumacz tekst. Nie używaj Global Knowledge.", {"project", "project file", "memory"}),
+    ("Przeredaguj tekst. Użyj wyłącznie pamięci długoterminowej.", {"memory"}),
+    ("Rewrite the supplied text. Use only @knowledge.", {"global", "global file"}),
+    ("Rewrite the supplied text. Use only @project.", {"project", "project file"}),
+    ("Ile to 2 + 2? Nie używaj pamięci.", {"global", "project", "hybrid", "global file", "project file"}),
+    ("Translate this. Skip RAG.", {"global file", "project file", "memory"}),
+    ("Translate this. Use only @knowledge. Do not use @knowledge.", set()),
+    ("Rewrite this. Use only Memory. Use only @project.", set()),
+    ("What is an embedding?", {"global", "project", "hybrid", "global file", "project file", "memory"}),
+])
+def test_chief_enforces_source_policy_before_dispatch(tmp_path, message, allowed):
+    import json
+
+    from laew.llm.base import ToolCall
+    from laew.memory.service import MemoryService
+    from laew.memory.store import MemoryStore
+    from laew.memory.tool import MemoryTool
+    from laew.prompts.context_budget import ContextBudget
+    from laew.rag.pipeline import RAGResult
+    from laew.rag.rag_tool import RagTool
+    from laew.rag.vector_store import DocumentChunk
+    from laew.security.path_resolver import PathResolver
+    from laew.tools.base import ErrorCode
+    from laew.tools.filesystem import FilesystemTool
+
+    project, vault = tmp_path / "active", tmp_path / "vault"
+    project.mkdir()
+    vault.mkdir()
+    (vault / "fixture.md").write_text("Shared evidence GLOBAL-7319.", encoding="utf-8")
+    (project / "README.md").write_text("Project evidence PROJECT-4281.", encoding="utf-8")
+    filesystem = FilesystemTool(PathResolver(project, tmp_path, vault))
+    chunks = {
+        "global": DocumentChunk("global", "Shared evidence GLOBAL-7319.", source="global", file_path="fixture.md"),
+        "project": DocumentChunk("project", "Project evidence PROJECT-4281.", file_path="README.md"),
+    }
+
+    def retrieve(query, scope, **kwargs):
+        selected = list(chunks.values()) if scope.value == "hybrid" else [chunks[scope.value]]
+        return RAGResult(chunks=[(chunk, 1.0) for chunk in selected],
+                         context="\n".join(chunk.text for chunk in selected), scope=scope, query=query)
+
+    rag = RagTool(SimpleNamespace(retrieve=retrieve), ContextBudget())
+    store = MemoryStore(tmp_path / "source-policy.db")
+    store.save_settings({"semantic_enabled": False})
+    store.remember("Evidence MEMORY-5476.", category="fact")
+    memory = MemoryTool(MemoryService(store), "active")
+    candidates = {
+        **{scope: (rag, "query", {"scope": scope, "query": "evidence"}) for scope in ("global", "project", "hybrid")},
+        "global file": (filesystem, "view_file", {"file_path": "@knowledge/fixture.md"}),
+        "project file": (filesystem, "view_file", {"file_path": "@projects/active/README.md"}),
+        "memory": (memory, "recall", {"query": "evidence"}),
+    }
+
+    provider = ObservingProvider("Fixture final answer")
+    provider.native_tools = True
+
+    def generate_tools(messages, *args, **kwargs):
+        provider.messages.append(list(messages))
+        if len(provider.messages) == 1:
+            return LLMResponse(content="", model="fixture", tool_calls=[
+                ToolCall(str(index), f"{tool.name}__{op}", json.dumps(args))
+                for index, (tool, op, args) in enumerate(candidates.values())
+            ])
+        return LLMResponse(content=provider.reply, model="fixture")
+
+    provider.generate_tools = generate_tools
+    executor = AgentExecutor(Agent(AgentConfig(), provider=provider, tools=[rag, filesystem, memory]))
+    broker = PermissionBroker(project)
+    dispatched = []
+
+    def call(tool, operation, args):
+        dispatched.append((tool, operation, args))
+        return broker.call(tool, operation, args, None)
+
+    turn = KnowledgeTurn(call)
+    turn.prepare(executor, message, "active", lambda: pytest.fail("Unexpected automatic Memory Recall"), rag)
+    assert not dispatched and not turn.diagnostics["prefetch"]
+    result = executor.run(message, on_tool_call=turn.call, on_diagnostic=turn.observe,
+                          on_tool_batch=turn.after_tools)
+
+    assert result.success
+    assert dispatched == [candidate for name, candidate in candidates.items() if name in allowed]
+    calls = [step.tool_result for step in result.steps if step.tool_result is not None]
+    assert len(calls) == len(candidates)
+    for name, outcome in zip(candidates, calls):
+        assert outcome.success == (name in allowed)
+        if name not in allowed:
+            assert outcome.error_code == ErrorCode.ERR_UNAUTHORIZED
+    provider_context = "\n".join(item.content for item in provider.messages[-1])
+    for marker, sources in [
+        ("GLOBAL-7319", {"global", "global file", "hybrid"}),
+        ("PROJECT-4281", {"project", "project file", "hybrid"}),
+        ("MEMORY-5476", {"memory"}),
+    ]:
+        assert (marker in provider_context) == bool(sources & allowed)
+
+
+def test_filesystem_search_cannot_cross_into_an_excluded_vault(tmp_path):
+    from laew.security.path_resolver import PathResolver
+    from laew.tools.filesystem import FilesystemTool
+
+    project = tmp_path / "active"
+    vault = tmp_path / "vault"
+    project.mkdir()
+    vault.mkdir()
+    (project / "public.md").write_text("Evidence ALLOWED-PROJECT", encoding="utf-8")
+    (vault / "restricted.md").write_text("Evidence EXCLUDED-GLOBAL", encoding="utf-8")
+    filesystem = FilesystemTool(PathResolver(project, tmp_path, vault))
+    broker = PermissionBroker(project)
+    turn = KnowledgeTurn(lambda tool, op, args: broker.call(tool, op, args, None))
+    calls = [
+        ("list_dir", {"directory_path": "@projects", "depth": 2}, "restricted.md"),
+        ("find_by_name", {"search_directory": "@projects", "pattern": "*.md"}, "restricted.md"),
+        ("grep_search", {"search_path": "@projects", "query": "Evidence"}, "EXCLUDED-GLOBAL"),
+    ]
+    for message, excluded in [("Rewrite this. Don't use Global Knowledge.", True),
+                              ("What is an embedding?", False)]:
+        turn.prepare(SimpleNamespace(), message, "active", lambda: None, None)
+        for operation, args, marker in calls:
+            result = turn.call(filesystem, operation, args)
+            assert result.success and "public.md" in str(result.data)
+            assert (marker in str(result.data)) is not excluded
+
+
+def test_chief_cannot_reuse_a_file_result_after_a_source_switch(tmp_path):
+    from laew.llm.base import ToolCall
+    from laew.security.path_resolver import PathResolver
+    from laew.tools.base import ErrorCode
+    from laew.tools.filesystem import FilesystemTool
+
+    project, vault = tmp_path / "project", tmp_path / "vault"
+    project.mkdir()
+    vault.mkdir()
+    (vault / "note.md").write_text("Earlier Global Knowledge evidence.", encoding="utf-8")
+    filesystem = FilesystemTool(PathResolver(project, tmp_path, vault))
+    provider = ObservingProvider("Fixture final answer")
+    provider.native_tools = True
+
+    def generate_tools(messages, *args, **kwargs):
+        provider.messages.append(list(messages))
+        if len(provider.messages) % 2:
+            return LLMResponse(content="", model="fixture", tool_calls=[
+                ToolCall("same-id", "FilesystemTool__view_file", '{"file_path":"@knowledge/note.md"}'),
+            ])
+        return LLMResponse(content=provider.reply, model="fixture")
+
+    provider.generate_tools = generate_tools
+    executor = AgentExecutor(Agent(AgentConfig(), provider=provider, tools=[filesystem]))
+    broker = PermissionBroker(project)
+    turn = KnowledgeTurn(lambda tool, op, args: broker.call(tool, op, args, None))
+
+    for message, allowed in [
+        ("What is an embedding?", True),
+        ("Check only Project Knowledge.", False),
+        ("And its limitations?", False),
+    ]:
+        turn.prepare(executor, message, "active", lambda: None, None)
+        result = executor.run(message, on_tool_call=turn.call, on_diagnostic=turn.observe)
+        assert result.success
+        outcome, = [step.tool_result for step in result.steps if step.tool_result is not None]
+        assert outcome.success is allowed
+        if not allowed:
+            assert turn.diagnostics["topic_from_history"]
+            assert outcome.error_code == ErrorCode.ERR_UNAUTHORIZED
 
 
 def test_model_recall_can_add_evidence_without_repeating_automatic_memory(tmp_path):
@@ -516,6 +717,33 @@ def test_model_recall_can_add_evidence_without_repeating_automatic_memory(tmp_pa
     refined = turn.call(tool, "recall", {"query": "stargazing"})
     assert [entry["id"] for entry in refined.data["memories"]] == [second["id"]]
     assert refined.data["recall"]["duplicates_omitted"] == 1
+
+
+def test_memory_exclusion_blocks_automatic_and_model_recall(isolated_runtime, tmp_path):
+    from laew.memory.service import MemoryService
+    from laew.memory.store import MemoryStore
+    from laew.memory.tool import MemoryTool
+
+    rag = isolated_runtime.build()
+    memory_tool = MemoryTool(MemoryService(MemoryStore(tmp_path / "excluded.db")))
+    provider = ObservingProvider("Fixture reply", follow_up=(
+        '```tool_call\n{"tool":"MemoryTool","operation":"recall","args":{"query":"studio key"}}\n```'
+    ))
+    executor = AgentExecutor(Agent(AgentConfig(), provider=provider, tools=[rag, memory_tool]))
+    broker = PermissionBroker(None)
+    turn = KnowledgeTurn(lambda tool, op, args: broker.call(tool, op, args, None))
+    message = "Without using Memory, where did I leave the studio key?"
+
+    turn.prepare(executor, message, None, lambda: pytest.fail("Excluded Memory invoked"), rag)
+    assert executor.run(message, on_tool_call=turn.call, on_diagnostic=turn.observe,
+                        on_tool_batch=turn.after_tools).success
+
+    assert turn.diagnostics["memory_recall"]["status"] == "not_selected"
+    assert turn.diagnostics["memory_excluded"]
+    assert turn.diagnostics["prefetch"][0]["search_executed"]
+    assert turn.tools[0]["status"] == "denied"
+    assert turn.tools[0]["memory_recall"]["supplied"] == 0
+    assert "GLOBAL-7319" in provider.messages[0][0].content
 
 
 def test_later_rag_tool_omits_same_fragment(isolated_runtime):
@@ -1057,6 +1285,7 @@ def test_live_workbench_browser(isolated_runtime, tmp_path, monkeypatch):
     def delayed_recall(message, *args, **kwargs):
         if message == "studio key":
             assert gates["recall"].wait(20)
+            store.remember("I mentioned the studio key in a note.", category="fact")
         return original_recall(message, *args, **kwargs)
 
     monkeypatch.setattr(memory, "recall", delayed_recall)
@@ -1085,6 +1314,17 @@ def test_live_workbench_browser(isolated_runtime, tmp_path, monkeypatch):
                 raise StreamCancelled()
 
     service = WorkspaceService(tmp_path / "manifest", projects_root=fixture.active.parent, workspace_root=tmp_path)
+    from laew.knowledge import horizon
+
+    def unavailable_horizon(*args, **kwargs):
+        raise TimeoutError()
+
+    (tmp_path / "manifest").touch()
+    monkeypatch.setattr(web, "load_manifest", lambda *_: {
+        "memory_sufficiency": {"enabled": True, "model": "horizon-preferred"},
+    })
+    monkeypatch.setattr(horizon, "_request", unavailable_horizon)
+    monkeypatch.setattr("laew.knowledge.sufficiency.horizon_assessor", horizon.HorizonAssessor())
     service._active_project_id = None
     service._conversation_store = SessionStore(tmp_path / "sessions")
     sessions = service._conversation_store
