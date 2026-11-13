@@ -1,0 +1,79 @@
+{
+  "task": "3C.2B.1",
+  "status": "agent-draft-content-frozen-human-review-pending",
+  "workspace": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-pilot-20261112-v3",
+  "families": [
+    {
+      "id": "P01",
+      "title": "Repository-specific Git author identity",
+      "category": "single_document",
+      "answerability": "answerable_within_stated_scope"
+    },
+    {
+      "id": "P02",
+      "title": "MINI+ smooth-sheet replacement and preparation",
+      "category": "multi_section",
+      "answerability": "answerable_for_textual_checks_only"
+    },
+    {
+      "id": "P03",
+      "title": "PostgreSQL 17 incremental backup retention plan",
+      "category": "multi_document",
+      "answerability": "answerable_with_operational_limits"
+    },
+    {
+      "id": "P04",
+      "title": "Unknown PostgreSQL major version in a recovery runbook",
+      "category": "insufficiently_specified",
+      "answerability": "insufficiently_specified_version_ambiguity"
+    }
+  ],
+  "pilot_questions": 12,
+  "draft_labels": 12,
+  "evidence_spans": 25,
+  "selected_source_units": [
+    "postgresql-11-continuous-archiving",
+    "postgresql-12-release-12",
+    "postgresql-17-continuous-archiving",
+    "postgresql-17-recovery-config",
+    "postgresql-17-runtime-config-wal",
+    "progit-first-time-setup-de",
+    "progit-first-time-setup-en",
+    "progit-first-time-setup-pl",
+    "prusa-mini-pl"
+  ],
+  "human_reviewed_labels": 0,
+  "independent_human_agreement": null,
+  "source_manifest_sha256": "5164763f273cf02379358b403cd48727e416e0898fd089b559277365a4099c19",
+  "source_receipt_sha256": "cc46d666407c74beec2bf0832bfcf4a9f62117db608f53c2ef339e5e28d7759c",
+  "pilot_integrity_manifest_sha256": "a9bd1d0828fd39725a1801916f2584b31810687af2d68fc4b8eb8c4f9ed780cc",
+  "pilot_artifact_files": 15,
+  "restricted_overlaps": 0,
+  "inherited_uninspected_high_preserved": 329,
+  "corpus_wide_units_scanned": 24,
+  "absence_claim": false,
+  "sealed_families_reserved": 16,
+  "sealed_questions_reserved": 48,
+  "sealed_questions_authored": 0,
+  "tests": {
+    "runner": "scripts/run_isolated.py",
+    "passed": 9,
+    "seconds": 3.76
+  },
+  "review_links_checked": 55,
+  "source_unchanged": true,
+  "retrieval_executed": false,
+  "indexing_executed": false,
+  "embedding_calls": 0,
+  "inference_calls": 0,
+  "scoring_authorized": false,
+  "generator_sha256": "23d46dc18ad9e7af5a644870fc3074daf1aa9960acb9e513148d27294a5c698e",
+  "test_sha256": "ea3aa5964d00a04c8e0d58563a0689f025c5b46dbd245df3e4506b16f7dcf991",
+  "versions": {
+    "v1_superseded_manifest_sha256": "1db556028b8d469296f3e1ff77e1f10a9085162f20c8eb99fb767cc3613df4eb",
+    "v2_superseded_manifest_sha256": "22a32df42ddf0f07508a30d30c543d7001e4b5f90fa2d2643895de06088e3004",
+    "final": "v3"
+  },
+  "preexisting_files_checked": 206,
+  "preexisting_file_changes": []
+}

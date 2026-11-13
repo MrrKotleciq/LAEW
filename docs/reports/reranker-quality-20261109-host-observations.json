@@ -1,0 +1,9 @@
+{
+  "phase": "GTE legacy K=20 late warm samples",
+  "free_physical_bytes": 307589120,
+  "javaw_working_set_bytes": 5593894912,
+  "observed_effect": "warm logical request rose from about 13s to 31-32s",
+  "actions": "No user applications or quotas were changed by the agent. The user subsequently freed memory.",
+  "after_user_memory_release_available_physical_bytes": 5654593536,
+  "performance_plan": "Retain initial-load GTE series and rerun all GTE performance conditions after memory release. Use that rerun for the primary latency comparison."
+}

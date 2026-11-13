@@ -59,6 +59,23 @@ htmlcov/
 /.routing-eval-*/
 /bandit_report.json
 
+# Generated Stage 2B.2 exports and machine-local audit logs.
+# Keep source code, protocols, synthetic fixtures and concise result/audit JSON.
+# Raw corpora, vectors and candidate/payload traces belong in external workspaces.
+/docs/reports/*.json.gz
+/docs/reports/*-queries.csv
+/docs/reports/*-initial-state.json
+/docs/reports/*-final-state.json
+/docs/reports/*-git-status.txt
+/docs/reports/*-resource-samples.json
+/docs/reports/real-world-corpus-*-manifest.json
+
+# Public source material and real-world datasets must stay outside the checkout.
+# Root-only rules intentionally preserve tools/corpus and tests/rag fixtures.
+/corpus/
+/LAEW-corpus/
+/stage-2b2-real-world-*/
+
 # LAEW runtime and transient output
 logs/
 temp/

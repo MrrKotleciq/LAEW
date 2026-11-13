@@ -1,0 +1,54 @@
+{
+  "client_version": "1.5.9",
+  "sqlite_version": "3.50.4",
+  "bm25s_version": "0.3.15",
+  "bm25s_requires": [
+    "numpy",
+    "orjson; extra == \"core\"",
+    "tqdm; extra == \"core\"",
+    "PyStemmer; extra == \"core\"",
+    "numba; extra == \"core\"",
+    "PyStemmer; extra == \"stem\"",
+    "huggingface_hub; extra == \"hf\"",
+    "black; extra == \"dev\"",
+    "jax[cpu]; extra == \"selection\"",
+    "scipy; extra == \"indexing\"",
+    "pytrec_eval; extra == \"evaluation\"",
+    "mcp; extra == \"mcp\"",
+    "rich; extra == \"cli\"",
+    "orjson; extra == \"full\"",
+    "tqdm; extra == \"full\"",
+    "PyStemmer; extra == \"full\"",
+    "numba; extra == \"full\"",
+    "PyStemmer; extra == \"full\"",
+    "huggingface_hub; extra == \"full\"",
+    "black; extra == \"full\"",
+    "jax[cpu]; extra == \"full\"",
+    "scipy; extra == \"full\"",
+    "pytrec_eval; extra == \"full\"",
+    "mcp; extra == \"full\"",
+    "rich; extra == \"full\""
+  ],
+  "bm25s_native_mutation_methods": [],
+  "collection_search_doc": "Perform hybrid search on the collection.\nThis is an experimental API that only works for distributed and hosted Chroma for now.",
+  "sqlite_fts5_enabled": true,
+  "container_image": {
+    "code": 0,
+    "stdout": "sha256:1e0b73a187a28757c572acba508c46f48c9e8b0acaf5c20e6d95cdedce1acdf6 chromadb/chroma:latest",
+    "stderr": ""
+  },
+  "binary_version": {
+    "code": 0,
+    "stdout": "chroma 1.4.4",
+    "stderr": ""
+  },
+  "server_version_endpoint": "1.0.0",
+  "server_query_search_paths": [
+    "/api/v2/tenants/{tenant}/databases/{database}/collections/{collection_id}/query",
+    "/api/v2/tenants/{tenant}/databases/{database}/collections/{collection_id}/search"
+  ],
+  "local_search_error": {
+    "type": "NotImplementedError",
+    "message": "Search is not implemented for Local Chroma"
+  }
+}

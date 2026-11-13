@@ -1,0 +1,2796 @@
+{
+  "model": "gte",
+  "info": {
+    "model_id": "Alibaba-NLP/gte-multilingual-reranker-base",
+    "revision": "8215cf04918ba6f7b6a62bb44238ce2953d8831c",
+    "port": 8083,
+    "backend": "tei-cpu-1.9.4",
+    "native": {
+      "model_id": "Alibaba-NLP/gte-multilingual-reranker-base",
+      "model_sha": "8215cf04918ba6f7b6a62bb44238ce2953d8831c",
+      "model_dtype": "float32",
+      "served_model_name": "Alibaba-NLP/gte-multilingual-reranker-base",
+      "model_type": {
+        "reranker": {
+          "id2label": {
+            "0": "LABEL_0"
+          },
+          "label2id": {
+            "LABEL_0": 0
+          }
+        }
+      },
+      "max_concurrent_requests": 16,
+      "max_input_length": 1024,
+      "max_batch_tokens": 1024,
+      "max_batch_requests": 4,
+      "max_client_batch_size": 16,
+      "auto_truncate": true,
+      "tokenization_workers": 1,
+      "version": "1.9.4",
+      "sha": "e80ef225ed0e6cb1717ce632a6a84b6cf211bb67",
+      "docker_label": "sha-e80ef22"
+    },
+    "effective_token_limit": 1024,
+    "max_documents": 16,
+    "device": "cpu"
+  },
+  "candidate_pool_hash": "4cfc7e69ae22712ec12c84318b14efb55cb1f2523d6a91074227a34ab8b87610",
+  "readiness_wait_seconds": 12.026780999964103,
+  "rows": [],
+  "errors": [],
+  "container_state_at_readiness": {
+    "Status": "running",
+    "Running": true,
+    "Paused": false,
+    "Restarting": false,
+    "OOMKilled": false,
+    "Dead": false,
+    "Pid": 10257,
+    "ExitCode": 0,
+    "Error": "",
+    "StartedAt": "2026-11-09T21:18:21.351277157Z",
+    "FinishedAt": "2026-11-09T21:18:19.683114586Z",
+    "Health": {
+      "Status": "starting",
+      "FailingStreak": 0,
+      "Log": [
+        {
+          "Start": "2026-11-09T21:17:26.355348469Z",
+          "End": "2026-11-09T21:17:26.826587427Z",
+          "ExitCode": 0,
+          "Output": ""
+        },
+        {
+          "Start": "2026-11-09T21:17:56.825543283Z",
+          "End": "2026-11-09T21:17:56.970976971Z",
+          "ExitCode": 0,
+          "Output": ""
+        },
+        {
+          "Start": "2026-11-09T21:18:26.704342574Z",
+          "End": "2026-11-09T21:18:26.842453472Z",
+          "ExitCode": 7,
+          "Output": ""
+        },
+        {
+          "Start": "2026-11-09T21:18:31.843847713Z",
+          "End": "2026-11-09T21:18:31.885855809Z",
+          "ExitCode": 7,
+          "Output": ""
+        },
+        {
+          "Start": "2026-11-09T21:18:36.886995022Z",
+          "End": "2026-11-09T21:18:36.929265572Z",
+          "ExitCode": 7,
+          "Output": ""
+        }
+      ]
+    }
+  },
+  "resources_at_readiness": {
+    "usage_usec": 21440666,
+    "memory_current": 1527578624,
+    "memory_peak": 1672605696
+  },
+  "performance": [
+    {
+      "strategy": "legacy",
+      "count": 5,
+      "query_id": "h03",
+      "lengths_chars": [
+        89,
+        141,
+        941,
+        200,
+        10
+      ],
+      "samples": [
+        {
+          "request_ms": 2126.7711999826133,
+          "native_inference_ms": 1125.0,
+          "calls": [
+            {
+              "candidate_count": 5,
+              "request_ms": 2126.6641000984237,
+              "inference_ms": 1125.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": true,
+          "cold_first_request": true,
+          "cgroup_after": {
+            "usage_usec": 25828603,
+            "memory_current": 1532502016,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3308584960
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3330674688
+          },
+          "cpu_percent": 187.70544877382747
+        },
+        {
+          "request_ms": 2067.8353999974206,
+          "native_inference_ms": 1092.0,
+          "calls": [
+            {
+              "candidate_count": 5,
+              "request_ms": 2067.7468000212684,
+              "inference_ms": 1092.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 30217341,
+            "memory_current": 1532379136,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3328671744
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3331551232
+          },
+          "cpu_percent": 187.89041783603017
+        },
+        {
+          "request_ms": 2064.738000044599,
+          "native_inference_ms": 1080.0,
+          "calls": [
+            {
+              "candidate_count": 5,
+              "request_ms": 2064.6631999406964,
+              "inference_ms": 1080.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 34548158,
+            "memory_current": 1532764160,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3331211264
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3328217088
+          },
+          "cpu_percent": 185.54186939208162
+        },
+        {
+          "request_ms": 2050.246600061655,
+          "native_inference_ms": 1079.0,
+          "calls": [
+            {
+              "candidate_count": 5,
+              "request_ms": 2050.16819993034,
+              "inference_ms": 1079.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 38892734,
+            "memory_current": 1533042688,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3328217088
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3299553280
+          },
+          "cpu_percent": 186.66743406780233
+        },
+        {
+          "request_ms": 2116.1073999246582,
+          "native_inference_ms": 1106.0,
+          "calls": [
+            {
+              "candidate_count": 5,
+              "request_ms": 2116.028899908997,
+              "inference_ms": 1106.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 43318253,
+            "memory_current": 1533116416,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3299553280
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3383824384
+          },
+          "cpu_percent": 186.3166918654981
+        },
+        {
+          "request_ms": 2125.0729999737814,
+          "native_inference_ms": 1124.0,
+          "calls": [
+            {
+              "candidate_count": 5,
+              "request_ms": 2124.998399987817,
+              "inference_ms": 1124.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 47808091,
+            "memory_current": 1533353984,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3383824384
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3382665216
+          },
+          "cpu_percent": 187.41412165745982
+        },
+        {
+          "request_ms": 2075.0911000650376,
+          "native_inference_ms": 1095.0,
+          "calls": [
+            {
+              "candidate_count": 5,
+              "request_ms": 2075.019699987024,
+              "inference_ms": 1095.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 52196556,
+            "memory_current": 1533104128,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3382665216
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3377639424
+          },
+          "cpu_percent": 187.48262179444478
+        },
+        {
+          "request_ms": 2134.601300000213,
+          "native_inference_ms": 1132.0,
+          "calls": [
+            {
+              "candidate_count": 5,
+              "request_ms": 2134.5241999952123,
+              "inference_ms": 1132.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 56694209,
+            "memory_current": 1549590528,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3377639424
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3344732160
+          },
+          "cpu_percent": 186.79908662554786
+        },
+        {
+          "request_ms": 2090.5311999376863,
+          "native_inference_ms": 1104.0,
+          "calls": [
+            {
+              "candidate_count": 5,
+              "request_ms": 2090.4503000201657,
+              "inference_ms": 1104.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 61142694,
+            "memory_current": 1549733888,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3344732160
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3327225856
+          },
+          "cpu_percent": 187.6475286785003
+        },
+        {
+          "request_ms": 2070.1048999326304,
+          "native_inference_ms": 1081.0,
+          "calls": [
+            {
+              "candidate_count": 5,
+              "request_ms": 2070.0181999709457,
+              "inference_ms": 1081.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 65513806,
+            "memory_current": 1549475840,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3327225856
+          },
+          "host_memory_after": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3517812736
+          },
+          "cpu_percent": 187.57145680892228
+        },
+        {
+          "request_ms": 1990.9818000160158,
+          "native_inference_ms": 1046.0,
+          "calls": [
+            {
+              "candidate_count": 5,
+              "request_ms": 1990.9112000605091,
+              "inference_ms": 1046.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 69746595,
+            "memory_current": 1550024704,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3517812736
+          },
+          "host_memory_after": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3516809216
+          },
+          "cpu_percent": 187.2220417959169
+        }
+      ],
+      "errors": [],
+      "warm_n": 10,
+      "p50_ms": 2072.597999998834,
+      "p95_ms": 2130.313564988319,
+      "native_p50_ms": 1093.5,
+      "native_p95_ms": 1128.4,
+      "docker_stats_after": {
+        "BlockIO": "0B / 0B",
+        "CPUPerc": "0.29%",
+        "Container": "laew-reranker-gte-1",
+        "ID": "c1c5cdbe061d",
+        "MemPerc": "48.62%",
+        "MemUsage": "1.459GiB / 3GiB",
+        "Name": "laew-reranker-gte-1",
+        "NetIO": "64.5kB / 33.7kB",
+        "PIDs": "11"
+      }
+    },
+    {
+      "strategy": "legacy",
+      "count": 10,
+      "query_id": "h03",
+      "lengths_chars": [
+        89,
+        141,
+        941,
+        200,
+        10,
+        200,
+        12,
+        964,
+        934,
+        85
+      ],
+      "samples": [
+        {
+          "request_ms": 4872.585200006142,
+          "native_inference_ms": 1831.0,
+          "calls": [
+            {
+              "candidate_count": 10,
+              "request_ms": 4872.473199968226,
+              "inference_ms": 1831.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": true,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 79746751,
+            "memory_current": 1566785536,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3514716160
+          },
+          "host_memory_after": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3471548416
+          },
+          "cpu_percent": 194.66105937448725
+        },
+        {
+          "request_ms": 4876.9340000581,
+          "native_inference_ms": 1830.0,
+          "calls": [
+            {
+              "candidate_count": 10,
+              "request_ms": 4876.826100051403,
+              "inference_ms": 1830.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 89720339,
+            "memory_current": 1581187072,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3471548416
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3410223104
+          },
+          "cpu_percent": 193.4927215869273
+        },
+        {
+          "request_ms": 4881.787599995732,
+          "native_inference_ms": 1830.0,
+          "calls": [
+            {
+              "candidate_count": 10,
+              "request_ms": 4881.682000006549,
+              "inference_ms": 1830.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 99708720,
+            "memory_current": 1637187584,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3410042880
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3405873152
+          },
+          "cpu_percent": 194.16715593185756
+        },
+        {
+          "request_ms": 4960.772900027223,
+          "native_inference_ms": 1872.0,
+          "calls": [
+            {
+              "candidate_count": 10,
+              "request_ms": 4960.680000018328,
+              "inference_ms": 1872.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 109891256,
+            "memory_current": 1582047232,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3405873152
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3370151936
+          },
+          "cpu_percent": 194.6710211558285
+        },
+        {
+          "request_ms": 4938.842799980193,
+          "native_inference_ms": 1863.0,
+          "calls": [
+            {
+              "candidate_count": 10,
+              "request_ms": 4938.747000065632,
+              "inference_ms": 1863.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 119990246,
+            "memory_current": 1582161920,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3370151936
+          },
+          "host_memory_after": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3439079424
+          },
+          "cpu_percent": 194.1900027952898
+        },
+        {
+          "request_ms": 5040.606599999592,
+          "native_inference_ms": 1890.0,
+          "calls": [
+            {
+              "candidate_count": 10,
+              "request_ms": 5040.510300081223,
+              "inference_ms": 1890.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 130267373,
+            "memory_current": 1582084096,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3439079424
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3375702016
+          },
+          "cpu_percent": 193.9225993610145
+        },
+        {
+          "request_ms": 4847.751199966297,
+          "native_inference_ms": 1822.0,
+          "calls": [
+            {
+              "candidate_count": 10,
+              "request_ms": 4847.633700002916,
+              "inference_ms": 1822.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 140196614,
+            "memory_current": 1582194688,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3375185920
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3390160896
+          },
+          "cpu_percent": 194.2038228881088
+        },
+        {
+          "request_ms": 4937.142199953087,
+          "native_inference_ms": 1858.0,
+          "calls": [
+            {
+              "candidate_count": 10,
+              "request_ms": 4937.0493000606075,
+              "inference_ms": 1858.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 150300740,
+            "memory_current": 1582813184,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3390160896
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3340460032
+          },
+          "cpu_percent": 194.13655937026908
+        },
+        {
+          "request_ms": 4954.309900058433,
+          "native_inference_ms": 1870.0,
+          "calls": [
+            {
+              "candidate_count": 10,
+              "request_ms": 4954.213500022888,
+              "inference_ms": 1870.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 160470342,
+            "memory_current": 1582940160,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3340460032
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3352571904
+          },
+          "cpu_percent": 194.80327852171035
+        },
+        {
+          "request_ms": 4916.810600087047,
+          "native_inference_ms": 1854.0,
+          "calls": [
+            {
+              "candidate_count": 10,
+              "request_ms": 4916.710200021043,
+              "inference_ms": 1854.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 170548748,
+            "memory_current": 1583140864,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3352571904
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3305725952
+          },
+          "cpu_percent": 194.7443002632691
+        },
+        {
+          "request_ms": 4859.5589000033215,
+          "native_inference_ms": 1830.0,
+          "calls": [
+            {
+              "candidate_count": 10,
+              "request_ms": 4859.466099995188,
+              "inference_ms": 1830.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 180522734,
+            "memory_current": 1583108096,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3305725952
+          },
+          "host_memory_after": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3434639360
+          },
+          "cpu_percent": 194.69839624542846
+        }
+      ],
+      "errors": [],
+      "warm_n": 10,
+      "p50_ms": 4926.976400020067,
+      "p95_ms": 5004.681435012026,
+      "native_p50_ms": 1856.0,
+      "native_p95_ms": 1881.9,
+      "docker_stats_after": {
+        "BlockIO": "0B / 0B",
+        "CPUPerc": "0.30%",
+        "Container": "laew-reranker-gte-1",
+        "ID": "c1c5cdbe061d",
+        "MemPerc": "49.13%",
+        "MemUsage": "1.474GiB / 3GiB",
+        "Name": "laew-reranker-gte-1",
+        "NetIO": "118kB / 58.3kB",
+        "PIDs": "11"
+      }
+    },
+    {
+      "strategy": "legacy",
+      "count": 20,
+      "query_id": "h03",
+      "lengths_chars": [
+        89,
+        141,
+        941,
+        200,
+        10,
+        200,
+        12,
+        964,
+        934,
+        85,
+        1000,
+        7,
+        1000,
+        559,
+        9,
+        11,
+        9,
+        991,
+        991,
+        13
+      ],
+      "samples": [
+        {
+          "request_ms": 12316.941399942152,
+          "native_inference_ms": 2727.0,
+          "calls": [
+            {
+              "candidate_count": 16,
+              "request_ms": 9980.293900007382,
+              "inference_ms": 1777.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            },
+            {
+              "candidate_count": 4,
+              "request_ms": 2336.4427000051364,
+              "inference_ms": 950.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": true,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 205365095,
+            "memory_current": 1582280704,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3440230400
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3398135808
+          },
+          "cpu_percent": 197.41823824646028
+        },
+        {
+          "request_ms": 12462.176300003193,
+          "native_inference_ms": 2765.0,
+          "calls": [
+            {
+              "candidate_count": 16,
+              "request_ms": 10127.589800045826,
+              "inference_ms": 1817.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            },
+            {
+              "candidate_count": 4,
+              "request_ms": 2334.4111000187695,
+              "inference_ms": 948.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 230539728,
+            "memory_current": 1581051904,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3397722112
+          },
+          "host_memory_after": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3500699648
+          },
+          "cpu_percent": 197.76107658066093
+        },
+        {
+          "request_ms": 12367.19100002665,
+          "native_inference_ms": 2753.0,
+          "calls": [
+            {
+              "candidate_count": 16,
+              "request_ms": 10033.835100010037,
+              "inference_ms": 1797.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            },
+            {
+              "candidate_count": 4,
+              "request_ms": 2333.1592000322416,
+              "inference_ms": 956.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 255489229,
+            "memory_current": 1582342144,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3500699648
+          },
+          "host_memory_after": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3463557120
+          },
+          "cpu_percent": 197.5620397584578
+        },
+        {
+          "request_ms": 12420.307000051253,
+          "native_inference_ms": 2772.0,
+          "calls": [
+            {
+              "candidate_count": 16,
+              "request_ms": 10001.307900063694,
+              "inference_ms": 1790.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            },
+            {
+              "candidate_count": 4,
+              "request_ms": 2418.814199976623,
+              "inference_ms": 982.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 280543834,
+            "memory_current": 1582403584,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3463557120
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3400216576
+          },
+          "cpu_percent": 197.48520623459584
+        },
+        {
+          "request_ms": 12336.041599977762,
+          "native_inference_ms": 2736.0,
+          "calls": [
+            {
+              "candidate_count": 16,
+              "request_ms": 9953.022500034422,
+              "inference_ms": 1780.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            },
+            {
+              "candidate_count": 4,
+              "request_ms": 2382.836600067094,
+              "inference_ms": 956.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 305446007,
+            "memory_current": 1582383104,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3400216576
+          },
+          "host_memory_after": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3427512320
+          },
+          "cpu_percent": 197.47226528225858
+        },
+        {
+          "request_ms": 12318.008199916221,
+          "native_inference_ms": 2729.0,
+          "calls": [
+            {
+              "candidate_count": 16,
+              "request_ms": 9990.819899947383,
+              "inference_ms": 1787.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            },
+            {
+              "candidate_count": 4,
+              "request_ms": 2327.0187999587506,
+              "inference_ms": 942.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 330289604,
+            "memory_current": 1582460928,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3427155968
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3415334912
+          },
+          "cpu_percent": 197.52801725295103
+        },
+        {
+          "request_ms": 12214.313799981028,
+          "native_inference_ms": 2737.0,
+          "calls": [
+            {
+              "candidate_count": 16,
+              "request_ms": 9801.302899955772,
+              "inference_ms": 1761.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            },
+            {
+              "candidate_count": 4,
+              "request_ms": 2412.841400015168,
+              "inference_ms": 976.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 354893078,
+            "memory_current": 1582366720,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3415318528
+          },
+          "host_memory_after": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3477688320
+          },
+          "cpu_percent": 197.10335937685892
+        },
+        {
+          "request_ms": 12675.969199975953,
+          "native_inference_ms": 2815.0,
+          "calls": [
+            {
+              "candidate_count": 16,
+              "request_ms": 10278.836600016803,
+              "inference_ms": 1835.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            },
+            {
+              "candidate_count": 4,
+              "request_ms": 2396.9560998957604,
+              "inference_ms": 980.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 380484892,
+            "memory_current": 1582555136,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3477688320
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3352989696
+          },
+          "cpu_percent": 197.84021569151153
+        },
+        {
+          "request_ms": 12486.915300018154,
+          "native_inference_ms": 2759.0,
+          "calls": [
+            {
+              "candidate_count": 16,
+              "request_ms": 10118.586600059643,
+              "inference_ms": 1801.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            },
+            {
+              "candidate_count": 4,
+              "request_ms": 2368.1513000046834,
+              "inference_ms": 958.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 405694616,
+            "memory_current": 1582702592,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3352989696
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3322343424
+          },
+          "cpu_percent": 197.57453334784353
+        },
+        {
+          "request_ms": 12742.51680006273,
+          "native_inference_ms": 2812.0,
+          "calls": [
+            {
+              "candidate_count": 16,
+              "request_ms": 10391.304399934597,
+              "inference_ms": 1855.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            },
+            {
+              "candidate_count": 4,
+              "request_ms": 2351.0420999955386,
+              "inference_ms": 957.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 431436188,
+            "memory_current": 1582866432,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3322273792
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3400646656
+          },
+          "cpu_percent": 197.91444950074492
+        },
+        {
+          "request_ms": 12635.621599969454,
+          "native_inference_ms": 2798.0,
+          "calls": [
+            {
+              "candidate_count": 16,
+              "request_ms": 10223.375300061889,
+              "inference_ms": 1823.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            },
+            {
+              "candidate_count": 4,
+              "request_ms": 2411.9980999967083,
+              "inference_ms": 975.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 456894434,
+            "memory_current": 1616699392,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3400646656
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3359399936
+          },
+          "cpu_percent": 197.36889025066807
+        }
+      ],
+      "errors": [],
+      "warm_n": 10,
+      "p50_ms": 12441.241650027223,
+      "p95_ms": 12712.57038002368,
+      "native_p50_ms": 2762.0,
+      "native_p95_ms": 2813.65,
+      "docker_stats_after": {
+        "BlockIO": "0B / 0B",
+        "CPUPerc": "0.29%",
+        "Container": "laew-reranker-gte-1",
+        "ID": "c1c5cdbe061d",
+        "MemPerc": "49.12%",
+        "MemUsage": "1.474GiB / 3GiB",
+        "Name": "laew-reranker-gte-1",
+        "NetIO": "237kB / 108kB",
+        "PIDs": "11"
+      }
+    },
+    {
+      "strategy": "structure-v2",
+      "count": 5,
+      "query_id": "h03",
+      "lengths_chars": [
+        100,
+        354,
+        968,
+        968,
+        964
+      ],
+      "samples": [
+        {
+          "request_ms": 2317.131500109099,
+          "native_inference_ms": 1196.0,
+          "calls": [
+            {
+              "candidate_count": 5,
+              "request_ms": 2317.04420002643,
+              "inference_ms": 1196.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": true,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 461765955,
+            "memory_current": 1583738880,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3364347904
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3250937856
+          },
+          "cpu_percent": 188.01601498369553
+        },
+        {
+          "request_ms": 2286.7881999118254,
+          "native_inference_ms": 1168.0,
+          "calls": [
+            {
+              "candidate_count": 5,
+              "request_ms": 2286.7036000825465,
+              "inference_ms": 1168.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 466547025,
+            "memory_current": 1583542272,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3250937856
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3325513728
+          },
+          "cpu_percent": 187.09826588846374
+        },
+        {
+          "request_ms": 2321.345799951814,
+          "native_inference_ms": 1190.0,
+          "calls": [
+            {
+              "candidate_count": 5,
+              "request_ms": 2321.257899980992,
+              "inference_ms": 1190.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 471426737,
+            "memory_current": 1583964160,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3325513728
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3349983232
+          },
+          "cpu_percent": 188.32961026521326
+        },
+        {
+          "request_ms": 2315.927100018598,
+          "native_inference_ms": 1191.0,
+          "calls": [
+            {
+              "candidate_count": 5,
+              "request_ms": 2315.842799958773,
+              "inference_ms": 1191.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 476287770,
+            "memory_current": 1583951872,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3349983232
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3367743488
+          },
+          "cpu_percent": 188.42301568244577
+        },
+        {
+          "request_ms": 2248.048200039193,
+          "native_inference_ms": 1157.0,
+          "calls": [
+            {
+              "candidate_count": 5,
+              "request_ms": 2247.9651999892667,
+              "inference_ms": 1157.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 481030683,
+            "memory_current": 1629839360,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3367743488
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3389263872
+          },
+          "cpu_percent": 188.3982862261215
+        },
+        {
+          "request_ms": 2153.1559999566525,
+          "native_inference_ms": 1107.0,
+          "calls": [
+            {
+              "candidate_count": 5,
+              "request_ms": 2153.0682999873534,
+              "inference_ms": 1107.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 485589437,
+            "memory_current": 1583480832,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3389263872
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3410980864
+          },
+          "cpu_percent": 188.74368896738847
+        },
+        {
+          "request_ms": 2296.8337000347674,
+          "native_inference_ms": 1180.0,
+          "calls": [
+            {
+              "candidate_count": 5,
+              "request_ms": 2296.7482999665663,
+              "inference_ms": 1180.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 490407660,
+            "memory_current": 1630085120,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3410534400
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3329961984
+          },
+          "cpu_percent": 187.65580640951038
+        },
+        {
+          "request_ms": 2312.005399959162,
+          "native_inference_ms": 1200.0,
+          "calls": [
+            {
+              "candidate_count": 5,
+              "request_ms": 2311.9234000332654,
+              "inference_ms": 1200.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 495312410,
+            "memory_current": 1583816704,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3329961984
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3362430976
+          },
+          "cpu_percent": 188.75683550234072
+        },
+        {
+          "request_ms": 2328.4077999414876,
+          "native_inference_ms": 1194.0,
+          "calls": [
+            {
+              "candidate_count": 5,
+              "request_ms": 2328.3243000041693,
+              "inference_ms": 1194.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 500189337,
+            "memory_current": 1583955968,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3362430976
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3355656192
+          },
+          "cpu_percent": 188.14501440900173
+        },
+        {
+          "request_ms": 2236.5981000475585,
+          "native_inference_ms": 1143.0,
+          "calls": [
+            {
+              "candidate_count": 5,
+              "request_ms": 2236.516600009054,
+              "inference_ms": 1143.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 504872265,
+            "memory_current": 1583591424,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3355406336
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3357114368
+          },
+          "cpu_percent": 187.02790721792388
+        },
+        {
+          "request_ms": 2319.292900036089,
+          "native_inference_ms": 1197.0,
+          "calls": [
+            {
+              "candidate_count": 5,
+              "request_ms": 2319.2075999686494,
+              "inference_ms": 1197.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 509714047,
+            "memory_current": 1583689728,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3357114368
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3339829248
+          },
+          "cpu_percent": 187.3749652525573
+        }
+      ],
+      "errors": [],
+      "warm_n": 10,
+      "p50_ms": 2304.4195499969646,
+      "p95_ms": 2325.2298999461345,
+      "native_p50_ms": 1185.0,
+      "native_p95_ms": 1198.65,
+      "docker_stats_after": {
+        "BlockIO": "0B / 0B",
+        "CPUPerc": "0.30%",
+        "Container": "laew-reranker-gte-1",
+        "ID": "c1c5cdbe061d",
+        "MemPerc": "49.15%",
+        "MemUsage": "1.474GiB / 3GiB",
+        "Name": "laew-reranker-gte-1",
+        "NetIO": "288kB / 130kB",
+        "PIDs": "11"
+      }
+    },
+    {
+      "strategy": "structure-v2",
+      "count": 10,
+      "query_id": "h03",
+      "lengths_chars": [
+        100,
+        354,
+        968,
+        968,
+        964,
+        215,
+        212,
+        1000,
+        86,
+        202
+      ],
+      "samples": [
+        {
+          "request_ms": 5871.84740009252,
+          "native_inference_ms": 1594.0,
+          "calls": [
+            {
+              "candidate_count": 10,
+              "request_ms": 5871.732500032522,
+              "inference_ms": 1594.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": true,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 521718617,
+            "memory_current": 1583640576,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3354664960
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3380580352
+          },
+          "cpu_percent": 195.5485974807388
+        },
+        {
+          "request_ms": 5720.180099946447,
+          "native_inference_ms": 1562.0,
+          "calls": [
+            {
+              "candidate_count": 10,
+              "request_ms": 5720.069300034083,
+              "inference_ms": 1562.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 533418508,
+            "memory_current": 1646747648,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3380580352
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3365126144
+          },
+          "cpu_percent": 195.46374222604135
+        },
+        {
+          "request_ms": 5870.230000000447,
+          "native_inference_ms": 1595.0,
+          "calls": [
+            {
+              "candidate_count": 10,
+              "request_ms": 5870.116399950348,
+              "inference_ms": 1595.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 545407121,
+            "memory_current": 1582759936,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3365126144
+          },
+          "host_memory_after": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3471290368
+          },
+          "cpu_percent": 195.47243438790287
+        },
+        {
+          "request_ms": 5663.411700050347,
+          "native_inference_ms": 1534.0,
+          "calls": [
+            {
+              "candidate_count": 10,
+              "request_ms": 5663.303600042127,
+              "inference_ms": 1534.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 556941167,
+            "memory_current": 1583616000,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3471290368
+          },
+          "host_memory_after": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3486728192
+          },
+          "cpu_percent": 194.64194966870647
+        },
+        {
+          "request_ms": 5829.42299998831,
+          "native_inference_ms": 1598.0,
+          "calls": [
+            {
+              "candidate_count": 10,
+              "request_ms": 5829.311199951917,
+              "inference_ms": 1598.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 568829079,
+            "memory_current": 1583755264,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3486728192
+          },
+          "host_memory_after": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3470004224
+          },
+          "cpu_percent": 195.18049711303826
+        },
+        {
+          "request_ms": 5810.769299976528,
+          "native_inference_ms": 1588.0,
+          "calls": [
+            {
+              "candidate_count": 10,
+              "request_ms": 5810.659400071017,
+              "inference_ms": 1588.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 580697315,
+            "memory_current": 1583755264,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3470004224
+          },
+          "host_memory_after": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3476389888
+          },
+          "cpu_percent": 195.42633289108846
+        },
+        {
+          "request_ms": 5778.002199949697,
+          "native_inference_ms": 1567.0,
+          "calls": [
+            {
+              "candidate_count": 10,
+              "request_ms": 5777.893800055608,
+              "inference_ms": 1567.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 592467187,
+            "memory_current": 1581813760,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3476389888
+          },
+          "host_memory_after": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3498602496
+          },
+          "cpu_percent": 194.73027935283224
+        },
+        {
+          "request_ms": 5810.006099985912,
+          "native_inference_ms": 1571.0,
+          "calls": [
+            {
+              "candidate_count": 10,
+              "request_ms": 5809.878500062041,
+              "inference_ms": 1571.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 604285972,
+            "memory_current": 1603219456,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3498602496
+          },
+          "host_memory_after": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3497705472
+          },
+          "cpu_percent": 194.5943853268046
+        },
+        {
+          "request_ms": 5708.633000031114,
+          "native_inference_ms": 1551.0,
+          "calls": [
+            {
+              "candidate_count": 10,
+              "request_ms": 5708.520899992436,
+              "inference_ms": 1551.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 615951616,
+            "memory_current": 1582940160,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3497705472
+          },
+          "host_memory_after": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3488600064
+          },
+          "cpu_percent": 195.189767973664
+        },
+        {
+          "request_ms": 5768.456399906427,
+          "native_inference_ms": 1587.0,
+          "calls": [
+            {
+              "candidate_count": 10,
+              "request_ms": 5768.344599986449,
+              "inference_ms": 1587.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 627706006,
+            "memory_current": 1583808512,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3488600064
+          },
+          "host_memory_after": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3507867648
+          },
+          "cpu_percent": 194.83749561456264
+        },
+        {
+          "request_ms": 5789.131899946369,
+          "native_inference_ms": 1581.0,
+          "calls": [
+            {
+              "candidate_count": 10,
+              "request_ms": 5789.022999932058,
+              "inference_ms": 1581.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 639531657,
+            "memory_current": 1583665152,
+            "memory_peak": 1672605696
+          },
+          "host_memory_before": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3507867648
+          },
+          "host_memory_after": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3473391616
+          },
+          "cpu_percent": 195.5355433777255
+        }
+      ],
+      "errors": [],
+      "warm_n": 10,
+      "p50_ms": 5783.567049948033,
+      "p95_ms": 5851.866849994985,
+      "native_p50_ms": 1576.0,
+      "native_p95_ms": 1596.65,
+      "docker_stats_after": {
+        "BlockIO": "0B / 0B",
+        "CPUPerc": "0.30%",
+        "Container": "laew-reranker-gte-1",
+        "ID": "c1c5cdbe061d",
+        "MemPerc": "49.15%",
+        "MemUsage": "1.474GiB / 3GiB",
+        "Name": "laew-reranker-gte-1",
+        "NetIO": "359kB / 155kB",
+        "PIDs": "11"
+      }
+    },
+    {
+      "strategy": "structure-v2",
+      "count": 20,
+      "query_id": "h03",
+      "lengths_chars": [
+        100,
+        354,
+        968,
+        968,
+        964,
+        215,
+        212,
+        1000,
+        86,
+        202,
+        696,
+        980,
+        965,
+        965,
+        965,
+        1000,
+        58,
+        979,
+        993,
+        494
+      ],
+      "samples": [
+        {
+          "request_ms": 15833.500499953516,
+          "native_inference_ms": 3726.0,
+          "calls": [
+            {
+              "candidate_count": 16,
+              "request_ms": 11952.569300075993,
+              "inference_ms": 2242.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            },
+            {
+              "candidate_count": 4,
+              "request_ms": 3880.70640002843,
+              "inference_ms": 1484.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": true,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 671424859,
+            "memory_current": 1632047104,
+            "memory_peak": 1676513280
+          },
+          "host_memory_before": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3485745152
+          },
+          "host_memory_after": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3447365632
+          },
+          "cpu_percent": 198.0121368187448
+        },
+        {
+          "request_ms": 14810.059100040235,
+          "native_inference_ms": 3374.0,
+          "calls": [
+            {
+              "candidate_count": 16,
+              "request_ms": 11009.196499944665,
+              "inference_ms": 1916.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            },
+            {
+              "candidate_count": 4,
+              "request_ms": 3800.643500057049,
+              "inference_ms": 1458.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 701283172,
+            "memory_current": 1584087040,
+            "memory_peak": 1676668928
+          },
+          "host_memory_before": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3447365632
+          },
+          "host_memory_after": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3454570496
+          },
+          "cpu_percent": 198.15933635819846
+        },
+        {
+          "request_ms": 16587.252800003625,
+          "native_inference_ms": 3918.0,
+          "calls": [
+            {
+              "candidate_count": 16,
+              "request_ms": 12552.865399979055,
+              "inference_ms": 2368.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            },
+            {
+              "candidate_count": 4,
+              "request_ms": 4034.173300024122,
+              "inference_ms": 1550.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 734716123,
+            "memory_current": 1604214784,
+            "memory_peak": 1678852096
+          },
+          "host_memory_before": {
+            "load_percent": 79,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3454570496
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3273326592
+          },
+          "cpu_percent": 198.35650828340744
+        },
+        {
+          "request_ms": 15607.372300000861,
+          "native_inference_ms": 3557.0,
+          "calls": [
+            {
+              "candidate_count": 16,
+              "request_ms": 11657.07739989739,
+              "inference_ms": 2045.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            },
+            {
+              "candidate_count": 4,
+              "request_ms": 3949.989299988374,
+              "inference_ms": 1512.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 766176605,
+            "memory_current": 1588097024,
+            "memory_peak": 1678852096
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3273326592
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3341873152
+          },
+          "cpu_percent": 198.1588012112467
+        },
+        {
+          "request_ms": 15954.296800075099,
+          "native_inference_ms": 3756.0,
+          "calls": [
+            {
+              "candidate_count": 16,
+              "request_ms": 12126.700300024822,
+              "inference_ms": 2280.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            },
+            {
+              "candidate_count": 4,
+              "request_ms": 3827.364500029944,
+              "inference_ms": 1476.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 798326476,
+            "memory_current": 1647632384,
+            "memory_peak": 1678852096
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3341873152
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3333500928
+          },
+          "cpu_percent": 198.25893164867162
+        },
+        {
+          "request_ms": 15906.717599951662,
+          "native_inference_ms": 3779.0,
+          "calls": [
+            {
+              "candidate_count": 16,
+              "request_ms": 11926.795900100842,
+              "inference_ms": 2243.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            },
+            {
+              "candidate_count": 4,
+              "request_ms": 3979.7057999530807,
+              "inference_ms": 1536.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 830349375,
+            "memory_current": 1592303616,
+            "memory_peak": 1678852096
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3333500928
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3321974784
+          },
+          "cpu_percent": 197.99386710305052
+        },
+        {
+          "request_ms": 15804.67880005017,
+          "native_inference_ms": 3628.0,
+          "calls": [
+            {
+              "candidate_count": 16,
+              "request_ms": 11688.313800026663,
+              "inference_ms": 2035.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            },
+            {
+              "candidate_count": 4,
+              "request_ms": 4116.146599990316,
+              "inference_ms": 1593.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 862179215,
+            "memory_current": 1600106496,
+            "memory_peak": 1678852096
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3321974784
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3295977472
+          },
+          "cpu_percent": 198.10092583663265
+        },
+        {
+          "request_ms": 16128.254999988712,
+          "native_inference_ms": 3793.0,
+          "calls": [
+            {
+              "candidate_count": 16,
+              "request_ms": 12193.924300023355,
+              "inference_ms": 2286.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            },
+            {
+              "candidate_count": 4,
+              "request_ms": 3934.1106999199837,
+              "inference_ms": 1507.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 894678464,
+            "memory_current": 1600360448,
+            "memory_peak": 1678852096
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3295977472
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3258306560
+          },
+          "cpu_percent": 198.23464559409476
+        },
+        {
+          "request_ms": 15798.728000023402,
+          "native_inference_ms": 3702.0,
+          "calls": [
+            {
+              "candidate_count": 16,
+              "request_ms": 12018.414000049233,
+              "inference_ms": 2260.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            },
+            {
+              "candidate_count": 4,
+              "request_ms": 3780.1051000133157,
+              "inference_ms": 1442.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 926502795,
+            "memory_current": 1600581632,
+            "memory_peak": 1678852096
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3258306560
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3298537472
+          },
+          "cpu_percent": 198.169910651327
+        },
+        {
+          "request_ms": 15156.725800014101,
+          "native_inference_ms": 3466.0,
+          "calls": [
+            {
+              "candidate_count": 16,
+              "request_ms": 11203.03309999872,
+              "inference_ms": 1955.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            },
+            {
+              "candidate_count": 4,
+              "request_ms": 3953.4354000352323,
+              "inference_ms": 1511.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 957065000,
+            "memory_current": 1600135168,
+            "memory_peak": 1678852096
+          },
+          "host_memory_before": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3298537472
+          },
+          "host_memory_after": {
+            "load_percent": 81,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3194384384
+          },
+          "cpu_percent": 198.1571007400089
+        },
+        {
+          "request_ms": 16592.052899999544,
+          "native_inference_ms": 3924.0,
+          "calls": [
+            {
+              "candidate_count": 16,
+              "request_ms": 12405.43639997486,
+              "inference_ms": 2314.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            },
+            {
+              "candidate_count": 4,
+              "request_ms": 4186.398499994539,
+              "inference_ms": 1610.0,
+              "truncation": {
+                "requested": false,
+                "indices": null,
+                "status": "none"
+              }
+            }
+          ],
+          "warmup_request": false,
+          "cold_first_request": false,
+          "cgroup_after": {
+            "usage_usec": 990494823,
+            "memory_current": 1600098304,
+            "memory_peak": 1678852096
+          },
+          "host_memory_before": {
+            "load_percent": 81,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3194384384
+          },
+          "host_memory_after": {
+            "load_percent": 80,
+            "total_physical_bytes": 17101975552,
+            "available_physical_bytes": 3253366784
+          },
+          "cpu_percent": 198.28681659437046
+        }
+      ],
+      "errors": [],
+      "warm_n": 10,
+      "p50_ms": 15855.698200000916,
+      "p95_ms": 16589.89285500138,
+      "native_p50_ms": 3729.0,
+      "native_p95_ms": 3921.3,
+      "docker_stats_after": {
+        "BlockIO": "0B / 0B",
+        "CPUPerc": "0.31%",
+        "Container": "laew-reranker-gte-1",
+        "ID": "c1c5cdbe061d",
+        "MemPerc": "49.66%",
+        "MemUsage": "1.49GiB / 3GiB",
+        "Name": "laew-reranker-gte-1",
+        "NetIO": "535kB / 205kB",
+        "PIDs": "11"
+      }
+    }
+  ],
+  "performance_only": true,
+  "cgroup_after_workload": {
+    "usage_usec": 990626544,
+    "memory_current": 1600008192,
+    "memory_peak": 1678852096
+  },
+  "docker_resource_samples": [],
+  "observed_peak_docker_cpu_percent": null
+}

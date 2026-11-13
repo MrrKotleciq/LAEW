@@ -1,0 +1,967 @@
+{
+  "task": "3C.2A-R3A",
+  "status": "representation-review-only-no-admission",
+  "sample_selection": "Seven complete source-numbered sections/groups chosen for existing menu, cross-page warning, procedure and table layouts before measuring; not a random corpus sample",
+  "full_r2_equality": [
+    {
+      "source_id": "prusa-mk4s-en",
+      "packets": 504,
+      "source_headings": 96,
+      "legacy_chunks": 600,
+      "v2_chunks": 600,
+      "trimmed_chunk_sequence_identical": true,
+      "v2_synthetic_characters": 0
+    },
+    {
+      "source_id": "prusa-mmu3-en",
+      "packets": 457,
+      "source_headings": 82,
+      "legacy_chunks": 539,
+      "v2_chunks": 539,
+      "trimmed_chunk_sequence_identical": true,
+      "v2_synthetic_characters": 0
+    },
+    {
+      "source_id": "prusa-mk4-de",
+      "packets": 503,
+      "source_headings": 106,
+      "legacy_chunks": 609,
+      "v2_chunks": 609,
+      "trimmed_chunk_sequence_identical": true,
+      "v2_synthetic_characters": 0
+    },
+    {
+      "source_id": "prusa-xl-de",
+      "packets": 666,
+      "source_headings": 144,
+      "legacy_chunks": 810,
+      "v2_chunks": 810,
+      "trimmed_chunk_sequence_identical": true,
+      "v2_synthetic_characters": 0
+    },
+    {
+      "source_id": "prusa-mini-pl",
+      "packets": 394,
+      "source_headings": 97,
+      "legacy_chunks": 491,
+      "v2_chunks": 491,
+      "trimmed_chunk_sequence_identical": true,
+      "v2_synthetic_characters": 0
+    },
+    {
+      "source_id": "prusa-mk3s-pl",
+      "packets": 794,
+      "source_headings": 137,
+      "legacy_chunks": 931,
+      "v2_chunks": 931,
+      "trimmed_chunk_sequence_identical": true,
+      "v2_synthetic_characters": 0
+    }
+  ],
+  "samples": [
+    {
+      "sample": "mk3s-menu",
+      "source_id": "prusa-mk3s-pl",
+      "sections": [
+        "7.2.9"
+      ],
+      "pages": [
+        35,
+        36
+      ],
+      "source_blocks": 4,
+      "source_pdf_sha256": "e20a45341a54e78fd205bb9dc07d4a601ac948c7df535b6bdfc94b3c90b230d9",
+      "representations": {
+        "r2": {
+          "characters": 6762,
+          "bytes": 7090,
+          "sha256": "6c333c5b97d040d823f2506ac02137c8811e9b8af144c0f4b89995ed11cd2aec",
+          "derived_repetition_characters": 1421,
+          "strategies": {
+            "legacy": {
+              "chunks": 9,
+              "min_characters": 94,
+              "median_characters": 959,
+              "max_characters": 984,
+              "delivered_characters": 6739,
+              "v2_synthetic_context_characters": 0,
+              "legacy_overlap_characters": 0,
+              "estimated_delivered_tokens_4chars": 1687,
+              "limited_context_chunks": 0,
+              "ambiguous_alignment_chunks": 0,
+              "missing_nonwhitespace_source_characters": 0,
+              "dependency_checks": 7,
+              "dependencies_retained": 7,
+              "procedure_chunks_with_dependencies": 7,
+              "procedure_chunks_all_dependencies": 7,
+              "all_dependency_source_pieces_available_in_document": true,
+              "all_dependencies_whole_somewhere": true
+            },
+            "structure-v2": {
+              "chunks": 9,
+              "min_characters": 96,
+              "median_characters": 962,
+              "max_characters": 987,
+              "delivered_characters": 6762,
+              "v2_synthetic_context_characters": 0,
+              "legacy_overlap_characters": 0,
+              "estimated_delivered_tokens_4chars": 1693,
+              "limited_context_chunks": 0,
+              "ambiguous_alignment_chunks": 0,
+              "missing_nonwhitespace_source_characters": 0,
+              "dependency_checks": 7,
+              "dependencies_retained": 7,
+              "procedure_chunks_with_dependencies": 7,
+              "procedure_chunks_all_dependencies": 7,
+              "all_dependency_source_pieces_available_in_document": true,
+              "all_dependencies_whole_somewhere": true
+            }
+          }
+        },
+        "natural": {
+          "characters": 2628,
+          "bytes": 2752,
+          "sha256": "4ae4d02dffbec96509111d2583c9b3572b178e86897a585f19d3d2826cc2ed98",
+          "derived_repetition_characters": 0,
+          "strategies": {
+            "legacy": {
+              "chunks": 5,
+              "min_characters": 492,
+              "median_characters": 613,
+              "max_characters": 897,
+              "delivered_characters": 3414,
+              "v2_synthetic_context_characters": 0,
+              "legacy_overlap_characters": 788,
+              "estimated_delivered_tokens_4chars": 856,
+              "limited_context_chunks": 0,
+              "ambiguous_alignment_chunks": 0,
+              "missing_nonwhitespace_source_characters": 0,
+              "dependency_checks": 5,
+              "dependencies_retained": 1,
+              "procedure_chunks_with_dependencies": 5,
+              "procedure_chunks_all_dependencies": 1,
+              "all_dependency_source_pieces_available_in_document": true,
+              "all_dependencies_whole_somewhere": true
+            },
+            "structure-v2": {
+              "chunks": 4,
+              "min_characters": 715,
+              "median_characters": 955,
+              "max_characters": 992,
+              "delivered_characters": 3608,
+              "v2_synthetic_context_characters": 980,
+              "legacy_overlap_characters": 0,
+              "estimated_delivered_tokens_4chars": 903,
+              "limited_context_chunks": 4,
+              "ambiguous_alignment_chunks": 0,
+              "missing_nonwhitespace_source_characters": 0,
+              "dependency_checks": 4,
+              "dependencies_retained": 4,
+              "procedure_chunks_with_dependencies": 4,
+              "procedure_chunks_all_dependencies": 4,
+              "all_dependency_source_pieces_available_in_document": true,
+              "all_dependencies_whole_somewhere": true
+            }
+          }
+        }
+      },
+      "strategies_trimmed_sequence_identical": {
+        "r2": true,
+        "natural": false
+      },
+      "fidelity_checks": 4,
+      "primary_boundary_equality_after_whitespace_trim": {
+        "r2": true,
+        "natural": false
+      }
+    },
+    {
+      "sample": "xl-sheet",
+      "source_id": "prusa-xl-de",
+      "sections": [
+        "4.3"
+      ],
+      "pages": [
+        23,
+        24
+      ],
+      "source_blocks": 11,
+      "source_pdf_sha256": "79bf2b638a0718dfe0f7b638bf7dc90e3eae9e330719d5f2fd338349b0e54df3",
+      "representations": {
+        "r2": {
+          "characters": 17304,
+          "bytes": 17817,
+          "sha256": "cfda87e2a65d96276ca450efc2b3180bf0c87bbb8ca26a9bac6b3257a182d44d",
+          "derived_repetition_characters": 13924,
+          "strategies": {
+            "legacy": {
+              "chunks": 21,
+              "min_characters": 115,
+              "median_characters": 979,
+              "max_characters": 997,
+              "delivered_characters": 17252,
+              "v2_synthetic_context_characters": 0,
+              "legacy_overlap_characters": 0,
+              "estimated_delivered_tokens_4chars": 4322,
+              "limited_context_chunks": 0,
+              "ambiguous_alignment_chunks": 0,
+              "missing_nonwhitespace_source_characters": 0,
+              "dependency_checks": 61,
+              "dependencies_retained": 61,
+              "procedure_chunks_with_dependencies": 14,
+              "procedure_chunks_all_dependencies": 14,
+              "all_dependency_source_pieces_available_in_document": true,
+              "all_dependencies_whole_somewhere": true
+            },
+            "structure-v2": {
+              "chunks": 21,
+              "min_characters": 117,
+              "median_characters": 982,
+              "max_characters": 1000,
+              "delivered_characters": 17304,
+              "v2_synthetic_context_characters": 0,
+              "legacy_overlap_characters": 0,
+              "estimated_delivered_tokens_4chars": 4333,
+              "limited_context_chunks": 0,
+              "ambiguous_alignment_chunks": 0,
+              "missing_nonwhitespace_source_characters": 0,
+              "dependency_checks": 61,
+              "dependencies_retained": 61,
+              "procedure_chunks_with_dependencies": 14,
+              "procedure_chunks_all_dependencies": 14,
+              "all_dependency_source_pieces_available_in_document": true,
+              "all_dependencies_whole_somewhere": true
+            }
+          }
+        },
+        "natural": {
+          "characters": 2025,
+          "bytes": 2069,
+          "sha256": "07efb8618e02f247194b06d2b54ce10876fe476a7cd6ad5860966bd9e743c963",
+          "derived_repetition_characters": 0,
+          "strategies": {
+            "legacy": {
+              "chunks": 3,
+              "min_characters": 615,
+              "median_characters": 701,
+              "max_characters": 902,
+              "delivered_characters": 2218,
+              "v2_synthetic_context_characters": 0,
+              "legacy_overlap_characters": 197,
+              "estimated_delivered_tokens_4chars": 556,
+              "limited_context_chunks": 0,
+              "ambiguous_alignment_chunks": 0,
+              "missing_nonwhitespace_source_characters": 0,
+              "dependency_checks": 14,
+              "dependencies_retained": 6,
+              "procedure_chunks_with_dependencies": 3,
+              "procedure_chunks_all_dependencies": 0,
+              "all_dependency_source_pieces_available_in_document": true,
+              "all_dependencies_whole_somewhere": true
+            },
+            "structure-v2": {
+              "chunks": 4,
+              "min_characters": 399,
+              "median_characters": 755,
+              "max_characters": 992,
+              "delivered_characters": 2763,
+              "v2_synthetic_context_characters": 738,
+              "legacy_overlap_characters": 0,
+              "estimated_delivered_tokens_4chars": 692,
+              "limited_context_chunks": 3,
+              "ambiguous_alignment_chunks": 0,
+              "missing_nonwhitespace_source_characters": 0,
+              "dependency_checks": 17,
+              "dependencies_retained": 5,
+              "procedure_chunks_with_dependencies": 4,
+              "procedure_chunks_all_dependencies": 0,
+              "all_dependency_source_pieces_available_in_document": true,
+              "all_dependencies_whole_somewhere": true
+            }
+          }
+        }
+      },
+      "strategies_trimmed_sequence_identical": {
+        "r2": true,
+        "natural": false
+      },
+      "fidelity_checks": 11,
+      "primary_boundary_equality_after_whitespace_trim": {
+        "r2": true,
+        "natural": false
+      }
+    },
+    {
+      "sample": "mk4s-calibration",
+      "source_id": "prusa-mk4s-en",
+      "sections": [
+        "4.3",
+        "4.4"
+      ],
+      "pages": [
+        18,
+        19
+      ],
+      "source_blocks": 17,
+      "source_pdf_sha256": "a3cb4a3c1b2603766d1dcc2e1f610dfa340a7115663e4ce6791b5b26ff81c6da",
+      "representations": {
+        "r2": {
+          "characters": 11425,
+          "bytes": 11606,
+          "sha256": "d2d68e22f622a386bfd734fb5b1b3e26a01eee3361f41628d1ae566cc03ae172",
+          "derived_repetition_characters": 6592,
+          "strategies": {
+            "legacy": {
+              "chunks": 18,
+              "min_characters": 98,
+              "median_characters": 657,
+              "max_characters": 997,
+              "delivered_characters": 11388,
+              "v2_synthetic_context_characters": 0,
+              "legacy_overlap_characters": 0,
+              "estimated_delivered_tokens_4chars": 2854,
+              "limited_context_chunks": 0,
+              "ambiguous_alignment_chunks": 0,
+              "missing_nonwhitespace_source_characters": 0,
+              "dependency_checks": 26,
+              "dependencies_retained": 26,
+              "procedure_chunks_with_dependencies": 10,
+              "procedure_chunks_all_dependencies": 10,
+              "all_dependency_source_pieces_available_in_document": true,
+              "all_dependencies_whole_somewhere": true
+            },
+            "structure-v2": {
+              "chunks": 18,
+              "min_characters": 100,
+              "median_characters": 659,
+              "max_characters": 1000,
+              "delivered_characters": 11425,
+              "v2_synthetic_context_characters": 0,
+              "legacy_overlap_characters": 0,
+              "estimated_delivered_tokens_4chars": 2863,
+              "limited_context_chunks": 0,
+              "ambiguous_alignment_chunks": 0,
+              "missing_nonwhitespace_source_characters": 0,
+              "dependency_checks": 26,
+              "dependencies_retained": 26,
+              "procedure_chunks_with_dependencies": 10,
+              "procedure_chunks_all_dependencies": 10,
+              "all_dependency_source_pieces_available_in_document": true,
+              "all_dependencies_whole_somewhere": true
+            }
+          }
+        },
+        "natural": {
+          "characters": 3423,
+          "bytes": 3457,
+          "sha256": "f688eff434df86949cb02b61c67afbc035510ec585ad2283a28da695acde1002",
+          "derived_repetition_characters": 0,
+          "strategies": {
+            "legacy": {
+              "chunks": 6,
+              "min_characters": 273,
+              "median_characters": 794,
+              "max_characters": 964,
+              "delivered_characters": 4211,
+              "v2_synthetic_context_characters": 0,
+              "legacy_overlap_characters": 792,
+              "estimated_delivered_tokens_4chars": 1055,
+              "limited_context_chunks": 0,
+              "ambiguous_alignment_chunks": 0,
+              "missing_nonwhitespace_source_characters": 0,
+              "dependency_checks": 15,
+              "dependencies_retained": 4,
+              "procedure_chunks_with_dependencies": 6,
+              "procedure_chunks_all_dependencies": 0,
+              "all_dependency_source_pieces_available_in_document": true,
+              "all_dependencies_whole_somewhere": true
+            },
+            "structure-v2": {
+              "chunks": 6,
+              "min_characters": 686,
+              "median_characters": 857,
+              "max_characters": 945,
+              "delivered_characters": 4890,
+              "v2_synthetic_context_characters": 1467,
+              "legacy_overlap_characters": 0,
+              "estimated_delivered_tokens_4chars": 1226,
+              "limited_context_chunks": 6,
+              "ambiguous_alignment_chunks": 0,
+              "missing_nonwhitespace_source_characters": 0,
+              "dependency_checks": 13,
+              "dependencies_retained": 4,
+              "procedure_chunks_with_dependencies": 5,
+              "procedure_chunks_all_dependencies": 0,
+              "all_dependency_source_pieces_available_in_document": true,
+              "all_dependencies_whole_somewhere": true
+            }
+          }
+        }
+      },
+      "strategies_trimmed_sequence_identical": {
+        "r2": true,
+        "natural": false
+      },
+      "fidelity_checks": 17,
+      "primary_boundary_equality_after_whitespace_trim": {
+        "r2": true,
+        "natural": false
+      }
+    },
+    {
+      "sample": "mk4-calibration",
+      "source_id": "prusa-mk4-de",
+      "sections": [
+        "4.3",
+        "4.4"
+      ],
+      "pages": [
+        21,
+        22
+      ],
+      "source_blocks": 20,
+      "source_pdf_sha256": "c10c558f34828b25cd7be1fabb6c13e920ee139d0586e00dc29cc0b655155abd",
+      "representations": {
+        "r2": {
+          "characters": 16674,
+          "bytes": 17077,
+          "sha256": "37cbb808ddc4c985449234fa981cdaec6a8eb1a200c6a2e019f1df0f4c1c08e5",
+          "derived_repetition_characters": 10752,
+          "strategies": {
+            "legacy": {
+              "chunks": 24,
+              "min_characters": 103,
+              "median_characters": 753,
+              "max_characters": 997,
+              "delivered_characters": 16622,
+              "v2_synthetic_context_characters": 0,
+              "legacy_overlap_characters": 0,
+              "estimated_delivered_tokens_4chars": 4165,
+              "limited_context_chunks": 0,
+              "ambiguous_alignment_chunks": 0,
+              "missing_nonwhitespace_source_characters": 0,
+              "dependency_checks": 41,
+              "dependencies_retained": 41,
+              "procedure_chunks_with_dependencies": 16,
+              "procedure_chunks_all_dependencies": 16,
+              "all_dependency_source_pieces_available_in_document": true,
+              "all_dependencies_whole_somewhere": true
+            },
+            "structure-v2": {
+              "chunks": 24,
+              "min_characters": 105,
+              "median_characters": 755,
+              "max_characters": 1000,
+              "delivered_characters": 16674,
+              "v2_synthetic_context_characters": 0,
+              "legacy_overlap_characters": 0,
+              "estimated_delivered_tokens_4chars": 4180,
+              "limited_context_chunks": 0,
+              "ambiguous_alignment_chunks": 0,
+              "missing_nonwhitespace_source_characters": 0,
+              "dependency_checks": 41,
+              "dependencies_retained": 41,
+              "procedure_chunks_with_dependencies": 16,
+              "procedure_chunks_all_dependencies": 16,
+              "all_dependency_source_pieces_available_in_document": true,
+              "all_dependencies_whole_somewhere": true
+            }
+          }
+        },
+        "natural": {
+          "characters": 4276,
+          "bytes": 4360,
+          "sha256": "d77e754919b4b440e8330e565bd93bffd9f9c1c32cc969efff80dcfb4576edcd",
+          "derived_repetition_characters": 0,
+          "strategies": {
+            "legacy": {
+              "chunks": 7,
+              "min_characters": 103,
+              "median_characters": 903,
+              "max_characters": 984,
+              "delivered_characters": 5167,
+              "v2_synthetic_context_characters": 0,
+              "legacy_overlap_characters": 895,
+              "estimated_delivered_tokens_4chars": 1293,
+              "limited_context_chunks": 0,
+              "ambiguous_alignment_chunks": 0,
+              "missing_nonwhitespace_source_characters": 0,
+              "dependency_checks": 15,
+              "dependencies_retained": 4,
+              "procedure_chunks_with_dependencies": 6,
+              "procedure_chunks_all_dependencies": 1,
+              "all_dependency_source_pieces_available_in_document": true,
+              "all_dependencies_whole_somewhere": true
+            },
+            "structure-v2": {
+              "chunks": 7,
+              "min_characters": 551,
+              "median_characters": 906,
+              "max_characters": 1000,
+              "delivered_characters": 5991,
+              "v2_synthetic_context_characters": 1715,
+              "legacy_overlap_characters": 0,
+              "estimated_delivered_tokens_4chars": 1499,
+              "limited_context_chunks": 7,
+              "ambiguous_alignment_chunks": 0,
+              "missing_nonwhitespace_source_characters": 0,
+              "dependency_checks": 16,
+              "dependencies_retained": 4,
+              "procedure_chunks_with_dependencies": 6,
+              "procedure_chunks_all_dependencies": 0,
+              "all_dependency_source_pieces_available_in_document": true,
+              "all_dependencies_whole_somewhere": true
+            }
+          }
+        }
+      },
+      "strategies_trimmed_sequence_identical": {
+        "r2": true,
+        "natural": false
+      },
+      "fidelity_checks": 20,
+      "primary_boundary_equality_after_whitespace_trim": {
+        "r2": true,
+        "natural": false
+      }
+    },
+    {
+      "sample": "mini-sheets",
+      "source_id": "prusa-mini-pl",
+      "sections": [
+        "9.1"
+      ],
+      "pages": [
+        42,
+        43,
+        44,
+        45
+      ],
+      "source_blocks": 11,
+      "source_pdf_sha256": "d78fd697105d5ee06da37ea5020a5c0bd2462d49df0442b4b28a7111fa0a802b",
+      "representations": {
+        "r2": {
+          "characters": 15873,
+          "bytes": 16940,
+          "sha256": "663a81ed84d808c81d2a6cf75a78431c33a05cd3ad017a3d5c75b6017099677f",
+          "derived_repetition_characters": 10780,
+          "strategies": {
+            "legacy": {
+              "chunks": 23,
+              "min_characters": 91,
+              "median_characters": 713,
+              "max_characters": 996,
+              "delivered_characters": 15825,
+              "v2_synthetic_context_characters": 0,
+              "legacy_overlap_characters": 0,
+              "estimated_delivered_tokens_4chars": 3964,
+              "limited_context_chunks": 0,
+              "ambiguous_alignment_chunks": 0,
+              "missing_nonwhitespace_source_characters": 0,
+              "dependency_checks": 32,
+              "dependencies_retained": 32,
+              "procedure_chunks_with_dependencies": 16,
+              "procedure_chunks_all_dependencies": 16,
+              "all_dependency_source_pieces_available_in_document": true,
+              "all_dependencies_whole_somewhere": true
+            },
+            "structure-v2": {
+              "chunks": 23,
+              "min_characters": 93,
+              "median_characters": 715,
+              "max_characters": 999,
+              "delivered_characters": 15873,
+              "v2_synthetic_context_characters": 0,
+              "legacy_overlap_characters": 0,
+              "estimated_delivered_tokens_4chars": 3979,
+              "limited_context_chunks": 0,
+              "ambiguous_alignment_chunks": 0,
+              "missing_nonwhitespace_source_characters": 0,
+              "dependency_checks": 32,
+              "dependencies_retained": 32,
+              "procedure_chunks_with_dependencies": 16,
+              "procedure_chunks_all_dependencies": 16,
+              "all_dependency_source_pieces_available_in_document": true,
+              "all_dependencies_whole_somewhere": true
+            }
+          }
+        },
+        "natural": {
+          "characters": 3790,
+          "bytes": 4031,
+          "sha256": "d353ec65308b6309152e341d86f61dd996d721066edabd656a87b8c789d1ab09",
+          "derived_repetition_characters": 0,
+          "strategies": {
+            "legacy": {
+              "chunks": 6,
+              "min_characters": 359,
+              "median_characters": 965,
+              "max_characters": 975,
+              "delivered_characters": 4779,
+              "v2_synthetic_context_characters": 0,
+              "legacy_overlap_characters": 991,
+              "estimated_delivered_tokens_4chars": 1197,
+              "limited_context_chunks": 0,
+              "ambiguous_alignment_chunks": 0,
+              "missing_nonwhitespace_source_characters": 0,
+              "dependency_checks": 10,
+              "dependencies_retained": 1,
+              "procedure_chunks_with_dependencies": 5,
+              "procedure_chunks_all_dependencies": 0,
+              "all_dependency_source_pieces_available_in_document": true,
+              "all_dependencies_whole_somewhere": true
+            },
+            "structure-v2": {
+              "chunks": 6,
+              "min_characters": 766,
+              "median_characters": 1000,
+              "max_characters": 1000,
+              "delivered_characters": 5448,
+              "v2_synthetic_context_characters": 1658,
+              "legacy_overlap_characters": 0,
+              "estimated_delivered_tokens_4chars": 1364,
+              "limited_context_chunks": 6,
+              "ambiguous_alignment_chunks": 0,
+              "missing_nonwhitespace_source_characters": 0,
+              "dependency_checks": 10,
+              "dependencies_retained": 1,
+              "procedure_chunks_with_dependencies": 5,
+              "procedure_chunks_all_dependencies": 0,
+              "all_dependency_source_pieces_available_in_document": true,
+              "all_dependencies_whole_somewhere": true
+            }
+          }
+        }
+      },
+      "strategies_trimmed_sequence_identical": {
+        "r2": true,
+        "natural": false
+      },
+      "fidelity_checks": 11,
+      "primary_boundary_equality_after_whitespace_trim": {
+        "r2": true,
+        "natural": false
+      }
+    },
+    {
+      "sample": "mmu-procedures",
+      "source_id": "prusa-mmu3-en",
+      "sections": [
+        "2.5",
+        "2.6"
+      ],
+      "pages": [
+        22
+      ],
+      "source_blocks": 20,
+      "source_pdf_sha256": "3e517559fff8e83365c5b08982f2a881680aee2144701c81a5eca709b63ff2c3",
+      "representations": {
+        "r2": {
+          "characters": 4716,
+          "bytes": 4840,
+          "sha256": "fc0fcc2067a20dc09ab41ec49d657f4e23363253d4e7128f83900956fd6e7f78",
+          "derived_repetition_characters": 1152,
+          "strategies": {
+            "legacy": {
+              "chunks": 20,
+              "min_characters": 95,
+              "median_characters": 204,
+              "max_characters": 726,
+              "delivered_characters": 4676,
+              "v2_synthetic_context_characters": 0,
+              "legacy_overlap_characters": 0,
+              "estimated_delivered_tokens_4chars": 1175,
+              "limited_context_chunks": 0,
+              "ambiguous_alignment_chunks": 0,
+              "missing_nonwhitespace_source_characters": 0,
+              "dependency_checks": 9,
+              "dependencies_retained": 9,
+              "procedure_chunks_with_dependencies": 9,
+              "procedure_chunks_all_dependencies": 9,
+              "all_dependency_source_pieces_available_in_document": true,
+              "all_dependencies_whole_somewhere": true
+            },
+            "structure-v2": {
+              "chunks": 20,
+              "min_characters": 97,
+              "median_characters": 206,
+              "max_characters": 728,
+              "delivered_characters": 4716,
+              "v2_synthetic_context_characters": 0,
+              "legacy_overlap_characters": 0,
+              "estimated_delivered_tokens_4chars": 1187,
+              "limited_context_chunks": 0,
+              "ambiguous_alignment_chunks": 0,
+              "missing_nonwhitespace_source_characters": 0,
+              "dependency_checks": 9,
+              "dependencies_retained": 9,
+              "procedure_chunks_with_dependencies": 9,
+              "procedure_chunks_all_dependencies": 9,
+              "all_dependency_source_pieces_available_in_document": true,
+              "all_dependencies_whole_somewhere": true
+            }
+          }
+        },
+        "natural": {
+          "characters": 2642,
+          "bytes": 2690,
+          "sha256": "df63770e763245681704c78098bfa68a13a0be04cf07d36e0ba59152c4dcb03c",
+          "derived_repetition_characters": 0,
+          "strategies": {
+            "legacy": {
+              "chunks": 4,
+              "min_characters": 494,
+              "median_characters": 920,
+              "max_characters": 945,
+              "delivered_characters": 3033,
+              "v2_synthetic_context_characters": 0,
+              "legacy_overlap_characters": 395,
+              "estimated_delivered_tokens_4chars": 760,
+              "limited_context_chunks": 0,
+              "ambiguous_alignment_chunks": 0,
+              "missing_nonwhitespace_source_characters": 0,
+              "dependency_checks": 2,
+              "dependencies_retained": 1,
+              "procedure_chunks_with_dependencies": 2,
+              "procedure_chunks_all_dependencies": 1,
+              "all_dependency_source_pieces_available_in_document": true,
+              "all_dependencies_whole_somewhere": true
+            },
+            "structure-v2": {
+              "chunks": 4,
+              "min_characters": 822,
+              "median_characters": 912,
+              "max_characters": 1000,
+              "delivered_characters": 3622,
+              "v2_synthetic_context_characters": 980,
+              "legacy_overlap_characters": 0,
+              "estimated_delivered_tokens_4chars": 906,
+              "limited_context_chunks": 4,
+              "ambiguous_alignment_chunks": 0,
+              "missing_nonwhitespace_source_characters": 0,
+              "dependency_checks": 2,
+              "dependencies_retained": 1,
+              "procedure_chunks_with_dependencies": 2,
+              "procedure_chunks_all_dependencies": 1,
+              "all_dependency_source_pieces_available_in_document": true,
+              "all_dependencies_whole_somewhere": true
+            }
+          }
+        }
+      },
+      "strategies_trimmed_sequence_identical": {
+        "r2": true,
+        "natural": false
+      },
+      "fidelity_checks": 20,
+      "primary_boundary_equality_after_whitespace_trim": {
+        "r2": true,
+        "natural": false
+      }
+    },
+    {
+      "sample": "mmu-purge-table",
+      "source_id": "prusa-mmu3-en",
+      "sections": [
+        "6.2.2"
+      ],
+      "pages": [
+        39,
+        40
+      ],
+      "source_blocks": 11,
+      "source_pdf_sha256": "3e517559fff8e83365c5b08982f2a881680aee2144701c81a5eca709b63ff2c3",
+      "representations": {
+        "r2": {
+          "characters": 4964,
+          "bytes": 5166,
+          "sha256": "34d7befba1781e7dbe6fa745dcdfe259ad0fe198c57033ad29e476afd5cd8369",
+          "derived_repetition_characters": 1299,
+          "strategies": {
+            "legacy": {
+              "chunks": 31,
+              "min_characters": 55,
+              "median_characters": 125,
+              "max_characters": 434,
+              "delivered_characters": 4902,
+              "v2_synthetic_context_characters": 0,
+              "legacy_overlap_characters": 0,
+              "estimated_delivered_tokens_4chars": 1237,
+              "limited_context_chunks": 0,
+              "ambiguous_alignment_chunks": 0,
+              "missing_nonwhitespace_source_characters": 0,
+              "dependency_checks": 0,
+              "dependencies_retained": 0,
+              "procedure_chunks_with_dependencies": 0,
+              "procedure_chunks_all_dependencies": 0,
+              "all_dependency_source_pieces_available_in_document": true,
+              "all_dependencies_whole_somewhere": true
+            },
+            "structure-v2": {
+              "chunks": 31,
+              "min_characters": 57,
+              "median_characters": 127,
+              "max_characters": 436,
+              "delivered_characters": 4964,
+              "v2_synthetic_context_characters": 0,
+              "legacy_overlap_characters": 0,
+              "estimated_delivered_tokens_4chars": 1252,
+              "limited_context_chunks": 0,
+              "ambiguous_alignment_chunks": 0,
+              "missing_nonwhitespace_source_characters": 0,
+              "dependency_checks": 0,
+              "dependencies_retained": 0,
+              "procedure_chunks_with_dependencies": 0,
+              "procedure_chunks_all_dependencies": 0,
+              "all_dependency_source_pieces_available_in_document": true,
+              "all_dependencies_whole_somewhere": true
+            }
+          }
+        },
+        "natural": {
+          "characters": 1818,
+          "bytes": 1849,
+          "sha256": "3828bd5295fb2775adae2f963d9d70c5af0bbbea8d3737641c323540689a722f",
+          "derived_repetition_characters": 0,
+          "strategies": {
+            "legacy": {
+              "chunks": 3,
+              "min_characters": 448,
+              "median_characters": 805,
+              "max_characters": 959,
+              "delivered_characters": 2212,
+              "v2_synthetic_context_characters": 0,
+              "legacy_overlap_characters": 396,
+              "estimated_delivered_tokens_4chars": 554,
+              "limited_context_chunks": 0,
+              "ambiguous_alignment_chunks": 0,
+              "missing_nonwhitespace_source_characters": 0,
+              "dependency_checks": 0,
+              "dependencies_retained": 0,
+              "procedure_chunks_with_dependencies": 0,
+              "procedure_chunks_all_dependencies": 0,
+              "all_dependency_source_pieces_available_in_document": true,
+              "all_dependencies_whole_somewhere": true
+            },
+            "structure-v2": {
+              "chunks": 3,
+              "min_characters": 788,
+              "median_characters": 816,
+              "max_characters": 952,
+              "delivered_characters": 2556,
+              "v2_synthetic_context_characters": 738,
+              "legacy_overlap_characters": 0,
+              "estimated_delivered_tokens_4chars": 639,
+              "limited_context_chunks": 3,
+              "ambiguous_alignment_chunks": 0,
+              "missing_nonwhitespace_source_characters": 0,
+              "dependency_checks": 0,
+              "dependencies_retained": 0,
+              "procedure_chunks_with_dependencies": 0,
+              "procedure_chunks_all_dependencies": 0,
+              "all_dependency_source_pieces_available_in_document": true,
+              "all_dependencies_whole_somewhere": true
+            }
+          }
+        }
+      },
+      "strategies_trimmed_sequence_identical": {
+        "r2": true,
+        "natural": false
+      },
+      "fidelity_checks": 11,
+      "primary_boundary_equality_after_whitespace_trim": {
+        "r2": true,
+        "natural": false
+      }
+    }
+  ],
+  "risk_summary": {
+    "gates": {
+      "mandatory-human-text-layout-adjudication": 96,
+      "visual-only-candidate-needs-human-disposition": 43,
+      "existing-medium-low-not-certified": 30,
+      "mandatory-human-applicability-adjudication": 249
+    },
+    "unique_page_flag_counts": {
+      "complex-vector-grid": 2,
+      "independent-text-disagreement": 18,
+      "rotated-text-review": 5,
+      "substantial-image-visual-review": 230,
+      "alignment-or-borderless-table-review": 81,
+      "callout-applicability-not-certified": 174,
+      "colored-callout-scope-review": 159,
+      "inline-condition-applicability-review": 261,
+      "merged-or-ambiguous-table-cells": 16,
+      "unreviewed-dependency-candidates-not-materialized": 191,
+      "ruled-table-cell-review": 6,
+      "menu-indentation-review": 2,
+      "lossless-fallback-structure-unresolved": 1
+    }
+  },
+  "dependency_metric_scope": "Inherited R2 reviewed relations, query-independent extraction QA; not new gold evidence or independent safety adjudication",
+  "integrity_before": {
+    "verified": true,
+    "r2_files": 1297,
+    "accepted_files": 289,
+    "r1_files": 87,
+    "inventory_sha256": "3fc630e9ca60a06223da8ec8198b13f7b3d51c98193271bab61007e2198ce9fb",
+    "scope": "Byte integrity only; no semantic certification"
+  },
+  "integrity_after": {
+    "verified": true,
+    "r2_files": 1297,
+    "accepted_files": 289,
+    "r1_files": 87,
+    "inventory_sha256": "3fc630e9ca60a06223da8ec8198b13f7b3d51c98193271bab61007e2198ce9fb",
+    "scope": "Byte integrity only; no semantic certification"
+  },
+  "manifest": {
+    "task": "3C.2A-R3A",
+    "status": "representation-review-only-not-admitted-not-frozen",
+    "date": "2026-11-11",
+    "input_r2": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1",
+    "input_inventory_sha256": "3fc630e9ca60a06223da8ec8198b13f7b3d51c98193271bab61007e2198ce9fb",
+    "scope": "Seven excerpt pairs only; no full regeneration",
+    "code_sha256": {
+      "tools/corpus/review_prusa_r3a.py": "c5fdbbfeb119ee97b0e439cee950a5b2f3e3f19f2b90250188d06317007cef43",
+      "tests/evaluation/test_prusa_pdf_r3a.py": "b6a26d8a6a6eccdaba3d5cc1308c41c86e513919712f991d93529170e058a91c",
+      "tools/corpus/audit_prusa_r2.py": "d16dc4259a20c084953fce1d9e3b98c78b28261727595f0ec1b3347df6f7f0a5",
+      "tools/corpus/finalize_prusa_r2.py": "04edc9b7a5c8535b34fec747f7c5a1158ab08d16c4f71a99642524bde8bdb4e7",
+      "tools/corpus/prusa_pdf_r2.py": "a70e6b862e3b17100be4398fb2ac72d1da66da7a9f012824263f1428e7ab0796",
+      "tools/corpus/prusa_pdf_remediation.py": "9c1b5b2d02f9d43894163c747eb67b1edae0439a8f337d833c8cad66e6158ab4",
+      "laew/rag/knowledge_base.py": "84ba57e366b983da6ec211edf19c5b8d5a108370323189cab857d2826cfb91c2",
+      "laew/rag/markdown_chunker.py": "0f6eec884d54f9ee9b6bb9a718ea2600b939353931533ef333d2ae373bd658c2",
+      "laew/rag/contextual_chunker.py": "18ad5d79c5294be1ed694b113748725bd9fd050e84b9e3a756d852d36272ca39",
+      "scripts/run_isolated.py": "a0c3d20fc0aa14245ab7fafeeac3acb545d2f6b77f66995368ae2414ba51c6b8"
+    },
+    "tests": {
+      "passed": 75,
+      "seconds": 5.58,
+      "runner": "scripts/run_isolated.py",
+      "log": "isolated-tests.txt"
+    },
+    "license": "Local research only; no Prusa handbook redistribution authorization established; source-bearing excerpts/maps/chunk traces stay outside Git",
+    "prior_input_verification": {
+      "verified": true,
+      "r2_files": 1297,
+      "accepted_files": 289,
+      "r1_files": 87,
+      "inventory_sha256": "3fc630e9ca60a06223da8ec8198b13f7b3d51c98193271bab61007e2198ce9fb",
+      "scope": "Byte integrity only; no semantic certification"
+    }
+  },
+  "integrity": {
+    "verified": true,
+    "r3a_files": 75,
+    "inventory_sha256": "dd7d52fef9b733912c990aac6215c226841bc65bcf0277dd3677f1d3f6c05dfa",
+    "prior_inputs": {
+      "verified": true,
+      "r2_files": 1297,
+      "accepted_files": 289,
+      "r1_files": 87,
+      "inventory_sha256": "3fc630e9ca60a06223da8ec8198b13f7b3d51c98193271bab61007e2198ce9fb",
+      "scope": "Byte integrity only; no semantic certification"
+    }
+  }
+}

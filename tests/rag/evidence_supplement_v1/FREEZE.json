@@ -1,0 +1,15 @@
+{
+  "date": "2026-11-10",
+  "labeling": "Source-grounded authored labels before scoring; no external independent annotator or model judgments.",
+  "sha256": {
+    "dataset.json": "c31b26a1ef3ce7c556efa7829375c079b2d0d08f8d59f8221f4775bb81831681",
+    "global/atlas.md": "f432e704316365c7a9cc5f72582f9e7a2a3415139ff39f1009d626a5645a9ebc",
+    "global/codegen.md": "1e4427a5f6757823198e698a9a95d1cdf7ceb48f310dbf12a4fe3fdf43b83f29",
+    "global/isolation.md": "dc3024c6f77da13268c302f1444d76eac5429565c743299b9fa288c102ed169d",
+    "global/release-check.md": "60b0df6b0a16953c929a8ead924770add10fee2acad979c7d60dd71fac400fac",
+    "global/revert.md": "cd2eb552f0e5ea87b58788ec21541738df3d544e789453db87d8f573ad507fb4",
+    "global/wal.md": "e7895d3a035a225ca6d8b13469cea07c7cde3d0baaad95dac43d5a112c387932",
+    "project/release-current.md": "ba0ecb6d89e3d74bb1f4b6c5774b5cecfdf720ddeae0bafb59641aa0a5dbdca6",
+    "project/release-old.md": "70b73c012bb2de9fe07e412b401111a2c0220e43ef09f8c559ed5bd09a7f043d"
+  }
+}

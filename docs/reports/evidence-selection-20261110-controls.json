@@ -1,0 +1,11 @@
+{
+  "method": "Historical cosine/top2/K20/500: exact atom coverage, summed inner rendering token count, and selected fragment IDs in order within each scope. New allocation renders scopes in sorted order, without cross-scope score comparisons. Outer wrappers are counted separately.",
+  "outer_scope_order_changes": [
+    "reranker_holdout_v1/legacy/u26",
+    "reranker_holdout_v1/legacy/u27",
+    "reranker_holdout_v1/structure-v2/u26",
+    "reranker_holdout_v1/structure-v2/u27"
+  ],
+  "differences": [],
+  "matched": 146
+}

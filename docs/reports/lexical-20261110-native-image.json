@@ -1,0 +1,21 @@
+{
+  "image_id": "sha256:1e0b73a187a28757c572acba508c46f48c9e8b0acaf5c20e6d95cdedce1acdf6",
+  "container": "laew-lexical-probe-c7cf3d1b67b2",
+  "private_or_production_collections_accessed": false,
+  "storage": "container-only tmpfs /data, no host volumes",
+  "pull": "never",
+  "query_result": [
+    [
+      "fixture"
+    ]
+  ],
+  "search_error": {
+    "type": "ChromaError",
+    "message": "Error executing plan: Not implemented: Search operation is not implemented for local executor"
+  },
+  "cleanup": {
+    "code": 0,
+    "stdout": "Flag --time has been deprecated, use --timeout instead\nlaew-lexical-probe-c7cf3d1b67b2",
+    "stderr": ""
+  }
+}

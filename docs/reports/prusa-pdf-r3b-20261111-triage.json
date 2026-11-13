@@ -1,0 +1,2963 @@
+{
+  "summary": {
+    "task": "3C.2A-R3B",
+    "status": "bounded-agent-triage-only-no-admission",
+    "inspected_pages": 60,
+    "phase_counts": {
+      "A": 36,
+      "B": 12,
+      "C_groups": 6,
+      "C_pages": 13,
+      "overlap_pages": 1
+    },
+    "outcome_counts": {
+      "Corrected and verified against source": 17,
+      "Verified correct": 11,
+      "Visual information unavailable in text": 23,
+      "Unresolved — manual review required": 9
+    },
+    "phase_outcome_counts": {
+      "A": {
+        "Corrected and verified against source": 16,
+        "Verified correct": 3,
+        "Visual information unavailable in text": 13,
+        "Unresolved — manual review required": 4
+      },
+      "B": {
+        "Visual information unavailable in text": 10,
+        "Unresolved — manual review required": 2
+      },
+      "C": {
+        "Corrected and verified against source": 1,
+        "Verified correct": 9,
+        "Unresolved — manual review required": 3
+      }
+    },
+    "experimental_correction_pages": 20,
+    "experimental_repair_records": 22,
+    "unresolved_inspected_pages": [
+      {
+        "source_id": "prusa-mini-pl",
+        "page": 45,
+        "reason": "9.1 caption/photos retain source text. Incidental 9.2 column interleaving corrected, but columns lack literal polarity headings; interpretation remains pending instead of inventing them."
+      },
+      {
+        "source_id": "prusa-mk3s-pl",
+        "page": 16,
+        "reason": "Two columns were interleaved and PEI heading/callout tails split. Text columns and tails repaired; check/exclamation graphic polarity has no literal heading and remains unavailable pending manual disposition."
+      },
+      {
+        "source_id": "prusa-mk3s-pl",
+        "page": 37,
+        "reason": "Layer-height and feed-rate values/negations are present. Icon scope begins in the middle of a paragraph; exact paragraph association remains unresolved. Graphic example timings are unavailable."
+      },
+      {
+        "source_id": "prusa-mk4-de",
+        "page": 22,
+        "reason": "Local no-touch/stability and minimum filament length retained. Screenshot-only sensor-test startup state requires manual availability disposition; no instruction inferred from pixels."
+      },
+      {
+        "source_id": "prusa-mk4-de",
+        "page": 33,
+        "reason": "Factory-reset screenshot carries a safety-relevant confirmation qualifier absent from prose. Example-model text is usable; complete reset-procedure support must remain unavailable pending manual review."
+      },
+      {
+        "source_id": "prusa-mk4s-en",
+        "page": 19,
+        "reason": "No-touch/stability restriction and minimum filament length are valid source text. Screenshot-only startup state prevents treating filament-sensor calibration as a complete text-only procedure."
+      },
+      {
+        "source_id": "prusa-mmu3-en",
+        "page": 6,
+        "reason": "Six published safety-symbol descriptions are retained, but small source icons have no explicit placeholder/row identity in the extraction. Mapping a symbol to an instruction needs manual disposition; no symbol descriptions generated."
+      },
+      {
+        "source_id": "prusa-xl-de",
+        "page": 35,
+        "reason": "Factory-reset screenshot adds a safety-relevant confirmation qualifier absent from prose. Do not treat the retained reset paragraph as a complete text-only procedure."
+      },
+      {
+        "source_id": "prusa-xl-de",
+        "page": 81,
+        "reason": "Product matrix corrected, including dimensions and ingress-protection qualifier. Electrical legend text survives, but symbol associations/electrical interpretation require a qualified human. No electrical-use admission asserted."
+      }
+    ],
+    "mandatory_human_review_pages": [
+      {
+        "source_id": "prusa-mini-pl",
+        "page": 45
+      },
+      {
+        "source_id": "prusa-mk3s-pl",
+        "page": 16
+      },
+      {
+        "source_id": "prusa-mk3s-pl",
+        "page": 37
+      },
+      {
+        "source_id": "prusa-mk4-de",
+        "page": 7
+      },
+      {
+        "source_id": "prusa-mk4-de",
+        "page": 8
+      },
+      {
+        "source_id": "prusa-mk4-de",
+        "page": 22
+      },
+      {
+        "source_id": "prusa-mk4-de",
+        "page": 33
+      },
+      {
+        "source_id": "prusa-mk4s-en",
+        "page": 6
+      },
+      {
+        "source_id": "prusa-mk4s-en",
+        "page": 19
+      },
+      {
+        "source_id": "prusa-mmu3-en",
+        "page": 6
+      },
+      {
+        "source_id": "prusa-mmu3-en",
+        "page": 7
+      },
+      {
+        "source_id": "prusa-xl-de",
+        "page": 9
+      },
+      {
+        "source_id": "prusa-xl-de",
+        "page": 35
+      },
+      {
+        "source_id": "prusa-xl-de",
+        "page": 81
+      },
+      {
+        "source_id": "prusa-xl-de",
+        "page": 83
+      }
+    ],
+    "original_severity_counts": {
+      "High": 388,
+      "Low": 20,
+      "Medium": 10
+    },
+    "uninspected_high": 329,
+    "uninspected_visual_only_candidates": 31,
+    "human_certifications": 0,
+    "resource_estimate": {
+      "paired_page_samples": [
+        {
+          "source_id": "prusa-mk4s-en",
+          "reviewed_pages": 7,
+          "paired_r2_primary_characters": 9604,
+          "source_once_characters": 8494,
+          "ratio": 0.8844231570179092,
+          "estimated_full_source_once_characters": 111479
+        },
+        {
+          "source_id": "prusa-mmu3-en",
+          "reviewed_pages": 6,
+          "paired_r2_primary_characters": 8406,
+          "source_once_characters": 7870,
+          "ratio": 0.9362360218891268,
+          "estimated_full_source_once_characters": 90791
+        },
+        {
+          "source_id": "prusa-mk4-de",
+          "reviewed_pages": 9,
+          "paired_r2_primary_characters": 15003,
+          "source_once_characters": 13916,
+          "ratio": 0.9275478237685796,
+          "estimated_full_source_once_characters": 133141
+        },
+        {
+          "source_id": "prusa-xl-de",
+          "reviewed_pages": 13,
+          "paired_r2_primary_characters": 17337,
+          "source_once_characters": 15614,
+          "ratio": 0.900617177135606,
+          "estimated_full_source_once_characters": 163989
+        },
+        {
+          "source_id": "prusa-mini-pl",
+          "reviewed_pages": 11,
+          "paired_r2_primary_characters": 17234,
+          "source_once_characters": 16236,
+          "ratio": 0.9420912150400371,
+          "estimated_full_source_once_characters": 109053
+        },
+        {
+          "source_id": "prusa-mk3s-pl",
+          "reviewed_pages": 14,
+          "paired_r2_primary_characters": 28398,
+          "source_once_characters": 25241,
+          "ratio": 0.8888301993098106,
+          "estimated_full_source_once_characters": 138106
+        }
+      ],
+      "prusa_point_characters": 746559,
+      "prusa_sensitivity_characters": [
+        634575,
+        858543
+      ],
+      "unchanged_18_body_characters": 465842,
+      "total_24_sensitivity_characters": [
+        1100417,
+        1324385
+      ],
+      "chunk_scenarios": {
+        "legacy": {
+          "min_sample_chunks_per_1000_characters": 1.4814814814814814,
+          "max_sample_chunks_per_1000_characters": 1.9025875190258752,
+          "full_24_source_chunks_low": 1746,
+          "full_24_source_chunks_high": 2439,
+          "note": "Scenario, not confidence interval or full dry ingestion; fixed 806 unchanged text-source chunks; biased sample and new formatting can shift counts beyond this band"
+        },
+        "structure-v2": {
+          "min_sample_chunks_per_1000_characters": 1.514004542013626,
+          "max_sample_chunks_per_1000_characters": 1.9753086419753088,
+          "full_24_source_chunks_low": 1767,
+          "full_24_source_chunks_high": 2502,
+          "note": "Scenario, not confidence interval or full dry ingestion; fixed 806 unchanged text-source chunks; biased sample and new formatting can shift counts beyond this band"
+        }
+      },
+      "limitation": "Purposive high-risk sample, no random sampling, no full regeneration. +/-15% is an explicit planning assumption, not measured uncertainty. 3000 is a resource review trigger, not validity limit."
+    },
+    "integrity_after": {
+      "verified": true,
+      "r3a_files": 75,
+      "inventory_sha256": "dd7d52fef9b733912c990aac6215c226841bc65bcf0277dd3677f1d3f6c05dfa",
+      "prior_inputs": {
+        "verified": true,
+        "r2_files": 1297,
+        "accepted_files": 289,
+        "r1_files": 87,
+        "inventory_sha256": "3fc630e9ca60a06223da8ec8198b13f7b3d51c98193271bab61007e2198ce9fb",
+        "scope": "Byte integrity only; no semantic certification"
+      }
+    }
+  },
+  "manifest": {
+    "task": "3C.2A-R3B",
+    "status": "bounded-agent-triage-only-not-admitted-not-frozen",
+    "date": "2026-11-11",
+    "input_r2": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1",
+    "input_r3a": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r3a-v1",
+    "r2_inventory_sha256": "3fc630e9ca60a06223da8ec8198b13f7b3d51c98193271bab61007e2198ce9fb",
+    "r3a_inventory_sha256": "dd7d52fef9b733912c990aac6215c226841bc65bcf0277dd3677f1d3f6c05dfa",
+    "reviewer_origin": "agent",
+    "independent_human_certifications": 0,
+    "source_selection_preserved": 24,
+    "scope": "60 page excerpts; 20 corrected page excerpts; 9 availability examples; 6 source-once procedure groups; no complete manual",
+    "tools": {
+      "native_pdf_python": "3.12.14",
+      "pdfplumber": "0.11.9",
+      "qa_python": "3.14.7",
+      "renders": "Unchanged R2 Poppler 26.07.0 source renders"
+    },
+    "tests": {
+      "passed": 102,
+      "seconds": 4.39,
+      "runner": "scripts/run_isolated.py",
+      "log": "isolated-tests.txt"
+    },
+    "code_sha256": {
+      "tools/corpus/triage_prusa_r3b.py": "4319ab4f8644b64f3d8895178a20247c9cc890613a65ab341be09eac6843c4a9",
+      "tools/corpus/prusa_native_repair_objects.py": "9fbb7cc2892a6520ce9d20fbbebfa5309afd586ae291f2b352e20f7c22fa1665",
+      "tools/corpus/prusa_r3b_review_notes.py": "bf260d49bfafd0dec73da1ad9d05b4de97285e22c0b8604d7fdedc9f2a257ff9",
+      "tests/evaluation/test_prusa_pdf_r3b.py": "b76419d6e0210677f287ce4b57214d92a8036fcaeb9763f4d0025fe83964e96b",
+      "tools/corpus/review_prusa_r3a.py": "c5fdbbfeb119ee97b0e439cee950a5b2f3e3f19f2b90250188d06317007cef43",
+      "tools/corpus/prusa_pdf_r2.py": "a70e6b862e3b17100be4398fb2ac72d1da66da7a9f012824263f1428e7ab0796",
+      "tools/corpus/prusa_pdf_remediation.py": "9c1b5b2d02f9d43894163c747eb67b1edae0439a8f337d833c8cad66e6158ab4",
+      "tools/corpus/finalize_prusa_r2.py": "04edc9b7a5c8535b34fec747f7c5a1158ab08d16c4f71a99642524bde8bdb4e7",
+      "tools/corpus/audit_prusa_r2.py": "d16dc4259a20c084953fce1d9e3b98c78b28261727595f0ec1b3347df6f7f0a5",
+      "laew/rag/knowledge_base.py": "84ba57e366b983da6ec211edf19c5b8d5a108370323189cab857d2826cfb91c2",
+      "laew/rag/markdown_chunker.py": "0f6eec884d54f9ee9b6bb9a718ea2600b939353931533ef333d2ae373bd658c2",
+      "laew/rag/contextual_chunker.py": "18ad5d79c5294be1ed694b113748725bd9fd050e84b9e3a756d852d36272ca39",
+      "scripts/run_isolated.py": "a0c3d20fc0aa14245ab7fafeeac3acb545d2f6b77f66995368ae2414ba51c6b8"
+    },
+    "license": "No Prusa handbook redistribution grant established; source-bearing excerpts, maps, native objects and viewer stay in local staging",
+    "limits": "No OCR, generated visual descriptions, chunker/retrieval changes, inference, questions, labels, embeddings, ChromaDB, admission, freeze or full regeneration"
+  },
+  "integrity": {
+    "verified": true,
+    "r3b_files": 203,
+    "inventory_sha256": "e19abd2bf1407fff11f87e2ffe4fee9a1632905ad11852a9c1b21e6a6e714bdd",
+    "prior_inputs": {
+      "verified": true,
+      "r3a_files": 75,
+      "inventory_sha256": "dd7d52fef9b733912c990aac6215c226841bc65bcf0277dd3677f1d3f6c05dfa",
+      "prior_inputs": {
+        "verified": true,
+        "r2_files": 1297,
+        "accepted_files": 289,
+        "r1_files": 87,
+        "inventory_sha256": "3fc630e9ca60a06223da8ec8198b13f7b3d51c98193271bab61007e2198ce9fb",
+        "scope": "Byte integrity only; no semantic certification"
+      }
+    }
+  },
+  "decisions": [
+    {
+      "source_id": "prusa-mini-pl",
+      "page": 1,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "independent-text-disagreement",
+        "rotated-text-review",
+        "substantial-image-visual-review"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mini-pl\\page-001.png",
+      "render_sha256": "df4d69b4a882cd7d3cb846f8146f1e5cde2da7398ab030e34d7217a977279854",
+      "original_structured_sha256": "afc4586dc20e0ebb5ab27a25471d5c79531db5ccbe3514bdff29dc8c7afaea15",
+      "excerpt_path": "page-excerpts/prusa-mini-pl-p001.md",
+      "excerpt_sha256": "cbdaff6ee612a28f99d4e4c72ca726b8248d95f1216cd6d6e59037e15b3f9564",
+      "finding_id": "prusa-mini-pl:p1:r3b-inspection",
+      "outcome": "Corrected and verified against source",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Rotated native instruction text was reversed. Native object order repaired; remaining cover graphics are unavailable.",
+      "source_text_needs_correction": true,
+      "confirmed_extraction_defect": true,
+      "experimental_correction_applied": true,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": true,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mini-pl",
+      "page": 15,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "callout-applicability-not-certified",
+        "colored-callout-scope-review",
+        "independent-text-disagreement",
+        "inline-condition-applicability-review",
+        "unreviewed-dependency-candidates-not-materialized"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mini-pl\\page-015.png",
+      "render_sha256": "b8464f3527df5e1bec85ac012a416916466d0e6cb8950d67236af1549113b09f",
+      "original_structured_sha256": "c5b81a6151786b601871f4c3ed7b21807e35af8e51155451eee45c6cc1a69173",
+      "excerpt_path": "page-excerpts/prusa-mini-pl-p015.md",
+      "excerpt_sha256": "1c88ff27a4065726f4464447fc8e88581f6fdbe165b4f86e58b1d5473e3bed7f",
+      "finding_id": "prusa-mini-pl:p15:r3b-inspection",
+      "outcome": "Verified correct",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Both firmware/setup callouts and the six-item chapter list retain wording, order and scope. No missing technical prose found.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": false,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mini-pl",
+      "page": 16,
+      "phases": [
+        "B"
+      ],
+      "original_category": "visual-only-candidate-needs-human-disposition",
+      "original_severity": "High",
+      "flags": [
+        "substantial-image-visual-review"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mini-pl\\page-016.png",
+      "render_sha256": "19b5d92c2a8aa812d62bf27b7831ffe78ce92161031a83dda66549b85631c3eb",
+      "original_structured_sha256": "f792d53d8c6f32503c0b35afd9229bd68cf63cbe66abafbbb3b704677b4e9f2f",
+      "excerpt_path": "page-excerpts/prusa-mini-pl-p016.md",
+      "excerpt_sha256": "cb2d3e33bb3904e6e569e7384f48335a40012922fd05fc742e3fbca03b9d248f",
+      "finding_id": "prusa-mini-pl:p16:r3b-inspection",
+      "outcome": "Visual information unavailable in text",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Knob action and reset behavior/location are explicitly described in prose. Image-only UI readings/positions remain unavailable.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": true,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mini-pl",
+      "page": 22,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "callout-applicability-not-certified",
+        "colored-callout-scope-review",
+        "independent-text-disagreement",
+        "substantial-image-visual-review",
+        "unreviewed-dependency-candidates-not-materialized"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mini-pl\\page-022.png",
+      "render_sha256": "014a5544fe40038e088753b0abf44ee9cbf2416b9e0c55e7eb6a774c7f29fd82",
+      "original_structured_sha256": "b1ea3b7b37c562b077e88715336fe6ef211ee6f622bbc5b94c8dda4efe5e038e",
+      "excerpt_path": "page-excerpts/prusa-mini-pl-p022.md",
+      "excerpt_sha256": "ba30e1e436400ba4e1c13ed507e22a34fc7e6775c8aea1d9895e23a887c38f58",
+      "finding_id": "prusa-mini-pl:p22:r3b-inspection",
+      "outcome": "Visual information unavailable in text",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "First-layer checklist, source comparison caption and SuperPINDA note are retained. Fine visual acceptance criteria remain unavailable; no inferred dimensions added.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": true,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mini-pl",
+      "page": 29,
+      "phases": [
+        "B"
+      ],
+      "original_category": "visual-only-candidate-needs-human-disposition",
+      "original_severity": "High",
+      "flags": [
+        "substantial-image-visual-review"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mini-pl\\page-029.png",
+      "render_sha256": "eb4908a633349b6b0419954612bb95e40527893fea18b223eabe2bca946f0043",
+      "original_structured_sha256": "71cae036e87d27fc996d16aeb50a324c7d9d95f0448d607f05adaa8b17e5ac53",
+      "excerpt_path": "page-excerpts/prusa-mini-pl-p029.md",
+      "excerpt_sha256": "162ea23f13b2d58ea8e265f83b782d3e1266d6a38f8b26f67ddeeb0a2ea100d7",
+      "finding_id": "prusa-mini-pl:p29:r3b-inspection",
+      "outcome": "Visual information unavailable in text",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Source websites, slicing requirement and software prose are independent of illustrative website screenshot. Publisher URL spelling retained without correction.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": true,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mini-pl",
+      "page": 31,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "independent-text-disagreement",
+        "inline-condition-applicability-review",
+        "substantial-image-visual-review"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mini-pl\\page-031.png",
+      "render_sha256": "7accbf14c3e5eab467b3eae0f3d53a64ac3a2ace5f2bdf67c229c5b231e0a9b9",
+      "original_structured_sha256": "8e484a46b51e662760a1751a468877c21fcac0a310badfcc3f5e1212d5c2bceb",
+      "excerpt_path": "page-excerpts/prusa-mini-pl-p031.md",
+      "excerpt_sha256": "d7d97562a23b37882f90ec6901a70069bdd0e6916ead5f5a99ce7db1b843e86e",
+      "finding_id": "prusa-mini-pl:p31:r3b-inspection",
+      "outcome": "Visual information unavailable in text",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Twelve published legend entries and profile/import restrictions are retained; raster UI positions remain unavailable.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": true,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mini-pl",
+      "page": 37,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "independent-text-disagreement",
+        "inline-condition-applicability-review",
+        "substantial-image-visual-review"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mini-pl\\page-037.png",
+      "render_sha256": "3843e276c89a9b662db9855b0289664a8b643fe920dad83a78dc5fb736498032",
+      "original_structured_sha256": "9986eeec675c2b3a680b323469ff0dcaaf1ae01ac431efe4490b2239624123f7",
+      "excerpt_path": "page-excerpts/prusa-mini-pl-p037.md",
+      "excerpt_sha256": "cc4212d157ed9f13fbe0b15359c73c238116d326bc92a365bc354b1a11ab3ccb",
+      "finding_id": "prusa-mini-pl:p37:r3b-inspection",
+      "outcome": "Visual information unavailable in text",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Five color-change steps and preview-before-export restriction retain order. Raster pointer location adds no available text.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": true,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mini-pl",
+      "page": 42,
+      "phases": [
+        "C"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "alignment-or-borderless-table-review",
+        "inline-condition-applicability-review",
+        "unreviewed-dependency-candidates-not-materialized"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mini-pl\\page-042.png",
+      "render_sha256": "d30c9d7fbd4f57d29f6d4f860f880c1ebd2433bd9f38d95c8619d9ba29c4f1e8",
+      "original_structured_sha256": "c3ca42fa0d7b2d3e6711679d48e25b81b4cad7484790b45be97ad28759163eb9",
+      "excerpt_path": "page-excerpts/prusa-mini-pl-p042.md",
+      "excerpt_sha256": "4f1efe44eb8592588bf97f967774ef80b57225fb629b384269fc573bb11f50f0",
+      "finding_id": "prusa-mini-pl:p42:r3b-inspection",
+      "outcome": "Corrected and verified against source",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Incidental flex pros/cons interleaving outside reviewed 9.1 was observed and corrected from native columns. Section 9.1 cleaning sentence continues onto page 43 without lost words.",
+      "source_text_needs_correction": true,
+      "confirmed_extraction_defect": true,
+      "experimental_correction_applied": true,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": false,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mini-pl",
+      "page": 43,
+      "phases": [
+        "C"
+      ],
+      "original_category": "mandatory-human-applicability-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "inline-condition-applicability-review",
+        "unreviewed-dependency-candidates-not-materialized"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mini-pl\\page-043.png",
+      "render_sha256": "90d9c3c5ddf3c94e68bd4907522fe8a176847ccf3b0ccd3827a094a3481337cc",
+      "original_structured_sha256": "d564720495524404ee9f303b1b944259589b22db3ea9ec5a8c6925df0425d992",
+      "excerpt_path": "page-excerpts/prusa-mini-pl-p043.md",
+      "excerpt_sha256": "d0dc9b266ba36029dca4cbdb29e1b9f98ebfc518a0ada50964ca5a36979a91f7",
+      "finding_id": "prusa-mini-pl:p43:r3b-inspection",
+      "outcome": "Verified correct",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Continuation retains cool-bed/burn restriction, hygiene condition and reference to material-specific separation layers. No duty to recalibrate after every cleaning is invented.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": false,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mini-pl",
+      "page": 44,
+      "phases": [
+        "C"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "alignment-or-borderless-table-review",
+        "callout-applicability-not-certified",
+        "colored-callout-scope-review",
+        "ruled-table-cell-review",
+        "unreviewed-dependency-candidates-not-materialized"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mini-pl\\page-044.png",
+      "render_sha256": "86f0e0a3b01830e4342d87762d07f5aae144efc169d14fcb02b86eee409f62a5",
+      "original_structured_sha256": "91931b5d9965130427c03066e63d856a0b333ce16a58ab11a69a8f6e45328815",
+      "excerpt_path": "page-excerpts/prusa-mini-pl-p044.md",
+      "excerpt_sha256": "d1905f96a9fd0411197433da19c2dd8616616b4129710e9737df404f4f7374ec",
+      "finding_id": "prusa-mini-pl:p44:r3b-inspection",
+      "outcome": "Verified correct",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Three source product rows and usage/risk columns checked. Calibration note is conditional on plate changes; warranty is not a procedural prerequisite; hygiene note has its own scope.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": false,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mini-pl",
+      "page": 45,
+      "phases": [
+        "C"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "alignment-or-borderless-table-review",
+        "callout-applicability-not-certified",
+        "colored-callout-scope-review",
+        "inline-condition-applicability-review",
+        "substantial-image-visual-review",
+        "unreviewed-dependency-candidates-not-materialized"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mini-pl\\page-045.png",
+      "render_sha256": "2ccfbf5084a46989070e5de14da855ce12a4723ed243de7f007a26193ed0a4e2",
+      "original_structured_sha256": "b9006517b9f2a7b7bf8deb9be80a84708cd62ddae3f657a73f213cb7420bb42f",
+      "excerpt_path": "page-excerpts/prusa-mini-pl-p045.md",
+      "excerpt_sha256": "522463efdb9dad832e8b392312dfc8781db9a1f1137e9c52b81f5723ea9ed13f",
+      "finding_id": "prusa-mini-pl:p45:r3b-inspection",
+      "outcome": "Unresolved — manual review required",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "9.1 caption/photos retain source text. Incidental 9.2 column interleaving corrected, but columns lack literal polarity headings; interpretation remains pending instead of inventing them.",
+      "source_text_needs_correction": true,
+      "confirmed_extraction_defect": true,
+      "experimental_correction_applied": true,
+      "blocks_unqualified_text_only_use": true,
+      "human_review_required": true,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Qualified human disposition or explicit passage quarantine required.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": false,
+        "image_only_information": true,
+        "essential_for_some_source_operations": true,
+        "misleading_without_availability_limit": true,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mk3s-pl",
+      "page": 8,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "alignment-or-borderless-table-review",
+        "callout-applicability-not-certified",
+        "inline-condition-applicability-review",
+        "merged-or-ambiguous-table-cells",
+        "unreviewed-dependency-candidates-not-materialized"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mk3s-pl\\page-008.png",
+      "render_sha256": "3276df212cb5c158f547f7f64a2e3b39a6bc62b76d069f2ed59c26069a0005e1",
+      "original_structured_sha256": "0e9072abd107a6d1385e495df8179cac796f49489b20ba16c1d1f651e0df05df",
+      "excerpt_path": "page-excerpts/prusa-mk3s-pl-p008.md",
+      "excerpt_sha256": "2ea33f380754342298850c2b176c7529f0845f0833c146a19280964b5ab68181",
+      "finding_id": "prusa-mk3s-pl:p8:r3b-inspection",
+      "outcome": "Verified correct",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "No native merged table exists here: eleven safety instructions retain order, voltage/frequency alternatives, temperatures and negations. Table flag is false for this component.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": false,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mk3s-pl",
+      "page": 11,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "alignment-or-borderless-table-review",
+        "merged-or-ambiguous-table-cells",
+        "substantial-image-visual-review",
+        "unreviewed-dependency-candidates-not-materialized"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mk3s-pl\\page-011.png",
+      "render_sha256": "673011e254714d23393a71cc833a227546ba46031a220fde66bd4984a2253606",
+      "original_structured_sha256": "e70865f0b80651ebcbbf1cb5c70bac11c8c0d690dd71dd462b91af0beb202a2b",
+      "excerpt_path": "page-excerpts/prusa-mk3s-pl-p011.md",
+      "excerpt_sha256": "443e29dff722502d0c738531df554c9730a62e20ca62e38c315598dabd53a74d",
+      "finding_id": "prusa-mk3s-pl:p11:r3b-inspection",
+      "outcome": "Corrected and verified against source",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Source chapter title was ordinary prose; heading restored. Accessory descriptions remain intact, with final sentence continuing onto the next source page.",
+      "source_text_needs_correction": true,
+      "confirmed_extraction_defect": true,
+      "experimental_correction_applied": true,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": false,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mk3s-pl",
+      "page": 16,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "alignment-or-borderless-table-review",
+        "callout-applicability-not-certified",
+        "inline-condition-applicability-review",
+        "unreviewed-dependency-candidates-not-materialized"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mk3s-pl\\page-016.png",
+      "render_sha256": "01445313e65547a5ba928dc4970d48dcc645d6a0ab9183db4225f6da12bf6d44",
+      "original_structured_sha256": "806af3081a4f142f673e408c3d403c8b2f812e02d197da2fe76e4f5bcb57b76d",
+      "excerpt_path": "page-excerpts/prusa-mk3s-pl-p016.md",
+      "excerpt_sha256": "33346a3fd5b5aaf7852c971e783665404e73f8c9bf30c46854d1bc34a830abb9",
+      "finding_id": "prusa-mk3s-pl:p16:r3b-inspection",
+      "outcome": "Unresolved — manual review required",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Two columns were interleaved and PEI heading/callout tails split. Text columns and tails repaired; check/exclamation graphic polarity has no literal heading and remains unavailable pending manual disposition.",
+      "source_text_needs_correction": true,
+      "confirmed_extraction_defect": true,
+      "experimental_correction_applied": true,
+      "blocks_unqualified_text_only_use": true,
+      "human_review_required": true,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Qualified human disposition or explicit passage quarantine required.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": false,
+        "image_only_information": true,
+        "essential_for_some_source_operations": true,
+        "misleading_without_availability_limit": true,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mk3s-pl",
+      "page": 19,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "alignment-or-borderless-table-review",
+        "callout-applicability-not-certified",
+        "inline-condition-applicability-review",
+        "merged-or-ambiguous-table-cells",
+        "unreviewed-dependency-candidates-not-materialized"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mk3s-pl\\page-019.png",
+      "render_sha256": "1d10bd300d02cd9a799e0e3b1d7e2c35a39bc0f7169166e84ec692520f59983b",
+      "original_structured_sha256": "cb3eef4ca72f62e66ed4112170a1013fb7d18f600b150fa350ea76fea805d132",
+      "excerpt_path": "page-excerpts/prusa-mk3s-pl-p019.md",
+      "excerpt_sha256": "862222a57f7c5c787f965a25a9a2ca850b317864a43a53031548302c551c7c64",
+      "finding_id": "prusa-mk3s-pl:p19:r3b-inspection",
+      "outcome": "Corrected and verified against source",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Final word of icon paragraph detached from its callout. Rejoined from native lines. ABS/textured-sheet negation and diagnostic-test condition remain intact.",
+      "source_text_needs_correction": true,
+      "confirmed_extraction_defect": true,
+      "experimental_correction_applied": true,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": false,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mk3s-pl",
+      "page": 26,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "callout-applicability-not-certified",
+        "inline-condition-applicability-review",
+        "merged-or-ambiguous-table-cells",
+        "substantial-image-visual-review",
+        "unreviewed-dependency-candidates-not-materialized"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mk3s-pl\\page-026.png",
+      "render_sha256": "a54f656c3fbf427cfc0b5b8fefd14e168276625d8d6c977c1e0f824aedc87329",
+      "original_structured_sha256": "0d1465f16a975550ea9138f4e94a2a3f7d4530b7b3514162c9da3f4460a17a83",
+      "excerpt_path": "page-excerpts/prusa-mk3s-pl-p026.md",
+      "excerpt_sha256": "70b5007a49a4a091a04d6def248176bed766e8250d117a20f96f4ec75f3bac4e",
+      "finding_id": "prusa-mk3s-pl:p26:r3b-inspection",
+      "outcome": "Visual information unavailable in text",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "No merged technical table: loading/unloading text and source English note are retained. Filament-tip shape exists only in the image and is unavailable.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": true,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mk3s-pl",
+      "page": 35,
+      "phases": [
+        "C"
+      ],
+      "original_category": "existing-medium-low-not-certified",
+      "original_severity": "Medium",
+      "flags": [
+        "alignment-or-borderless-table-review",
+        "menu-indentation-review"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mk3s-pl\\page-035.png",
+      "render_sha256": "f406b9c345193b20f9eeaa1eb106083ecaab6b2ef33df152f01f952f16ee870b",
+      "original_structured_sha256": "0dd61523a982547ae83e7aa2ac049687a032dea68784fe3eaf602eed3eecd50d",
+      "excerpt_path": "page-excerpts/prusa-mk3s-pl-p035.md",
+      "excerpt_sha256": "e99b066e122c2c97c034836476a48cde0d0c3d9626412ea3d590b1478a788283",
+      "finding_id": "prusa-mk3s-pl:p35:r3b-inspection",
+      "outcome": "Verified correct",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Shared note applies to unlisted menu settings within 7.2.9; print-only conditions stay on their original branches and continuation reaches page 36.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": false,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mk3s-pl",
+      "page": 36,
+      "phases": [
+        "A",
+        "C"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "alignment-or-borderless-table-review",
+        "lossless-fallback-structure-unresolved",
+        "menu-indentation-review",
+        "merged-or-ambiguous-table-cells"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mk3s-pl\\page-036.png",
+      "render_sha256": "6935106696f0fee088c7d8e144911ace925e7d97d982030076a7e10177b43a42",
+      "original_structured_sha256": "38e4846b68c9783958be562b2b3032dae275f8b882861129cf4923207695c798",
+      "excerpt_path": "page-excerpts/prusa-mk3s-pl-p036.md",
+      "excerpt_sha256": "8e33effd59abea6dcc09d86caaa12cdabbd44421ae7a6b6cffa31260079fa830",
+      "finding_id": "prusa-mk3s-pl:p36:r3b-inspection",
+      "outcome": "Verified correct",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "No table: 49 menu entries continue the page-35 tree. Values and conditional branches match indentation. This page excerpt is not a standalone menu root.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": false,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mk3s-pl",
+      "page": 37,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "callout-applicability-not-certified",
+        "inline-condition-applicability-review",
+        "merged-or-ambiguous-table-cells",
+        "substantial-image-visual-review",
+        "unreviewed-dependency-candidates-not-materialized"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mk3s-pl\\page-037.png",
+      "render_sha256": "a00369aedc3a6d42b98cc98396a3c7ad0e0397e07a7c089005952d21420c1334",
+      "original_structured_sha256": "0e8aabe32d825023d23bf8691980fcd73d6650b648a7a68710731e0705172d61",
+      "excerpt_path": "page-excerpts/prusa-mk3s-pl-p037.md",
+      "excerpt_sha256": "ca530f9abc4575e512ece8733a89b650bc68b26ccccf2a0168402c435aff5535",
+      "finding_id": "prusa-mk3s-pl:p37:r3b-inspection",
+      "outcome": "Unresolved — manual review required",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Layer-height and feed-rate values/negations are present. Icon scope begins in the middle of a paragraph; exact paragraph association remains unresolved. Graphic example timings are unavailable.",
+      "source_text_needs_correction": null,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": true,
+      "human_review_required": true,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Qualified human disposition or explicit passage quarantine required.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": true,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mk3s-pl",
+      "page": 39,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "alignment-or-borderless-table-review",
+        "merged-or-ambiguous-table-cells",
+        "substantial-image-visual-review",
+        "unreviewed-dependency-candidates-not-materialized"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mk3s-pl\\page-039.png",
+      "render_sha256": "f669f6806208cb53a2116a42008745b26e98dc085887d34c74c0eba2b9e930e6",
+      "original_structured_sha256": "ca9423ea5cad64852ecbf1bb275beafb2fb42c69db36bd3935af6201891243eb",
+      "excerpt_path": "page-excerpts/prusa-mk3s-pl-p039.md",
+      "excerpt_sha256": "d1718c221df73edc8a80885810081b1924afd65cb762aea0f172e0e6a557d1ac",
+      "finding_id": "prusa-mk3s-pl:p39:r3b-inspection",
+      "outcome": "Visual information unavailable in text",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Ten source Pronterface legend items, numbered labels and power-loss description are present. Raster UI values/targets are unavailable; no technical table is missing.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": true,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mk3s-pl",
+      "page": 47,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "callout-applicability-not-certified",
+        "inline-condition-applicability-review",
+        "merged-or-ambiguous-table-cells",
+        "substantial-image-visual-review",
+        "unreviewed-dependency-candidates-not-materialized"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mk3s-pl\\page-047.png",
+      "render_sha256": "19efa682de15a95ba79a7600ddf9fa375eb934f748c18f348f81fa1cf551275f",
+      "original_structured_sha256": "d95cbfc8694ca6ce93a23c4f64c455d7ecf77e1dd528389eab6fee06ebfc45f9",
+      "excerpt_path": "page-excerpts/prusa-mk3s-pl-p047.md",
+      "excerpt_sha256": "00670f36a0edbe4bbff7de1f81f881678dcb7e0bedec45de93d28378f701ba66",
+      "finding_id": "prusa-mk3s-pl:p47:r3b-inspection",
+      "outcome": "Corrected and verified against source",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Stop-if-unfamiliar condition was split outside its warning. Complete native paragraph restored. Repeated source section number is publisher-authored and intentionally retained.",
+      "source_text_needs_correction": true,
+      "confirmed_extraction_defect": true,
+      "experimental_correction_applied": true,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": false,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mk3s-pl",
+      "page": 50,
+      "phases": [
+        "B"
+      ],
+      "original_category": "visual-only-candidate-needs-human-disposition",
+      "original_severity": "High",
+      "flags": [
+        "substantial-image-visual-review"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mk3s-pl\\page-050.png",
+      "render_sha256": "0a62ba10b55b81d87ca7c4912be18e5f505fc6255f8c825763938dc9cc954892",
+      "original_structured_sha256": "1baac3ad4bd04b66e53cc6c501ce8cb50c9f07b6f1ca7e95eeec6a407573a9f1",
+      "excerpt_path": "page-excerpts/prusa-mk3s-pl-p050.md",
+      "excerpt_sha256": "8348cf05af8547bf6f777565716810a29c138e8c6aa882c051e2aecd3ab7e953",
+      "finding_id": "prusa-mk3s-pl:p50:r3b-inspection",
+      "outcome": "Visual information unavailable in text",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Source model-download prose and layer-height caption retained. Photograph adds unavailable appearance, not invented specifications.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": true,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mk3s-pl",
+      "page": 52,
+      "phases": [
+        "B"
+      ],
+      "original_category": "visual-only-candidate-needs-human-disposition",
+      "original_severity": "High",
+      "flags": [
+        "substantial-image-visual-review"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mk3s-pl\\page-052.png",
+      "render_sha256": "a0203e35813ca1cf456bacda70ae37d7e7822fc33e02924f62552c011cc22cbc",
+      "original_structured_sha256": "76a83745976d258ca6a8de8f44dc0fe44ad2dc39e194273aa19eaec18034c99a",
+      "excerpt_path": "page-excerpts/prusa-mk3s-pl-p052.md",
+      "excerpt_sha256": "b53f2fbacb31eb0a8820ba033fa182ed1a598b0cc51ce28123d689215b3019ef",
+      "finding_id": "prusa-mk3s-pl:p52:r3b-inspection",
+      "outcome": "Visual information unavailable in text",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Caption explicitly gives left/right distinction. Surface appearance comparison exists only in the photograph and is unavailable; no appearance criteria fabricated.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": true,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mk3s-pl",
+      "page": 59,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "alignment-or-borderless-table-review",
+        "callout-applicability-not-certified",
+        "inline-condition-applicability-review",
+        "merged-or-ambiguous-table-cells",
+        "unreviewed-dependency-candidates-not-materialized"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mk3s-pl\\page-059.png",
+      "render_sha256": "d2ada5047621e489beb55e3c3b4697c3f06322830f62a8798185e4977d251bc5",
+      "original_structured_sha256": "acd7416ffbf5958c98da2dcdaa7a52d976fb557ccd9d15f0f2b1c86840c8171f",
+      "excerpt_path": "page-excerpts/prusa-mk3s-pl-p059.md",
+      "excerpt_sha256": "8cce4a32b77c2b31f531ca838b80c4c5fb54266df3ab8b2cfe6b48d337a1b4af",
+      "finding_id": "prusa-mk3s-pl:p59:r3b-inspection",
+      "outcome": "Corrected and verified against source",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Last line of color-change note was outside the callout. Reattached once; three response branches and the same-material condition remain unchanged.",
+      "source_text_needs_correction": true,
+      "confirmed_extraction_defect": true,
+      "experimental_correction_applied": true,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": false,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mk3s-pl",
+      "page": 69,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "alignment-or-borderless-table-review",
+        "callout-applicability-not-certified",
+        "inline-condition-applicability-review",
+        "merged-or-ambiguous-table-cells",
+        "unreviewed-dependency-candidates-not-materialized"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mk3s-pl\\page-069.png",
+      "render_sha256": "f7f94efe75a69d06268f5038173c36a8a33e6ad650d7cf863a9c77e6390f5322",
+      "original_structured_sha256": "9070290fba3c55942f80395853fa857341138176c1268cedcccba82127b1c22a",
+      "excerpt_path": "page-excerpts/prusa-mk3s-pl-p069.md",
+      "excerpt_sha256": "dd5b17c4aae1b40d1c29272958402ba34ebea0da21a8df6799be83797ffb3df5",
+      "finding_id": "prusa-mk3s-pl:p69:r3b-inspection",
+      "outcome": "Corrected and verified against source",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Literal advantages/disadvantages headings and their items were interleaved and falsely classified as icon notes. Columns now read separately with original headings; temperatures unchanged.",
+      "source_text_needs_correction": true,
+      "confirmed_extraction_defect": true,
+      "experimental_correction_applied": true,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": false,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mk4-de",
+      "page": 1,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "independent-text-disagreement",
+        "rotated-text-review",
+        "substantial-image-visual-review"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mk4-de\\page-001.png",
+      "render_sha256": "9b12a04020588abae25b7a2eb13e7660d6c340270387dd125021327140bae433",
+      "original_structured_sha256": "fdbcab2ca6cab47baa1b7f3ba6a6b81c8c65e11fd446b71b1ab72a16dd028c59",
+      "excerpt_path": "page-excerpts/prusa-mk4-de-p001.md",
+      "excerpt_sha256": "71743ea0291e90cdc6a730f360deb9a4bc5403b959ba3b7e76c1a49fb01f2847",
+      "finding_id": "prusa-mk4-de:p1:r3b-inspection",
+      "outcome": "Corrected and verified against source",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Rotated native cover text reversed; native object order repaired. Cover imagery remains unavailable.",
+      "source_text_needs_correction": true,
+      "confirmed_extraction_defect": true,
+      "experimental_correction_applied": true,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": true,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mk4-de",
+      "page": 7,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "alignment-or-borderless-table-review",
+        "inline-condition-applicability-review",
+        "merged-or-ambiguous-table-cells"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mk4-de\\page-007.png",
+      "render_sha256": "77da2745cf0fe4d134c9e13d8fca3b55d6359facc1153978046892d66524ade8",
+      "original_structured_sha256": "3453e6e2dc9b6958b0f3fb1b11156b92d4730c6da1f064b7a3e394af74e860d8",
+      "excerpt_path": "page-excerpts/prusa-mk4-de-p007.md",
+      "excerpt_sha256": "d4894546f86fd9d4808214b518993976f158a7e85cf3b1670a2500586a384739",
+      "finding_id": "prusa-mk4-de:p7:r3b-inspection",
+      "outcome": "Corrected and verified against source",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Product label/value ordering corrupted by merged dimensions and multiline labels. Native cells restore MK4 matrix, units and three dimension qualifiers.",
+      "source_text_needs_correction": true,
+      "confirmed_extraction_defect": true,
+      "experimental_correction_applied": true,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": true,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": false,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mk4-de",
+      "page": 8,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "alignment-or-borderless-table-review",
+        "inline-condition-applicability-review",
+        "merged-or-ambiguous-table-cells"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mk4-de\\page-008.png",
+      "render_sha256": "77e0f999d164256da0bdd8290ba5a4d576360012292d086977cba3a8afde94f3",
+      "original_structured_sha256": "45b25bf7cfd58d218ddef0c643ab70701d497ba11bbea0ac3c06207c46346f71",
+      "excerpt_path": "page-excerpts/prusa-mk4-de-p008.md",
+      "excerpt_sha256": "0e755929846bfb8379a0dd4cdef6cee3e4d91907ee9d555af3e76f618c08a8b7",
+      "finding_id": "prusa-mk4-de:p8:r3b-inspection",
+      "outcome": "Corrected and verified against source",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Same observed defect on this separately inspected MK3.9 table. Restored independently from its native cells; product applicability kept separate.",
+      "source_text_needs_correction": true,
+      "confirmed_extraction_defect": true,
+      "experimental_correction_applied": true,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": true,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": false,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mk4-de",
+      "page": 16,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "colored-callout-scope-review",
+        "independent-text-disagreement",
+        "substantial-image-visual-review",
+        "unreviewed-dependency-candidates-not-materialized"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mk4-de\\page-016.png",
+      "render_sha256": "77b83c043d54aaabbc0404defa69b69d3b123739d57e09aa236fc205aa6558fe",
+      "original_structured_sha256": "7c61af565700f7de8b006665448d2a4c44158e91d7e501c84fa5ae96d1407f82",
+      "excerpt_path": "page-excerpts/prusa-mk4-de-p016.md",
+      "excerpt_sha256": "f29a47ac7973e6ad4ad174989104f6da61859fadce7a1816a6e6c5a153ebee02",
+      "finding_id": "prusa-mk4-de:p16:r3b-inspection",
+      "outcome": "Visual information unavailable in text",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Fifteen component legend entries and filament diameter are retained. Physical arrow targets remain unavailable.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": true,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mk4-de",
+      "page": 21,
+      "phases": [
+        "C"
+      ],
+      "original_category": "mandatory-human-applicability-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "colored-callout-scope-review",
+        "inline-condition-applicability-review",
+        "substantial-image-visual-review",
+        "unreviewed-dependency-candidates-not-materialized"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mk4-de\\page-021.png",
+      "render_sha256": "79de749cae8b03dd17352efff894391e7950ce6c28ac8c1c8cd1ebcb2aecefba",
+      "original_structured_sha256": "c0f169b1997f9c5020cd11c15c5ae34ec0126f5fd892b58f574e2d030c83ac94",
+      "excerpt_path": "page-excerpts/prusa-mk4-de-p021.md",
+      "excerpt_sha256": "39ffac57667fd67321d566b918cbd48d325d002539e83f03d7683d33514e60ea",
+      "finding_id": "prusa-mk4-de:p21:r3b-inspection",
+      "outcome": "Verified correct",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Bed-installed condition continues to selftest; cleanliness, no-direct-bed and handling restrictions stay with sheet installation, not every later chapter.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": false,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mk4-de",
+      "page": 22,
+      "phases": [
+        "C"
+      ],
+      "original_category": "mandatory-human-applicability-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "colored-callout-scope-review",
+        "substantial-image-visual-review",
+        "unreviewed-dependency-candidates-not-materialized"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mk4-de\\page-022.png",
+      "render_sha256": "d467cb974bc36c9bc350d07b0043036354a2b2c49e483125ced988e968a26d5e",
+      "original_structured_sha256": "4e9b194049d4b8dcbd8d19ff793c69416871767941fc83a3719be496f03dff74",
+      "excerpt_path": "page-excerpts/prusa-mk4-de-p022.md",
+      "excerpt_sha256": "bb94963fb93d630c579030028406b4a870798ae184ea9af6a269a9eb072eec98",
+      "finding_id": "prusa-mk4-de:p22:r3b-inspection",
+      "outcome": "Unresolved — manual review required",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Local no-touch/stability and minimum filament length retained. Screenshot-only sensor-test startup state requires manual availability disposition; no instruction inferred from pixels.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": true,
+      "human_review_required": true,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Qualified human disposition or explicit passage quarantine required.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": false,
+        "image_only_information": true,
+        "essential_for_some_source_operations": true,
+        "misleading_without_availability_limit": true,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mk4-de",
+      "page": 33,
+      "phases": [
+        "B"
+      ],
+      "original_category": "visual-only-candidate-needs-human-disposition",
+      "original_severity": "High",
+      "flags": [
+        "substantial-image-visual-review"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mk4-de\\page-033.png",
+      "render_sha256": "ffc91670faa011a3a9a16d05b2c0b3507f5958f3828708ac54ede8c283348159",
+      "original_structured_sha256": "c04d5d796155890a9c6e467c9189844bcec23afd42809e0f1ae50f49a0997e09",
+      "excerpt_path": "page-excerpts/prusa-mk4-de-p033.md",
+      "excerpt_sha256": "7b70e015439818db44443f3c0156a066bfe54f4684849779893ecc9a297e5c67",
+      "finding_id": "prusa-mk4-de:p33:r3b-inspection",
+      "outcome": "Unresolved — manual review required",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Factory-reset screenshot carries a safety-relevant confirmation qualifier absent from prose. Example-model text is usable; complete reset-procedure support must remain unavailable pending manual review.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": true,
+      "human_review_required": true,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Qualified human disposition or explicit passage quarantine required.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": false,
+        "image_only_information": true,
+        "essential_for_some_source_operations": true,
+        "misleading_without_availability_limit": true,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mk4-de",
+      "page": 43,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "independent-text-disagreement",
+        "substantial-image-visual-review"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mk4-de\\page-043.png",
+      "render_sha256": "69f2cde8c01c4e1e19d10274aac179d68004ba453dced499d3b61f6e7fcff883",
+      "original_structured_sha256": "c5e254c056244b08de948767485c24ca5386bf1d92307d0a4ca78963a26343b0",
+      "excerpt_path": "page-excerpts/prusa-mk4-de-p043.md",
+      "excerpt_sha256": "b2bb9bb15bc6a8d853c40b0921c0077f2b20af168879f680ac8aa91a83808103",
+      "finding_id": "prusa-mk4-de:p43:r3b-inspection",
+      "outcome": "Visual information unavailable in text",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Fourteen interface legend entries retained in order. Raster UI and arrow targets remain unavailable.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": true,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mk4-de",
+      "page": 50,
+      "phases": [
+        "B"
+      ],
+      "original_category": "visual-only-candidate-needs-human-disposition",
+      "original_severity": "High",
+      "flags": [
+        "substantial-image-visual-review"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mk4-de\\page-050.png",
+      "render_sha256": "837e0587308cc79aa5a28b4193c47e817518b5e64f8bb9820fabf7ad342e65c6",
+      "original_structured_sha256": "e5f59e39353361fbe5838d9986eeea2a754990f8e367b1c7d2117442780c9cd8",
+      "excerpt_path": "page-excerpts/prusa-mk4-de-p050.md",
+      "excerpt_sha256": "f3aeefa6776a7319033877537edcb8ce810998eaf4abdf52987ca3bd257e16f9",
+      "finding_id": "prusa-mk4-de:p50:r3b-inspection",
+      "outcome": "Visual information unavailable in text",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Five steps and subsequent printer-pause instruction retained. Screenshot is a visual supplement; exact UI positions are unavailable.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": true,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mk4s-en",
+      "page": 1,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "complex-vector-grid",
+        "independent-text-disagreement",
+        "rotated-text-review",
+        "substantial-image-visual-review"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mk4s-en\\page-001.png",
+      "render_sha256": "59b26a046b81df9cfdb378580a457c1df88f1ce6bef6eaab937fb6227d95daff",
+      "original_structured_sha256": "029443dee0258970b5bc18dd992c14913f967a22dc1e55663a3e6f0e28a5673e",
+      "excerpt_path": "page-excerpts/prusa-mk4s-en-p001.md",
+      "excerpt_sha256": "23b64f17da9a9765b8aded3ee7db39c150d97f59bb86729ae0632ebf139cb60c",
+      "finding_id": "prusa-mk4s-en:p1:r3b-inspection",
+      "outcome": "Corrected and verified against source",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Rotated native instruction text reversed; native object order repaired. Other cover graphics are unavailable.",
+      "source_text_needs_correction": true,
+      "confirmed_extraction_defect": true,
+      "experimental_correction_applied": true,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": true,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mk4s-en",
+      "page": 6,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "alignment-or-borderless-table-review",
+        "inline-condition-applicability-review",
+        "merged-or-ambiguous-table-cells"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mk4s-en\\page-006.png",
+      "render_sha256": "6c0ecb812c9ca56ce5073b4e96589600a1c951929cc2d9ef92b7eb9918ee1d7b",
+      "original_structured_sha256": "3b80967b65401edf3a0c4e80604ae25732f5b09339b6bb5bb77aa72eb836b2d3",
+      "excerpt_path": "page-excerpts/prusa-mk4s-en-p006.md",
+      "excerpt_sha256": "a38635e4046ba71acf8be567187db7c2ba6ff41cf897de147db397997d7b9cf0",
+      "finding_id": "prusa-mk4s-en:p6:r3b-inspection",
+      "outcome": "Corrected and verified against source",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Multiline property labels, frequency bands and dimensions were interleaved. Source cells restore relationships; two original product names and shared values remain once.",
+      "source_text_needs_correction": true,
+      "confirmed_extraction_defect": true,
+      "experimental_correction_applied": true,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": true,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": false,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mk4s-en",
+      "page": 10,
+      "phases": [
+        "B"
+      ],
+      "original_category": "visual-only-candidate-needs-human-disposition",
+      "original_severity": "High",
+      "flags": [
+        "substantial-image-visual-review"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mk4s-en\\page-010.png",
+      "render_sha256": "0f6567ab4b4c0d28d0fa33d1887f91bcd06bec0c0db3e482945174aa4224d85d",
+      "original_structured_sha256": "bfbee2698880bdde16d3c610e59e6245f3fb792e7b944fe713f9b9132709eea4",
+      "excerpt_path": "page-excerpts/prusa-mk4s-en-p010.md",
+      "excerpt_sha256": "23b90089d8bcc2ca8c816408f41a78475ba61f204229a3c8b46d04ec2f2ffc64",
+      "finding_id": "prusa-mk4s-en:p10:r3b-inspection",
+      "outcome": "Visual information unavailable in text",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Independent introductory prose; photograph is illustrative. No technical parameters are taken from the image.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": true,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mk4s-en",
+      "page": 18,
+      "phases": [
+        "C"
+      ],
+      "original_category": "mandatory-human-applicability-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "colored-callout-scope-review",
+        "substantial-image-visual-review",
+        "unreviewed-dependency-candidates-not-materialized"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mk4s-en\\page-018.png",
+      "render_sha256": "b23fce10f310a2ca585bd46dbe8cebc8c5816c17af01aabc96828beec04f849d",
+      "original_structured_sha256": "6d6c51c4bc08811230307fd275aa71fceacef14e996d61b390fc438d2b40f597",
+      "excerpt_path": "page-excerpts/prusa-mk4s-en-p018.md",
+      "excerpt_sha256": "6b24e7b4f3bc78bc4d3c0f429a40b11343946d1096f80459c53451a5957768fd",
+      "finding_id": "prusa-mk4s-en:p18:r3b-inspection",
+      "outcome": "Verified correct",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Bed-installed prerequisite spans initial wizard and running selftest. Optional internet setup is not a compulsory prerequisite; diagnostic-purpose note is informational.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": false,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mk4s-en",
+      "page": 19,
+      "phases": [
+        "C"
+      ],
+      "original_category": "mandatory-human-applicability-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "colored-callout-scope-review",
+        "substantial-image-visual-review",
+        "unreviewed-dependency-candidates-not-materialized"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mk4s-en\\page-019.png",
+      "render_sha256": "8c079a71ea244953048362c5b9e67bf1ded9d78f7c8721406a7a9aef1bd09e39",
+      "original_structured_sha256": "5d56abb171fa5afcad678bd43b826d16ba7f5ab8209493a51e5f613918da4a15",
+      "excerpt_path": "page-excerpts/prusa-mk4s-en-p019.md",
+      "excerpt_sha256": "842b75929fd90dda48cf8ae0f5351297598038626b51becb74c620971a111307",
+      "finding_id": "prusa-mk4s-en:p19:r3b-inspection",
+      "outcome": "Unresolved — manual review required",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "No-touch/stability restriction and minimum filament length are valid source text. Screenshot-only startup state prevents treating filament-sensor calibration as a complete text-only procedure.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": true,
+      "human_review_required": true,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Qualified human disposition or explicit passage quarantine required.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": false,
+        "image_only_information": true,
+        "essential_for_some_source_operations": true,
+        "misleading_without_availability_limit": true,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mk4s-en",
+      "page": 35,
+      "phases": [
+        "B"
+      ],
+      "original_category": "visual-only-candidate-needs-human-disposition",
+      "original_severity": "High",
+      "flags": [
+        "substantial-image-visual-review"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mk4s-en\\page-035.png",
+      "render_sha256": "2a120c0069ecf6127dbf5c2aeecef348ae9a65aa38821f4dc458c874a9638446",
+      "original_structured_sha256": "e8c5753aa99f7e78809f841ea455bd154ca9979b5fa5e222009aee54e850e346",
+      "excerpt_path": "page-excerpts/prusa-mk4s-en-p035.md",
+      "excerpt_sha256": "04e3eee3a2e49edf5e56a67350706c2965f16c0cf0bf8a7f91a5e48a2a24b887",
+      "finding_id": "prusa-mk4s-en:p35:r3b-inspection",
+      "outcome": "Visual information unavailable in text",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Nozzle sizes, step increment, menu path and adapter conditions are stated in prose. Photograph is supplementary; installation geometry is not reconstructed.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": true,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mk4s-en",
+      "page": 42,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "independent-text-disagreement",
+        "substantial-image-visual-review"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mk4s-en\\page-042.png",
+      "render_sha256": "ba0ccc33af59460f7782ea8fa6d99abd6be303c22f13043affa3336ea7611bb9",
+      "original_structured_sha256": "ea4b6cb0d4af03f10465c6c2e9411e5658977b95ce5e5dacff1915f77daca754",
+      "excerpt_path": "page-excerpts/prusa-mk4s-en-p042.md",
+      "excerpt_sha256": "94c64eb4b3b03f9dced404ef57925f73b8df67639be49a3cb83e59c5bd3f128d",
+      "finding_id": "prusa-mk4s-en:p42:r3b-inspection",
+      "outcome": "Visual information unavailable in text",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Fourteen published interface explanations retained. Raster positions and screenshot-only labels remain unavailable.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": true,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mmu3-en",
+      "page": 1,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "complex-vector-grid",
+        "independent-text-disagreement",
+        "rotated-text-review",
+        "substantial-image-visual-review"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mmu3-en\\page-001.png",
+      "render_sha256": "7ef9785eb9a4b796021fb45b1dfcc74479e2c6b6ba6e5eb58011320923b9a39f",
+      "original_structured_sha256": "fad1e9fe7d8a4249d18ed99afc7b52074edfa673a5339abd4119584522ee9447",
+      "excerpt_path": "page-excerpts/prusa-mmu3-en-p001.md",
+      "excerpt_sha256": "13e14187ee2609a9f2688c4f9747a877fc98f54c3c5b0ce0796fc44a16193128",
+      "finding_id": "prusa-mmu3-en:p1:r3b-inspection",
+      "outcome": "Corrected and verified against source",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Rotated native instruction text reversed; native object order repaired. Cover graphic details remain unavailable.",
+      "source_text_needs_correction": true,
+      "confirmed_extraction_defect": true,
+      "experimental_correction_applied": true,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": true,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mmu3-en",
+      "page": 6,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "callout-applicability-not-certified",
+        "independent-text-disagreement",
+        "inline-condition-applicability-review"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mmu3-en\\page-006.png",
+      "render_sha256": "a0a05dabaaa64a1453f9d0824453764c87c3b30613e24d32cea704f0c30c5cdf",
+      "original_structured_sha256": "1a2c7f5dc9e80afba00124af3ab1fd004adabd00e280b5a447498f91840cc0ab",
+      "excerpt_path": "page-excerpts/prusa-mmu3-en-p006.md",
+      "excerpt_sha256": "09bd81423679133ab65fc41310c314748971a6c98c8e3a4ba8aee19aeb11c76d",
+      "finding_id": "prusa-mmu3-en:p6:r3b-inspection",
+      "outcome": "Unresolved — manual review required",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Six published safety-symbol descriptions are retained, but small source icons have no explicit placeholder/row identity in the extraction. Mapping a symbol to an instruction needs manual disposition; no symbol descriptions generated.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": true,
+      "human_review_required": true,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Qualified human disposition or explicit passage quarantine required.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": false,
+        "image_only_information": true,
+        "essential_for_some_source_operations": true,
+        "misleading_without_availability_limit": true,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mmu3-en",
+      "page": 7,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "alignment-or-borderless-table-review",
+        "inline-condition-applicability-review",
+        "merged-or-ambiguous-table-cells"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mmu3-en\\page-007.png",
+      "render_sha256": "830e2a845c9025cbf3a1eb829513689dfb9142f04ea834e3711c1a3f0cdb5f18",
+      "original_structured_sha256": "2b25ac09bf7f067199a506ad9a0a4996d72b8eb9a90959c71638c460ec5131e3",
+      "excerpt_path": "page-excerpts/prusa-mmu3-en-p007.md",
+      "excerpt_sha256": "e89e58ac2b568b84f7018309a0dc79cbc2fba62ee3a65820206485ec8fb1e9c9",
+      "finding_id": "prusa-mmu3-en:p7:r3b-inspection",
+      "outcome": "Corrected and verified against source",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Manufacturer and dimensions labels were interleaved with values. Restored native table; printer-provided DC supply and indoor-use qualifier unchanged.",
+      "source_text_needs_correction": true,
+      "confirmed_extraction_defect": true,
+      "experimental_correction_applied": true,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": true,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": false,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mmu3-en",
+      "page": 11,
+      "phases": [
+        "B"
+      ],
+      "original_category": "visual-only-candidate-needs-human-disposition",
+      "original_severity": "High",
+      "flags": [
+        "substantial-image-visual-review"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mmu3-en\\page-011.png",
+      "render_sha256": "4cb11563dba5817edc78bc03eb6d4a0f58c52c8b43441df080184eaf15f84c9c",
+      "original_structured_sha256": "fa369c7ce03e6d8d18dfc94a9ff2c55e7c0393f6fa781c0c96966fe2cdc0084d",
+      "excerpt_path": "page-excerpts/prusa-mmu3-en-p011.md",
+      "excerpt_sha256": "a5a25cd916bf2a8a082b8cb4b62c774cdc5aa80297d13f057f9b55a3d75a6b36",
+      "finding_id": "prusa-mmu3-en:p11:r3b-inspection",
+      "outcome": "Visual information unavailable in text",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Nine source component descriptions independently state functions. Arrow-to-hardware positions remain unavailable.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": true,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mmu3-en",
+      "page": 22,
+      "phases": [
+        "C"
+      ],
+      "original_category": "mandatory-human-applicability-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "colored-callout-scope-review",
+        "inline-condition-applicability-review"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mmu3-en\\page-022.png",
+      "render_sha256": "9701b10ee5fb5c47a8eab8e6ca66273cc583db3ccdf77a160ec9710f91cf6a15",
+      "original_structured_sha256": "f8d9ccf1105b2f6d8cb8dfe6e434e938d5cf978fdf6587969f41d4980a152628",
+      "excerpt_path": "page-excerpts/prusa-mmu3-en-p022.md",
+      "excerpt_sha256": "df63770e763245681704c78098bfa68a13a0be04cf07d36e0ba59152c4dcb03c",
+      "finding_id": "prusa-mmu3-en:p22:r3b-inspection",
+      "outcome": "Verified correct",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Two separate six-step sequences verified. Straight filament-end note belongs to ejection 2.6, not loading 2.5; nozzle-loaded unloading prerequisite and product-specific menu routes retained.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": false,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-mmu3-en",
+      "page": 41,
+      "phases": [
+        "B"
+      ],
+      "original_category": "visual-only-candidate-needs-human-disposition",
+      "original_severity": "High",
+      "flags": [
+        "substantial-image-visual-review"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-mmu3-en\\page-041.png",
+      "render_sha256": "c56bcf3df48ccf39fd26ab64552628aaf6e6eccb6f7e68ab53e8bdff7aa71065",
+      "original_structured_sha256": "cd9d8e15ef040b6a02522d2736aa9e0dfbfa3c1cc67f19a080a746771d496269",
+      "excerpt_path": "page-excerpts/prusa-mmu3-en-p041.md",
+      "excerpt_sha256": "be213933a285e9d795b00f343c9351eb9e69e5a9da4fb0f70757112d36a85f28",
+      "finding_id": "prusa-mmu3-en:p41:r3b-inspection",
+      "outcome": "Visual information unavailable in text",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Wipe options, object-height branches and final-filament behavior are explicit in prose. Screenshot/photo details remain unavailable.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": true,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-xl-de",
+      "page": 1,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "independent-text-disagreement",
+        "rotated-text-review",
+        "substantial-image-visual-review"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-xl-de\\page-001.png",
+      "render_sha256": "ae54f9bce676b7f223d36b23de19d02e0cbbc6dda843b154245186096d7e2f3d",
+      "original_structured_sha256": "c52df4be0f81c99501ab593ceaffface3c850a645ebef5b646d1c359ee225016",
+      "excerpt_path": "page-excerpts/prusa-xl-de-p001.md",
+      "excerpt_sha256": "49c09f81acfe5c7eeaca2373d55098bd5194d9bf0515dda79ca78a38fb03b7a1",
+      "finding_id": "prusa-xl-de:p1:r3b-inspection",
+      "outcome": "Corrected and verified against source",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Rotated native text reversed; repaired. Critical Infrastructure wording visible in cover artwork is not native extracted text, so that graphical edition label remains unavailable rather than transcribed.",
+      "source_text_needs_correction": true,
+      "confirmed_extraction_defect": true,
+      "experimental_correction_applied": true,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": true,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-xl-de",
+      "page": 9,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "alignment-or-borderless-table-review",
+        "inline-condition-applicability-review",
+        "merged-or-ambiguous-table-cells"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-xl-de\\page-009.png",
+      "render_sha256": "bdf7853e33cc01be6696db1f2566af789d65898203fc248473f3229b39a0cb84",
+      "original_structured_sha256": "da34f6c1b6c67aebd4cdd5042f5eb15f1a1b9715dddb5203fec9ef70fe2e4e1e",
+      "excerpt_path": "page-excerpts/prusa-xl-de-p009.md",
+      "excerpt_sha256": "1eeac22216d88554e65844bbb98fdb4a401b1ac7d8c7baa8074dcf14dc47a7c1",
+      "finding_id": "prusa-xl-de:p9:r3b-inspection",
+      "outcome": "Corrected and verified against source",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Native product table restored. Starred radio properties and the original Critical Infrastructure exclusion footnote remain linked by their source star markers.",
+      "source_text_needs_correction": true,
+      "confirmed_extraction_defect": true,
+      "experimental_correction_applied": true,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": true,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": false,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-xl-de",
+      "page": 15,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "colored-callout-scope-review",
+        "independent-text-disagreement",
+        "substantial-image-visual-review"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-xl-de\\page-015.png",
+      "render_sha256": "a9e54da530e4b379792aae275d56ac6b2b3b3888916ed6532aad1e3a57fcf279",
+      "original_structured_sha256": "0109b80c773b932fbdfcf72ae6872427608dde7e4cb61880762f86d07bc3337e",
+      "excerpt_path": "page-excerpts/prusa-xl-de-p015.md",
+      "excerpt_sha256": "51ff2be9a9f65cb59cfcda615adeb413c5ab33ed7841da55bb93c1ece921164d",
+      "finding_id": "prusa-xl-de:p15:r3b-inspection",
+      "outcome": "Visual information unavailable in text",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Ten Single-Tool legend entries retain numbering; spatial arrow relationships remain unavailable.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": true,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-xl-de",
+      "page": 16,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "callout-applicability-not-certified",
+        "colored-callout-scope-review",
+        "independent-text-disagreement",
+        "substantial-image-visual-review",
+        "unreviewed-dependency-candidates-not-materialized"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-xl-de\\page-016.png",
+      "render_sha256": "ef632126fca0d3ea87ed5aa83d66c4983147a0caaf3f477b204a253504068802",
+      "original_structured_sha256": "6ba04dcf9a597c08c19cf6960a748193c654e01ab44655c4cc78dc26d4b6456d",
+      "excerpt_path": "page-excerpts/prusa-xl-de-p016.md",
+      "excerpt_sha256": "e59faec3ff037f294484552fb83a5dbb4155c8f4bf43a584a9a6d101ad5ed7cf",
+      "finding_id": "prusa-xl-de:p16:r3b-inspection",
+      "outcome": "Visual information unavailable in text",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Nine Single-Tool Nextruder entries and non-interchangeability callout are retained. Graphic positions remain unavailable; callout is not a chapter-wide prerequisite.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": true,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-xl-de",
+      "page": 17,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "callout-applicability-not-certified",
+        "colored-callout-scope-review",
+        "independent-text-disagreement",
+        "substantial-image-visual-review"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-xl-de\\page-017.png",
+      "render_sha256": "40b679c1a423329c766d82cdbf5db0a4ba72df718321a534dc7c08fa5df5d5f5",
+      "original_structured_sha256": "378dba4a151a715c04af087d6b2214b5cc61f82303cc709c0964a33f6d3db5a5",
+      "excerpt_path": "page-excerpts/prusa-xl-de-p017.md",
+      "excerpt_sha256": "d5347dc3ff980ca7e4e92a35451dedce4daf064df9ed6b22aa4338de75db8d9b",
+      "finding_id": "prusa-xl-de:p17:r3b-inspection",
+      "outcome": "Visual information unavailable in text",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Eleven Multi-Tool entries and photo-local dual-head note retained; source model-count distinction remains local to the photograph.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": true,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-xl-de",
+      "page": 18,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "callout-applicability-not-certified",
+        "colored-callout-scope-review",
+        "independent-text-disagreement",
+        "substantial-image-visual-review",
+        "unreviewed-dependency-candidates-not-materialized"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-xl-de\\page-018.png",
+      "render_sha256": "620fc6b4d54019b2cd8534ebda679bdb191da9ef7b3ad013ae2d3a521d0ba9ef",
+      "original_structured_sha256": "aac1d18c381c203032092810f01c1556af980c9873d341f251b35684efa998af",
+      "excerpt_path": "page-excerpts/prusa-xl-de-p018.md",
+      "excerpt_sha256": "f6d9dc0cf4c80f58fb4612b82e1d8d83808a78086c09c2edc8a2c3c3b6bc0369",
+      "finding_id": "prusa-xl-de:p18:r3b-inspection",
+      "outcome": "Visual information unavailable in text",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Ten Multi-Tool entries and literal manual-unlocking note are retained. Exact physical latch targets remain unavailable; no generated unlocking instructions added.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": true,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-xl-de",
+      "page": 23,
+      "phases": [
+        "C"
+      ],
+      "original_category": "mandatory-human-applicability-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "colored-callout-scope-review",
+        "inline-condition-applicability-review",
+        "substantial-image-visual-review",
+        "unreviewed-dependency-candidates-not-materialized"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-xl-de\\page-023.png",
+      "render_sha256": "ab66e34184409a285448bc686a44a112693b67fa31d56b054c55515ef7c70599",
+      "original_structured_sha256": "aa8cd06de0b7e4a20afcb4bd51c709ee6c774b93d14afd21cdb6c83673c29eae",
+      "excerpt_path": "page-excerpts/prusa-xl-de-p023.md",
+      "excerpt_sha256": "7dc1c1762369f8a66affe09379e5a1fc37f7d12c00d7679b559e2ff4432cb9ae",
+      "finding_id": "prusa-xl-de:p23:r3b-inspection",
+      "outcome": "Verified correct",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Warning, cleanliness/no-direct-bed and local finger-clearance scopes checked against source. Alignment prose survives; orange spatial targets remain unavailable.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": true,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-xl-de",
+      "page": 24,
+      "phases": [
+        "C"
+      ],
+      "original_category": "mandatory-human-applicability-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "colored-callout-scope-review",
+        "inline-condition-applicability-review",
+        "substantial-image-visual-review",
+        "unreviewed-dependency-candidates-not-materialized"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-xl-de\\page-024.png",
+      "render_sha256": "bab38265319e60408e8fb7fd804d3864f8a3eb35f98cbbc1cff80df11049751c",
+      "original_structured_sha256": "26ca62d993ea6ef340a371467cb28a43aec3084aa84ee7b54739ff75891fd537",
+      "excerpt_path": "page-excerpts/prusa-xl-de-p024.md",
+      "excerpt_sha256": "04a040423f1e49b2592683d0fbd6d6f681ab3692275ca2525798c5f0c7f2478d",
+      "finding_id": "prusa-xl-de:p24:r3b-inspection",
+      "outcome": "Verified correct",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Alignment warning continues 4.3, then cleaning instruction follows. Source warning is retained once, not broadcast to every chunk.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": false,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-xl-de",
+      "page": 35,
+      "phases": [
+        "B"
+      ],
+      "original_category": "visual-only-candidate-needs-human-disposition",
+      "original_severity": "High",
+      "flags": [
+        "substantial-image-visual-review"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-xl-de\\page-035.png",
+      "render_sha256": "0ade23d6095534ebb6f00fe3f1918eed14a8b919c647cf7c6041cc7543ff6655",
+      "original_structured_sha256": "158821fbe86596f27462b6575c9205a8454de18d73c2f1caf156ca07a38e4b59",
+      "excerpt_path": "page-excerpts/prusa-xl-de-p035.md",
+      "excerpt_sha256": "1a27427bcd968d18d84b34579be782366ef84603c682bf95019d13aa321e9a02",
+      "finding_id": "prusa-xl-de:p35:r3b-inspection",
+      "outcome": "Unresolved — manual review required",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Factory-reset screenshot adds a safety-relevant confirmation qualifier absent from prose. Do not treat the retained reset paragraph as a complete text-only procedure.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": true,
+      "human_review_required": true,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Qualified human disposition or explicit passage quarantine required.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": false,
+        "image_only_information": true,
+        "essential_for_some_source_operations": true,
+        "misleading_without_availability_limit": true,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-xl-de",
+      "page": 46,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "independent-text-disagreement",
+        "substantial-image-visual-review"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-xl-de\\page-046.png",
+      "render_sha256": "302c4bb3d18a31afe99a913c91de4cb4914108c802147bc4f83b2f0d8df6471f",
+      "original_structured_sha256": "a2e285547e06e97b40d56fd2e6b4bf05b8b6d766c5def53b07ddd1ba96f07b83",
+      "excerpt_path": "page-excerpts/prusa-xl-de-p046.md",
+      "excerpt_sha256": "0858453d6ed2fde7cce583010a3d04f3d1f20ddc8a11e99ae226487b20826117",
+      "finding_id": "prusa-xl-de:p46:r3b-inspection",
+      "outcome": "Visual information unavailable in text",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Fourteen interface explanations are retained; raster UI positions unavailable.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": true,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-xl-de",
+      "page": 62,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "alignment-or-borderless-table-review",
+        "callout-applicability-not-certified",
+        "colored-callout-scope-review",
+        "inline-condition-applicability-review",
+        "unreviewed-dependency-candidates-not-materialized"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-xl-de\\page-062.png",
+      "render_sha256": "e4c761746ad48f5019730f88b87d008c0228b80ba8ca5ffc1537918dbcdc8918",
+      "original_structured_sha256": "3979e1890d87d46fac46097d4ae85a0cc15f652f960efcb8faa0fd81c34fb738",
+      "excerpt_path": "page-excerpts/prusa-xl-de-p062.md",
+      "excerpt_sha256": "0d97d303d3271d120963030cc4446c09aab338fa735ac5a1aa241dc88da6d67b",
+      "finding_id": "prusa-xl-de:p62:r3b-inspection",
+      "outcome": "Corrected and verified against source",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Literal pros/cons columns interleaved, obscuring temperature qualifier and polarity. Recovered by native coordinates; original PLA temperatures and separate marketing note retained.",
+      "source_text_needs_correction": true,
+      "confirmed_extraction_defect": true,
+      "experimental_correction_applied": true,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": false,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": false,
+        "essential_for_some_source_operations": false,
+        "misleading_without_availability_limit": false,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-xl-de",
+      "page": 81,
+      "phases": [
+        "A"
+      ],
+      "original_category": "mandatory-human-text-layout-adjudication",
+      "original_severity": "High",
+      "flags": [
+        "alignment-or-borderless-table-review",
+        "colored-callout-scope-review",
+        "inline-condition-applicability-review",
+        "merged-or-ambiguous-table-cells",
+        "ruled-table-cell-review"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-xl-de\\page-081.png",
+      "render_sha256": "f3d207bb941f3c6dadfb3e0949b3354a93e299ad6dc77ceb489e1ea19a2927f1",
+      "original_structured_sha256": "9414accef1a2d0f66272bb77606a28f0ddef00b066ee5296949fd144648928ab",
+      "excerpt_path": "page-excerpts/prusa-xl-de-p081.md",
+      "excerpt_sha256": "cf129b867d1cd8ba739b3cb3a3b07ababd0bdffdd331d6ed12e46785e8a384e4",
+      "finding_id": "prusa-xl-de:p81:r3b-inspection",
+      "outcome": "Unresolved — manual review required",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Product matrix corrected, including dimensions and ingress-protection qualifier. Electrical legend text survives, but symbol associations/electrical interpretation require a qualified human. No electrical-use admission asserted.",
+      "source_text_needs_correction": true,
+      "confirmed_extraction_defect": true,
+      "experimental_correction_applied": true,
+      "blocks_unqualified_text_only_use": true,
+      "human_review_required": true,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Qualified human disposition or explicit passage quarantine required.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": true,
+        "essential_for_some_source_operations": true,
+        "misleading_without_availability_limit": true,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    },
+    {
+      "source_id": "prusa-xl-de",
+      "page": 83,
+      "phases": [
+        "B"
+      ],
+      "original_category": "visual-only-candidate-needs-human-disposition",
+      "original_severity": "High",
+      "flags": [
+        "substantial-image-visual-review"
+      ],
+      "original_render": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r2-v1\\page-renders\\prusa-xl-de\\page-083.png",
+      "render_sha256": "1f9963bb3bd4bffbc713cea54284f9ecc66248464361657bdaa36e0aebfdaa0c",
+      "original_structured_sha256": "9cc26df05c675f085098d5c3eb7c6c391d45fdcce379eab61dea3a3df29756df",
+      "excerpt_path": "page-excerpts/prusa-xl-de-p083.md",
+      "excerpt_sha256": "c7fac41798b05e3c245407abec4592bc1db399b77c20de64dcb46cae954f5f2e",
+      "finding_id": "prusa-xl-de:p83:r3b-inspection",
+      "outcome": "Visual information unavailable in text",
+      "inspection_method": [
+        "Agent visual read of original 1400-pixel PDF render",
+        "Compared actual source-once excerpt and retained extraction blocks",
+        "Native cell/glyph coordinates and corrected excerpt checked where repaired"
+      ],
+      "finding_and_reason": "Five source component names retained. PDU physical terminal/connection geometry is essential for spatial identification and remains unavailable; electrical-use interpretation still requires a qualified human.",
+      "source_text_needs_correction": false,
+      "confirmed_extraction_defect": false,
+      "experimental_correction_applied": false,
+      "blocks_unqualified_text_only_use": false,
+      "human_review_required": true,
+      "reviewer_origin": "agent",
+      "independent_human_certification": false,
+      "original_priority_changed": false,
+      "remaining_uncertainty": "Agent component review only; no whole-page admission or independent human certification.",
+      "visual_availability": {
+        "surrounding_text_independently_meaningful": true,
+        "image_only_information": true,
+        "essential_for_some_source_operations": true,
+        "misleading_without_availability_limit": true,
+        "graphic_information_delivered_as_text": false
+      },
+      "phase_scope": "Inspected components described above; other flags on this page are not automatically closed"
+    }
+  ]
+}

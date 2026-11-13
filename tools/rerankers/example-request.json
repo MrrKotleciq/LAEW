@@ -1,0 +1,7 @@
+{
+  "query": "How should the controller be initialized?",
+  "documents": [
+    {"id": "doc-1", "text": "Initialize communication before enabling the actuator."},
+    {"id": "doc-2", "text": "Disconnect the actuator before updating firmware."}
+  ]
+}

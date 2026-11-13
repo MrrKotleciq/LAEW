@@ -1,0 +1,18 @@
+{
+  "task": "3C.2A-R3F",
+  "scope": "Post-freeze original R3C/R3D and historical input-chain verification; historical admitted/frozen flags describe original staging only",
+  "r3c_r3d_and_prior_chain": {
+    "verified": true,
+    "r3d_files": 12,
+    "inventory_sha256": "07cb927d96d0153681f0034aed8502e46ca0334fcb4e1305b1b0e3a4b90f7d0f",
+    "source_snapshot_unchanged": true,
+    "observations": 15,
+    "inherited_risks": 418,
+    "uninspected_high": 329,
+    "admitted": false,
+    "frozen": false
+  },
+  "r3e_verified": true,
+  "r3e_inventory_sha256": "5ece0758981377b165a632d10f1f3752e9f2a92c7505c22a8a1d8db45427ae08",
+  "r3e_inventoried_files": 11
+}

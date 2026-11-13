@@ -1,0 +1,792 @@
+{
+  "id": "laew-reranker-independent-engineering-v1",
+  "version": 1,
+  "queries": [
+    {
+      "id": "u01",
+      "text": "How is a short nonempty TCP read handled, and what does an empty read mean?",
+      "language": "en",
+      "phenomenon": "procedure",
+      "topic_id": "tcp",
+      "split": "independent_holdout",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/tcp.md"
+      ],
+      "relevance": {
+        "@knowledge/tcp.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/tcp.md",
+          "passage": "The frame reader accumulates bytes until the required frame length has arrived."
+        },
+        {
+          "document_id": "@knowledge/tcp.md",
+          "passage": "When recv returns an empty byte string, the peer has closed the connection."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "u02",
+      "text": "Co oznacza pusta odpowiedź recv i czym różni się od przekroczenia czasu?",
+      "language": "pl",
+      "phenomenon": "cross_language",
+      "topic_id": "tcp",
+      "split": "independent_holdout",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/tcp.md"
+      ],
+      "relevance": {
+        "@knowledge/tcp.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/tcp.md",
+          "passage": "When recv returns an empty byte string, the peer has closed the connection."
+        },
+        {
+          "document_id": "@knowledge/tcp.md",
+          "passage": "a timeout alone is not evidence of an orderly close."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "u03",
+      "text": "Wie wird die automatische Wiederherstellung nach CAN bus-off aktiviert?",
+      "language": "de",
+      "phenomenon": "procedure",
+      "topic_id": "can",
+      "split": "independent_holdout",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/can.md"
+      ],
+      "relevance": {
+        "@knowledge/can.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/can.md",
+          "passage": "Ein positiver Wert für restart-ms aktiviert den automatischen Wiederanlauf nach der angegebenen Wartezeit in Millisekunden."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "u04",
+      "text": "What does CAN restart-ms=100 control, and is automatic recovery enabled by default?",
+      "language": "en",
+      "phenomenon": "cross_language",
+      "topic_id": "can",
+      "split": "independent_holdout",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/can.md"
+      ],
+      "relevance": {
+        "@knowledge/can.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/can.md",
+          "passage": "Ein positiver Wert für restart-ms aktiviert den automatischen Wiederanlauf nach der angegebenen Wartezeit in Millisekunden."
+        },
+        {
+          "document_id": "@knowledge/can.md",
+          "passage": "Ohne diese Einstellung ist die automatische Wiederherstellung standardmäßig ausgeschaltet."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "u05",
+      "text": "Dlaczego PRAGMA foreign_keys ustawione po BEGIN nie włącza kontroli relacji?",
+      "language": "pl",
+      "phenomenon": "procedure",
+      "topic_id": "sqlite",
+      "split": "independent_holdout",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/foreign-keys.md"
+      ],
+      "relevance": {
+        "@knowledge/foreign-keys.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/foreign-keys.md",
+          "passage": "Próba przełączenia kontroli kluczy obcych wewnątrz aktywnej transakcji nie zmienia ustawienia."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "u06",
+      "text": "When must SQLite foreign-key checking be configured, and how should the application verify it?",
+      "language": "en",
+      "phenomenon": "cross_language",
+      "topic_id": "sqlite",
+      "split": "independent_holdout",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/foreign-keys.md"
+      ],
+      "relevance": {
+        "@knowledge/foreign-keys.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/foreign-keys.md",
+          "passage": "Zmianę należy wykonać przed rozpoczęciem transakcji."
+        },
+        {
+          "document_id": "@knowledge/foreign-keys.md",
+          "passage": "po otwarciu połączenia ustawia ją jawnie i odczytuje wynik kontrolnego zapytania."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "u07",
+      "text": "Warum ist bool(\"false\") beim Lesen einer INI-Datei falsch und welche Methode ist geeignet?",
+      "language": "de",
+      "phenomenon": "procedure",
+      "topic_id": "ini",
+      "split": "independent_holdout",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/ini.md"
+      ],
+      "relevance": {
+        "@knowledge/ini.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/ini.md",
+          "passage": "Für eine boolesche Option wird getboolean verwendet; bool(\"false\") ist wegen der nichtleeren Zeichenkette kein geeigneter Ersatz."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "u08",
+      "text": "Która wartość wygrywa po wczytaniu kilku plików INI i skąd pochodzą wartości domyślne?",
+      "language": "pl",
+      "phenomenon": "cross_language",
+      "topic_id": "ini",
+      "split": "independent_holdout",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/ini.md"
+      ],
+      "relevance": {
+        "@knowledge/ini.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/ini.md",
+          "passage": "Werte aus DEFAULT stehen auch in regulären Abschnitten zur Verfügung."
+        },
+        {
+          "document_id": "@knowledge/ini.md",
+          "passage": "die später gelesene Datei hat bei Konflikten Vorrang."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "u09",
+      "text": "Is asyncio.wait_for a precise hard stop at its timeout, and why?",
+      "language": "en",
+      "phenomenon": "procedure",
+      "topic_id": "async",
+      "split": "independent_holdout",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/async.md"
+      ],
+      "relevance": {
+        "@knowledge/async.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/async.md",
+          "passage": "On timeout it requests cancellation of that awaitable and waits for cancellation to finish."
+        },
+        {
+          "document_id": "@knowledge/async.md",
+          "passage": "The elapsed wall time can therefore exceed the nominal timeout."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "u10",
+      "text": "Wie bleibt ein Task trotz wait_for-Timeout aktiv und wer verwaltet ihn danach?",
+      "language": "de",
+      "phenomenon": "cross_language",
+      "topic_id": "async",
+      "split": "independent_holdout",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/async.md"
+      ],
+      "relevance": {
+        "@knowledge/async.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/async.md",
+          "passage": "shield can protect it from cancellation initiated by wait_for."
+        },
+        {
+          "document_id": "@knowledge/async.md",
+          "passage": "The caller still receives a timeout and must retain responsibility for the task's eventual completion, exception or cleanup."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "u11",
+      "text": "Co robić, gdy przyrostowa kopia SQLite zgłasza SQLITE_BUSY lub SQLITE_LOCKED?",
+      "language": "pl",
+      "phenomenon": "procedure",
+      "topic_id": "backup",
+      "split": "independent_holdout",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/backup.md"
+      ],
+      "relevance": {
+        "@knowledge/backup.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/backup.md",
+          "passage": "SQLITE_BUSY lub SQLITE_LOCKED mogą wymagać odczekania i ponowienia."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "u12",
+      "text": "Can a destination file alone prove that a live database backup completed successfully?",
+      "language": "en",
+      "phenomenon": "cross_language",
+      "topic_id": "backup",
+      "split": "independent_holdout",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/backup.md"
+      ],
+      "relevance": {
+        "@knowledge/backup.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/backup.md",
+          "passage": "Wynik końcowy należy sprawdzić, zamiast uznać sam fakt utworzenia pliku docelowego za potwierdzenie sukcesu."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "u13",
+      "text": "Which lock lets an outer operation call a helper that acquires the same lock, and how many releases are needed?",
+      "language": "en",
+      "phenomenon": "procedure",
+      "topic_id": "locks",
+      "split": "independent_holdout",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/locks.md"
+      ],
+      "relevance": {
+        "@knowledge/locks.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/locks.md",
+          "passage": "RLock permits the owning thread to acquire it repeatedly; each acquisition must be matched by a release before another thread can take ownership."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "u14",
+      "text": "Was passiert bei einem Timeout von subprocess.run und bei check=True mit Fehlercode?",
+      "language": "de",
+      "phenomenon": "procedure",
+      "topic_id": "process",
+      "split": "independent_holdout",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/process.md"
+      ],
+      "relevance": {
+        "@knowledge/process.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/process.md",
+          "passage": "Wenn der Timeout von subprocess.run abläuft, wird der direkte Kindprozess beendet und abgewartet, bevor TimeoutExpired erneut ausgelöst wird."
+        },
+        {
+          "document_id": "@knowledge/process.md",
+          "passage": "Mit check=True wird ein von null verschiedener Rückgabecode als CalledProcessError sichtbar."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "u15",
+      "text": "Jakie dwie kontrole poprzedzają potwierdzenie ramki Atlas R3?",
+      "language": "pl",
+      "phenomenon": "procedure",
+      "topic_id": "gateway",
+      "split": "independent_holdout",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/gateway-prod.md"
+      ],
+      "relevance": {
+        "@knowledge/gateway-prod.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/gateway-prod.md",
+          "passage": "Przed potwierdzeniem odbioru należy sprawdzić długość 48 bajtów i zgodność numeru sesji."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "u16",
+      "text": "Can the Atlas R2 simulator validate a production R3 frame of 24 bytes?",
+      "language": "en",
+      "phenomenon": "near_duplicate",
+      "topic_id": "gateway",
+      "split": "independent_holdout",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/gateway-lab.md"
+      ],
+      "relevance": {
+        "@knowledge/gateway-lab.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/gateway-lab.md",
+          "passage": "A 24-byte frame is valid only for the R2 simulator; it is not a valid measurement frame for the production Atlas R3 receiver."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "u17",
+      "text": "Welche Zykluszeit und maximale absolute Abweichung gelten für Atlas R3?",
+      "language": "de",
+      "phenomenon": "procedure",
+      "topic_id": "timing",
+      "split": "independent_holdout",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/timing.md"
+      ],
+      "relevance": {
+        "@knowledge/timing.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/timing.md",
+          "passage": "Der Produktionszyklus beträgt 750 Mikrosekunden; der zulässige absolute Zeitfehler beträgt höchstens 40 Mikrosekunden."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "u18",
+      "text": "Can a passing average release an R3 timing test when an individual cycle fails?",
+      "language": "en",
+      "phenomenon": "cross_language",
+      "topic_id": "timing",
+      "split": "independent_holdout",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/timing.md"
+      ],
+      "relevance": {
+        "@knowledge/timing.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/timing.md",
+          "passage": "Ein passender Mittelwert reicht nicht aus, wenn einzelne Zyklen den Grenzwert überschreiten."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "u19",
+      "text": "How long must C7 temperature be stable and which reference points are acquired?",
+      "language": "en",
+      "phenomenon": "procedure",
+      "topic_id": "calibration",
+      "split": "independent_holdout",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/calibration.md"
+      ],
+      "relevance": {
+        "@knowledge/calibration.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/calibration.md",
+          "passage": "C7 calibration starts only after the chamber temperature has been stable for 90 seconds."
+        },
+        {
+          "document_id": "@knowledge/calibration.md",
+          "passage": "Acquire reference readings at minus 10, zero and plus 10 units."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "u20",
+      "text": "Czy archiwalne 60 sekund stabilizacji i tolerancja 0,8 wystarczają do zatwierdzenia C7?",
+      "language": "pl",
+      "phenomenon": "near_duplicate",
+      "topic_id": "calibration",
+      "split": "independent_holdout",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/calibration.md"
+      ],
+      "relevance": {
+        "@knowledge/calibration.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/calibration.md",
+          "passage": "C7 calibration starts only after the chamber temperature has been stable for 90 seconds."
+        },
+        {
+          "document_id": "@knowledge/calibration.md",
+          "passage": "The maximum absolute residual at each reference point is 0.4 units."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "u21",
+      "text": "Explain how TCP framing and the R3 session/length checks together prevent acknowledging an incomplete measurement.",
+      "language": "en",
+      "phenomenon": "multi_document",
+      "topic_id": "tcp-gateway",
+      "split": "independent_holdout",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/tcp.md",
+        "@knowledge/gateway-prod.md"
+      ],
+      "relevance": {
+        "@knowledge/tcp.md": 2,
+        "@knowledge/gateway-prod.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/tcp.md",
+          "passage": "The frame reader accumulates bytes until the required frame length has arrived."
+        },
+        {
+          "document_id": "@knowledge/tcp.md",
+          "passage": "When recv returns an empty byte string, the peer has closed the connection."
+        },
+        {
+          "document_id": "@knowledge/gateway-prod.md",
+          "passage": "Przed potwierdzeniem odbioru należy sprawdzić długość 48 bajtów i zgodność numeru sesji."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "u22",
+      "text": "Welche Daten enthält das C7-Freigabepaket und welche zwei Angaben müssen im Kalibrierprotokoll stehen?",
+      "language": "de",
+      "phenomenon": "multi_document",
+      "topic_id": "release-calibration",
+      "split": "independent_holdout",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/release.md",
+        "@knowledge/calibration.md"
+      ],
+      "relevance": {
+        "@knowledge/release.md": 2,
+        "@knowledge/calibration.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/release.md",
+          "passage": "Pakiet C7 musi zawierać wynik kopii bazy oraz protokół kalibracji C7."
+        },
+        {
+          "document_id": "@knowledge/calibration.md",
+          "passage": "The release record must contain the coefficient digest and the chamber temperature."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "u23",
+      "text": "Co musi potwierdzać wydanie C7 i jak obsłużyć zajętą bazę podczas tworzenia kopii?",
+      "language": "pl",
+      "phenomenon": "multi_document",
+      "topic_id": "release-backup",
+      "split": "independent_holdout",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/release.md",
+        "@knowledge/backup.md"
+      ],
+      "relevance": {
+        "@knowledge/release.md": 2,
+        "@knowledge/backup.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/release.md",
+          "passage": "Pakiet C7 musi zawierać wynik kopii bazy oraz protokół kalibracji C7."
+        },
+        {
+          "document_id": "@knowledge/backup.md",
+          "passage": "SQLITE_BUSY lub SQLITE_LOCKED mogą wymagać odczekania i ponowienia."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "u24",
+      "text": "What are the R3 timing error limit and the required pre-acknowledgement frame checks?",
+      "language": "en",
+      "phenomenon": "multi_document",
+      "topic_id": "gateway-timing",
+      "split": "independent_holdout",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/timing.md",
+        "@knowledge/gateway-prod.md"
+      ],
+      "relevance": {
+        "@knowledge/timing.md": 2,
+        "@knowledge/gateway-prod.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/timing.md",
+          "passage": "Der Produktionszyklus beträgt 750 Mikrosekunden; der zulässige absolute Zeitfehler beträgt höchstens 40 Mikrosekunden."
+        },
+        {
+          "document_id": "@knowledge/gateway-prod.md",
+          "passage": "Przed potwierdzeniem odbioru należy sprawdzić długość 48 bajtów i zgodność numeru sesji."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "u25",
+      "text": "Wie unterscheiden sich die Timeout-Folgen bei subprocess.run und asyncio.wait_for?",
+      "language": "de",
+      "phenomenon": "multi_document",
+      "topic_id": "process-async",
+      "split": "independent_holdout",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/process.md",
+        "@knowledge/async.md"
+      ],
+      "relevance": {
+        "@knowledge/process.md": 2,
+        "@knowledge/async.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/process.md",
+          "passage": "Wenn der Timeout von subprocess.run abläuft, wird der direkte Kindprozess beendet und abgewartet, bevor TimeoutExpired erneut ausgelöst wird."
+        },
+        {
+          "document_id": "@knowledge/async.md",
+          "passage": "On timeout it requests cancellation of that awaitable and waits for cancellation to finish."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "u26",
+      "text": "For project S8, give the initial enabled/period values and the correct way to parse enabled from INI.",
+      "language": "en",
+      "phenomenon": "multi_document",
+      "topic_id": "site-ini",
+      "split": "independent_holdout",
+      "allowed_scope": "hybrid",
+      "expected_document_ids": [
+        "@project/site-profile.md",
+        "@knowledge/ini.md"
+      ],
+      "relevance": {
+        "@project/site-profile.md": 2,
+        "@knowledge/ini.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@project/site-profile.md",
+          "passage": "The approved capture configuration sets period_ms=20 and enabled=false before the operator explicitly arms acquisition."
+        },
+        {
+          "document_id": "@knowledge/ini.md",
+          "passage": "Für eine boolesche Option wird getboolean verwendet; bool(\"false\") ist wegen der nichtleeren Zeichenkette kein geeigneter Ersatz."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "u27",
+      "text": "Jaki numer stanowiska zawiera akceptacja S8 i jakie dane identyfikujące współczynniki musi zawierać protokół C7?",
+      "language": "pl",
+      "phenomenon": "multi_document",
+      "topic_id": "site-calibration",
+      "split": "independent_holdout",
+      "allowed_scope": "hybrid",
+      "expected_document_ids": [
+        "@project/site-profile.md",
+        "@knowledge/calibration.md"
+      ],
+      "relevance": {
+        "@project/site-profile.md": 2,
+        "@knowledge/calibration.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@project/site-profile.md",
+          "passage": "The S8 project acceptance record must contain the fixture serial S8-042 and a link to the successful C7 package."
+        },
+        {
+          "document_id": "@knowledge/calibration.md",
+          "passage": "The release record must contain the coefficient digest and the chamber temperature."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "u28",
+      "text": "Which capture period and initial enabled setting are approved for project S8?",
+      "language": "en",
+      "phenomenon": "configuration",
+      "topic_id": "site",
+      "split": "independent_holdout",
+      "allowed_scope": "project",
+      "expected_document_ids": [
+        "@project/site-profile.md"
+      ],
+      "relevance": {
+        "@project/site-profile.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@project/site-profile.md",
+          "passage": "The approved capture configuration sets period_ms=20 and enabled=false before the operator explicitly arms acquisition."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "u29",
+      "text": "What is the approved maximum torque of the Atlas motor?",
+      "language": "en",
+      "phenomenon": "no_answer",
+      "topic_id": "absent-torque",
+      "split": "independent_holdout",
+      "allowed_scope": "global",
+      "expected_document_ids": [],
+      "relevance": {},
+      "evidence": [],
+      "no_answer": "absent"
+    },
+    {
+      "id": "u30",
+      "text": "Welches geheime Produktionspasswort enthält die S8-Konfiguration?",
+      "language": "de",
+      "phenomenon": "no_answer",
+      "topic_id": "absent-secret",
+      "split": "independent_holdout",
+      "allowed_scope": "project",
+      "expected_document_ids": [],
+      "relevance": {},
+      "evidence": [],
+      "no_answer": "absent"
+    },
+    {
+      "id": "u31",
+      "text": "Jaka jest zatwierdzona maksymalna długość przewodu CAN dla tego stanowiska?",
+      "language": "pl",
+      "phenomenon": "no_answer",
+      "topic_id": "absent-cable",
+      "split": "independent_holdout",
+      "allowed_scope": "global",
+      "expected_document_ids": [],
+      "relevance": {},
+      "evidence": [],
+      "no_answer": "absent"
+    },
+    {
+      "id": "u32",
+      "text": "What absolute positioning accuracy is guaranteed by the C7 sensor manufacturer?",
+      "language": "en",
+      "phenomenon": "no_answer",
+      "topic_id": "absent-accuracy",
+      "split": "independent_holdout",
+      "allowed_scope": "global",
+      "expected_document_ids": [],
+      "relevance": {},
+      "evidence": [],
+      "no_answer": "absent"
+    }
+  ],
+  "document_languages": {
+    "@knowledge/tcp.md": "en",
+    "@knowledge/can.md": "de",
+    "@knowledge/foreign-keys.md": "pl",
+    "@knowledge/ini.md": "de",
+    "@knowledge/async.md": "en",
+    "@knowledge/backup.md": "pl",
+    "@knowledge/locks.md": "en",
+    "@knowledge/process.md": "de",
+    "@knowledge/gateway-prod.md": "pl",
+    "@knowledge/gateway-lab.md": "en",
+    "@knowledge/timing.md": "de",
+    "@knowledge/calibration.md": "en",
+    "@knowledge/calibration-old.md": "de",
+    "@knowledge/release.md": "pl",
+    "@knowledge/diagnostic-log.md": "en",
+    "@project/site-profile.md": "en",
+    "@project/site-archive.md": "en"
+  },
+  "provenance": {
+    "tcp.md": "https://docs.python.org/3.13/library/socket.html",
+    "can.md": "https://www.kernel.org/doc/html/latest/networking/can.html",
+    "foreign-keys.md": "https://www.sqlite.org/pragma.html#pragma_foreign_keys",
+    "ini.md": "https://docs.python.org/3.13/library/configparser.html",
+    "async.md": "https://docs.python.org/3.13/library/asyncio-task.html",
+    "backup.md": "https://www.sqlite.org/backup.html",
+    "locks.md": "https://docs.python.org/3.13/library/threading.html",
+    "process.md": "https://docs.python.org/3.13/library/subprocess.html"
+  },
+  "label_method": "Authored before reranker evaluation from explicit source facts and fictional runbook contracts; no reranker or model-generated answers used for labels. Not an expert-blind real-world benchmark.",
+  "freeze_date": "2026-11-09",
+  "label_review_note": "Before any reranker scoring, an independent label-completeness pass added the TCP accumulation atom to u21. Query text and corpus unchanged; candidate capture may be relabeled by query ID without reretrieval."
+}

@@ -1,0 +1,1317 @@
+{
+  "date_local": "2026-11-09",
+  "timezone": "Europe/Warsaw",
+  "purpose": "Functional inference only; no model selection or production integration",
+  "host": {
+    "cpu": "Ryzen 7 3700X",
+    "physical_cores": 8,
+    "logical_cpus": 16,
+    "ram_gib": 16,
+    "initial_free_physical_gib": 1.43,
+    "initial_free_disk_gib": 176.0,
+    "docker_memory_bytes": 8290385920,
+    "docker_cpus": 16,
+    "cgroup_version": 1,
+    "docker_desktop": "4.93.0",
+    "engine": "29.8.1",
+    "global_settings_changed": false
+  },
+  "images": {
+    "tei": {
+      "reference": "ghcr.io/huggingface/text-embeddings-inference:cpu-1.9.4@sha256:2538ea1c9640d3763b15af668039d24172d063b42337b0c27796fc2be180c78d",
+      "bytes": 937655393
+    },
+    "mxbai": {
+      "reference": "laew/reranker-mxbai:0.1.0",
+      "bytes": 1556516126,
+      "image_id": "sha256:2ae5b68329c82431b1e7a9fd2d465cdf814a9360edeb56265edcb05467b26e0f"
+    }
+  },
+  "tests": {
+    "offline_passed": 23,
+    "live_lifecycle_passed": 3,
+    "short_multilingual_requests": 15,
+    "explicit_truncation_requests": 3,
+    "post_restart_requests": 3,
+    "invalid_and_token_overflow_rejected": 6
+  },
+  "models": [
+    {
+      "model": "gte",
+      "timestamp_utc": "2026-11-09T19:52:12Z",
+      "info": {
+        "model_id": "Alibaba-NLP/gte-multilingual-reranker-base",
+        "revision": "8215cf04918ba6f7b6a62bb44238ce2953d8831c",
+        "port": 8083,
+        "backend": "tei-cpu-1.9.4",
+        "native": {
+          "model_id": "Alibaba-NLP/gte-multilingual-reranker-base",
+          "model_sha": "8215cf04918ba6f7b6a62bb44238ce2953d8831c",
+          "model_dtype": "float32",
+          "served_model_name": "Alibaba-NLP/gte-multilingual-reranker-base",
+          "model_type": {
+            "reranker": {
+              "id2label": {
+                "0": "LABEL_0"
+              },
+              "label2id": {
+                "LABEL_0": 0
+              }
+            }
+          },
+          "max_concurrent_requests": 16,
+          "max_input_length": 1024,
+          "max_batch_tokens": 1024,
+          "max_batch_requests": 4,
+          "max_client_batch_size": 16,
+          "auto_truncate": true,
+          "tokenization_workers": 1,
+          "version": "1.9.4",
+          "sha": "e80ef225ed0e6cb1717ce632a6a84b6cf211bb67",
+          "docker_label": "sha-e80ef22"
+        },
+        "effective_token_limit": 1024,
+        "max_documents": 16,
+        "device": "cpu"
+      },
+      "memory_loaded": {
+        "BlockIO": "0B / 0B",
+        "CPUPerc": "0.24%",
+        "Container": "laew-reranker-gte-1",
+        "ID": "40eb3ab3ecac",
+        "MemPerc": "47.53%",
+        "MemUsage": "1.426GiB / 3GiB",
+        "Name": "laew-reranker-gte-1",
+        "NetIO": "35.3kB / 10.9kB",
+        "PIDs": "10"
+      },
+      "cases": [
+        {
+          "name": "english-technical-duplicates",
+          "model_id": "Alibaba-NLP/gte-multilingual-reranker-base",
+          "revision": "8215cf04918ba6f7b6a62bb44238ce2953d8831c",
+          "backend": "tei-cpu-1.9.4",
+          "candidate_count": 4,
+          "results": [
+            {
+              "id": "communication",
+              "index": 0,
+              "score": -0.045125894
+            },
+            {
+              "id": "duplicate",
+              "index": 2,
+              "score": -0.045125894
+            },
+            {
+              "id": "firmware",
+              "index": 1,
+              "score": -1.3608589
+            },
+            {
+              "id": "irrelevant",
+              "index": 3,
+              "score": -3.2988162
+            }
+          ],
+          "inference_ms": 244.0,
+          "request_ms": 712.4016999732703,
+          "truncation": {
+            "requested": false,
+            "indices": null,
+            "status": "none"
+          },
+          "stats_after": {
+            "BlockIO": "0B / 0B",
+            "CPUPerc": "0.26%",
+            "Container": "laew-reranker-gte-1",
+            "ID": "40eb3ab3ecac",
+            "MemPerc": "47.56%",
+            "MemUsage": "1.427GiB / 3GiB",
+            "Name": "laew-reranker-gte-1",
+            "NetIO": "36.6kB / 12.9kB",
+            "PIDs": "11"
+          },
+          "cgroup_after": {
+            "usage_usec": 16879045,
+            "memory_current": 1532489728,
+            "memory_peak": 1677664256
+          },
+          "cpu_seconds": 1.602167,
+          "cpu_percent_request_window": 166.52313079240554
+        },
+        {
+          "name": "polish",
+          "model_id": "Alibaba-NLP/gte-multilingual-reranker-base",
+          "revision": "8215cf04918ba6f7b6a62bb44238ce2953d8831c",
+          "backend": "tei-cpu-1.9.4",
+          "candidate_count": 3,
+          "results": [
+            {
+              "id": "pl-1",
+              "index": 0,
+              "score": 0.028538622
+            },
+            {
+              "id": "pl-2",
+              "index": 1,
+              "score": -1.0633873
+            },
+            {
+              "id": "pl-3",
+              "index": 2,
+              "score": -3.3144174
+            }
+          ],
+          "inference_ms": 157.0,
+          "request_ms": 507.95950007159263,
+          "truncation": {
+            "requested": false,
+            "indices": null,
+            "status": "none"
+          },
+          "stats_after": {
+            "BlockIO": "0B / 0B",
+            "CPUPerc": "0.30%",
+            "Container": "laew-reranker-gte-1",
+            "ID": "40eb3ab3ecac",
+            "MemPerc": "47.57%",
+            "MemUsage": "1.427GiB / 3GiB",
+            "Name": "laew-reranker-gte-1",
+            "NetIO": "38.1kB / 14.9kB",
+            "PIDs": "11"
+          },
+          "cgroup_after": {
+            "usage_usec": 18090929,
+            "memory_current": 1532706816,
+            "memory_peak": 1677664256
+          },
+          "cpu_seconds": 1.105559,
+          "cpu_percent_request_window": 149.96736976998952
+        },
+        {
+          "name": "german",
+          "model_id": "Alibaba-NLP/gte-multilingual-reranker-base",
+          "revision": "8215cf04918ba6f7b6a62bb44238ce2953d8831c",
+          "backend": "tei-cpu-1.9.4",
+          "candidate_count": 3,
+          "results": [
+            {
+              "id": "de-1",
+              "index": 0,
+              "score": -0.172585
+            },
+            {
+              "id": "de-2",
+              "index": 1,
+              "score": -2.981265
+            },
+            {
+              "id": "de-3",
+              "index": 2,
+              "score": -3.328037
+            }
+          ],
+          "inference_ms": 158.0,
+          "request_ms": 484.52940001152456,
+          "truncation": {
+            "requested": false,
+            "indices": null,
+            "status": "none"
+          },
+          "stats_after": {
+            "BlockIO": "0B / 0B",
+            "CPUPerc": "0.30%",
+            "Container": "laew-reranker-gte-1",
+            "ID": "40eb3ab3ecac",
+            "MemPerc": "47.57%",
+            "MemUsage": "1.427GiB / 3GiB",
+            "Name": "laew-reranker-gte-1",
+            "NetIO": "39.4kB / 16.9kB",
+            "PIDs": "11"
+          },
+          "cgroup_after": {
+            "usage_usec": 19316696,
+            "memory_current": 1532739584,
+            "memory_peak": 1677664256
+          },
+          "cpu_seconds": 1.108827,
+          "cpu_percent_request_window": 155.1039974473144
+        },
+        {
+          "name": "cross-language",
+          "model_id": "Alibaba-NLP/gte-multilingual-reranker-base",
+          "revision": "8215cf04918ba6f7b6a62bb44238ce2953d8831c",
+          "backend": "tei-cpu-1.9.4",
+          "candidate_count": 3,
+          "results": [
+            {
+              "id": "cross-de",
+              "index": 1,
+              "score": 0.17916824
+            },
+            {
+              "id": "cross-pl",
+              "index": 0,
+              "score": 0.10643731
+            },
+            {
+              "id": "cross-no",
+              "index": 2,
+              "score": -3.2927737
+            }
+          ],
+          "inference_ms": 178.0,
+          "request_ms": 541.3113000104204,
+          "truncation": {
+            "requested": false,
+            "indices": null,
+            "status": "none"
+          },
+          "stats_after": {
+            "BlockIO": "0B / 0B",
+            "CPUPerc": "0.35%",
+            "Container": "laew-reranker-gte-1",
+            "ID": "40eb3ab3ecac",
+            "MemPerc": "47.56%",
+            "MemUsage": "1.427GiB / 3GiB",
+            "Name": "laew-reranker-gte-1",
+            "NetIO": "40.7kB / 18.9kB",
+            "PIDs": "11"
+          },
+          "cgroup_after": {
+            "usage_usec": 20676583,
+            "memory_current": 1532727296,
+            "memory_peak": 1677664256
+          },
+          "cpu_seconds": 1.239809,
+          "cpu_percent_request_window": 158.13904423739862
+        },
+        {
+          "name": "code",
+          "model_id": "Alibaba-NLP/gte-multilingual-reranker-base",
+          "revision": "8215cf04918ba6f7b6a62bb44238ce2953d8831c",
+          "backend": "tei-cpu-1.9.4",
+          "candidate_count": 3,
+          "results": [
+            {
+              "id": "code-finally",
+              "index": 1,
+              "score": 0.34844515
+            },
+            {
+              "id": "code-with",
+              "index": 0,
+              "score": -0.03442724
+            },
+            {
+              "id": "code-no",
+              "index": 2,
+              "score": -3.0617843
+            }
+          ],
+          "inference_ms": 446.0,
+          "request_ms": 806.8565999856219,
+          "truncation": {
+            "requested": false,
+            "indices": null,
+            "status": "none"
+          },
+          "stats_after": {
+            "BlockIO": "0B / 0B",
+            "CPUPerc": "0.30%",
+            "Container": "laew-reranker-gte-1",
+            "ID": "40eb3ab3ecac",
+            "MemPerc": "47.58%",
+            "MemUsage": "1.427GiB / 3GiB",
+            "Name": "laew-reranker-gte-1",
+            "NetIO": "42.2kB / 20.9kB",
+            "PIDs": "11"
+          },
+          "cgroup_after": {
+            "usage_usec": 22490332,
+            "memory_current": 1533116416,
+            "memory_peak": 1677664256
+          },
+          "cpu_seconds": 1.709119,
+          "cpu_percent_request_window": 162.64892784522718
+        }
+      ],
+      "readiness_wait_seconds": 0.176,
+      "offline_restart_seconds": 15.912,
+      "cache_reused": true,
+      "other_services_unchanged": true,
+      "truncation_check": {
+        "model_id": "Alibaba-NLP/gte-multilingual-reranker-base",
+        "revision": "8215cf04918ba6f7b6a62bb44238ce2953d8831c",
+        "backend": "tei-cpu-1.9.4",
+        "candidate_count": 1,
+        "results": [
+          {
+            "id": "long",
+            "index": 0,
+            "score": 0.50030184
+          }
+        ],
+        "inference_ms": 6101.0,
+        "request_ms": 6141.702299937606,
+        "truncation": {
+          "requested": true,
+          "indices": null,
+          "status": "unknown"
+        }
+      },
+      "after_restart": {
+        "model_id": "Alibaba-NLP/gte-multilingual-reranker-base",
+        "revision": "8215cf04918ba6f7b6a62bb44238ce2953d8831c",
+        "backend": "tei-cpu-1.9.4",
+        "candidate_count": 4,
+        "results": [
+          {
+            "id": "communication",
+            "index": 0,
+            "score": -0.045125894
+          },
+          {
+            "id": "duplicate",
+            "index": 2,
+            "score": -0.045125894
+          },
+          {
+            "id": "firmware",
+            "index": 1,
+            "score": -1.3608589
+          },
+          {
+            "id": "irrelevant",
+            "index": 3,
+            "score": -3.2988162
+          }
+        ],
+        "inference_ms": 228.0,
+        "request_ms": 638.5446999920532,
+        "truncation": {
+          "requested": false,
+          "indices": null,
+          "status": "none"
+        }
+      },
+      "success": true,
+      "errors": [],
+      "cache_bytes": 629045433,
+      "weight_bytes": 611934706,
+      "oom_killed": false,
+      "cache_manifest": [
+        "/data/models--Alibaba-NLP--gte-multilingual-reranker-base/blobs/10ebaa49322dd7e01a13a91c49810939e3f91f231aceaa47fdf0cab3083954f6 611934706 1794253686",
+        "/data/models--Alibaba-NLP--gte-multilingual-reranker-base/blobs/10ebaa49322dd7e01a13a91c49810939e3f91f231aceaa47fdf0cab3083954f6.lock 0 1794253640",
+        "/data/models--Alibaba-NLP--gte-multilingual-reranker-base/blobs/a925808a7f080b10b5f2aba4f0d192fc36a7c8f9 1494 1794253636",
+        "/data/models--Alibaba-NLP--gte-multilingual-reranker-base/blobs/a925808a7f080b10b5f2aba4f0d192fc36a7c8f9.lock 0 1794253636",
+        "/data/models--Alibaba-NLP--gte-multilingual-reranker-base/blobs/d6f76fe13d42f80dcee0cb86a1aeb5f14f8909bb8a8782f7a4a4ad76697ef164 17083021 1794253638",
+        "/data/models--Alibaba-NLP--gte-multilingual-reranker-base/blobs/d6f76fe13d42f80dcee0cb86a1aeb5f14f8909bb8a8782f7a4a4ad76697ef164.lock 0 1794253636",
+        "/data/models--Alibaba-NLP--gte-multilingual-reranker-base/blobs/ddf5350d3f7b2c0bf20ee2b10e3349dd6d8291bd 1340 1794253640",
+        "/data/models--Alibaba-NLP--gte-multilingual-reranker-base/blobs/ddf5350d3f7b2c0bf20ee2b10e3349dd6d8291bd.lock 0 1794253639"
+      ]
+    },
+    {
+      "model": "bge",
+      "timestamp_utc": "2026-11-09T19:53:45Z",
+      "info": {
+        "model_id": "BAAI/bge-reranker-v2-m3",
+        "revision": "953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e",
+        "port": 8084,
+        "backend": "tei-cpu-1.9.4",
+        "native": {
+          "model_id": "BAAI/bge-reranker-v2-m3",
+          "model_sha": "953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e",
+          "model_dtype": "float32",
+          "served_model_name": "BAAI/bge-reranker-v2-m3",
+          "model_type": {
+            "reranker": {
+              "id2label": {
+                "0": "LABEL_0"
+              },
+              "label2id": {
+                "LABEL_0": 0
+              }
+            }
+          },
+          "max_concurrent_requests": 16,
+          "max_input_length": 1024,
+          "max_batch_tokens": 1024,
+          "max_batch_requests": 4,
+          "max_client_batch_size": 16,
+          "auto_truncate": true,
+          "tokenization_workers": 1,
+          "version": "1.9.4",
+          "sha": "e80ef225ed0e6cb1717ce632a6a84b6cf211bb67",
+          "docker_label": "sha-e80ef22"
+        },
+        "effective_token_limit": 1024,
+        "max_documents": 16,
+        "device": "cpu"
+      },
+      "memory_loaded": {
+        "BlockIO": "0B / 0B",
+        "CPUPerc": "3.88%",
+        "Container": "laew-reranker-bge-1",
+        "ID": "9e87cfb086c0",
+        "MemPerc": "74.71%",
+        "MemUsage": "2.988GiB / 4GiB",
+        "Name": "laew-reranker-bge-1",
+        "NetIO": "2.64GB / 61.3MB",
+        "PIDs": "9"
+      },
+      "cases": [
+        {
+          "name": "english-technical-duplicates",
+          "model_id": "BAAI/bge-reranker-v2-m3",
+          "revision": "953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e",
+          "backend": "tei-cpu-1.9.4",
+          "candidate_count": 4,
+          "results": [
+            {
+              "id": "communication",
+              "index": 0,
+              "score": -2.8896067
+            },
+            {
+              "id": "duplicate",
+              "index": 2,
+              "score": -2.8896067
+            },
+            {
+              "id": "firmware",
+              "index": 1,
+              "score": -10.05189
+            },
+            {
+              "id": "irrelevant",
+              "index": 3,
+              "score": -11.002329
+            }
+          ],
+          "inference_ms": 569.0,
+          "request_ms": 1698.9163999678567,
+          "truncation": {
+            "requested": false,
+            "indices": null,
+            "status": "none"
+          },
+          "stats_after": {
+            "BlockIO": "0B / 0B",
+            "CPUPerc": "0.37%",
+            "Container": "laew-reranker-bge-1",
+            "ID": "9e87cfb086c0",
+            "MemPerc": "74.80%",
+            "MemUsage": "2.992GiB / 4GiB",
+            "Name": "laew-reranker-bge-1",
+            "NetIO": "2.64GB / 61.3MB",
+            "PIDs": "10"
+          },
+          "cgroup_after": {
+            "usage_usec": 136182695,
+            "memory_current": 4121632768,
+            "memory_peak": 4294967296
+          },
+          "cpu_seconds": 3.330877,
+          "cpu_percent_request_window": 169.99080453683
+        },
+        {
+          "name": "polish",
+          "model_id": "BAAI/bge-reranker-v2-m3",
+          "revision": "953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e",
+          "backend": "tei-cpu-1.9.4",
+          "candidate_count": 3,
+          "results": [
+            {
+              "id": "pl-1",
+              "index": 0,
+              "score": -3.747925
+            },
+            {
+              "id": "pl-2",
+              "index": 1,
+              "score": -10.88931
+            },
+            {
+              "id": "pl-3",
+              "index": 2,
+              "score": -10.990131
+            }
+          ],
+          "inference_ms": 373.0,
+          "request_ms": 1198.75320000574,
+          "truncation": {
+            "requested": false,
+            "indices": null,
+            "status": "none"
+          },
+          "stats_after": {
+            "BlockIO": "0B / 0B",
+            "CPUPerc": "0.35%",
+            "Container": "laew-reranker-bge-1",
+            "ID": "9e87cfb086c0",
+            "MemPerc": "74.84%",
+            "MemUsage": "2.994GiB / 4GiB",
+            "Name": "laew-reranker-bge-1",
+            "NetIO": "2.64GB / 61.3MB",
+            "PIDs": "10"
+          },
+          "cgroup_after": {
+            "usage_usec": 138692091,
+            "memory_current": 4123881472,
+            "memory_peak": 4294967296
+          },
+          "cpu_seconds": 2.433777,
+          "cpu_percent_request_window": 169.09239919216924
+        },
+        {
+          "name": "german",
+          "model_id": "BAAI/bge-reranker-v2-m3",
+          "revision": "953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e",
+          "backend": "tei-cpu-1.9.4",
+          "candidate_count": 3,
+          "results": [
+            {
+              "id": "de-1",
+              "index": 0,
+              "score": -3.5448496
+            },
+            {
+              "id": "de-2",
+              "index": 1,
+              "score": -10.957038
+            },
+            {
+              "id": "de-3",
+              "index": 2,
+              "score": -11.032134
+            }
+          ],
+          "inference_ms": 383.0,
+          "request_ms": 1209.508499945514,
+          "truncation": {
+            "requested": false,
+            "indices": null,
+            "status": "none"
+          },
+          "stats_after": {
+            "BlockIO": "0B / 0B",
+            "CPUPerc": "0.34%",
+            "Container": "laew-reranker-bge-1",
+            "ID": "9e87cfb086c0",
+            "MemPerc": "74.89%",
+            "MemUsage": "2.996GiB / 4GiB",
+            "Name": "laew-reranker-bge-1",
+            "NetIO": "2.64GB / 61.3MB",
+            "PIDs": "10"
+          },
+          "cgroup_after": {
+            "usage_usec": 141299323,
+            "memory_current": 4125683712,
+            "memory_peak": 4294967296
+          },
+          "cpu_seconds": 2.513962,
+          "cpu_percent_request_window": 171.93828949832076
+        },
+        {
+          "name": "cross-language",
+          "model_id": "BAAI/bge-reranker-v2-m3",
+          "revision": "953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e",
+          "backend": "tei-cpu-1.9.4",
+          "candidate_count": 3,
+          "results": [
+            {
+              "id": "cross-pl",
+              "index": 0,
+              "score": -2.2770224
+            },
+            {
+              "id": "cross-de",
+              "index": 1,
+              "score": -2.578026
+            },
+            {
+              "id": "cross-no",
+              "index": 2,
+              "score": -11.030581
+            }
+          ],
+          "inference_ms": 439.0,
+          "request_ms": 1353.6325000459328,
+          "truncation": {
+            "requested": false,
+            "indices": null,
+            "status": "none"
+          },
+          "stats_after": {
+            "BlockIO": "0B / 0B",
+            "CPUPerc": "0.35%",
+            "Container": "laew-reranker-bge-1",
+            "ID": "9e87cfb086c0",
+            "MemPerc": "74.91%",
+            "MemUsage": "2.996GiB / 4GiB",
+            "Name": "laew-reranker-bge-1",
+            "NetIO": "2.64GB / 61.3MB",
+            "PIDs": "10"
+          },
+          "cgroup_after": {
+            "usage_usec": 144211539,
+            "memory_current": 4126433280,
+            "memory_peak": 4294967296
+          },
+          "cpu_seconds": 2.825821,
+          "cpu_percent_request_window": 177.94828001729422
+        },
+        {
+          "name": "code",
+          "model_id": "BAAI/bge-reranker-v2-m3",
+          "revision": "953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e",
+          "backend": "tei-cpu-1.9.4",
+          "candidate_count": 3,
+          "results": [
+            {
+              "id": "code-with",
+              "index": 0,
+              "score": -2.0231266
+            },
+            {
+              "id": "code-finally",
+              "index": 1,
+              "score": -4.313102
+            },
+            {
+              "id": "code-no",
+              "index": 2,
+              "score": -10.717059
+            }
+          ],
+          "inference_ms": 501.0,
+          "request_ms": 1575.759300030768,
+          "truncation": {
+            "requested": false,
+            "indices": null,
+            "status": "none"
+          },
+          "stats_after": {
+            "BlockIO": "0B / 0B",
+            "CPUPerc": "0.47%",
+            "Container": "laew-reranker-bge-1",
+            "ID": "9e87cfb086c0",
+            "MemPerc": "74.95%",
+            "MemUsage": "2.998GiB / 4GiB",
+            "Name": "laew-reranker-bge-1",
+            "NetIO": "2.64GB / 61.3MB",
+            "PIDs": "10"
+          },
+          "cgroup_after": {
+            "usage_usec": 147475076,
+            "memory_current": 4128288768,
+            "memory_peak": 4294967296
+          },
+          "cpu_seconds": 3.16234,
+          "cpu_percent_request_window": 176.30429547812872
+        }
+      ],
+      "readiness_wait_seconds": 235.724,
+      "offline_restart_seconds": 35.046,
+      "cache_reused": true,
+      "other_services_unchanged": true,
+      "truncation_check": {
+        "model_id": "BAAI/bge-reranker-v2-m3",
+        "revision": "953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e",
+        "backend": "tei-cpu-1.9.4",
+        "candidate_count": 1,
+        "results": [
+          {
+            "id": "long",
+            "index": 0,
+            "score": -4.8754525
+          }
+        ],
+        "inference_ms": 12387.0,
+        "request_ms": 12411.856299964711,
+        "truncation": {
+          "requested": true,
+          "indices": null,
+          "status": "unknown"
+        }
+      },
+      "after_restart": {
+        "model_id": "BAAI/bge-reranker-v2-m3",
+        "revision": "953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e",
+        "backend": "tei-cpu-1.9.4",
+        "candidate_count": 4,
+        "results": [
+          {
+            "id": "communication",
+            "index": 0,
+            "score": -2.8896067
+          },
+          {
+            "id": "duplicate",
+            "index": 2,
+            "score": -2.8896067
+          },
+          {
+            "id": "firmware",
+            "index": 1,
+            "score": -10.05189
+          },
+          {
+            "id": "irrelevant",
+            "index": 3,
+            "score": -11.002329
+          }
+        ],
+        "inference_ms": 589.0,
+        "request_ms": 1661.7515999823809,
+        "truncation": {
+          "requested": false,
+          "indices": null,
+          "status": "none"
+        }
+      },
+      "success": true,
+      "errors": [],
+      "cache_bytes": 2288196965,
+      "weight_bytes": 2271071852,
+      "oom_killed": false,
+      "cache_manifest": [
+        "/data/models--BAAI--bge-reranker-v2-m3/blobs/328a00a9a560aadcf2a3064f917517359eb3cc26 1173 1794254021",
+        "/data/models--BAAI--bge-reranker-v2-m3/blobs/328a00a9a560aadcf2a3064f917517359eb3cc26.lock 0 1794254021",
+        "/data/models--BAAI--bge-reranker-v2-m3/blobs/69564b696052886ed0ac63fa393e928384e0f8caada38c1f4864a9bfbf379c15 17098273 1794254014",
+        "/data/models--BAAI--bge-reranker-v2-m3/blobs/69564b696052886ed0ac63fa393e928384e0f8caada38c1f4864a9bfbf379c15.lock 0 1794254010",
+        "/data/models--BAAI--bge-reranker-v2-m3/blobs/9f62673cb00ec41dcec8947b9ed16f6f2eb23ba2 795 1794254010",
+        "/data/models--BAAI--bge-reranker-v2-m3/blobs/9f62673cb00ec41dcec8947b9ed16f6f2eb23ba2.lock 0 1794254010",
+        "/data/models--BAAI--bge-reranker-v2-m3/blobs/d9e3e081faff1eefb84019509b2f5558fd74c1a05a2c7db22f74174fcedb5286 2271071852 1794254216",
+        "/data/models--BAAI--bge-reranker-v2-m3/blobs/d9e3e081faff1eefb84019509b2f5558fd74c1a05a2c7db22f74174fcedb5286.lock 0 1794254022"
+      ]
+    },
+    {
+      "model": "mxbai",
+      "timestamp_utc": "2026-11-09T20:04:10Z",
+      "info": {
+        "model_id": "mixedbread-ai/mxbai-rerank-base-v2",
+        "revision": "3ea9d4dffa7d12a4f366be8e275c349de9fc9865",
+        "port": 8085,
+        "backend": "mxbai-rerank-0.1.6/torch-2.6.0+cpu",
+        "native": {
+          "model_id": "mixedbread-ai/mxbai-rerank-base-v2",
+          "revision": "3ea9d4dffa7d12a4f366be8e275c349de9fc9865",
+          "backend": "mxbai-rerank-0.1.6/torch-2.6.0+cpu",
+          "device": "cpu",
+          "dtype": "float32",
+          "max_input_tokens": 1024,
+          "batch_size": 1,
+          "threads": 2,
+          "request_timeout_seconds": 120.0,
+          "ready": true,
+          "startup_failed": false,
+          "dependencies": {
+            "mxbai-rerank": "0.1.6",
+            "torch": "2.6.0+cpu",
+            "transformers": "4.51.3",
+            "huggingface-hub": "0.30.2"
+          }
+        },
+        "effective_token_limit": 1024,
+        "max_documents": 16,
+        "device": "cpu"
+      },
+      "memory_loaded": {
+        "BlockIO": "0B / 0B",
+        "CPUPerc": "26.16%",
+        "Container": "laew-reranker-mxbai-1",
+        "ID": "0eb1c276d876",
+        "MemPerc": "56.40%",
+        "MemUsage": "2.256GiB / 4GiB",
+        "Name": "laew-reranker-mxbai-1",
+        "NetIO": "14.9kB / 8.96kB",
+        "PIDs": "4"
+      },
+      "cases": [
+        {
+          "name": "english-technical-duplicates",
+          "model_id": "mixedbread-ai/mxbai-rerank-base-v2",
+          "revision": "3ea9d4dffa7d12a4f366be8e275c349de9fc9865",
+          "backend": "mxbai-rerank-0.1.6/torch-2.6.0+cpu",
+          "candidate_count": 4,
+          "results": [
+            {
+              "id": "communication",
+              "index": 0,
+              "score": 2.6039838790893555
+            },
+            {
+              "id": "duplicate",
+              "index": 2,
+              "score": 2.6039838790893555
+            },
+            {
+              "id": "firmware",
+              "index": 1,
+              "score": -0.41200828552246094
+            },
+            {
+              "id": "irrelevant",
+              "index": 3,
+              "score": -10.196062088012695
+            }
+          ],
+          "inference_ms": 17140.981957999884,
+          "request_ms": 17173.396400059573,
+          "truncation": {
+            "requested": false,
+            "indices": [],
+            "status": "exact"
+          },
+          "stats_after": {
+            "BlockIO": "0B / 0B",
+            "CPUPerc": "0.03%",
+            "Container": "laew-reranker-mxbai-1",
+            "ID": "0eb1c276d876",
+            "MemPerc": "57.46%",
+            "MemUsage": "2.298GiB / 4GiB",
+            "Name": "laew-reranker-mxbai-1",
+            "NetIO": "16.6kB / 11kB",
+            "PIDs": "6"
+          },
+          "cgroup_after": {
+            "usage_usec": 57975264,
+            "memory_current": 2468167680,
+            "memory_peak": 2533253120
+          },
+          "cpu_seconds": 34.106104,
+          "cpu_percent_request_window": 195.50306601496362
+        },
+        {
+          "name": "polish",
+          "model_id": "mixedbread-ai/mxbai-rerank-base-v2",
+          "revision": "3ea9d4dffa7d12a4f366be8e275c349de9fc9865",
+          "backend": "mxbai-rerank-0.1.6/torch-2.6.0+cpu",
+          "candidate_count": 3,
+          "results": [
+            {
+              "id": "pl-1",
+              "index": 0,
+              "score": 0.7410068511962891
+            },
+            {
+              "id": "pl-2",
+              "index": 1,
+              "score": 0.28697967529296875
+            },
+            {
+              "id": "pl-3",
+              "index": 2,
+              "score": -5.490167617797852
+            }
+          ],
+          "inference_ms": 5427.478747000123,
+          "request_ms": 5454.545099986717,
+          "truncation": {
+            "requested": false,
+            "indices": [],
+            "status": "exact"
+          },
+          "stats_after": {
+            "BlockIO": "0B / 0B",
+            "CPUPerc": "0.01%",
+            "Container": "laew-reranker-mxbai-1",
+            "ID": "0eb1c276d876",
+            "MemPerc": "57.75%",
+            "MemUsage": "2.31GiB / 4GiB",
+            "Name": "laew-reranker-mxbai-1",
+            "NetIO": "18.1kB / 12.7kB",
+            "PIDs": "6"
+          },
+          "cgroup_after": {
+            "usage_usec": 68943894,
+            "memory_current": 2480746496,
+            "memory_peak": 2552209408
+          },
+          "cpu_seconds": 10.916695,
+          "cpu_percent_request_window": 190.59993253576187
+        },
+        {
+          "name": "german",
+          "model_id": "mixedbread-ai/mxbai-rerank-base-v2",
+          "revision": "3ea9d4dffa7d12a4f366be8e275c349de9fc9865",
+          "backend": "mxbai-rerank-0.1.6/torch-2.6.0+cpu",
+          "candidate_count": 3,
+          "results": [
+            {
+              "id": "de-1",
+              "index": 0,
+              "score": 12.676779747009277
+            },
+            {
+              "id": "de-2",
+              "index": 1,
+              "score": -4.639853477478027
+            },
+            {
+              "id": "de-3",
+              "index": 2,
+              "score": -12.625215530395508
+            }
+          ],
+          "inference_ms": 5289.162676999922,
+          "request_ms": 5350.152200087905,
+          "truncation": {
+            "requested": false,
+            "indices": [],
+            "status": "exact"
+          },
+          "stats_after": {
+            "BlockIO": "0B / 0B",
+            "CPUPerc": "0.02%",
+            "Container": "laew-reranker-mxbai-1",
+            "ID": "0eb1c276d876",
+            "MemPerc": "57.75%",
+            "MemUsage": "2.31GiB / 4GiB",
+            "Name": "laew-reranker-mxbai-1",
+            "NetIO": "19.6kB / 14.6kB",
+            "PIDs": "6"
+          },
+          "cgroup_after": {
+            "usage_usec": 79591279,
+            "memory_current": 2480889856,
+            "memory_peak": 2552209408
+          },
+          "cpu_seconds": 10.613423,
+          "cpu_percent_request_window": 187.4438070684247
+        },
+        {
+          "name": "cross-language",
+          "model_id": "mixedbread-ai/mxbai-rerank-base-v2",
+          "revision": "3ea9d4dffa7d12a4f366be8e275c349de9fc9865",
+          "backend": "mxbai-rerank-0.1.6/torch-2.6.0+cpu",
+          "candidate_count": 3,
+          "results": [
+            {
+              "id": "cross-de",
+              "index": 1,
+              "score": 6.130179405212402
+            },
+            {
+              "id": "cross-pl",
+              "index": 0,
+              "score": 1.7190732955932617
+            },
+            {
+              "id": "cross-no",
+              "index": 2,
+              "score": -10.616196632385254
+            }
+          ],
+          "inference_ms": 5698.7796429998525,
+          "request_ms": 5766.008200007491,
+          "truncation": {
+            "requested": false,
+            "indices": [],
+            "status": "exact"
+          },
+          "stats_after": {
+            "BlockIO": "0B / 0B",
+            "CPUPerc": "0.02%",
+            "Container": "laew-reranker-mxbai-1",
+            "ID": "0eb1c276d876",
+            "MemPerc": "57.87%",
+            "MemUsage": "2.315GiB / 4GiB",
+            "Name": "laew-reranker-mxbai-1",
+            "NetIO": "21.1kB / 16.5kB",
+            "PIDs": "6"
+          },
+          "cgroup_after": {
+            "usage_usec": 91044729,
+            "memory_current": 2486054912,
+            "memory_peak": 2556108800
+          },
+          "cpu_seconds": 11.421683,
+          "cpu_percent_request_window": 183.59646851530982
+        },
+        {
+          "name": "code",
+          "model_id": "mixedbread-ai/mxbai-rerank-base-v2",
+          "revision": "3ea9d4dffa7d12a4f366be8e275c349de9fc9865",
+          "backend": "mxbai-rerank-0.1.6/torch-2.6.0+cpu",
+          "candidate_count": 3,
+          "results": [
+            {
+              "id": "code-finally",
+              "index": 1,
+              "score": 7.7764739990234375
+            },
+            {
+              "id": "code-with",
+              "index": 0,
+              "score": 6.87034797668457
+            },
+            {
+              "id": "code-no",
+              "index": 2,
+              "score": -8.224157333374023
+            }
+          ],
+          "inference_ms": 6569.238638000115,
+          "request_ms": 6616.771099972539,
+          "truncation": {
+            "requested": false,
+            "indices": [],
+            "status": "exact"
+          },
+          "stats_after": {
+            "BlockIO": "0B / 0B",
+            "CPUPerc": "0.03%",
+            "Container": "laew-reranker-mxbai-1",
+            "ID": "0eb1c276d876",
+            "MemPerc": "58.09%",
+            "MemUsage": "2.323GiB / 4GiB",
+            "Name": "laew-reranker-mxbai-1",
+            "NetIO": "22.8kB / 18.3kB",
+            "PIDs": "6"
+          },
+          "cgroup_after": {
+            "usage_usec": 104265365,
+            "memory_current": 2495365120,
+            "memory_peak": 2573729792
+          },
+          "cpu_seconds": 13.182619,
+          "cpu_percent_request_window": 192.14951719891437
+        }
+      ],
+      "readiness_wait_seconds": 10.653,
+      "offline_restart_seconds": 26.753,
+      "cache_reused": true,
+      "other_services_unchanged": true,
+      "truncation_check": {
+        "model_id": "mixedbread-ai/mxbai-rerank-base-v2",
+        "revision": "3ea9d4dffa7d12a4f366be8e275c349de9fc9865",
+        "backend": "mxbai-rerank-0.1.6/torch-2.6.0+cpu",
+        "candidate_count": 1,
+        "results": [
+          {
+            "id": "long",
+            "index": 0,
+            "score": 1.2366113662719727
+          }
+        ],
+        "inference_ms": 20180.779584999982,
+        "request_ms": 20219.809200032614,
+        "truncation": {
+          "requested": true,
+          "indices": [
+            0
+          ],
+          "status": "exact"
+        }
+      },
+      "after_restart": {
+        "model_id": "mixedbread-ai/mxbai-rerank-base-v2",
+        "revision": "3ea9d4dffa7d12a4f366be8e275c349de9fc9865",
+        "backend": "mxbai-rerank-0.1.6/torch-2.6.0+cpu",
+        "candidate_count": 4,
+        "results": [
+          {
+            "id": "communication",
+            "index": 0,
+            "score": 2.6039838790893555
+          },
+          {
+            "id": "duplicate",
+            "index": 2,
+            "score": 2.6039838790893555
+          },
+          {
+            "id": "firmware",
+            "index": 1,
+            "score": -0.41200828552246094
+          },
+          {
+            "id": "irrelevant",
+            "index": 3,
+            "score": -10.196062088012695
+          }
+        ],
+        "inference_ms": 10851.836376000165,
+        "request_ms": 10930.20499998238,
+        "truncation": {
+          "requested": false,
+          "indices": [],
+          "status": "exact"
+        }
+      },
+      "success": true,
+      "errors": [],
+      "cache_bytes": 1004024907,
+      "weight_bytes": 988097536,
+      "oom_killed": false,
+      "cache_manifest": [
+        "/models/hf/hub/models--mixedbread-ai--mxbai-rerank-base-v2/blobs/0836af1ebee586b8a261b4e768f6000c3b2c742c 10762 1794254383",
+        "/models/hf/hub/models--mixedbread-ai--mxbai-rerank-base-v2/blobs/08b4a20ffc24703d6288b32b94110db3762804bd 309 1794254383",
+        "/models/hf/hub/models--mixedbread-ai--mxbai-rerank-base-v2/blobs/10e32c2ba40f5a0ef481a0c1bcde6cdb8c5e522c 281 1794254383",
+        "/models/hf/hub/models--mixedbread-ai--mxbai-rerank-base-v2/blobs/31349551d90c7606f325fe0f11bbb8bd5fa0d7c7 1671853 1794254383",
+        "/models/hf/hub/models--mixedbread-ai--mxbai-rerank-base-v2/blobs/3897193e04106adb4bff086ffa1b881214334566 204 1794254383",
+        "/models/hf/hub/models--mixedbread-ai--mxbai-rerank-base-v2/blobs/4783fe10ac3adce15ac8f358ef5462739852c569 2776833 1794254383",
+        "/models/hf/hub/models--mixedbread-ai--mxbai-rerank-base-v2/blobs/482ced4679301bf287ebb310bdd1790eb4514232 605 1794254383",
+        "/models/hf/hub/models--mixedbread-ai--mxbai-rerank-base-v2/blobs/5df76225f4dd4775813b505f9071b6713d8a1e2e 242 1794254383",
+        "/models/hf/hub/models--mixedbread-ai--mxbai-rerank-base-v2/blobs/9402b25e436c26e6caddad929087573b0e766ce1 576 1794254383",
+        "/models/hf/hub/models--mixedbread-ai--mxbai-rerank-base-v2/blobs/9c5ae00e602b8860cbd784ba82a8aa14e8feecec692e7076590d014d7b7fdafa 11421896 1794254384",
+        "/models/hf/hub/models--mixedbread-ai--mxbai-rerank-base-v2/blobs/9dc09ad5431b02be9da03a944b10b234e0e4c1a4 766 1794254383",
+        "/models/hf/hub/models--mixedbread-ai--mxbai-rerank-base-v2/blobs/ac23c0aaa2434523c494330aeb79c58395378103 613 1794254383",
+        "/models/hf/hub/models--mixedbread-ai--mxbai-rerank-base-v2/blobs/c01649fe56b3fe32e52da43c69e084dff7c2252cf231a38c56d5a291a674338f 988097536 1794254423",
+        "/models/hf/hub/models--mixedbread-ai--mxbai-rerank-base-v2/blobs/c991ee5836fb6f891f20b9ae6d1b572c5a072c72 50 1794254383",
+        "/models/hf/hub/models--mixedbread-ai--mxbai-rerank-base-v2/blobs/eaed590d62aaf0ba31e284b66ddcb18222f066c2 4686 1794254383"
+      ]
+    }
+  ],
+  "final_docker": [
+    {
+      "name": "laew-chromadb-1",
+      "id": "62f0c9f0cb51c0be6f7964f5130f7f25cacafd522adee03e44124e8781658086",
+      "status": "running",
+      "exit_code": 0,
+      "oom_killed": false,
+      "started_at": "2026-11-09T19:41:12.138716267Z",
+      "image_id": "sha256:1e0b73a187a28757c572acba508c46f48c9e8b0acaf5c20e6d95cdedce1acdf6",
+      "network": [
+        "laew_default"
+      ],
+      "ports": {
+        "8000/tcp": [
+          {
+            "HostIp": "",
+            "HostPort": "8000"
+          }
+        ]
+      },
+      "memory_limit_bytes": 0,
+      "cpu_limit": 0.0,
+      "gpu_allocations": null
+    },
+    {
+      "name": "laew-searxng-1",
+      "id": "a35ec84ff5ba256f4ca93bbda68156e02c5634263a978156f933a13130232e92",
+      "status": "running",
+      "exit_code": 0,
+      "oom_killed": false,
+      "started_at": "2026-11-09T19:40:48.597383692Z",
+      "image_id": "sha256:f4aa660c54d062dedb268be84e821ea24e39f48c7a496af8dd02cc9eedb93847",
+      "network": [
+        "laew_default"
+      ],
+      "ports": {
+        "8080/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8888"
+          }
+        ]
+      },
+      "memory_limit_bytes": 0,
+      "cpu_limit": 0.0,
+      "gpu_allocations": null
+    },
+    {
+      "name": "laew-horizon-sufficiency-1",
+      "id": "8c8c8b07f63de0da41dc7bddb0c9cf41921f8c85eb75a2bb2ce838ff5859c377",
+      "status": "exited",
+      "exit_code": 0,
+      "oom_killed": false,
+      "started_at": "2026-11-09T19:40:48.588678242Z",
+      "image_id": "sha256:19c7839e5123eaf6e352b2b02c9d23eb620cd0daaf8d62b45f976b7d03f61ae9",
+      "network": [
+        "laew_default"
+      ],
+      "ports": {
+        "8082/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8082"
+          }
+        ]
+      },
+      "memory_limit_bytes": 2147483648,
+      "cpu_limit": 2.0,
+      "gpu_allocations": null
+    },
+    {
+      "name": "laew-reranker-gte-1",
+      "id": "40eb3ab3ecac0746b6c01fba319578b8fe98f6028457dde69ce5e388e9e74820",
+      "status": "exited",
+      "exit_code": 0,
+      "oom_killed": false,
+      "started_at": "2026-11-09T19:52:33.466470471Z",
+      "image_id": "sha256:2538ea1c9640d3763b15af668039d24172d063b42337b0c27796fc2be180c78d",
+      "network": [
+        "laew_default"
+      ],
+      "ports": {
+        "80/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8083"
+          }
+        ]
+      },
+      "memory_limit_bytes": 3221225472,
+      "cpu_limit": 2.0,
+      "gpu_allocations": null
+    },
+    {
+      "name": "laew-reranker-bge-1",
+      "id": "9e87cfb086c00a54629749b75806d60783c56891f680d1bd348de80a6b59479d",
+      "status": "exited",
+      "exit_code": 0,
+      "oom_killed": false,
+      "started_at": "2026-11-09T19:58:13.337675304Z",
+      "image_id": "sha256:2538ea1c9640d3763b15af668039d24172d063b42337b0c27796fc2be180c78d",
+      "network": [
+        "laew_default"
+      ],
+      "ports": {
+        "80/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8084"
+          }
+        ]
+      },
+      "memory_limit_bytes": 4294967296,
+      "cpu_limit": 2.0,
+      "gpu_allocations": null
+    },
+    {
+      "name": "laew-reranker-mxbai-1",
+      "id": "0eb1c276d87647d2fb1382afb1ebb8d0437763b5a6de71e1798dc5db1d9c8285",
+      "status": "exited",
+      "exit_code": 0,
+      "oom_killed": false,
+      "started_at": "2026-11-09T20:05:36.891811422Z",
+      "image_id": "sha256:2ae5b68329c82431b1e7a9fd2d465cdf814a9360edeb56265edcb05467b26e0f",
+      "network": [
+        "laew_default"
+      ],
+      "ports": {
+        "8080/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8085"
+          }
+        ]
+      },
+      "memory_limit_bytes": 4294967296,
+      "cpu_limit": 2.0,
+      "gpu_allocations": null
+    }
+  ],
+  "notes": [
+    "Horizon was stopped by the user; its ID and start time were preserved.",
+    "Mixedbread initially needed SIGKILL on docker stop (exit 137, OOMKilled=false); explicit SIGTERM handling was added and the full lifecycle rerun passed with final exit 0.",
+    "BGE reached its 4 GiB cgroup ceiling, including file cache, without OOM.",
+    "Peak memory samples in cases cover startup and the short-request phase; long-input peaks were not continuously sampled.",
+    "All measurements used CPU float32; inference latency boundaries differ by backend."
+  ]
+}

@@ -1,0 +1,616 @@
+[
+  {
+    "dataset": "reranker_holdout_v1",
+    "chunker": "legacy",
+    "query_id": "u22",
+    "multi_document": true,
+    "cross_language": true,
+    "stage": "candidate",
+    "recovered_atoms": [
+      1
+    ],
+    "lost_atoms": [],
+    "ranking_worse_atoms": [],
+    "before": [
+      1,
+      null
+    ],
+    "after": [
+      1,
+      10
+    ],
+    "routing": {
+      "global": {
+        "chroma_calls": 2,
+        "fetched_metadata_bytes": 15400,
+        "fetched_records": 22,
+        "fallback": null,
+        "routed_documents": [
+          "release.md",
+          "calibration.md",
+          "calibration-old.md"
+        ],
+        "excluded_seed_documents": [
+          "timing.md"
+        ],
+        "seed_depth": 10,
+        "followup_depth": 128,
+        "final_limit": 10,
+        "returned": 10
+      }
+    }
+  },
+  {
+    "dataset": "reranker_holdout_v1",
+    "chunker": "legacy",
+    "query_id": "u22",
+    "multi_document": true,
+    "cross_language": true,
+    "stage": "final",
+    "recovered_atoms": [
+      1
+    ],
+    "lost_atoms": [],
+    "ranking_worse_atoms": [],
+    "before": [
+      1,
+      null
+    ],
+    "after": [
+      1,
+      10
+    ],
+    "routing": {
+      "global": {
+        "chroma_calls": 2,
+        "fetched_metadata_bytes": 15400,
+        "fetched_records": 22,
+        "fallback": null,
+        "routed_documents": [
+          "release.md",
+          "calibration.md",
+          "calibration-old.md"
+        ],
+        "excluded_seed_documents": [
+          "timing.md"
+        ],
+        "seed_depth": 10,
+        "followup_depth": 128,
+        "final_limit": 10,
+        "returned": 10
+      }
+    }
+  },
+  {
+    "dataset": "reranker_holdout_v1",
+    "chunker": "legacy",
+    "query_id": "u27",
+    "multi_document": true,
+    "cross_language": true,
+    "stage": "final",
+    "recovered_atoms": [
+      1
+    ],
+    "lost_atoms": [],
+    "ranking_worse_atoms": [],
+    "before": [
+      1,
+      null
+    ],
+    "after": [
+      1,
+      8
+    ],
+    "routing": {
+      "global": {
+        "chroma_calls": 2,
+        "fetched_metadata_bytes": 16206,
+        "fetched_records": 22,
+        "fallback": null,
+        "routed_documents": [
+          "release.md",
+          "calibration.md",
+          "gateway-prod.md"
+        ],
+        "excluded_seed_documents": [
+          "calibration-old.md",
+          "foreign-keys.md"
+        ],
+        "seed_depth": 10,
+        "followup_depth": 128,
+        "final_limit": 10,
+        "returned": 10
+      },
+      "project": {
+        "chroma_calls": 2,
+        "fetched_metadata_bytes": 7958,
+        "fetched_records": 12,
+        "fallback": null,
+        "routed_documents": [
+          "site-profile.md",
+          "site-archive.md"
+        ],
+        "excluded_seed_documents": [],
+        "seed_depth": 10,
+        "followup_depth": 128,
+        "final_limit": 10,
+        "returned": 6
+      }
+    }
+  },
+  {
+    "dataset": "reranker_holdout_v1",
+    "chunker": "structure-v2",
+    "query_id": "u22",
+    "multi_document": true,
+    "cross_language": true,
+    "stage": "final",
+    "recovered_atoms": [
+      1
+    ],
+    "lost_atoms": [],
+    "ranking_worse_atoms": [],
+    "before": [
+      1,
+      null
+    ],
+    "after": [
+      1,
+      7
+    ],
+    "routing": {
+      "global": {
+        "chroma_calls": 2,
+        "fetched_metadata_bytes": 22362,
+        "fetched_records": 19,
+        "fallback": null,
+        "routed_documents": [
+          "release.md",
+          "calibration.md",
+          "calibration-old.md"
+        ],
+        "excluded_seed_documents": [
+          "timing.md",
+          "can.md"
+        ],
+        "seed_depth": 10,
+        "followup_depth": 128,
+        "final_limit": 10,
+        "returned": 9
+      }
+    }
+  },
+  {
+    "dataset": "reranker_holdout_v1",
+    "chunker": "structure-v2",
+    "query_id": "u27",
+    "multi_document": true,
+    "cross_language": true,
+    "stage": "candidate",
+    "recovered_atoms": [],
+    "lost_atoms": [
+      1
+    ],
+    "ranking_worse_atoms": [],
+    "before": [
+      1,
+      8
+    ],
+    "after": [
+      1,
+      null
+    ],
+    "routing": {
+      "global": {
+        "chroma_calls": 2,
+        "fetched_metadata_bytes": 22533,
+        "fetched_records": 19,
+        "fallback": null,
+        "routed_documents": [
+          "release.md",
+          "gateway-prod.md",
+          "calibration-old.md"
+        ],
+        "excluded_seed_documents": [
+          "calibration.md",
+          "foreign-keys.md"
+        ],
+        "seed_depth": 10,
+        "followup_depth": 128,
+        "final_limit": 10,
+        "returned": 8
+      },
+      "project": {
+        "chroma_calls": 2,
+        "fetched_metadata_bytes": 9200,
+        "fetched_records": 8,
+        "fallback": null,
+        "routed_documents": [
+          "site-profile.md",
+          "site-archive.md"
+        ],
+        "excluded_seed_documents": [],
+        "seed_depth": 10,
+        "followup_depth": 128,
+        "final_limit": 10,
+        "returned": 4
+      }
+    }
+  },
+  {
+    "dataset": "stress_1036",
+    "chunker": "legacy",
+    "query_id": "s14",
+    "multi_document": false,
+    "cross_language": true,
+    "stage": "candidate",
+    "recovered_atoms": [
+      1,
+      2
+    ],
+    "lost_atoms": [],
+    "ranking_worse_atoms": [],
+    "before": [
+      1,
+      null,
+      null
+    ],
+    "after": [
+      1,
+      6,
+      6
+    ],
+    "routing": {
+      "global": {
+        "chroma_calls": 2,
+        "fetched_metadata_bytes": 12190,
+        "fetched_records": 23,
+        "fallback": null,
+        "routed_documents": [
+          "atlas.md",
+          "stress/978.md",
+          "stress/34.md"
+        ],
+        "excluded_seed_documents": [
+          "stress/290.md",
+          "stress/722.md",
+          "stress/802.md",
+          "stress/354.md",
+          "stress/130.md"
+        ],
+        "seed_depth": 10,
+        "followup_depth": 128,
+        "final_limit": 10,
+        "returned": 10
+      }
+    }
+  },
+  {
+    "dataset": "stress_1036",
+    "chunker": "legacy",
+    "query_id": "s14",
+    "multi_document": false,
+    "cross_language": true,
+    "stage": "final",
+    "recovered_atoms": [
+      1,
+      2
+    ],
+    "lost_atoms": [],
+    "ranking_worse_atoms": [],
+    "before": [
+      1,
+      null,
+      null
+    ],
+    "after": [
+      1,
+      6,
+      6
+    ],
+    "routing": {
+      "global": {
+        "chroma_calls": 2,
+        "fetched_metadata_bytes": 12190,
+        "fetched_records": 23,
+        "fallback": null,
+        "routed_documents": [
+          "atlas.md",
+          "stress/978.md",
+          "stress/34.md"
+        ],
+        "excluded_seed_documents": [
+          "stress/290.md",
+          "stress/722.md",
+          "stress/802.md",
+          "stress/354.md",
+          "stress/130.md"
+        ],
+        "seed_depth": 10,
+        "followup_depth": 128,
+        "final_limit": 10,
+        "returned": 10
+      }
+    }
+  },
+  {
+    "dataset": "stress_1036",
+    "chunker": "structure-v2",
+    "query_id": "s14",
+    "multi_document": false,
+    "cross_language": true,
+    "stage": "candidate",
+    "recovered_atoms": [
+      1,
+      2
+    ],
+    "lost_atoms": [],
+    "ranking_worse_atoms": [],
+    "before": [
+      1,
+      null,
+      null
+    ],
+    "after": [
+      1,
+      5,
+      5
+    ],
+    "routing": {
+      "global": {
+        "chroma_calls": 2,
+        "fetched_metadata_bytes": 18413,
+        "fetched_records": 23,
+        "fallback": null,
+        "routed_documents": [
+          "atlas.md",
+          "stress/978.md",
+          "stress/34.md"
+        ],
+        "excluded_seed_documents": [
+          "stress/290.md",
+          "stress/722.md",
+          "stress/802.md",
+          "stress/354.md",
+          "stress/130.md",
+          "stress/37.md",
+          "stress/146.md"
+        ],
+        "seed_depth": 10,
+        "followup_depth": 128,
+        "final_limit": 10,
+        "returned": 10
+      }
+    }
+  },
+  {
+    "dataset": "stress_1036",
+    "chunker": "structure-v2",
+    "query_id": "s14",
+    "multi_document": false,
+    "cross_language": true,
+    "stage": "final",
+    "recovered_atoms": [
+      1,
+      2
+    ],
+    "lost_atoms": [],
+    "ranking_worse_atoms": [],
+    "before": [
+      1,
+      null,
+      null
+    ],
+    "after": [
+      1,
+      5,
+      5
+    ],
+    "routing": {
+      "global": {
+        "chroma_calls": 2,
+        "fetched_metadata_bytes": 18413,
+        "fetched_records": 23,
+        "fallback": null,
+        "routed_documents": [
+          "atlas.md",
+          "stress/978.md",
+          "stress/34.md"
+        ],
+        "excluded_seed_documents": [
+          "stress/290.md",
+          "stress/722.md",
+          "stress/802.md",
+          "stress/354.md",
+          "stress/130.md",
+          "stress/37.md",
+          "stress/146.md"
+        ],
+        "seed_depth": 10,
+        "followup_depth": 128,
+        "final_limit": 10,
+        "returned": 10
+      }
+    }
+  },
+  {
+    "dataset": "stress_1036",
+    "chunker": "structure-v2",
+    "query_id": "s16",
+    "multi_document": false,
+    "cross_language": true,
+    "stage": "candidate",
+    "recovered_atoms": [],
+    "lost_atoms": [],
+    "ranking_worse_atoms": [
+      0,
+      1
+    ],
+    "before": [
+      2,
+      2
+    ],
+    "after": [
+      3,
+      3
+    ],
+    "routing": {
+      "global": {
+        "chroma_calls": 2,
+        "fetched_metadata_bytes": 19037,
+        "fetched_records": 23,
+        "fallback": null,
+        "routed_documents": [
+          "atlas.md",
+          "stress/126.md",
+          "stress/121.md"
+        ],
+        "excluded_seed_documents": [
+          "stress/124.md",
+          "stress/114.md",
+          "stress/92.md",
+          "stress/1014.md",
+          "stress/910.md",
+          "stress/246.md"
+        ],
+        "seed_depth": 10,
+        "followup_depth": 128,
+        "final_limit": 10,
+        "returned": 7
+      }
+    }
+  },
+  {
+    "dataset": "stress_1036",
+    "chunker": "structure-v2",
+    "query_id": "s16",
+    "multi_document": false,
+    "cross_language": true,
+    "stage": "final",
+    "recovered_atoms": [],
+    "lost_atoms": [],
+    "ranking_worse_atoms": [
+      0,
+      1
+    ],
+    "before": [
+      2,
+      2
+    ],
+    "after": [
+      3,
+      3
+    ],
+    "routing": {
+      "global": {
+        "chroma_calls": 2,
+        "fetched_metadata_bytes": 19037,
+        "fetched_records": 23,
+        "fallback": null,
+        "routed_documents": [
+          "atlas.md",
+          "stress/126.md",
+          "stress/121.md"
+        ],
+        "excluded_seed_documents": [
+          "stress/124.md",
+          "stress/114.md",
+          "stress/92.md",
+          "stress/1014.md",
+          "stress/910.md",
+          "stress/246.md"
+        ],
+        "seed_depth": 10,
+        "followup_depth": 128,
+        "final_limit": 10,
+        "returned": 7
+      }
+    }
+  },
+  {
+    "dataset": "stress_grouped",
+    "chunker": "structure-v2",
+    "query_id": "s16",
+    "multi_document": false,
+    "cross_language": true,
+    "stage": "candidate",
+    "recovered_atoms": [],
+    "lost_atoms": [],
+    "ranking_worse_atoms": [
+      0,
+      1
+    ],
+    "before": [
+      2,
+      2
+    ],
+    "after": [
+      3,
+      3
+    ],
+    "routing": {
+      "global": {
+        "chroma_calls": 2,
+        "fetched_metadata_bytes": 78623,
+        "fetched_records": 138,
+        "fallback": null,
+        "routed_documents": [
+          "atlas.md",
+          "stress-grouped/1.md",
+          "stress-grouped/15.md"
+        ],
+        "excluded_seed_documents": [
+          "stress-grouped/14.md",
+          "stress-grouped/3.md"
+        ],
+        "seed_depth": 10,
+        "followup_depth": 128,
+        "final_limit": 10,
+        "returned": 10
+      }
+    }
+  },
+  {
+    "dataset": "stress_grouped",
+    "chunker": "structure-v2",
+    "query_id": "s16",
+    "multi_document": false,
+    "cross_language": true,
+    "stage": "final",
+    "recovered_atoms": [],
+    "lost_atoms": [],
+    "ranking_worse_atoms": [
+      0,
+      1
+    ],
+    "before": [
+      2,
+      2
+    ],
+    "after": [
+      3,
+      3
+    ],
+    "routing": {
+      "global": {
+        "chroma_calls": 2,
+        "fetched_metadata_bytes": 78623,
+        "fetched_records": 138,
+        "fallback": null,
+        "routed_documents": [
+          "atlas.md",
+          "stress-grouped/1.md",
+          "stress-grouped/15.md"
+        ],
+        "excluded_seed_documents": [
+          "stress-grouped/14.md",
+          "stress-grouped/3.md"
+        ],
+        "seed_depth": 10,
+        "followup_depth": 128,
+        "final_limit": 10,
+        "returned": 10
+      }
+    }
+  }
+]

@@ -1,0 +1,3 @@
+# Optional experiment only. Install with --no-deps --target runtime/lexical-deps.
+# Uses LAEW's existing NumPy; no stemming, SciPy, JAX or Numba extras.
+bm25s==0.3.15

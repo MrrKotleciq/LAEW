@@ -1,0 +1,2034 @@
+{
+  "protocol": "hierarchical-task3b-v1",
+  "corpus_hash": "5171ba97995dc2f0b44f26b14e6260173dfc26fc9e563c6e11efc91ef71e44de",
+  "repeats": 20,
+  "quality_backend": "Actual isolated PersistentClient Chroma; production metadata serializer; cached vectors.",
+  "performance_boundary": "Warm local retrieval + payload validation; excludes shared embedding, index build, selector and adapter. Bytes are serialized result metadata, not network traffic.",
+  "summary": [
+    {
+      "dataset": "baseline_v1",
+      "chunker": "legacy",
+      "method": "dense",
+      "queries": 28,
+      "answerable": 24,
+      "candidate_coverage": 1.0,
+      "candidate_complete": 1,
+      "candidate_document_recall": 1.0,
+      "final_coverage": 1.0,
+      "final_complete": 1,
+      "final_document_recall": 1.0,
+      "tokens": {
+        "mean": 430.9642857142857,
+        "median": 526.0,
+        "p95": 546.65,
+        "max": 552
+      },
+      "fragments": {
+        "mean": 7.964285714285714,
+        "median": 10.0,
+        "p95": 10.0,
+        "max": 10
+      },
+      "irrelevant_rate": 0.7713004484304933,
+      "no_atom_rate": 0.874439461883408,
+      "unsupported_empty": 0.25,
+      "fallback_scopes": 0,
+      "adapter_received": true,
+      "allocation_compliant": true,
+      "subsets": {
+        "multi_document": {
+          "n": 4,
+          "candidate_coverage": 1.0,
+          "final_coverage": 1.0,
+          "final_complete": 1
+        },
+        "cross_language": {
+          "n": 14,
+          "candidate_coverage": 1.0,
+          "final_coverage": 1.0,
+          "final_complete": 1
+        }
+      }
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "legacy",
+      "method": "hierarchical",
+      "queries": 28,
+      "answerable": 24,
+      "candidate_coverage": 1.0,
+      "candidate_complete": 1,
+      "candidate_document_recall": 1.0,
+      "final_coverage": 1.0,
+      "final_complete": 1,
+      "final_document_recall": 1.0,
+      "tokens": {
+        "mean": 259.60714285714283,
+        "median": 282.0,
+        "p95": 330.2,
+        "max": 336
+      },
+      "fragments": {
+        "mean": 4.678571428571429,
+        "median": 5.0,
+        "p95": 6.0,
+        "max": 6
+      },
+      "irrelevant_rate": 0.6106870229007634,
+      "no_atom_rate": 0.7862595419847328,
+      "unsupported_empty": 0.25,
+      "fallback_scopes": 0,
+      "adapter_received": true,
+      "allocation_compliant": true,
+      "subsets": {
+        "multi_document": {
+          "n": 4,
+          "candidate_coverage": 1.0,
+          "final_coverage": 1.0,
+          "final_complete": 1
+        },
+        "cross_language": {
+          "n": 14,
+          "candidate_coverage": 1.0,
+          "final_coverage": 1.0,
+          "final_complete": 1
+        }
+      }
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "structure-v2",
+      "method": "dense",
+      "queries": 28,
+      "answerable": 24,
+      "candidate_coverage": 1.0,
+      "candidate_complete": 1,
+      "candidate_document_recall": 1.0,
+      "final_coverage": 1.0,
+      "final_complete": 1,
+      "final_document_recall": 1.0,
+      "tokens": {
+        "mean": 450,
+        "median": 523.5,
+        "p95": 547.6,
+        "max": 553
+      },
+      "fragments": {
+        "mean": 8.357142857142858,
+        "median": 10.0,
+        "p95": 10.0,
+        "max": 10
+      },
+      "irrelevant_rate": 0.7777777777777778,
+      "no_atom_rate": 0.8803418803418803,
+      "unsupported_empty": 0.25,
+      "fallback_scopes": 0,
+      "adapter_received": true,
+      "allocation_compliant": true,
+      "subsets": {
+        "multi_document": {
+          "n": 4,
+          "candidate_coverage": 1.0,
+          "final_coverage": 1.0,
+          "final_complete": 1
+        },
+        "cross_language": {
+          "n": 14,
+          "candidate_coverage": 1.0,
+          "final_coverage": 1.0,
+          "final_complete": 1
+        }
+      }
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "structure-v2",
+      "method": "hierarchical",
+      "queries": 28,
+      "answerable": 24,
+      "candidate_coverage": 1.0,
+      "candidate_complete": 1,
+      "candidate_document_recall": 1.0,
+      "final_coverage": 1.0,
+      "final_complete": 1,
+      "final_document_recall": 1.0,
+      "tokens": {
+        "mean": 263.5,
+        "median": 281.0,
+        "p95": 335.15,
+        "max": 339
+      },
+      "fragments": {
+        "mean": 4.714285714285714,
+        "median": 5.0,
+        "p95": 6.0,
+        "max": 6
+      },
+      "irrelevant_rate": 0.6060606060606061,
+      "no_atom_rate": 0.7878787878787878,
+      "unsupported_empty": 0.25,
+      "fallback_scopes": 0,
+      "adapter_received": true,
+      "allocation_compliant": true,
+      "subsets": {
+        "multi_document": {
+          "n": 4,
+          "candidate_coverage": 1.0,
+          "final_coverage": 1.0,
+          "final_complete": 1
+        },
+        "cross_language": {
+          "n": 14,
+          "candidate_coverage": 1.0,
+          "final_coverage": 1.0,
+          "final_complete": 1
+        }
+      }
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "legacy",
+      "method": "dense",
+      "queries": 20,
+      "answerable": 16,
+      "candidate_coverage": 1.0,
+      "candidate_complete": 1,
+      "candidate_document_recall": 1.0,
+      "final_coverage": 1.0,
+      "final_complete": 1,
+      "final_document_recall": 1.0,
+      "tokens": {
+        "mean": 625.75,
+        "median": 653.0,
+        "p95": 844.85,
+        "max": 899
+      },
+      "fragments": {
+        "mean": 9.45,
+        "median": 10.0,
+        "p95": 10.250000000000004,
+        "max": 15
+      },
+      "irrelevant_rate": 0.6190476190476191,
+      "no_atom_rate": 0.8835978835978836,
+      "unsupported_empty": 0,
+      "fallback_scopes": 0,
+      "adapter_received": true,
+      "allocation_compliant": true,
+      "subsets": {
+        "multi_document": {
+          "n": 2,
+          "candidate_coverage": 1.0,
+          "final_coverage": 1.0,
+          "final_complete": 1
+        },
+        "cross_language": {
+          "n": 9,
+          "candidate_coverage": 1.0,
+          "final_coverage": 1.0,
+          "final_complete": 1
+        }
+      }
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "legacy",
+      "method": "hierarchical",
+      "queries": 20,
+      "answerable": 16,
+      "candidate_coverage": 1.0,
+      "candidate_complete": 1,
+      "candidate_document_recall": 1.0,
+      "final_coverage": 1.0,
+      "final_complete": 1,
+      "final_document_recall": 1.0,
+      "tokens": {
+        "mean": 649.6,
+        "median": 713.0,
+        "p95": 873.4,
+        "max": 881
+      },
+      "fragments": {
+        "mean": 9.1,
+        "median": 10.0,
+        "p95": 10.200000000000003,
+        "max": 14
+      },
+      "irrelevant_rate": 0.5879120879120879,
+      "no_atom_rate": 0.8791208791208791,
+      "unsupported_empty": 0,
+      "fallback_scopes": 0,
+      "adapter_received": true,
+      "allocation_compliant": true,
+      "subsets": {
+        "multi_document": {
+          "n": 2,
+          "candidate_coverage": 1.0,
+          "final_coverage": 1.0,
+          "final_complete": 1
+        },
+        "cross_language": {
+          "n": 9,
+          "candidate_coverage": 1.0,
+          "final_coverage": 1.0,
+          "final_complete": 1
+        }
+      }
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "structure-v2",
+      "method": "dense",
+      "queries": 20,
+      "answerable": 16,
+      "candidate_coverage": 1.0,
+      "candidate_complete": 1,
+      "candidate_document_recall": 1.0,
+      "final_coverage": 1.0,
+      "final_complete": 1,
+      "final_document_recall": 1.0,
+      "tokens": {
+        "mean": 853.45,
+        "median": 946.0,
+        "p95": 1003.5,
+        "max": 1013
+      },
+      "fragments": {
+        "mean": 8.5,
+        "median": 9.0,
+        "p95": 10.0,
+        "max": 10
+      },
+      "irrelevant_rate": 0.6588235294117647,
+      "no_atom_rate": 0.8705882352941177,
+      "unsupported_empty": 0,
+      "fallback_scopes": 0,
+      "adapter_received": true,
+      "allocation_compliant": true,
+      "subsets": {
+        "multi_document": {
+          "n": 2,
+          "candidate_coverage": 1.0,
+          "final_coverage": 1.0,
+          "final_complete": 1
+        },
+        "cross_language": {
+          "n": 9,
+          "candidate_coverage": 1.0,
+          "final_coverage": 1.0,
+          "final_complete": 1
+        }
+      }
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "structure-v2",
+      "method": "hierarchical",
+      "queries": 20,
+      "answerable": 16,
+      "candidate_coverage": 1.0,
+      "candidate_complete": 1,
+      "candidate_document_recall": 1.0,
+      "final_coverage": 1.0,
+      "final_complete": 1,
+      "final_document_recall": 1.0,
+      "tokens": {
+        "mean": 828.4,
+        "median": 934.5,
+        "p95": 977.1,
+        "max": 979
+      },
+      "fragments": {
+        "mean": 8.15,
+        "median": 9.0,
+        "p95": 10.0,
+        "max": 10
+      },
+      "irrelevant_rate": 0.6441717791411042,
+      "no_atom_rate": 0.8650306748466258,
+      "unsupported_empty": 0,
+      "fallback_scopes": 0,
+      "adapter_received": true,
+      "allocation_compliant": true,
+      "subsets": {
+        "multi_document": {
+          "n": 2,
+          "candidate_coverage": 1.0,
+          "final_coverage": 1.0,
+          "final_complete": 1
+        },
+        "cross_language": {
+          "n": 9,
+          "candidate_coverage": 1.0,
+          "final_coverage": 1.0,
+          "final_complete": 1
+        }
+      }
+    },
+    {
+      "dataset": "hard_cases_v1",
+      "chunker": "legacy",
+      "method": "dense",
+      "queries": 13,
+      "answerable": 11,
+      "candidate_coverage": 1.0,
+      "candidate_complete": 1,
+      "candidate_document_recall": 1.0,
+      "final_coverage": 1.0,
+      "final_complete": 1,
+      "final_document_recall": 1.0,
+      "tokens": {
+        "mean": 706.7692307692307,
+        "median": 762,
+        "p95": 988.5999999999999,
+        "max": 1006
+      },
+      "fragments": {
+        "mean": 8.153846153846153,
+        "median": 9,
+        "p95": 10.0,
+        "max": 10
+      },
+      "irrelevant_rate": 0.6698113207547169,
+      "no_atom_rate": 0.8207547169811321,
+      "unsupported_empty": 0,
+      "fallback_scopes": 0,
+      "adapter_received": true,
+      "allocation_compliant": true,
+      "subsets": {
+        "multi_document": {
+          "n": 1,
+          "candidate_coverage": 1.0,
+          "final_coverage": 1.0,
+          "final_complete": 1
+        },
+        "cross_language": {
+          "n": 2,
+          "candidate_coverage": 1.0,
+          "final_coverage": 1.0,
+          "final_complete": 1
+        }
+      }
+    },
+    {
+      "dataset": "hard_cases_v1",
+      "chunker": "legacy",
+      "method": "hierarchical",
+      "queries": 13,
+      "answerable": 11,
+      "candidate_coverage": 1.0,
+      "candidate_complete": 1,
+      "candidate_document_recall": 1.0,
+      "final_coverage": 1.0,
+      "final_complete": 1,
+      "final_document_recall": 1.0,
+      "tokens": {
+        "mean": 717.3076923076923,
+        "median": 922,
+        "p95": 1008.0,
+        "max": 1011
+      },
+      "fragments": {
+        "mean": 6.846153846153846,
+        "median": 7,
+        "p95": 9.0,
+        "max": 9
+      },
+      "irrelevant_rate": 0.550561797752809,
+      "no_atom_rate": 0.7865168539325843,
+      "unsupported_empty": 0,
+      "fallback_scopes": 0,
+      "adapter_received": true,
+      "allocation_compliant": true,
+      "subsets": {
+        "multi_document": {
+          "n": 1,
+          "candidate_coverage": 1.0,
+          "final_coverage": 1.0,
+          "final_complete": 1
+        },
+        "cross_language": {
+          "n": 2,
+          "candidate_coverage": 1.0,
+          "final_coverage": 1.0,
+          "final_complete": 1
+        }
+      }
+    },
+    {
+      "dataset": "hard_cases_v1",
+      "chunker": "structure-v2",
+      "method": "dense",
+      "queries": 13,
+      "answerable": 11,
+      "candidate_coverage": 1.0,
+      "candidate_complete": 1,
+      "candidate_document_recall": 1.0,
+      "final_coverage": 1.0,
+      "final_complete": 1,
+      "final_document_recall": 1.0,
+      "tokens": {
+        "mean": 800.2307692307693,
+        "median": 892,
+        "p95": 1011.2,
+        "max": 1013
+      },
+      "fragments": {
+        "mean": 5.846153846153846,
+        "median": 6,
+        "p95": 7.399999999999999,
+        "max": 8
+      },
+      "irrelevant_rate": 0.618421052631579,
+      "no_atom_rate": 0.6578947368421053,
+      "unsupported_empty": 0,
+      "fallback_scopes": 0,
+      "adapter_received": true,
+      "allocation_compliant": true,
+      "subsets": {
+        "multi_document": {
+          "n": 1,
+          "candidate_coverage": 1.0,
+          "final_coverage": 1.0,
+          "final_complete": 1
+        },
+        "cross_language": {
+          "n": 2,
+          "candidate_coverage": 1.0,
+          "final_coverage": 1.0,
+          "final_complete": 1
+        }
+      }
+    },
+    {
+      "dataset": "hard_cases_v1",
+      "chunker": "structure-v2",
+      "method": "hierarchical",
+      "queries": 13,
+      "answerable": 11,
+      "candidate_coverage": 1.0,
+      "candidate_complete": 1,
+      "candidate_document_recall": 1.0,
+      "final_coverage": 1.0,
+      "final_complete": 1,
+      "final_document_recall": 1.0,
+      "tokens": {
+        "mean": 742.3076923076923,
+        "median": 886,
+        "p95": 1007.0,
+        "max": 1010
+      },
+      "fragments": {
+        "mean": 5.153846153846154,
+        "median": 5,
+        "p95": 6.399999999999999,
+        "max": 7
+      },
+      "irrelevant_rate": 0.5522388059701493,
+      "no_atom_rate": 0.5970149253731343,
+      "unsupported_empty": 0,
+      "fallback_scopes": 0,
+      "adapter_received": true,
+      "allocation_compliant": true,
+      "subsets": {
+        "multi_document": {
+          "n": 1,
+          "candidate_coverage": 1.0,
+          "final_coverage": 1.0,
+          "final_complete": 1
+        },
+        "cross_language": {
+          "n": 2,
+          "candidate_coverage": 1.0,
+          "final_coverage": 1.0,
+          "final_complete": 1
+        }
+      }
+    },
+    {
+      "dataset": "hierarchical_long_v1",
+      "chunker": "legacy",
+      "method": "dense",
+      "queries": 8,
+      "answerable": 7,
+      "candidate_coverage": 0.9285714285714286,
+      "candidate_complete": 0.8571428571428571,
+      "candidate_document_recall": 1.0,
+      "final_coverage": 0.9285714285714286,
+      "final_complete": 0.8571428571428571,
+      "final_document_recall": 1.0,
+      "tokens": {
+        "mean": 1169.625,
+        "median": 955.0,
+        "p95": 1877.6499999999999,
+        "max": 1913
+      },
+      "fragments": {
+        "mean": 10.75,
+        "median": 9.0,
+        "p95": 17.299999999999997,
+        "max": 18
+      },
+      "irrelevant_rate": 0.13953488372093023,
+      "no_atom_rate": 0.8255813953488372,
+      "unsupported_empty": 0,
+      "fallback_scopes": 0,
+      "adapter_received": true,
+      "allocation_compliant": true,
+      "subsets": {
+        "multi_document": {
+          "n": 3,
+          "candidate_coverage": 0.8333333333333334,
+          "final_coverage": 0.8333333333333334,
+          "final_complete": 0.6666666666666666
+        },
+        "cross_language": {
+          "n": 5,
+          "candidate_coverage": 0.9,
+          "final_coverage": 0.9,
+          "final_complete": 0.8
+        }
+      }
+    },
+    {
+      "dataset": "hierarchical_long_v1",
+      "chunker": "legacy",
+      "method": "hierarchical",
+      "queries": 8,
+      "answerable": 7,
+      "candidate_coverage": 0.9285714285714286,
+      "candidate_complete": 0.8571428571428571,
+      "candidate_document_recall": 1.0,
+      "final_coverage": 0.9285714285714286,
+      "final_complete": 0.8571428571428571,
+      "final_document_recall": 1.0,
+      "tokens": {
+        "mean": 1169.625,
+        "median": 955.0,
+        "p95": 1877.6499999999999,
+        "max": 1913
+      },
+      "fragments": {
+        "mean": 10.75,
+        "median": 9.0,
+        "p95": 17.299999999999997,
+        "max": 18
+      },
+      "irrelevant_rate": 0.13953488372093023,
+      "no_atom_rate": 0.8255813953488372,
+      "unsupported_empty": 0,
+      "fallback_scopes": 0,
+      "adapter_received": true,
+      "allocation_compliant": true,
+      "subsets": {
+        "multi_document": {
+          "n": 3,
+          "candidate_coverage": 0.8333333333333334,
+          "final_coverage": 0.8333333333333334,
+          "final_complete": 0.6666666666666666
+        },
+        "cross_language": {
+          "n": 5,
+          "candidate_coverage": 0.9,
+          "final_coverage": 0.9,
+          "final_complete": 0.8
+        }
+      }
+    },
+    {
+      "dataset": "hierarchical_long_v1",
+      "chunker": "structure-v2",
+      "method": "dense",
+      "queries": 8,
+      "answerable": 7,
+      "candidate_coverage": 0.9642857142857143,
+      "candidate_complete": 0.8571428571428571,
+      "candidate_document_recall": 1.0,
+      "final_coverage": 0.9285714285714286,
+      "final_complete": 0.8571428571428571,
+      "final_document_recall": 1.0,
+      "tokens": {
+        "mean": 1206.75,
+        "median": 974.5,
+        "p95": 1939.2,
+        "max": 1949
+      },
+      "fragments": {
+        "mean": 10.375,
+        "median": 8.5,
+        "p95": 16.65,
+        "max": 17
+      },
+      "irrelevant_rate": 0.12048192771084337,
+      "no_atom_rate": 0.8192771084337349,
+      "unsupported_empty": 0,
+      "fallback_scopes": 0,
+      "adapter_received": true,
+      "allocation_compliant": true,
+      "subsets": {
+        "multi_document": {
+          "n": 3,
+          "candidate_coverage": 0.9166666666666666,
+          "final_coverage": 0.8333333333333334,
+          "final_complete": 0.6666666666666666
+        },
+        "cross_language": {
+          "n": 5,
+          "candidate_coverage": 0.95,
+          "final_coverage": 0.9,
+          "final_complete": 0.8
+        }
+      }
+    },
+    {
+      "dataset": "hierarchical_long_v1",
+      "chunker": "structure-v2",
+      "method": "hierarchical",
+      "queries": 8,
+      "answerable": 7,
+      "candidate_coverage": 0.9642857142857143,
+      "candidate_complete": 0.8571428571428571,
+      "candidate_document_recall": 1.0,
+      "final_coverage": 0.9285714285714286,
+      "final_complete": 0.8571428571428571,
+      "final_document_recall": 1.0,
+      "tokens": {
+        "mean": 1206.75,
+        "median": 974.5,
+        "p95": 1939.2,
+        "max": 1949
+      },
+      "fragments": {
+        "mean": 10.375,
+        "median": 8.5,
+        "p95": 16.65,
+        "max": 17
+      },
+      "irrelevant_rate": 0.12048192771084337,
+      "no_atom_rate": 0.8192771084337349,
+      "unsupported_empty": 0,
+      "fallback_scopes": 0,
+      "adapter_received": true,
+      "allocation_compliant": true,
+      "subsets": {
+        "multi_document": {
+          "n": 3,
+          "candidate_coverage": 0.9166666666666666,
+          "final_coverage": 0.8333333333333334,
+          "final_complete": 0.6666666666666666
+        },
+        "cross_language": {
+          "n": 5,
+          "candidate_coverage": 0.95,
+          "final_coverage": 0.9,
+          "final_complete": 0.8
+        }
+      }
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "legacy",
+      "method": "dense",
+      "queries": 32,
+      "answerable": 28,
+      "candidate_coverage": 0.9642857142857143,
+      "candidate_complete": 0.9285714285714286,
+      "candidate_document_recall": 1.0,
+      "final_coverage": 0.9464285714285714,
+      "final_complete": 0.8928571428571429,
+      "final_document_recall": 1.0,
+      "tokens": {
+        "mean": 871.46875,
+        "median": 917.5,
+        "p95": 1032.8,
+        "max": 1510
+      },
+      "fragments": {
+        "mean": 9.625,
+        "median": 10.0,
+        "p95": 12.249999999999996,
+        "max": 16
+      },
+      "irrelevant_rate": 0.6688311688311688,
+      "no_atom_rate": 0.8896103896103896,
+      "unsupported_empty": 0,
+      "fallback_scopes": 0,
+      "adapter_received": true,
+      "allocation_compliant": true,
+      "subsets": {
+        "multi_document": {
+          "n": 7,
+          "candidate_coverage": 0.8571428571428571,
+          "final_coverage": 0.7857142857142857,
+          "final_complete": 0.5714285714285714
+        },
+        "cross_language": {
+          "n": 14,
+          "candidate_coverage": 0.9285714285714286,
+          "final_coverage": 0.8928571428571429,
+          "final_complete": 0.7857142857142857
+        }
+      }
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "legacy",
+      "method": "hierarchical",
+      "queries": 32,
+      "answerable": 28,
+      "candidate_coverage": 0.9821428571428571,
+      "candidate_complete": 0.9642857142857143,
+      "candidate_document_recall": 1.0,
+      "final_coverage": 0.9821428571428571,
+      "final_complete": 0.9642857142857143,
+      "final_document_recall": 1.0,
+      "tokens": {
+        "mean": 901,
+        "median": 942.0,
+        "p95": 1245.1999999999996,
+        "max": 1537
+      },
+      "fragments": {
+        "mean": 8.96875,
+        "median": 9.0,
+        "p95": 12.249999999999996,
+        "max": 16
+      },
+      "irrelevant_rate": 0.6062717770034843,
+      "no_atom_rate": 0.8745644599303136,
+      "unsupported_empty": 0,
+      "fallback_scopes": 0,
+      "adapter_received": true,
+      "allocation_compliant": true,
+      "subsets": {
+        "multi_document": {
+          "n": 7,
+          "candidate_coverage": 0.9285714285714286,
+          "final_coverage": 0.9285714285714286,
+          "final_complete": 0.8571428571428571
+        },
+        "cross_language": {
+          "n": 14,
+          "candidate_coverage": 0.9642857142857143,
+          "final_coverage": 0.9642857142857143,
+          "final_complete": 0.9285714285714286
+        }
+      }
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "structure-v2",
+      "method": "dense",
+      "queries": 32,
+      "answerable": 28,
+      "candidate_coverage": 1.0,
+      "candidate_complete": 1,
+      "candidate_document_recall": 1.0,
+      "final_coverage": 0.9642857142857143,
+      "final_complete": 0.9285714285714286,
+      "final_document_recall": 1.0,
+      "tokens": {
+        "mean": 981.78125,
+        "median": 994.0,
+        "p95": 1245.2999999999997,
+        "max": 1533
+      },
+      "fragments": {
+        "mean": 6.8125,
+        "median": 7.0,
+        "p95": 8.799999999999997,
+        "max": 11
+      },
+      "irrelevant_rate": 0.6697247706422018,
+      "no_atom_rate": 0.8394495412844036,
+      "unsupported_empty": 0,
+      "fallback_scopes": 0,
+      "adapter_received": true,
+      "allocation_compliant": true,
+      "subsets": {
+        "multi_document": {
+          "n": 7,
+          "candidate_coverage": 1.0,
+          "final_coverage": 0.8571428571428571,
+          "final_complete": 0.7142857142857143
+        },
+        "cross_language": {
+          "n": 14,
+          "candidate_coverage": 1.0,
+          "final_coverage": 0.9285714285714286,
+          "final_complete": 0.8571428571428571
+        }
+      }
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "structure-v2",
+      "method": "hierarchical",
+      "queries": 32,
+      "answerable": 28,
+      "candidate_coverage": 0.9821428571428571,
+      "candidate_complete": 0.9642857142857143,
+      "candidate_document_recall": 0.9821428571428571,
+      "final_coverage": 0.9821428571428571,
+      "final_complete": 0.9642857142857143,
+      "final_document_recall": 0.9821428571428571,
+      "tokens": {
+        "mean": 943.3125,
+        "median": 957.0,
+        "p95": 1124.0499999999997,
+        "max": 1524
+      },
+      "fragments": {
+        "mean": 6.5625,
+        "median": 7.0,
+        "p95": 7.899999999999999,
+        "max": 11
+      },
+      "irrelevant_rate": 0.638095238095238,
+      "no_atom_rate": 0.8285714285714286,
+      "unsupported_empty": 0,
+      "fallback_scopes": 0,
+      "adapter_received": true,
+      "allocation_compliant": true,
+      "subsets": {
+        "multi_document": {
+          "n": 7,
+          "candidate_coverage": 0.9285714285714286,
+          "final_coverage": 0.9285714285714286,
+          "final_complete": 0.8571428571428571
+        },
+        "cross_language": {
+          "n": 14,
+          "candidate_coverage": 0.9642857142857143,
+          "final_coverage": 0.9642857142857143,
+          "final_complete": 0.9285714285714286
+        }
+      }
+    },
+    {
+      "dataset": "stress_1036",
+      "chunker": "legacy",
+      "method": "dense",
+      "queries": 4,
+      "answerable": 3,
+      "candidate_coverage": 0.7777777777777778,
+      "candidate_complete": 0.6666666666666666,
+      "candidate_document_recall": 1.0,
+      "final_coverage": 0.7777777777777778,
+      "final_complete": 0.6666666666666666,
+      "final_document_recall": 1.0,
+      "tokens": {
+        "mean": 953,
+        "median": 954.0,
+        "p95": 957.7,
+        "max": 958
+      },
+      "fragments": {
+        "mean": 9,
+        "median": 9.0,
+        "p95": 9.0,
+        "max": 9
+      },
+      "irrelevant_rate": 0.6944444444444444,
+      "no_atom_rate": 0.9166666666666666,
+      "unsupported_empty": 0,
+      "fallback_scopes": 0,
+      "adapter_received": true,
+      "allocation_compliant": true,
+      "subsets": {
+        "cross_language": {
+          "n": 2,
+          "candidate_coverage": 0.6666666666666667,
+          "final_coverage": 0.6666666666666667,
+          "final_complete": 0.5
+        }
+      }
+    },
+    {
+      "dataset": "stress_1036",
+      "chunker": "legacy",
+      "method": "hierarchical",
+      "queries": 4,
+      "answerable": 3,
+      "candidate_coverage": 1.0,
+      "candidate_complete": 1,
+      "candidate_document_recall": 1.0,
+      "final_coverage": 1.0,
+      "final_complete": 1,
+      "final_document_recall": 1.0,
+      "tokens": {
+        "mean": 892.75,
+        "median": 893.5,
+        "p95": 945.0,
+        "max": 945
+      },
+      "fragments": {
+        "mean": 8.5,
+        "median": 8.5,
+        "p95": 9.0,
+        "max": 9
+      },
+      "irrelevant_rate": 0.4117647058823529,
+      "no_atom_rate": 0.8823529411764706,
+      "unsupported_empty": 0,
+      "fallback_scopes": 0,
+      "adapter_received": true,
+      "allocation_compliant": true,
+      "subsets": {
+        "cross_language": {
+          "n": 2,
+          "candidate_coverage": 1.0,
+          "final_coverage": 1.0,
+          "final_complete": 1
+        }
+      }
+    },
+    {
+      "dataset": "stress_1036",
+      "chunker": "structure-v2",
+      "method": "dense",
+      "queries": 4,
+      "answerable": 3,
+      "candidate_coverage": 0.7777777777777778,
+      "candidate_complete": 0.6666666666666666,
+      "candidate_document_recall": 1.0,
+      "final_coverage": 0.7777777777777778,
+      "final_complete": 0.6666666666666666,
+      "final_document_recall": 1.0,
+      "tokens": {
+        "mean": 929,
+        "median": 932.5,
+        "p95": 940.7,
+        "max": 941
+      },
+      "fragments": {
+        "mean": 8,
+        "median": 8.0,
+        "p95": 8.0,
+        "max": 8
+      },
+      "irrelevant_rate": 0.78125,
+      "no_atom_rate": 0.90625,
+      "unsupported_empty": 0,
+      "fallback_scopes": 0,
+      "adapter_received": true,
+      "allocation_compliant": true,
+      "subsets": {
+        "cross_language": {
+          "n": 2,
+          "candidate_coverage": 0.6666666666666667,
+          "final_coverage": 0.6666666666666667,
+          "final_complete": 0.5
+        }
+      }
+    },
+    {
+      "dataset": "stress_1036",
+      "chunker": "structure-v2",
+      "method": "hierarchical",
+      "queries": 4,
+      "answerable": 3,
+      "candidate_coverage": 1.0,
+      "candidate_complete": 1,
+      "candidate_document_recall": 1.0,
+      "final_coverage": 1.0,
+      "final_complete": 1,
+      "final_document_recall": 1.0,
+      "tokens": {
+        "mean": 784.5,
+        "median": 908.5,
+        "p95": 971.0,
+        "max": 971
+      },
+      "fragments": {
+        "mean": 6.5,
+        "median": 7.5,
+        "p95": 8.0,
+        "max": 8
+      },
+      "irrelevant_rate": 0.34615384615384615,
+      "no_atom_rate": 0.8461538461538461,
+      "unsupported_empty": 0,
+      "fallback_scopes": 0,
+      "adapter_received": true,
+      "allocation_compliant": true,
+      "subsets": {
+        "cross_language": {
+          "n": 2,
+          "candidate_coverage": 1.0,
+          "final_coverage": 1.0,
+          "final_complete": 1
+        }
+      }
+    },
+    {
+      "dataset": "stress_grouped",
+      "chunker": "legacy",
+      "method": "dense",
+      "queries": 4,
+      "answerable": 3,
+      "candidate_coverage": 0.7777777777777778,
+      "candidate_complete": 0.6666666666666666,
+      "candidate_document_recall": 1.0,
+      "final_coverage": 0.7777777777777778,
+      "final_complete": 0.6666666666666666,
+      "final_document_recall": 1.0,
+      "tokens": {
+        "mean": 962.25,
+        "median": 962.0,
+        "p95": 967.4,
+        "max": 968
+      },
+      "fragments": {
+        "mean": 9,
+        "median": 9.0,
+        "p95": 9.0,
+        "max": 9
+      },
+      "irrelevant_rate": 0.6944444444444444,
+      "no_atom_rate": 0.9166666666666666,
+      "unsupported_empty": 0,
+      "fallback_scopes": 0,
+      "adapter_received": true,
+      "allocation_compliant": true,
+      "subsets": {
+        "cross_language": {
+          "n": 2,
+          "candidate_coverage": 0.6666666666666667,
+          "final_coverage": 0.6666666666666667,
+          "final_complete": 0.5
+        }
+      }
+    },
+    {
+      "dataset": "stress_grouped",
+      "chunker": "legacy",
+      "method": "hierarchical",
+      "queries": 4,
+      "answerable": 3,
+      "candidate_coverage": 0.7777777777777778,
+      "candidate_complete": 0.6666666666666666,
+      "candidate_document_recall": 1.0,
+      "final_coverage": 0.7777777777777778,
+      "final_complete": 0.6666666666666666,
+      "final_document_recall": 1.0,
+      "tokens": {
+        "mean": 960.5,
+        "median": 961.5,
+        "p95": 964.0,
+        "max": 964
+      },
+      "fragments": {
+        "mean": 9,
+        "median": 9.0,
+        "p95": 9.0,
+        "max": 9
+      },
+      "irrelevant_rate": 0.6666666666666666,
+      "no_atom_rate": 0.9166666666666666,
+      "unsupported_empty": 0,
+      "fallback_scopes": 0,
+      "adapter_received": true,
+      "allocation_compliant": true,
+      "subsets": {
+        "cross_language": {
+          "n": 2,
+          "candidate_coverage": 0.6666666666666667,
+          "final_coverage": 0.6666666666666667,
+          "final_complete": 0.5
+        }
+      }
+    },
+    {
+      "dataset": "stress_grouped",
+      "chunker": "structure-v2",
+      "method": "dense",
+      "queries": 4,
+      "answerable": 3,
+      "candidate_coverage": 0.7777777777777778,
+      "candidate_complete": 0.6666666666666666,
+      "candidate_document_recall": 1.0,
+      "final_coverage": 0.7777777777777778,
+      "final_complete": 0.6666666666666666,
+      "final_document_recall": 1.0,
+      "tokens": {
+        "mean": 939.25,
+        "median": 941.5,
+        "p95": 949.25,
+        "max": 950
+      },
+      "fragments": {
+        "mean": 8,
+        "median": 8.0,
+        "p95": 8.0,
+        "max": 8
+      },
+      "irrelevant_rate": 0.78125,
+      "no_atom_rate": 0.90625,
+      "unsupported_empty": 0,
+      "fallback_scopes": 0,
+      "adapter_received": true,
+      "allocation_compliant": true,
+      "subsets": {
+        "cross_language": {
+          "n": 2,
+          "candidate_coverage": 0.6666666666666667,
+          "final_coverage": 0.6666666666666667,
+          "final_complete": 0.5
+        }
+      }
+    },
+    {
+      "dataset": "stress_grouped",
+      "chunker": "structure-v2",
+      "method": "hierarchical",
+      "queries": 4,
+      "answerable": 3,
+      "candidate_coverage": 0.7777777777777778,
+      "candidate_complete": 0.6666666666666666,
+      "candidate_document_recall": 1.0,
+      "final_coverage": 0.7777777777777778,
+      "final_complete": 0.6666666666666666,
+      "final_document_recall": 1.0,
+      "tokens": {
+        "mean": 955.75,
+        "median": 964.0,
+        "p95": 970.55,
+        "max": 971
+      },
+      "fragments": {
+        "mean": 8,
+        "median": 8.0,
+        "p95": 8.0,
+        "max": 8
+      },
+      "irrelevant_rate": 0.6875,
+      "no_atom_rate": 0.90625,
+      "unsupported_empty": 0,
+      "fallback_scopes": 0,
+      "adapter_received": true,
+      "allocation_compliant": true,
+      "subsets": {
+        "cross_language": {
+          "n": 2,
+          "candidate_coverage": 0.6666666666666667,
+          "final_coverage": 0.6666666666666667,
+          "final_complete": 0.5
+        }
+      }
+    }
+  ],
+  "resources": [
+    {
+      "dataset": "baseline_v1",
+      "chunker": "legacy",
+      "chunks": 16,
+      "registry_serialized_repr_bytes": 3123,
+      "index_and_registry_build_ms": 2323.9380000013625,
+      "registry_build_ms_traced": 1.9660999969346449,
+      "registry_python_peak_bytes": 13307,
+      "rss_before": {
+        "working_set_bytes": 272130048,
+        "peak_working_set_bytes": 935968768
+      },
+      "rss_after_build": {
+        "working_set_bytes": 342429696,
+        "peak_working_set_bytes": 935968768
+      },
+      "rss_after_warm": {
+        "working_set_bytes": 343597056,
+        "peak_working_set_bytes": 935968768
+      },
+      "index_bytes": 1331528
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "structure-v2",
+      "chunks": 16,
+      "registry_serialized_repr_bytes": 3475,
+      "index_and_registry_build_ms": 143.16980000876356,
+      "registry_build_ms_traced": 2.333199998247437,
+      "registry_python_peak_bytes": 14757,
+      "rss_before": {
+        "working_set_bytes": 332369920,
+        "peak_working_set_bytes": 935968768
+      },
+      "rss_after_build": {
+        "working_set_bytes": 343871488,
+        "peak_working_set_bytes": 935968768
+      },
+      "rss_after_warm": {
+        "working_set_bytes": 344727552,
+        "peak_working_set_bytes": 935968768
+      },
+      "index_bytes": 1360200
+    },
+    {
+      "dataset": "hard_cases_v1",
+      "chunker": "legacy",
+      "chunks": 34,
+      "registry_serialized_repr_bytes": 5565,
+      "index_and_registry_build_ms": 151.41429999493994,
+      "registry_build_ms_traced": 2.769699989585206,
+      "registry_python_peak_bytes": 18123,
+      "rss_before": {
+        "working_set_bytes": 333336576,
+        "peak_working_set_bytes": 935968768
+      },
+      "rss_after_build": {
+        "working_set_bytes": 345292800,
+        "peak_working_set_bytes": 935968768
+      },
+      "rss_after_warm": {
+        "working_set_bytes": 345931776,
+        "peak_working_set_bytes": 935968768
+      },
+      "index_bytes": 1491272
+    },
+    {
+      "dataset": "hard_cases_v1",
+      "chunker": "structure-v2",
+      "chunks": 26,
+      "registry_serialized_repr_bytes": 5072,
+      "index_and_registry_build_ms": 139.09199999761768,
+      "registry_build_ms_traced": 3.1310000049415976,
+      "registry_python_peak_bytes": 16654,
+      "rss_before": {
+        "working_set_bytes": 334573568,
+        "peak_working_set_bytes": 935968768
+      },
+      "rss_after_build": {
+        "working_set_bytes": 345526272,
+        "peak_working_set_bytes": 935968768
+      },
+      "rss_after_warm": {
+        "working_set_bytes": 346214400,
+        "peak_working_set_bytes": 935968768
+      },
+      "index_bytes": 1483080
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "legacy",
+      "chunks": 58,
+      "registry_serialized_repr_bytes": 9436,
+      "index_and_registry_build_ms": 157.41699999489356,
+      "registry_build_ms_traced": 4.577899992000312,
+      "registry_python_peak_bytes": 28825,
+      "rss_before": {
+        "working_set_bytes": 334819328,
+        "peak_working_set_bytes": 935968768
+      },
+      "rss_after_build": {
+        "working_set_bytes": 345575424,
+        "peak_working_set_bytes": 935968768
+      },
+      "rss_after_warm": {
+        "working_set_bytes": 346398720,
+        "peak_working_set_bytes": 935968768
+      },
+      "index_bytes": 1618248
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "structure-v2",
+      "chunks": 41,
+      "registry_serialized_repr_bytes": 8015,
+      "index_and_registry_build_ms": 155.85410001222044,
+      "registry_build_ms_traced": 4.656199991586618,
+      "registry_python_peak_bytes": 24776,
+      "rss_before": {
+        "working_set_bytes": 335020032,
+        "peak_working_set_bytes": 935968768
+      },
+      "rss_after_build": {
+        "working_set_bytes": 347209728,
+        "peak_working_set_bytes": 935968768
+      },
+      "rss_after_warm": {
+        "working_set_bytes": 348233728,
+        "peak_working_set_bytes": 935968768
+      },
+      "index_bytes": 1589576
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "legacy",
+      "chunks": 35,
+      "registry_serialized_repr_bytes": 5691,
+      "index_and_registry_build_ms": 158.75859999505337,
+      "registry_build_ms_traced": 2.8713999927276745,
+      "registry_python_peak_bytes": 18508,
+      "rss_before": {
+        "working_set_bytes": 336879616,
+        "peak_working_set_bytes": 935968768
+      },
+      "rss_after_build": {
+        "working_set_bytes": 347979776,
+        "peak_working_set_bytes": 935968768
+      },
+      "rss_after_warm": {
+        "working_set_bytes": 348766208,
+        "peak_working_set_bytes": 935968768
+      },
+      "index_bytes": 1442120
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "structure-v2",
+      "chunks": 27,
+      "registry_serialized_repr_bytes": 5184,
+      "index_and_registry_build_ms": 142.90569999138825,
+      "registry_build_ms_traced": 3.0580000020563602,
+      "registry_python_peak_bytes": 18035,
+      "rss_before": {
+        "working_set_bytes": 337383424,
+        "peak_working_set_bytes": 935968768
+      },
+      "rss_after_build": {
+        "working_set_bytes": 347987968,
+        "peak_working_set_bytes": 935968768
+      },
+      "rss_after_warm": {
+        "working_set_bytes": 348717056,
+        "peak_working_set_bytes": 935968768
+      },
+      "index_bytes": 1429832
+    },
+    {
+      "dataset": "stress_1036",
+      "chunker": "legacy",
+      "chunks": 1036,
+      "registry_serialized_repr_bytes": 175702,
+      "index_and_registry_build_ms": 628.9216000004672,
+      "registry_build_ms_traced": 60.97629999567289,
+      "registry_python_peak_bytes": 684970,
+      "rss_before": {
+        "working_set_bytes": 337321984,
+        "peak_working_set_bytes": 935968768
+      },
+      "rss_after_build": {
+        "working_set_bytes": 356507648,
+        "peak_working_set_bytes": 935968768
+      },
+      "rss_after_warm": {
+        "working_set_bytes": 358027264,
+        "peak_working_set_bytes": 935968768
+      },
+      "index_bytes": 10964096
+    },
+    {
+      "dataset": "stress_1036",
+      "chunker": "structure-v2",
+      "chunks": 1035,
+      "registry_serialized_repr_bytes": 175816,
+      "index_and_registry_build_ms": 622.7724000054877,
+      "registry_build_ms_traced": 61.22670001059305,
+      "registry_python_peak_bytes": 661880,
+      "rss_before": {
+        "working_set_bytes": 347627520,
+        "peak_working_set_bytes": 935968768
+      },
+      "rss_after_build": {
+        "working_set_bytes": 363098112,
+        "peak_working_set_bytes": 935968768
+      },
+      "rss_after_warm": {
+        "working_set_bytes": 360075264,
+        "peak_working_set_bytes": 935968768
+      },
+      "index_bytes": 10976418
+    },
+    {
+      "dataset": "hierarchical_long_v1",
+      "chunker": "legacy",
+      "chunks": 84,
+      "registry_serialized_repr_bytes": 11391,
+      "index_and_registry_build_ms": 164.79479998815805,
+      "registry_build_ms_traced": 5.828800000017509,
+      "registry_python_peak_bytes": 32398,
+      "rss_before": {
+        "working_set_bytes": 342958080,
+        "peak_working_set_bytes": 935968768
+      },
+      "rss_after_build": {
+        "working_set_bytes": 357867520,
+        "peak_working_set_bytes": 935968768
+      },
+      "rss_after_warm": {
+        "working_set_bytes": 358330368,
+        "peak_working_set_bytes": 935968768
+      },
+      "index_bytes": 1765704
+    },
+    {
+      "dataset": "hierarchical_long_v1",
+      "chunker": "structure-v2",
+      "chunks": 84,
+      "registry_serialized_repr_bytes": 13239,
+      "index_and_registry_build_ms": 194.06500000332016,
+      "registry_build_ms_traced": 8.23030000901781,
+      "registry_python_peak_bytes": 33680,
+      "rss_before": {
+        "working_set_bytes": 346955776,
+        "peak_working_set_bytes": 935968768
+      },
+      "rss_after_build": {
+        "working_set_bytes": 355471360,
+        "peak_working_set_bytes": 935968768
+      },
+      "rss_after_warm": {
+        "working_set_bytes": 357298176,
+        "peak_working_set_bytes": 935968768
+      },
+      "index_bytes": 1909064
+    }
+  ],
+  "exact_stress_diagnostics": [
+    {
+      "dataset": "stress_1036",
+      "chunker": "legacy",
+      "query_id": "s14",
+      "exact_atom_ranks": [
+        1,
+        66,
+        66
+      ],
+      "exact_top10_ids": [
+        "global:atlas.md:2:0",
+        "global:atlas.md:0:0",
+        "global:atlas.md:1:0",
+        "stress-978",
+        "stress-34",
+        "stress-290",
+        "stress-722",
+        "stress-802",
+        "stress-354",
+        "stress-130"
+      ],
+      "native_top10_ids": [
+        "global:atlas.md:2:0",
+        "global:atlas.md:0:0",
+        "global:atlas.md:1:0",
+        "stress-978",
+        "stress-34",
+        "stress-290",
+        "stress-722",
+        "stress-802",
+        "stress-354",
+        "stress-130"
+      ],
+      "native_overlap_exact_top10": 10
+    },
+    {
+      "dataset": "stress_1036",
+      "chunker": "legacy",
+      "query_id": "s15",
+      "exact_atom_ranks": [
+        1,
+        1
+      ],
+      "exact_top10_ids": [
+        "global:atlas.md:9:0",
+        "global:atlas.md:0:0",
+        "global:atlas.md:2:0",
+        "global:atlas.md:1:0",
+        "global:atlas.md:10:0",
+        "stress-404",
+        "stress-978",
+        "stress-802",
+        "stress-82",
+        "stress-66"
+      ],
+      "native_top10_ids": [
+        "global:atlas.md:9:0",
+        "global:atlas.md:0:0",
+        "global:atlas.md:2:0",
+        "global:atlas.md:1:0",
+        "stress-978",
+        "stress-802",
+        "stress-82",
+        "stress-66",
+        "stress-610",
+        "stress-88"
+      ],
+      "native_overlap_exact_top10": 8
+    },
+    {
+      "dataset": "stress_1036",
+      "chunker": "legacy",
+      "query_id": "s16",
+      "exact_atom_ranks": [
+        3,
+        3
+      ],
+      "exact_top10_ids": [
+        "global:atlas.md:0:0",
+        "global:atlas.md:1:0",
+        "global:atlas.md:10:0",
+        "global:atlas.md:2:0",
+        "stress-126",
+        "stress-121",
+        "stress-124",
+        "stress-114",
+        "stress-92",
+        "stress-1014"
+      ],
+      "native_top10_ids": [
+        "global:atlas.md:0:0",
+        "global:atlas.md:1:0",
+        "global:atlas.md:10:0",
+        "global:atlas.md:2:0",
+        "stress-126",
+        "stress-121",
+        "stress-124",
+        "stress-114",
+        "stress-92",
+        "stress-1014"
+      ],
+      "native_overlap_exact_top10": 10
+    },
+    {
+      "dataset": "stress_1036",
+      "chunker": "legacy",
+      "query_id": "s17",
+      "exact_atom_ranks": [],
+      "exact_top10_ids": [
+        "global:atlas.md:0:0",
+        "global:atlas.md:1:0",
+        "global:atlas.md:10:0",
+        "stress-94",
+        "stress-85",
+        "stress-88",
+        "stress-81",
+        "stress-1013",
+        "stress-404",
+        "stress-910"
+      ],
+      "native_top10_ids": [
+        "global:atlas.md:0:0",
+        "global:atlas.md:1:0",
+        "global:atlas.md:10:0",
+        "stress-94",
+        "stress-85",
+        "stress-88",
+        "stress-81",
+        "stress-1013",
+        "stress-910",
+        "stress-80"
+      ],
+      "native_overlap_exact_top10": 9
+    },
+    {
+      "dataset": "stress_1036",
+      "chunker": "structure-v2",
+      "query_id": "s14",
+      "exact_atom_ranks": [
+        1,
+        66,
+        66
+      ],
+      "exact_top10_ids": [
+        "global:atlas.md:structure-v2:1",
+        "global:atlas.md:structure-v2:0",
+        "stress-978",
+        "stress-34",
+        "stress-290",
+        "stress-722",
+        "stress-802",
+        "stress-354",
+        "stress-130",
+        "stress-37"
+      ],
+      "native_top10_ids": [
+        "global:atlas.md:structure-v2:1",
+        "stress-978",
+        "stress-34",
+        "stress-290",
+        "stress-722",
+        "stress-802",
+        "stress-354",
+        "stress-130",
+        "stress-37",
+        "stress-146"
+      ],
+      "native_overlap_exact_top10": 9
+    },
+    {
+      "dataset": "stress_1036",
+      "chunker": "structure-v2",
+      "query_id": "s15",
+      "exact_atom_ranks": [
+        1,
+        1
+      ],
+      "exact_top10_ids": [
+        "global:atlas.md:structure-v2:8",
+        "global:atlas.md:structure-v2:1",
+        "global:atlas.md:structure-v2:0",
+        "global:atlas.md:structure-v2:9",
+        "stress-404",
+        "stress-978",
+        "stress-802",
+        "stress-82",
+        "global:atlas.md:structure-v2:10",
+        "stress-66"
+      ],
+      "native_top10_ids": [
+        "global:atlas.md:structure-v2:8",
+        "global:atlas.md:structure-v2:1",
+        "global:atlas.md:structure-v2:9",
+        "stress-404",
+        "stress-978",
+        "stress-802",
+        "stress-82",
+        "global:atlas.md:structure-v2:10",
+        "stress-66",
+        "stress-610"
+      ],
+      "native_overlap_exact_top10": 9
+    },
+    {
+      "dataset": "stress_1036",
+      "chunker": "structure-v2",
+      "query_id": "s16",
+      "exact_atom_ranks": [
+        3,
+        3
+      ],
+      "exact_top10_ids": [
+        "global:atlas.md:structure-v2:0",
+        "global:atlas.md:structure-v2:1",
+        "global:atlas.md:structure-v2:9",
+        "stress-126",
+        "stress-121",
+        "stress-124",
+        "stress-114",
+        "stress-92",
+        "stress-1014",
+        "stress-910"
+      ],
+      "native_top10_ids": [
+        "global:atlas.md:structure-v2:0",
+        "global:atlas.md:structure-v2:9",
+        "stress-126",
+        "stress-121",
+        "stress-124",
+        "stress-114",
+        "stress-92",
+        "stress-1014",
+        "stress-910",
+        "stress-246"
+      ],
+      "native_overlap_exact_top10": 9
+    },
+    {
+      "dataset": "stress_1036",
+      "chunker": "structure-v2",
+      "query_id": "s17",
+      "exact_atom_ranks": [],
+      "exact_top10_ids": [
+        "global:atlas.md:structure-v2:0",
+        "global:atlas.md:structure-v2:9",
+        "global:atlas.md:structure-v2:1",
+        "stress-94",
+        "stress-85",
+        "stress-88",
+        "stress-81",
+        "stress-1013",
+        "stress-404",
+        "stress-910"
+      ],
+      "native_top10_ids": [
+        "stress-94",
+        "stress-85",
+        "stress-88",
+        "stress-81",
+        "stress-1013",
+        "stress-910",
+        "stress-80",
+        "stress-90",
+        "stress-1000",
+        "stress-87"
+      ],
+      "native_overlap_exact_top10": 6
+    },
+    {
+      "dataset": "stress_grouped",
+      "chunker": "legacy",
+      "query_id": "s14",
+      "exact_atom_ranks": [
+        1,
+        66,
+        66
+      ],
+      "exact_top10_ids": [
+        "global:atlas.md:2:0",
+        "global:atlas.md:0:0",
+        "global:atlas.md:1:0",
+        "stress-978",
+        "stress-34",
+        "stress-290",
+        "stress-722",
+        "stress-802",
+        "stress-354",
+        "stress-130"
+      ],
+      "native_top10_ids": [
+        "global:atlas.md:2:0",
+        "global:atlas.md:0:0",
+        "global:atlas.md:1:0",
+        "stress-978",
+        "stress-34",
+        "stress-290",
+        "stress-722",
+        "stress-802",
+        "stress-354",
+        "stress-130"
+      ],
+      "native_overlap_exact_top10": 10
+    },
+    {
+      "dataset": "stress_grouped",
+      "chunker": "legacy",
+      "query_id": "s15",
+      "exact_atom_ranks": [
+        1,
+        1
+      ],
+      "exact_top10_ids": [
+        "global:atlas.md:9:0",
+        "global:atlas.md:0:0",
+        "global:atlas.md:2:0",
+        "global:atlas.md:1:0",
+        "global:atlas.md:10:0",
+        "stress-404",
+        "stress-978",
+        "stress-802",
+        "stress-82",
+        "stress-66"
+      ],
+      "native_top10_ids": [
+        "global:atlas.md:9:0",
+        "global:atlas.md:0:0",
+        "global:atlas.md:2:0",
+        "global:atlas.md:1:0",
+        "stress-978",
+        "stress-802",
+        "stress-82",
+        "stress-66",
+        "stress-610",
+        "stress-88"
+      ],
+      "native_overlap_exact_top10": 8
+    },
+    {
+      "dataset": "stress_grouped",
+      "chunker": "legacy",
+      "query_id": "s16",
+      "exact_atom_ranks": [
+        3,
+        3
+      ],
+      "exact_top10_ids": [
+        "global:atlas.md:0:0",
+        "global:atlas.md:1:0",
+        "global:atlas.md:10:0",
+        "global:atlas.md:2:0",
+        "stress-126",
+        "stress-121",
+        "stress-124",
+        "stress-114",
+        "stress-92",
+        "stress-1014"
+      ],
+      "native_top10_ids": [
+        "global:atlas.md:0:0",
+        "global:atlas.md:1:0",
+        "global:atlas.md:10:0",
+        "global:atlas.md:2:0",
+        "stress-126",
+        "stress-121",
+        "stress-124",
+        "stress-114",
+        "stress-92",
+        "stress-1014"
+      ],
+      "native_overlap_exact_top10": 10
+    },
+    {
+      "dataset": "stress_grouped",
+      "chunker": "legacy",
+      "query_id": "s17",
+      "exact_atom_ranks": [],
+      "exact_top10_ids": [
+        "global:atlas.md:0:0",
+        "global:atlas.md:1:0",
+        "global:atlas.md:10:0",
+        "stress-94",
+        "stress-85",
+        "stress-88",
+        "stress-81",
+        "stress-1013",
+        "stress-404",
+        "stress-910"
+      ],
+      "native_top10_ids": [
+        "global:atlas.md:0:0",
+        "global:atlas.md:1:0",
+        "global:atlas.md:10:0",
+        "stress-94",
+        "stress-85",
+        "stress-88",
+        "stress-81",
+        "stress-1013",
+        "stress-910",
+        "stress-80"
+      ],
+      "native_overlap_exact_top10": 9
+    },
+    {
+      "dataset": "stress_grouped",
+      "chunker": "structure-v2",
+      "query_id": "s14",
+      "exact_atom_ranks": [
+        1,
+        66,
+        66
+      ],
+      "exact_top10_ids": [
+        "global:atlas.md:structure-v2:1",
+        "global:atlas.md:structure-v2:0",
+        "stress-978",
+        "stress-34",
+        "stress-290",
+        "stress-722",
+        "stress-802",
+        "stress-354",
+        "stress-130",
+        "stress-37"
+      ],
+      "native_top10_ids": [
+        "global:atlas.md:structure-v2:1",
+        "stress-978",
+        "stress-34",
+        "stress-290",
+        "stress-722",
+        "stress-802",
+        "stress-354",
+        "stress-130",
+        "stress-37",
+        "stress-146"
+      ],
+      "native_overlap_exact_top10": 9
+    },
+    {
+      "dataset": "stress_grouped",
+      "chunker": "structure-v2",
+      "query_id": "s15",
+      "exact_atom_ranks": [
+        1,
+        1
+      ],
+      "exact_top10_ids": [
+        "global:atlas.md:structure-v2:8",
+        "global:atlas.md:structure-v2:1",
+        "global:atlas.md:structure-v2:0",
+        "global:atlas.md:structure-v2:9",
+        "stress-404",
+        "stress-978",
+        "stress-802",
+        "stress-82",
+        "global:atlas.md:structure-v2:10",
+        "stress-66"
+      ],
+      "native_top10_ids": [
+        "global:atlas.md:structure-v2:8",
+        "global:atlas.md:structure-v2:1",
+        "global:atlas.md:structure-v2:9",
+        "stress-404",
+        "stress-978",
+        "stress-802",
+        "stress-82",
+        "global:atlas.md:structure-v2:10",
+        "stress-66",
+        "stress-610"
+      ],
+      "native_overlap_exact_top10": 9
+    },
+    {
+      "dataset": "stress_grouped",
+      "chunker": "structure-v2",
+      "query_id": "s16",
+      "exact_atom_ranks": [
+        3,
+        3
+      ],
+      "exact_top10_ids": [
+        "global:atlas.md:structure-v2:0",
+        "global:atlas.md:structure-v2:1",
+        "global:atlas.md:structure-v2:9",
+        "stress-126",
+        "stress-121",
+        "stress-124",
+        "stress-114",
+        "stress-92",
+        "stress-1014",
+        "stress-910"
+      ],
+      "native_top10_ids": [
+        "global:atlas.md:structure-v2:0",
+        "global:atlas.md:structure-v2:9",
+        "stress-126",
+        "stress-121",
+        "stress-124",
+        "stress-114",
+        "stress-92",
+        "stress-1014",
+        "stress-910",
+        "stress-246"
+      ],
+      "native_overlap_exact_top10": 9
+    },
+    {
+      "dataset": "stress_grouped",
+      "chunker": "structure-v2",
+      "query_id": "s17",
+      "exact_atom_ranks": [],
+      "exact_top10_ids": [
+        "global:atlas.md:structure-v2:0",
+        "global:atlas.md:structure-v2:9",
+        "global:atlas.md:structure-v2:1",
+        "stress-94",
+        "stress-85",
+        "stress-88",
+        "stress-81",
+        "stress-1013",
+        "stress-404",
+        "stress-910"
+      ],
+      "native_top10_ids": [
+        "stress-94",
+        "stress-85",
+        "stress-88",
+        "stress-81",
+        "stress-1013",
+        "stress-910",
+        "stress-80",
+        "stress-90",
+        "stress-1000",
+        "stress-87"
+      ],
+      "native_overlap_exact_top10": 6
+    }
+  ],
+  "controls": {
+    "same_seeds_both_methods": true,
+    "grouped_control_same_native_seed_ids": true
+  },
+  "row_count": 436,
+  "adapter_replays": 436,
+  "allocation_violations": 0,
+  "max_scope_candidates": 10,
+  "max_scope_tokens": 996
+}

@@ -1,0 +1,184 @@
+{
+  "same_seeds_controls": {
+    "same_seeds_both_methods": true,
+    "grouped_control_same_native_seed_ids": true
+  },
+  "prior_pairs_checked": 190,
+  "prior_native_d10_differences": [
+    {
+      "dataset": "hard_cases_v1",
+      "chunker": "structure-v2",
+      "query_id": "h07",
+      "prior": {
+        "global": [
+          "global:recovery.md:structure-v2:1",
+          "global:recovery.md:structure-v2:0",
+          "global:firmware.md:structure-v2:0",
+          "global:unusual.md:structure-v2:0",
+          "global:unusual.md:structure-v2:2",
+          "global:startup.md:structure-v2:0",
+          "global:firmware.md:structure-v2:4",
+          "global:unusual.md:structure-v2:1",
+          "global:polish.md:structure-v2:0",
+          "global:startup.md:structure-v2:4"
+        ]
+      },
+      "current": {
+        "global": [
+          "global:recovery.md:structure-v2:1",
+          "global:recovery.md:structure-v2:0",
+          "global:firmware.md:structure-v2:0",
+          "global:unusual.md:structure-v2:0",
+          "global:unusual.md:structure-v2:2",
+          "global:startup.md:structure-v2:0",
+          "global:firmware.md:structure-v2:4",
+          "global:unusual.md:structure-v2:1",
+          "global:polish.md:structure-v2:0",
+          "global:startup.md:structure-v2:3"
+        ]
+      },
+      "prior_coverage": 1.0,
+      "current_coverage": 1.0
+    },
+    {
+      "dataset": "stress_1036",
+      "chunker": "legacy",
+      "query_id": "s14",
+      "prior": {
+        "global": [
+          "global:atlas.md:2:0",
+          "stress-978",
+          "stress-34",
+          "stress-290",
+          "stress-722",
+          "stress-802",
+          "stress-354",
+          "stress-130",
+          "stress-37",
+          "stress-146"
+        ]
+      },
+      "current": {
+        "global": [
+          "global:atlas.md:2:0",
+          "global:atlas.md:0:0",
+          "global:atlas.md:1:0",
+          "stress-978",
+          "stress-34",
+          "stress-290",
+          "stress-722",
+          "stress-802",
+          "stress-354",
+          "stress-130"
+        ]
+      },
+      "prior_coverage": 0.33333333333333337,
+      "current_coverage": 0.33333333333333337
+    },
+    {
+      "dataset": "stress_1036",
+      "chunker": "legacy",
+      "query_id": "s15",
+      "prior": {
+        "global": [
+          "global:atlas.md:9:0",
+          "global:atlas.md:2:0",
+          "global:atlas.md:10:0",
+          "stress-404",
+          "stress-978",
+          "stress-802",
+          "stress-82",
+          "stress-66",
+          "stress-610",
+          "stress-88"
+        ]
+      },
+      "current": {
+        "global": [
+          "global:atlas.md:9:0",
+          "global:atlas.md:0:0",
+          "global:atlas.md:2:0",
+          "global:atlas.md:1:0",
+          "stress-978",
+          "stress-802",
+          "stress-82",
+          "stress-66",
+          "stress-610",
+          "stress-88"
+        ]
+      },
+      "prior_coverage": 1.0,
+      "current_coverage": 1.0
+    },
+    {
+      "dataset": "stress_1036",
+      "chunker": "legacy",
+      "query_id": "s16",
+      "prior": {
+        "global": [
+          "global:atlas.md:10:0",
+          "global:atlas.md:2:0",
+          "stress-126",
+          "stress-121",
+          "stress-124",
+          "stress-114",
+          "stress-92",
+          "stress-1014",
+          "stress-910",
+          "stress-246"
+        ]
+      },
+      "current": {
+        "global": [
+          "global:atlas.md:0:0",
+          "global:atlas.md:1:0",
+          "global:atlas.md:10:0",
+          "global:atlas.md:2:0",
+          "stress-126",
+          "stress-121",
+          "stress-124",
+          "stress-114",
+          "stress-92",
+          "stress-1014"
+        ]
+      },
+      "prior_coverage": 1.0,
+      "current_coverage": 1.0
+    },
+    {
+      "dataset": "stress_1036",
+      "chunker": "legacy",
+      "query_id": "s17",
+      "prior": {
+        "global": [
+          "stress-94",
+          "stress-85",
+          "stress-88",
+          "stress-81",
+          "stress-1013",
+          "stress-910",
+          "stress-80",
+          "stress-90",
+          "stress-1000",
+          "stress-87"
+        ]
+      },
+      "current": {
+        "global": [
+          "global:atlas.md:0:0",
+          "global:atlas.md:1:0",
+          "global:atlas.md:10:0",
+          "stress-94",
+          "stress-85",
+          "stress-88",
+          "stress-81",
+          "stress-1013",
+          "stress-910",
+          "stress-80"
+        ]
+      },
+      "prior_coverage": null,
+      "current_coverage": null
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "date": "2026-11-09",
+  "phase": "after pre-score label-completeness audit; before any reranker scoring",
+  "sha256": {
+    "dataset.json": "ebd693721105a70bd6310106020f84ba8f1b043ac71e64aaa11aed362374cdf3",
+    "global/async.md": "0162df7654d8bd0d803c183dd71d9d5bc0deb827e47e3e0d4a30789a606eb7fe",
+    "global/backup.md": "9708d29616d2d178c1f651e59c313cda9e0290e1df6f2391a0c32d1521a38546",
+    "global/calibration-old.md": "e887a3c1116d80f701f5c6488b79a5aff3e11604c15a6500d4462a2b9260b152",
+    "global/calibration.md": "4354e34f49762ac0de6a2c34284b01016f00a200da869fee729c3debad2c0c49",
+    "global/can.md": "7e0443322d3e0731fc2006a06a685a1da87d4b625e83e3c175ef461d711ea0af",
+    "global/diagnostic-log.md": "f5db07daacb45759e832817531c9870e7cb03f43a7805ba5f1d50bc52cdf1de8",
+    "global/foreign-keys.md": "7aa5fe4ea01a9b4d6959122519d1e1c06ead3e93bfbe039fc3ea792e26c08385",
+    "global/gateway-lab.md": "c0d51cf740cbed4d403ee95245d60f99abd8d18591bfc2be4d08219e74297d6b",
+    "global/gateway-prod.md": "3c5e690dca5ee195e7f16945490651455404a8bcf454552fbacd99662588d9a0",
+    "global/ini.md": "7f2a218a04b789b9c52c00899ecafa2425fb8dd57070169c89a67483b56c7b00",
+    "global/locks.md": "467f95abd1f0e03a93e7b67b0e27f6bb136c2d50a88381084c96974ce3ffe7be",
+    "global/process.md": "cd97cde4355db1eef4864597651253f5f24bb37319ee9a3215063044c92d44ac",
+    "global/release.md": "261ff6f1fdb66a83f0fff8094370423adc8ff4ffe69401147e01c535be10312f",
+    "global/tcp.md": "d19adffa85c339e6291103be68e2156ba8f1cbcc4923e773f5fd872603e83c10",
+    "global/timing.md": "a6d44a77b79ac38935893d5109e45d6c862b387cc45472960a99f9f5bc4453ac",
+    "project/site-archive.md": "c8294551d136f602c00e7f224971a5da66ae2e68c1bb3bee60ee845825b8323e",
+    "project/site-profile.md": "d7a8630b0c64b3a69ce83f1f78f7f58be7da0ce4dfbf689167038b91833bfba6",
+    "README.md": "f037d9b8f51f6abbbeb6dfd97594e9aabb50a0c911d19a869f8fdd081cb7045f"
+  },
+  "label_review": "u21 completeness audit before first model scoring; no retrieval scores inspected"
+}

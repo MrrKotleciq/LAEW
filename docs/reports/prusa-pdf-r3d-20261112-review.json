@@ -1,0 +1,135 @@
+{
+  "task": "3C.2A-R3D",
+  "status": "recommendation-prepared-not-admitted-not-frozen",
+  "r3c_root": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261111-r3c-v2",
+  "r3d_root": "C:\\Users\\korne\\LAEW-corpus\\stage-2b2-real-world-20261112-r3d-v1",
+  "integrity_before": {
+    "verified": true,
+    "r3c_files": 750,
+    "units": 24,
+    "unchanged_text_units": 18,
+    "inventory_sha256": "c63e3eddfc17b9c04f420d1ec3cb2e1c7196b3ffaeae9346a58fcadf600a93aa",
+    "prior_inputs": {
+      "verified": true,
+      "r3b_files": 203,
+      "inventory_sha256": "e19abd2bf1407fff11f87e2ffe4fee9a1632905ad11852a9c1b21e6a6e714bdd",
+      "prior_inputs": {
+        "verified": true,
+        "r3a_files": 75,
+        "inventory_sha256": "dd7d52fef9b733912c990aac6215c226841bc65bcf0277dd3677f1d3f6c05dfa",
+        "prior_inputs": {
+          "verified": true,
+          "r2_files": 1297,
+          "accepted_files": 289,
+          "r1_files": 87,
+          "inventory_sha256": "3fc630e9ca60a06223da8ec8198b13f7b3d51c98193271bab61007e2198ce9fb",
+          "scope": "Byte integrity only; no semantic certification"
+        }
+      }
+    },
+    "scope": "Offline byte identity and provenance integrity; no semantic admission"
+  },
+  "observations": 15,
+  "table_observations": 5,
+  "readable_nonextracted_image_observations": 4,
+  "cannot_read_observations": 6,
+  "inherited_unresolved_regions": 9,
+  "proposed_restricted_regions": 10,
+  "human_responses_recorded": 15,
+  "expert_certifications": 0,
+  "fully_semantically_cleared_pages": 0,
+  "inherited_severity_counts": {
+    "Critical": 0,
+    "High": 388,
+    "Medium": 10,
+    "Low": 20
+  },
+  "uninspected_high": 329,
+  "uninspected_medium": 9,
+  "uninspected_low": 20,
+  "freeze_ready": false,
+  "task_3c2b_authorized": false,
+  "automatic_admission": false,
+  "readiness": "Ready for restricted-scope approval review; no full semantic certification. Subsequent labeling needs authorization and targeted evidence QA.",
+  "outstanding_requirements": [
+    "Approve explicit unavailability/relation limits on ten regions, including the separate XL PDF 83 gate; no repeat of the 15 observations is needed.",
+    "Approve retention of all open priorities as unjudged; preserve the exact 329 High page queue and all Medium/Low flags.",
+    "Choose domain/bilingual/second reviewers and scope for later Task 3C.2B; verify all intended evidence spans and warning/condition dependencies before labels are accepted.",
+    "Do not extend five table observations to other components. XL PDF 81 product table is not one of the five user-confirmed tables; its use requires targeted QA.",
+    "For complete sensor/reset, graphical polarity, MMU symbols or PDU identification/operation: qualified targeted review or retain the approved unavailable status; do not reconstruct every graphic.",
+    "Before freeze, recheck source/overlay hashes, revisions/licenses, mixed-language provenance, exclusions and reviewer roles; create a separate approved freeze manifest.",
+    "Later verify all benchmark design quotas, review/label provenance and pilot/sealed separation before dataset seal/indexing; no question/gold artifacts exist in R3D."
+  ],
+  "integrity_after": {
+    "verified": true,
+    "r3c_files": 750,
+    "units": 24,
+    "unchanged_text_units": 18,
+    "inventory_sha256": "c63e3eddfc17b9c04f420d1ec3cb2e1c7196b3ffaeae9346a58fcadf600a93aa",
+    "prior_inputs": {
+      "verified": true,
+      "r3b_files": 203,
+      "inventory_sha256": "e19abd2bf1407fff11f87e2ffe4fee9a1632905ad11852a9c1b21e6a6e714bdd",
+      "prior_inputs": {
+        "verified": true,
+        "r3a_files": 75,
+        "inventory_sha256": "dd7d52fef9b733912c990aac6215c226841bc65bcf0277dd3677f1d3f6c05dfa",
+        "prior_inputs": {
+          "verified": true,
+          "r2_files": 1297,
+          "accepted_files": 289,
+          "r1_files": 87,
+          "inventory_sha256": "3fc630e9ca60a06223da8ec8198b13f7b3d51c98193271bab61007e2198ce9fb",
+          "scope": "Byte integrity only; no semantic certification"
+        }
+      }
+    },
+    "scope": "Offline byte identity and provenance integrity; no semantic admission"
+  },
+  "r3d_inventory_sha256": "07cb927d96d0153681f0034aed8502e46ca0334fcb4e1305b1b0e3a4b90f7d0f",
+  "external_files": [
+    "admission-policy-proposal.json",
+    "human-review-decisions.json",
+    "inherited-availability-register.json",
+    "inherited-mandatory-human-review-gates.json",
+    "inherited-unresolved-risk-register.json",
+    "inherited-warning-applicability-reviewed.json",
+    "page-reconciliation.csv",
+    "r3d-integrity-inventory.json",
+    "readiness.json",
+    "README.md",
+    "restricted-regions.json",
+    "review_prusa_r3d.py",
+    "uninspected-high.json"
+  ],
+  "tool_sha256": "5fe3aa90ecef44c3d6e6bc6137e1486de03a8ca63bb6e35b15f4fe4e54f01390",
+  "tests": {
+    "runner": "scripts/run_isolated.py",
+    "passed": 134,
+    "seconds": 21.41,
+    "files": [
+      "tests/evaluation/test_prusa_pdf_r3d.py",
+      "tests/evaluation/test_prusa_pdf_r3c.py",
+      "tests/evaluation/test_prusa_pdf_r3b.py",
+      "tests/evaluation/test_prusa_pdf_r3a.py",
+      "tests/evaluation/test_prusa_pdf_r2.py",
+      "tests/evaluation/test_prusa_pdf_remediation.py",
+      "tests/evaluation/test_real_world_corpus.py",
+      "tests/unit/test_markdown_chunker.py",
+      "tests/unit/test_contextual_chunker.py"
+    ]
+  },
+  "external_verification": {
+    "verified": true,
+    "r3d_files": 12,
+    "inventory_sha256": "07cb927d96d0153681f0034aed8502e46ca0334fcb4e1305b1b0e3a4b90f7d0f",
+    "source_snapshot_unchanged": true,
+    "observations": 15,
+    "inherited_risks": 418,
+    "uninspected_high": 329,
+    "admitted": false,
+    "frozen": false
+  },
+  "preexisting_files_unchanged": 186,
+  "test_file_sha256": "ec76935223c053afab61d57086ac9c21232bb26dbca53c69cdca1313ee1ccd40"
+}

@@ -1,0 +1,1783 @@
+{
+  "diagnostic_only": true,
+  "synthetic_distractors": 1024,
+  "evidence_chunks": 12,
+  "total_chunks": 1036,
+  "dimensions": 1024,
+  "model": "laew-qwen3-embedding",
+  "corpus_hash": "60a5ace904f0d42446ed8018a223f57cb0ba2930b62efb12285ce2333d4d2ad6",
+  "embedding_seconds": 506.27176669999983,
+  "indexing_seconds": 0.6427326000000448,
+  "index_bytes": 10775680,
+  "rows": [
+    {
+      "query_id": "s14",
+      "no_answer": false,
+      "k": 2,
+      "retrieval_ms": {
+        "mean": 1.9067399999926238,
+        "median": 1.8412499999840293,
+        "p95": 2.2046049999971733,
+        "max": 2.523899999914647
+      },
+      "samples_ms": [
+        2.040699999952267,
+        2.0442000000002736,
+        1.838099999986298,
+        1.8307000000277185,
+        1.9160000001647859,
+        1.8487999998342275,
+        1.7417999999906897,
+        1.7815000001064618,
+        1.8425000000661385,
+        1.8228000001272449,
+        1.9973999999365333,
+        2.523899999914647,
+        2.1878000000015163,
+        1.9145999999636842,
+        1.7244999999093125,
+        1.8305999999483902,
+        1.83999999990192,
+        1.7318000000159373,
+        1.8092000000251574,
+        1.8678999999792723
+      ],
+      "candidate": {
+        "evidence_coverage": 0.33333333333333337,
+        "complete_evidence": false,
+        "document_recall": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "evidence_positions": [
+          1,
+          null,
+          null
+        ],
+        "evidence_reciprocal_rank": 0.3333333333333333,
+        "all_required_documents": true
+      },
+      "eligible": {
+        "evidence_coverage": 0.33333333333333337,
+        "complete_evidence": false,
+        "document_recall": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "evidence_positions": [
+          1,
+          null,
+          null
+        ],
+        "evidence_reciprocal_rank": 0.3333333333333333,
+        "all_required_documents": true
+      },
+      "eligible_count": 2,
+      "selection": {
+        "top2": {
+          "metrics": {
+            "evidence_coverage": 0.33333333333333337,
+            "complete_evidence": false,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              1,
+              null,
+              null
+            ],
+            "evidence_reciprocal_rank": 0.3333333333333333,
+            "all_required_documents": true
+          },
+          "count": 2,
+          "tokens": 147
+        },
+        "ranked_fill": {
+          "metrics": {
+            "evidence_coverage": 0.33333333333333337,
+            "complete_evidence": false,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              1,
+              null,
+              null
+            ],
+            "evidence_reciprocal_rank": 0.3333333333333333,
+            "all_required_documents": true
+          },
+          "count": 2,
+          "tokens": 147
+        },
+        "novelty": {
+          "metrics": {
+            "evidence_coverage": 0.33333333333333337,
+            "complete_evidence": false,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              1,
+              null,
+              null
+            ],
+            "evidence_reciprocal_rank": 0.3333333333333333,
+            "all_required_documents": true
+          },
+          "count": 2,
+          "tokens": 147
+        }
+      }
+    },
+    {
+      "query_id": "s14",
+      "no_answer": false,
+      "k": 5,
+      "retrieval_ms": {
+        "mean": 2.0297099999652346,
+        "median": 1.9755000000714062,
+        "p95": 2.2887349998313766,
+        "max": 2.5496999999177206
+      },
+      "samples_ms": [
+        2.190299999938361,
+        1.926099999991493,
+        1.8308999999590014,
+        1.8325999999433407,
+        1.8129999998564017,
+        1.830100000006496,
+        1.8152000000100088,
+        2.274999999826832,
+        2.5496999999177206,
+        2.2731999999905383,
+        2.1629000000302767,
+        2.0319000000199594,
+        2.200700000003053,
+        1.960600000074919,
+        2.094299999953364,
+        2.107899999828078,
+        1.9075999998676707,
+        1.8986000000040804,
+        1.9032000000152038,
+        1.9904000000678934
+      ],
+      "candidate": {
+        "evidence_coverage": 0.33333333333333337,
+        "complete_evidence": false,
+        "document_recall": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "evidence_positions": [
+          1,
+          null,
+          null
+        ],
+        "evidence_reciprocal_rank": 0.3333333333333333,
+        "all_required_documents": true
+      },
+      "eligible": {
+        "evidence_coverage": 0.33333333333333337,
+        "complete_evidence": false,
+        "document_recall": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "evidence_positions": [
+          1,
+          null,
+          null
+        ],
+        "evidence_reciprocal_rank": 0.3333333333333333,
+        "all_required_documents": true
+      },
+      "eligible_count": 5,
+      "selection": {
+        "top2": {
+          "metrics": {
+            "evidence_coverage": 0.33333333333333337,
+            "complete_evidence": false,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              1,
+              null,
+              null
+            ],
+            "evidence_reciprocal_rank": 0.3333333333333333,
+            "all_required_documents": true
+          },
+          "count": 2,
+          "tokens": 147
+        },
+        "ranked_fill": {
+          "metrics": {
+            "evidence_coverage": 0.33333333333333337,
+            "complete_evidence": false,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              1,
+              null,
+              null
+            ],
+            "evidence_reciprocal_rank": 0.3333333333333333,
+            "all_required_documents": true
+          },
+          "count": 5,
+          "tokens": 480
+        },
+        "novelty": {
+          "metrics": {
+            "evidence_coverage": 0.33333333333333337,
+            "complete_evidence": false,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              1,
+              null,
+              null
+            ],
+            "evidence_reciprocal_rank": 0.3333333333333333,
+            "all_required_documents": true
+          },
+          "count": 3,
+          "tokens": 259
+        }
+      }
+    },
+    {
+      "query_id": "s14",
+      "no_answer": false,
+      "k": 10,
+      "retrieval_ms": {
+        "mean": 2.083944999992582,
+        "median": 2.015050000068186,
+        "p95": 2.5224249999041604,
+        "max": 2.5438000000121974
+      },
+      "samples_ms": [
+        2.03020000003562,
+        2.1138000001883483,
+        1.9197999999960302,
+        2.4289000000408123,
+        2.521299999898474,
+        2.5438000000121974,
+        2.0254000000932137,
+        1.8838999999388761,
+        1.8943000000035681,
+        1.8830999999863707,
+        1.9729999999071879,
+        2.170100000057573,
+        1.9354999999450229,
+        1.9112999998469604,
+        1.8832999999176536,
+        1.8526999999721738,
+        2.173800000036863,
+        2.3360000000138825,
+        2.004700000043158,
+        2.1939999999176507
+      ],
+      "candidate": {
+        "evidence_coverage": 0.33333333333333337,
+        "complete_evidence": false,
+        "document_recall": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "evidence_positions": [
+          1,
+          null,
+          null
+        ],
+        "evidence_reciprocal_rank": 0.3333333333333333,
+        "all_required_documents": true
+      },
+      "eligible": {
+        "evidence_coverage": 0.33333333333333337,
+        "complete_evidence": false,
+        "document_recall": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "evidence_positions": [
+          1,
+          null,
+          null
+        ],
+        "evidence_reciprocal_rank": 0.3333333333333333,
+        "all_required_documents": true
+      },
+      "eligible_count": 10,
+      "selection": {
+        "top2": {
+          "metrics": {
+            "evidence_coverage": 0.33333333333333337,
+            "complete_evidence": false,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              1,
+              null,
+              null
+            ],
+            "evidence_reciprocal_rank": 0.3333333333333333,
+            "all_required_documents": true
+          },
+          "count": 2,
+          "tokens": 147
+        },
+        "ranked_fill": {
+          "metrics": {
+            "evidence_coverage": 0.33333333333333337,
+            "complete_evidence": false,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              1,
+              null,
+              null
+            ],
+            "evidence_reciprocal_rank": 0.3333333333333333,
+            "all_required_documents": true
+          },
+          "count": 9,
+          "tokens": 927
+        },
+        "novelty": {
+          "metrics": {
+            "evidence_coverage": 0.33333333333333337,
+            "complete_evidence": false,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              1,
+              null,
+              null
+            ],
+            "evidence_reciprocal_rank": 0.3333333333333333,
+            "all_required_documents": true
+          },
+          "count": 3,
+          "tokens": 259
+        }
+      }
+    },
+    {
+      "query_id": "s14",
+      "no_answer": false,
+      "k": 20,
+      "retrieval_ms": {
+        "mean": 2.375639999968371,
+        "median": 2.3510999999416526,
+        "p95": 2.7489700001183337,
+        "max": 2.919399999882444
+      },
+      "samples_ms": [
+        2.110399999992296,
+        2.057299999933093,
+        2.5496999999177206,
+        2.5623999999879743,
+        2.342499999940628,
+        2.5316000001112116,
+        2.4387999999362364,
+        2.558299999918745,
+        2.5292000000263215,
+        2.359699999942677,
+        2.2318999999697553,
+        2.1615999999085034,
+        2.1776999999474356,
+        2.919399999882444,
+        2.740000000130749,
+        2.4679999999079882,
+        2.316800000016883,
+        2.1624000000883825,
+        2.139799999895331,
+        2.1552999999130407
+      ],
+      "candidate": {
+        "evidence_coverage": 0.33333333333333337,
+        "complete_evidence": false,
+        "document_recall": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "evidence_positions": [
+          1,
+          null,
+          null
+        ],
+        "evidence_reciprocal_rank": 0.3333333333333333,
+        "all_required_documents": true
+      },
+      "eligible": {
+        "evidence_coverage": 0.33333333333333337,
+        "complete_evidence": false,
+        "document_recall": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "evidence_positions": [
+          1,
+          null,
+          null
+        ],
+        "evidence_reciprocal_rank": 0.3333333333333333,
+        "all_required_documents": true
+      },
+      "eligible_count": 20,
+      "selection": {
+        "top2": {
+          "metrics": {
+            "evidence_coverage": 0.33333333333333337,
+            "complete_evidence": false,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              1,
+              null,
+              null
+            ],
+            "evidence_reciprocal_rank": 0.3333333333333333,
+            "all_required_documents": true
+          },
+          "count": 2,
+          "tokens": 147
+        },
+        "ranked_fill": {
+          "metrics": {
+            "evidence_coverage": 0.33333333333333337,
+            "complete_evidence": false,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              1,
+              null,
+              null
+            ],
+            "evidence_reciprocal_rank": 0.3333333333333333,
+            "all_required_documents": true
+          },
+          "count": 9,
+          "tokens": 927
+        },
+        "novelty": {
+          "metrics": {
+            "evidence_coverage": 0.33333333333333337,
+            "complete_evidence": false,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              1,
+              null,
+              null
+            ],
+            "evidence_reciprocal_rank": 0.3333333333333333,
+            "all_required_documents": true
+          },
+          "count": 3,
+          "tokens": 259
+        }
+      }
+    },
+    {
+      "query_id": "s15",
+      "no_answer": false,
+      "k": 2,
+      "retrieval_ms": {
+        "mean": 1.9171050000068135,
+        "median": 1.8521499998769286,
+        "p95": 2.312210000025061,
+        "max": 2.3826999999982945
+      },
+      "samples_ms": [
+        1.8247999998948217,
+        2.0228000000770407,
+        1.9560999999157502,
+        1.7785999998523039,
+        1.8305000000964355,
+        1.9535999999789055,
+        1.8436999998812098,
+        2.0557000000280823,
+        2.3826999999982945,
+        2.30850000002647,
+        2.073400000199399,
+        1.8605999998726475,
+        1.8417999999655876,
+        1.704600000039136,
+        1.7518000001928158,
+        1.7871000000013737,
+        1.871200000095996,
+        1.803899999913483,
+        1.9506999999521213,
+        1.7400000001543958
+      ],
+      "candidate": {
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "document_recall": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "evidence_positions": [
+          1,
+          1
+        ],
+        "evidence_reciprocal_rank": 1.0,
+        "all_required_documents": true
+      },
+      "eligible": {
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "document_recall": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "evidence_positions": [
+          1,
+          1
+        ],
+        "evidence_reciprocal_rank": 1.0,
+        "all_required_documents": true
+      },
+      "eligible_count": 2,
+      "selection": {
+        "top2": {
+          "metrics": {
+            "evidence_coverage": 1.0,
+            "complete_evidence": true,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              1,
+              1
+            ],
+            "evidence_reciprocal_rank": 1.0,
+            "all_required_documents": true
+          },
+          "count": 2,
+          "tokens": 226
+        },
+        "ranked_fill": {
+          "metrics": {
+            "evidence_coverage": 1.0,
+            "complete_evidence": true,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              1,
+              1
+            ],
+            "evidence_reciprocal_rank": 1.0,
+            "all_required_documents": true
+          },
+          "count": 2,
+          "tokens": 226
+        },
+        "novelty": {
+          "metrics": {
+            "evidence_coverage": 1.0,
+            "complete_evidence": true,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              1,
+              1
+            ],
+            "evidence_reciprocal_rank": 1.0,
+            "all_required_documents": true
+          },
+          "count": 2,
+          "tokens": 226
+        }
+      }
+    },
+    {
+      "query_id": "s15",
+      "no_answer": false,
+      "k": 5,
+      "retrieval_ms": {
+        "mean": 1.94931500001303,
+        "median": 1.9103500000028362,
+        "p95": 2.1512499999175816,
+        "max": 2.1560000000135915
+      },
+      "samples_ms": [
+        1.762200000030134,
+        1.7597000000932894,
+        1.8224000000373053,
+        1.8408999999337539,
+        1.8586000001050706,
+        2.1153999998659856,
+        2.1560000000135915,
+        1.9813000001249748,
+        1.8632000001161941,
+        1.9099999999525608,
+        1.858900000115682,
+        1.8193999999311927,
+        2.1509999999125284,
+        2.115100000082748,
+        2.0681000000877248,
+        2.086100000042279,
+        1.9376999998712563,
+        1.9107000000531116,
+        2.0981999998639367,
+        1.871400000027279
+      ],
+      "candidate": {
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "document_recall": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "evidence_positions": [
+          1,
+          1
+        ],
+        "evidence_reciprocal_rank": 1.0,
+        "all_required_documents": true
+      },
+      "eligible": {
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "document_recall": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "evidence_positions": [
+          1,
+          1
+        ],
+        "evidence_reciprocal_rank": 1.0,
+        "all_required_documents": true
+      },
+      "eligible_count": 5,
+      "selection": {
+        "top2": {
+          "metrics": {
+            "evidence_coverage": 1.0,
+            "complete_evidence": true,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              1,
+              1
+            ],
+            "evidence_reciprocal_rank": 1.0,
+            "all_required_documents": true
+          },
+          "count": 2,
+          "tokens": 226
+        },
+        "ranked_fill": {
+          "metrics": {
+            "evidence_coverage": 1.0,
+            "complete_evidence": true,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              1,
+              1
+            ],
+            "evidence_reciprocal_rank": 1.0,
+            "all_required_documents": true
+          },
+          "count": 5,
+          "tokens": 563
+        },
+        "novelty": {
+          "metrics": {
+            "evidence_coverage": 1.0,
+            "complete_evidence": true,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              1,
+              1
+            ],
+            "evidence_reciprocal_rank": 1.0,
+            "all_required_documents": true
+          },
+          "count": 3,
+          "tokens": 339
+        }
+      }
+    },
+    {
+      "query_id": "s15",
+      "no_answer": false,
+      "k": 10,
+      "retrieval_ms": {
+        "mean": 2.1186650000004192,
+        "median": 2.050650000001042,
+        "p95": 2.5333749999163047,
+        "max": 2.549999999928332
+      },
+      "samples_ms": [
+        2.24619999994502,
+        2.159000000119704,
+        2.549999999928332,
+        2.181099999916114,
+        1.9454999999197753,
+        1.9895000000360596,
+        1.9704000001183886,
+        2.1997999999712192,
+        2.384500000061962,
+        2.3713999999017688,
+        1.9993000000795291,
+        1.8838999999388761,
+        1.886000000013155,
+        1.876999999922191,
+        1.912899999979345,
+        1.9409000001360255,
+        2.2421000001031643,
+        2.0024000000375963,
+        2.0988999999644875,
+        2.5324999999156717
+      ],
+      "candidate": {
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "document_recall": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "evidence_positions": [
+          1,
+          1
+        ],
+        "evidence_reciprocal_rank": 1.0,
+        "all_required_documents": true
+      },
+      "eligible": {
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "document_recall": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "evidence_positions": [
+          1,
+          1
+        ],
+        "evidence_reciprocal_rank": 1.0,
+        "all_required_documents": true
+      },
+      "eligible_count": 10,
+      "selection": {
+        "top2": {
+          "metrics": {
+            "evidence_coverage": 1.0,
+            "complete_evidence": true,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              1,
+              1
+            ],
+            "evidence_reciprocal_rank": 1.0,
+            "all_required_documents": true
+          },
+          "count": 2,
+          "tokens": 226
+        },
+        "ranked_fill": {
+          "metrics": {
+            "evidence_coverage": 1.0,
+            "complete_evidence": true,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              1,
+              1
+            ],
+            "evidence_reciprocal_rank": 1.0,
+            "all_required_documents": true
+          },
+          "count": 8,
+          "tokens": 897
+        },
+        "novelty": {
+          "metrics": {
+            "evidence_coverage": 1.0,
+            "complete_evidence": true,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              1,
+              1
+            ],
+            "evidence_reciprocal_rank": 1.0,
+            "all_required_documents": true
+          },
+          "count": 3,
+          "tokens": 339
+        }
+      }
+    },
+    {
+      "query_id": "s15",
+      "no_answer": false,
+      "k": 20,
+      "retrieval_ms": {
+        "mean": 2.337899999986348,
+        "median": 2.2885500000029424,
+        "p95": 2.649885000028007,
+        "max": 2.9061000000183412
+      },
+      "samples_ms": [
+        2.4181000001135544,
+        2.2010000000136642,
+        2.1679999999832944,
+        2.1518000000924076,
+        2.5028000000020256,
+        2.310099999931481,
+        2.2273999998105865,
+        2.2934999999506545,
+        2.440099999830636,
+        2.55010000000766,
+        2.636400000028516,
+        2.2836000000552303,
+        2.135299999963536,
+        2.468199999839271,
+        2.9061000000183412,
+        2.4448000001484615,
+        2.226000000064232,
+        2.074300000003859,
+        2.1538999999393127,
+        2.166499999930238
+      ],
+      "candidate": {
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "document_recall": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "evidence_positions": [
+          1,
+          1
+        ],
+        "evidence_reciprocal_rank": 1.0,
+        "all_required_documents": true
+      },
+      "eligible": {
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "document_recall": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "evidence_positions": [
+          1,
+          1
+        ],
+        "evidence_reciprocal_rank": 1.0,
+        "all_required_documents": true
+      },
+      "eligible_count": 20,
+      "selection": {
+        "top2": {
+          "metrics": {
+            "evidence_coverage": 1.0,
+            "complete_evidence": true,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              1,
+              1
+            ],
+            "evidence_reciprocal_rank": 1.0,
+            "all_required_documents": true
+          },
+          "count": 2,
+          "tokens": 226
+        },
+        "ranked_fill": {
+          "metrics": {
+            "evidence_coverage": 1.0,
+            "complete_evidence": true,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              1,
+              1
+            ],
+            "evidence_reciprocal_rank": 1.0,
+            "all_required_documents": true
+          },
+          "count": 8,
+          "tokens": 897
+        },
+        "novelty": {
+          "metrics": {
+            "evidence_coverage": 1.0,
+            "complete_evidence": true,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              1,
+              1
+            ],
+            "evidence_reciprocal_rank": 1.0,
+            "all_required_documents": true
+          },
+          "count": 3,
+          "tokens": 339
+        }
+      }
+    },
+    {
+      "query_id": "s16",
+      "no_answer": false,
+      "k": 2,
+      "retrieval_ms": {
+        "mean": 2.2501449999936085,
+        "median": 2.2624499999892578,
+        "p95": 2.473160000079133,
+        "max": 2.6814000000285887
+      },
+      "samples_ms": [
+        2.4003999999422376,
+        2.056600000059916,
+        1.955400000042573,
+        2.2415999999338965,
+        2.2059999998873536,
+        2.412600000070597,
+        2.33210000010331,
+        2.2134999999252614,
+        2.0587999999861495,
+        2.394599999888669,
+        2.2177999999257736,
+        2.3355000000719883,
+        2.283300000044619,
+        2.1824000000378874,
+        1.8822999998064915,
+        1.9856999999774416,
+        2.4622000000817934,
+        2.6814000000285887,
+        2.3831999999401887,
+        2.317500000117434
+      ],
+      "candidate": {
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "document_recall": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "evidence_positions": [
+          2,
+          2
+        ],
+        "evidence_reciprocal_rank": 0.5,
+        "all_required_documents": true
+      },
+      "eligible": {
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "document_recall": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "evidence_positions": [
+          2,
+          2
+        ],
+        "evidence_reciprocal_rank": 0.5,
+        "all_required_documents": true
+      },
+      "eligible_count": 2,
+      "selection": {
+        "top2": {
+          "metrics": {
+            "evidence_coverage": 1.0,
+            "complete_evidence": true,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              2,
+              2
+            ],
+            "evidence_reciprocal_rank": 0.5,
+            "all_required_documents": true
+          },
+          "count": 2,
+          "tokens": 233
+        },
+        "ranked_fill": {
+          "metrics": {
+            "evidence_coverage": 1.0,
+            "complete_evidence": true,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              2,
+              2
+            ],
+            "evidence_reciprocal_rank": 0.5,
+            "all_required_documents": true
+          },
+          "count": 2,
+          "tokens": 233
+        },
+        "novelty": {
+          "metrics": {
+            "evidence_coverage": 1.0,
+            "complete_evidence": true,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              2,
+              2
+            ],
+            "evidence_reciprocal_rank": 0.5,
+            "all_required_documents": true
+          },
+          "count": 2,
+          "tokens": 233
+        }
+      }
+    },
+    {
+      "query_id": "s16",
+      "no_answer": false,
+      "k": 5,
+      "retrieval_ms": {
+        "mean": 2.2143150000147216,
+        "median": 2.183300000183408,
+        "p95": 2.543474999913542,
+        "max": 2.5943000000552274
+      },
+      "samples_ms": [
+        2.229700000043522,
+        2.176400000053036,
+        2.3848000000725733,
+        2.0727000000988482,
+        2.1773999999368243,
+        2.157299999907991,
+        2.0927999999003077,
+        2.189200000202618,
+        2.2169000001213135,
+        2.1966000001611974,
+        2.1709000000100787,
+        2.196500000081869,
+        2.5943000000552274,
+        2.540799999906085,
+        2.251599999908649,
+        2.3604999998951826,
+        2.177400000164198,
+        2.0230999998602783,
+        2.0438999999896623,
+        2.0334999999249703
+      ],
+      "candidate": {
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "document_recall": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "evidence_positions": [
+          2,
+          2
+        ],
+        "evidence_reciprocal_rank": 0.5,
+        "all_required_documents": true
+      },
+      "eligible": {
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "document_recall": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "evidence_positions": [
+          2,
+          2
+        ],
+        "evidence_reciprocal_rank": 0.5,
+        "all_required_documents": true
+      },
+      "eligible_count": 5,
+      "selection": {
+        "top2": {
+          "metrics": {
+            "evidence_coverage": 1.0,
+            "complete_evidence": true,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              2,
+              2
+            ],
+            "evidence_reciprocal_rank": 0.5,
+            "all_required_documents": true
+          },
+          "count": 2,
+          "tokens": 233
+        },
+        "ranked_fill": {
+          "metrics": {
+            "evidence_coverage": 1.0,
+            "complete_evidence": true,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              2,
+              2
+            ],
+            "evidence_reciprocal_rank": 0.5,
+            "all_required_documents": true
+          },
+          "count": 5,
+          "tokens": 567
+        },
+        "novelty": {
+          "metrics": {
+            "evidence_coverage": 1.0,
+            "complete_evidence": true,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              2,
+              2
+            ],
+            "evidence_reciprocal_rank": 0.5,
+            "all_required_documents": true
+          },
+          "count": 3,
+          "tokens": 344
+        }
+      }
+    },
+    {
+      "query_id": "s16",
+      "no_answer": false,
+      "k": 10,
+      "retrieval_ms": {
+        "mean": 2.287265000018124,
+        "median": 2.262500000028922,
+        "p95": 2.5747449999130367,
+        "max": 2.854900000102134
+      },
+      "samples_ms": [
+        1.9468000000415486,
+        1.9844999999349966,
+        1.9279000000551605,
+        2.5309000000106607,
+        2.1931000001131906,
+        2.2048000000722823,
+        2.3822000000564003,
+        2.854900000102134,
+        2.5599999999030842,
+        2.4467000000640837,
+        2.294099999971877,
+        2.230900000085967,
+        2.371000000039203,
+        2.1285999998781335,
+        2.082499999914944,
+        2.08440000005794,
+        2.1801999998842803,
+        2.379300000029616,
+        2.5094000000080996,
+        2.4531000001388747
+      ],
+      "candidate": {
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "document_recall": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "evidence_positions": [
+          2,
+          2
+        ],
+        "evidence_reciprocal_rank": 0.5,
+        "all_required_documents": true
+      },
+      "eligible": {
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "document_recall": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "evidence_positions": [
+          2,
+          2
+        ],
+        "evidence_reciprocal_rank": 0.5,
+        "all_required_documents": true
+      },
+      "eligible_count": 10,
+      "selection": {
+        "top2": {
+          "metrics": {
+            "evidence_coverage": 1.0,
+            "complete_evidence": true,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              2,
+              2
+            ],
+            "evidence_reciprocal_rank": 0.5,
+            "all_required_documents": true
+          },
+          "count": 2,
+          "tokens": 233
+        },
+        "ranked_fill": {
+          "metrics": {
+            "evidence_coverage": 1.0,
+            "complete_evidence": true,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              2,
+              2
+            ],
+            "evidence_reciprocal_rank": 0.5,
+            "all_required_documents": true
+          },
+          "count": 8,
+          "tokens": 902
+        },
+        "novelty": {
+          "metrics": {
+            "evidence_coverage": 1.0,
+            "complete_evidence": true,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              2,
+              2
+            ],
+            "evidence_reciprocal_rank": 0.5,
+            "all_required_documents": true
+          },
+          "count": 3,
+          "tokens": 344
+        }
+      }
+    },
+    {
+      "query_id": "s16",
+      "no_answer": false,
+      "k": 20,
+      "retrieval_ms": {
+        "mean": 2.6281649999759793,
+        "median": 2.5579499999821564,
+        "p95": 3.078319999906398,
+        "max": 3.118600000107108
+      },
+      "samples_ms": [
+        2.7986000000055355,
+        3.0303000000913016,
+        2.6215999998839834,
+        2.41979999987052,
+        2.376700000013443,
+        2.370100000007369,
+        2.5425999999697524,
+        2.5711999999202817,
+        2.462499999865031,
+        2.405899999985195,
+        2.69109999999273,
+        2.5854000000435917,
+        2.4607999998806918,
+        2.544700000044031,
+        3.0761999998958345,
+        3.118600000107108,
+        2.770099999906961,
+        2.448599999979706,
+        2.5388999999904627,
+        2.729600000066057
+      ],
+      "candidate": {
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "document_recall": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "evidence_positions": [
+          2,
+          2
+        ],
+        "evidence_reciprocal_rank": 0.5,
+        "all_required_documents": true
+      },
+      "eligible": {
+        "evidence_coverage": 1.0,
+        "complete_evidence": true,
+        "document_recall": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "evidence_positions": [
+          2,
+          2
+        ],
+        "evidence_reciprocal_rank": 0.5,
+        "all_required_documents": true
+      },
+      "eligible_count": 20,
+      "selection": {
+        "top2": {
+          "metrics": {
+            "evidence_coverage": 1.0,
+            "complete_evidence": true,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              2,
+              2
+            ],
+            "evidence_reciprocal_rank": 0.5,
+            "all_required_documents": true
+          },
+          "count": 2,
+          "tokens": 233
+        },
+        "ranked_fill": {
+          "metrics": {
+            "evidence_coverage": 1.0,
+            "complete_evidence": true,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              2,
+              2
+            ],
+            "evidence_reciprocal_rank": 0.5,
+            "all_required_documents": true
+          },
+          "count": 8,
+          "tokens": 902
+        },
+        "novelty": {
+          "metrics": {
+            "evidence_coverage": 1.0,
+            "complete_evidence": true,
+            "document_recall": 1.0,
+            "mrr": 1.0,
+            "ndcg": 1.0,
+            "evidence_positions": [
+              2,
+              2
+            ],
+            "evidence_reciprocal_rank": 0.5,
+            "all_required_documents": true
+          },
+          "count": 3,
+          "tokens": 344
+        }
+      }
+    },
+    {
+      "query_id": "s17",
+      "no_answer": true,
+      "k": 2,
+      "retrieval_ms": {
+        "mean": 1.9798099999889018,
+        "median": 1.9424500000013722,
+        "p95": 2.259965000109787,
+        "max": 2.4740000001202134
+      },
+      "samples_ms": [
+        1.7967999999655149,
+        2.4740000001202134,
+        2.2487000001092383,
+        1.8454999999448773,
+        1.9691999998485699,
+        2.0922999999584135,
+        1.9113999999262887,
+        2.0090000000436703,
+        1.946599999882892,
+        1.9614000000274245,
+        2.010699999800636,
+        1.9594999998844287,
+        1.8686999999317777,
+        1.8558000001576147,
+        1.8310999998902844,
+        1.8866000000343774,
+        1.937500000167347,
+        1.866199999994933,
+        1.9383000001198525,
+        2.1868999999696825
+      ],
+      "candidate": {
+        "evidence_coverage": null,
+        "complete_evidence": null,
+        "document_recall": null,
+        "mrr": null,
+        "ndcg": null,
+        "evidence_positions": [],
+        "evidence_reciprocal_rank": null,
+        "no_answer_empty": false
+      },
+      "eligible": {
+        "evidence_coverage": null,
+        "complete_evidence": null,
+        "document_recall": null,
+        "mrr": null,
+        "ndcg": null,
+        "evidence_positions": [],
+        "evidence_reciprocal_rank": null,
+        "no_answer_empty": false
+      },
+      "eligible_count": 2,
+      "selection": {
+        "top2": {
+          "metrics": {
+            "evidence_coverage": null,
+            "complete_evidence": null,
+            "document_recall": null,
+            "mrr": null,
+            "ndcg": null,
+            "evidence_positions": [],
+            "evidence_reciprocal_rank": null,
+            "no_answer_empty": false
+          },
+          "count": 2,
+          "tokens": 222
+        },
+        "ranked_fill": {
+          "metrics": {
+            "evidence_coverage": null,
+            "complete_evidence": null,
+            "document_recall": null,
+            "mrr": null,
+            "ndcg": null,
+            "evidence_positions": [],
+            "evidence_reciprocal_rank": null,
+            "no_answer_empty": false
+          },
+          "count": 2,
+          "tokens": 222
+        },
+        "novelty": {
+          "metrics": {
+            "evidence_coverage": null,
+            "complete_evidence": null,
+            "document_recall": null,
+            "mrr": null,
+            "ndcg": null,
+            "evidence_positions": [],
+            "evidence_reciprocal_rank": null,
+            "no_answer_empty": false
+          },
+          "count": 1,
+          "tokens": 109
+        }
+      }
+    },
+    {
+      "query_id": "s17",
+      "no_answer": true,
+      "k": 5,
+      "retrieval_ms": {
+        "mean": 1.9470599999976912,
+        "median": 1.9165999999586347,
+        "p95": 2.1995299999048257,
+        "max": 2.2722999999587046
+      },
+      "samples_ms": [
+        1.9386999999824184,
+        1.883399999996982,
+        1.8420000001242443,
+        1.9919000001209497,
+        2.003000000058819,
+        2.154199999949924,
+        1.92349999997532,
+        1.9238999998378858,
+        1.8583000000944594,
+        1.7892999999276071,
+        1.7982000001666165,
+        1.86359999997876,
+        1.885299999912604,
+        2.19569999990199,
+        2.2722999999587046,
+        2.166499999930238,
+        1.9096999999419495,
+        1.8402000000605767,
+        1.9322000000556727,
+        1.7692999999781023
+      ],
+      "candidate": {
+        "evidence_coverage": null,
+        "complete_evidence": null,
+        "document_recall": null,
+        "mrr": null,
+        "ndcg": null,
+        "evidence_positions": [],
+        "evidence_reciprocal_rank": null,
+        "no_answer_empty": false
+      },
+      "eligible": {
+        "evidence_coverage": null,
+        "complete_evidence": null,
+        "document_recall": null,
+        "mrr": null,
+        "ndcg": null,
+        "evidence_positions": [],
+        "evidence_reciprocal_rank": null,
+        "no_answer_empty": false
+      },
+      "eligible_count": 5,
+      "selection": {
+        "top2": {
+          "metrics": {
+            "evidence_coverage": null,
+            "complete_evidence": null,
+            "document_recall": null,
+            "mrr": null,
+            "ndcg": null,
+            "evidence_positions": [],
+            "evidence_reciprocal_rank": null,
+            "no_answer_empty": false
+          },
+          "count": 2,
+          "tokens": 222
+        },
+        "ranked_fill": {
+          "metrics": {
+            "evidence_coverage": null,
+            "complete_evidence": null,
+            "document_recall": null,
+            "mrr": null,
+            "ndcg": null,
+            "evidence_positions": [],
+            "evidence_reciprocal_rank": null,
+            "no_answer_empty": false
+          },
+          "count": 5,
+          "tokens": 558
+        },
+        "novelty": {
+          "metrics": {
+            "evidence_coverage": null,
+            "complete_evidence": null,
+            "document_recall": null,
+            "mrr": null,
+            "ndcg": null,
+            "evidence_positions": [],
+            "evidence_reciprocal_rank": null,
+            "no_answer_empty": false
+          },
+          "count": 1,
+          "tokens": 109
+        }
+      }
+    },
+    {
+      "query_id": "s17",
+      "no_answer": true,
+      "k": 10,
+      "retrieval_ms": {
+        "mean": 2.0312899999794354,
+        "median": 1.9648999999617445,
+        "p95": 2.3180200000183504,
+        "max": 2.417199999854347
+      },
+      "samples_ms": [
+        1.930099999981394,
+        1.9001999999090913,
+        1.882899999827714,
+        1.9143999998050276,
+        1.8992000000253029,
+        1.9847999999456079,
+        1.944999999977881,
+        1.8823000000338652,
+        2.417199999854347,
+        2.312800000026982,
+        2.188200000091456,
+        1.9913999999516818,
+        2.005399999916335,
+        1.9055999998727202,
+        1.854900000125781,
+        1.8921000000773347,
+        2.1771000001535867,
+        2.2785000001022127,
+        2.0578999999543157,
+        2.2057999999560707
+      ],
+      "candidate": {
+        "evidence_coverage": null,
+        "complete_evidence": null,
+        "document_recall": null,
+        "mrr": null,
+        "ndcg": null,
+        "evidence_positions": [],
+        "evidence_reciprocal_rank": null,
+        "no_answer_empty": false
+      },
+      "eligible": {
+        "evidence_coverage": null,
+        "complete_evidence": null,
+        "document_recall": null,
+        "mrr": null,
+        "ndcg": null,
+        "evidence_positions": [],
+        "evidence_reciprocal_rank": null,
+        "no_answer_empty": false
+      },
+      "eligible_count": 10,
+      "selection": {
+        "top2": {
+          "metrics": {
+            "evidence_coverage": null,
+            "complete_evidence": null,
+            "document_recall": null,
+            "mrr": null,
+            "ndcg": null,
+            "evidence_positions": [],
+            "evidence_reciprocal_rank": null,
+            "no_answer_empty": false
+          },
+          "count": 2,
+          "tokens": 222
+        },
+        "ranked_fill": {
+          "metrics": {
+            "evidence_coverage": null,
+            "complete_evidence": null,
+            "document_recall": null,
+            "mrr": null,
+            "ndcg": null,
+            "evidence_positions": [],
+            "evidence_reciprocal_rank": null,
+            "no_answer_empty": false
+          },
+          "count": 8,
+          "tokens": 893
+        },
+        "novelty": {
+          "metrics": {
+            "evidence_coverage": null,
+            "complete_evidence": null,
+            "document_recall": null,
+            "mrr": null,
+            "ndcg": null,
+            "evidence_positions": [],
+            "evidence_reciprocal_rank": null,
+            "no_answer_empty": false
+          },
+          "count": 1,
+          "tokens": 109
+        }
+      }
+    },
+    {
+      "query_id": "s17",
+      "no_answer": true,
+      "k": 20,
+      "retrieval_ms": {
+        "mean": 2.455299999996896,
+        "median": 2.436600000010003,
+        "p95": 2.856330000042817,
+        "max": 2.874000000019805
+      },
+      "samples_ms": [
+        2.0285999999032356,
+        2.2573999999622174,
+        2.2518000000673055,
+        2.477099999850907,
+        2.874000000019805,
+        2.3622000001068955,
+        2.2767999998904997,
+        2.3601999998845713,
+        2.5170999999772903,
+        2.4851000000580825,
+        2.7228999999806547,
+        2.8264000000035594,
+        2.8554000000440283,
+        2.761899999995876,
+        2.6189000000158558,
+        2.46459999993931,
+        2.233300000170857,
+        2.144400000133828,
+        2.1792999998524465,
+        2.408600000080696
+      ],
+      "candidate": {
+        "evidence_coverage": null,
+        "complete_evidence": null,
+        "document_recall": null,
+        "mrr": null,
+        "ndcg": null,
+        "evidence_positions": [],
+        "evidence_reciprocal_rank": null,
+        "no_answer_empty": false
+      },
+      "eligible": {
+        "evidence_coverage": null,
+        "complete_evidence": null,
+        "document_recall": null,
+        "mrr": null,
+        "ndcg": null,
+        "evidence_positions": [],
+        "evidence_reciprocal_rank": null,
+        "no_answer_empty": false
+      },
+      "eligible_count": 20,
+      "selection": {
+        "top2": {
+          "metrics": {
+            "evidence_coverage": null,
+            "complete_evidence": null,
+            "document_recall": null,
+            "mrr": null,
+            "ndcg": null,
+            "evidence_positions": [],
+            "evidence_reciprocal_rank": null,
+            "no_answer_empty": false
+          },
+          "count": 2,
+          "tokens": 222
+        },
+        "ranked_fill": {
+          "metrics": {
+            "evidence_coverage": null,
+            "complete_evidence": null,
+            "document_recall": null,
+            "mrr": null,
+            "ndcg": null,
+            "evidence_positions": [],
+            "evidence_reciprocal_rank": null,
+            "no_answer_empty": false
+          },
+          "count": 8,
+          "tokens": 893
+        },
+        "novelty": {
+          "metrics": {
+            "evidence_coverage": null,
+            "complete_evidence": null,
+            "document_recall": null,
+            "mrr": null,
+            "ndcg": null,
+            "evidence_positions": [],
+            "evidence_reciprocal_rank": null,
+            "no_answer_empty": false
+          },
+          "count": 1,
+          "tokens": 109
+        }
+      }
+    }
+  ],
+  "limitations": "One generated distractor corpus, one legacy evidence document, four related questions; not independent relevance labels or million-document scaling."
+}

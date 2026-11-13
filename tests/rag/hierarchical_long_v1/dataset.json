@@ -1,0 +1,232 @@
+{
+  "id": "laew-hierarchical-long-v1",
+  "version": 1,
+  "judgment": "Agent-authored and frozen before scoring; not independently human judged.",
+  "queries": [
+    {
+      "id": "l01",
+      "language": "pl",
+      "allowed_scope": "global",
+      "text": "Co zabezpieczyć przed serwisem rejestratora Orion i jakie wyniki potwierdzają odbiór?",
+      "evidence": [
+        {
+          "document_id": "@knowledge/orion.md",
+          "passage": "Before servicing the Orion recorder, isolate the optical transmitter and preserve the last recovery certificate."
+        },
+        {
+          "document_id": "@knowledge/orion.md",
+          "passage": "Orion acceptance requires a 55-second uninterrupted trace and clock drift below 65 microseconds."
+        }
+      ],
+      "expected_document_ids": [
+        "@knowledge/orion.md"
+      ],
+      "relevance": {
+        "@knowledge/orion.md": 2
+      },
+      "no_answer": null,
+      "topic_id": "authored_long_manuals",
+      "phenomenon": "long_document_multi_document",
+      "split": "agent_authored_validation"
+    },
+    {
+      "id": "l02",
+      "language": "en",
+      "allowed_scope": "global",
+      "text": "Which preparation and acceptance records are required for Mira cooling maintenance?",
+      "evidence": [
+        {
+          "document_id": "@knowledge/mira.md",
+          "passage": "Before draining Mira, close the bypass valve and record the coolant batch identifier."
+        },
+        {
+          "document_id": "@knowledge/mira.md",
+          "passage": "Mira acceptance requires stable pressure for 18 minutes and a return temperature below 31 degrees Celsius."
+        }
+      ],
+      "expected_document_ids": [
+        "@knowledge/mira.md"
+      ],
+      "relevance": {
+        "@knowledge/mira.md": 2
+      },
+      "no_answer": null,
+      "topic_id": "authored_long_manuals",
+      "phenomenon": "long_document_multi_document",
+      "split": "agent_authored_validation"
+    },
+    {
+      "id": "l03",
+      "language": "de",
+      "allowed_scope": "global",
+      "text": "Was muss vor dem Öffnen von Polar geschehen und welche Nachweise verlangt die Abnahme?",
+      "evidence": [
+        {
+          "document_id": "@knowledge/polar.md",
+          "passage": "Vor dem Öffnen von Polar muss die Heizung getrennt und die Dichtungscharge notiert werden."
+        },
+        {
+          "document_id": "@knowledge/polar.md",
+          "passage": "Die Polar-Abnahme verlangt 22 Minuten ohne Feuchtealarm und einen Isolationswiderstand über 9 Megaohm."
+        }
+      ],
+      "expected_document_ids": [
+        "@knowledge/polar.md"
+      ],
+      "relevance": {
+        "@knowledge/polar.md": 2
+      },
+      "no_answer": null,
+      "topic_id": "authored_long_manuals",
+      "phenomenon": "long_document_multi_document",
+      "split": "agent_authored_validation"
+    },
+    {
+      "id": "l04",
+      "language": "pl",
+      "allowed_scope": "project",
+      "text": "Co zachować przed wdrożeniem Delta i jakie są wymagania zatwierdzenia wydania?",
+      "evidence": [
+        {
+          "document_id": "@project/delta.md",
+          "passage": "Before the Delta deployment, preserve the rollback manifest and stop the export scheduler."
+        },
+        {
+          "document_id": "@project/delta.md",
+          "passage": "Delta release approval requires two matching snapshot digests and a 25-minute successful replay."
+        }
+      ],
+      "expected_document_ids": [
+        "@project/delta.md"
+      ],
+      "relevance": {
+        "@project/delta.md": 2
+      },
+      "no_answer": null,
+      "topic_id": "authored_long_manuals",
+      "phenomenon": "long_document_multi_document",
+      "split": "agent_authored_validation"
+    },
+    {
+      "id": "l05",
+      "language": "en",
+      "allowed_scope": "global",
+      "text": "Compare the acceptance requirements for Orion, Mira and Polar.",
+      "evidence": [
+        {
+          "document_id": "@knowledge/orion.md",
+          "passage": "Orion acceptance requires a 55-second uninterrupted trace and clock drift below 65 microseconds."
+        },
+        {
+          "document_id": "@knowledge/mira.md",
+          "passage": "Mira acceptance requires stable pressure for 18 minutes and a return temperature below 31 degrees Celsius."
+        },
+        {
+          "document_id": "@knowledge/polar.md",
+          "passage": "Die Polar-Abnahme verlangt 22 Minuten ohne Feuchtealarm und einen Isolationswiderstand über 9 Megaohm."
+        }
+      ],
+      "expected_document_ids": [
+        "@knowledge/orion.md",
+        "@knowledge/mira.md",
+        "@knowledge/polar.md"
+      ],
+      "relevance": {
+        "@knowledge/orion.md": 2,
+        "@knowledge/mira.md": 2,
+        "@knowledge/polar.md": 2
+      },
+      "no_answer": null,
+      "topic_id": "authored_long_manuals",
+      "phenomenon": "long_document_multi_document",
+      "split": "agent_authored_validation"
+    },
+    {
+      "id": "l06",
+      "language": "pl",
+      "allowed_scope": "hybrid",
+      "text": "Jakie warunki odbioru mają Orion i wdrożenie Delta?",
+      "evidence": [
+        {
+          "document_id": "@knowledge/orion.md",
+          "passage": "Orion acceptance requires a 55-second uninterrupted trace and clock drift below 65 microseconds."
+        },
+        {
+          "document_id": "@project/delta.md",
+          "passage": "Delta release approval requires two matching snapshot digests and a 25-minute successful replay."
+        }
+      ],
+      "expected_document_ids": [
+        "@knowledge/orion.md",
+        "@project/delta.md"
+      ],
+      "relevance": {
+        "@knowledge/orion.md": 2,
+        "@project/delta.md": 2
+      },
+      "no_answer": null,
+      "topic_id": "authored_long_manuals",
+      "phenomenon": "long_document_multi_document",
+      "split": "agent_authored_validation"
+    },
+    {
+      "id": "l07",
+      "language": "en",
+      "allowed_scope": "hybrid",
+      "text": "List the preparation requirements for Orion, Mira, Polar and the Delta deployment.",
+      "evidence": [
+        {
+          "document_id": "@knowledge/orion.md",
+          "passage": "Before servicing the Orion recorder, isolate the optical transmitter and preserve the last recovery certificate."
+        },
+        {
+          "document_id": "@knowledge/mira.md",
+          "passage": "Before draining Mira, close the bypass valve and record the coolant batch identifier."
+        },
+        {
+          "document_id": "@knowledge/polar.md",
+          "passage": "Vor dem Öffnen von Polar muss die Heizung getrennt und die Dichtungscharge notiert werden."
+        },
+        {
+          "document_id": "@project/delta.md",
+          "passage": "Before the Delta deployment, preserve the rollback manifest and stop the export scheduler."
+        }
+      ],
+      "expected_document_ids": [
+        "@knowledge/orion.md",
+        "@knowledge/mira.md",
+        "@knowledge/polar.md",
+        "@project/delta.md"
+      ],
+      "relevance": {
+        "@knowledge/orion.md": 2,
+        "@knowledge/mira.md": 2,
+        "@knowledge/polar.md": 2,
+        "@project/delta.md": 2
+      },
+      "no_answer": null,
+      "topic_id": "authored_long_manuals",
+      "phenomenon": "long_document_multi_document",
+      "split": "agent_authored_validation"
+    },
+    {
+      "id": "l08",
+      "language": "en",
+      "allowed_scope": "global",
+      "text": "What battery endurance does the Neptune submarine guarantee?",
+      "evidence": [],
+      "expected_document_ids": [],
+      "relevance": {},
+      "no_answer": "unsupported",
+      "topic_id": "authored_long_manuals",
+      "phenomenon": "long_document_multi_document",
+      "split": "agent_authored_validation"
+    }
+  ],
+  "document_languages": {
+    "@knowledge/orion.md": "en",
+    "@knowledge/mira.md": "en",
+    "@knowledge/polar.md": "de",
+    "@project/delta.md": "en"
+  }
+}

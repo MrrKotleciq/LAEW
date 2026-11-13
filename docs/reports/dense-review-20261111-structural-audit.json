@@ -1,0 +1,4037 @@
+{
+  "task": "3A review diagnostics only",
+  "corpus_hash": "f1da74963c52d77ff339ac771e12a1619324442d4a88b19b6f9d47e5cf89df16",
+  "new_indexes": 0,
+  "new_retrieval_methods": 0,
+  "groups": [
+    {
+      "dataset": "baseline_v1",
+      "chunker": "legacy",
+      "answerable": 24,
+      "all_docs_seeded_at_10": 24,
+      "all_atoms_local_rank_le_10": 24,
+      "max_document_chunks": 2,
+      "metadata_keys": [
+        "backlinks",
+        "chunk_index",
+        "frontmatter",
+        "note_metadata_version",
+        "section_header",
+        "section_index",
+        "sync_chunk_count",
+        "sync_fingerprint",
+        "tags"
+      ]
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "structure-v2",
+      "answerable": 24,
+      "all_docs_seeded_at_10": 24,
+      "all_atoms_local_rank_le_10": 24,
+      "max_document_chunks": 2,
+      "metadata_keys": [
+        "backlinks",
+        "block_id",
+        "chunk_index",
+        "chunking_strategy",
+        "code_language",
+        "content_type",
+        "context_spans",
+        "end_line",
+        "end_offset",
+        "frontmatter",
+        "limited_context",
+        "note_metadata_version",
+        "section_header",
+        "section_path",
+        "start_line",
+        "start_offset",
+        "sync_chunk_count",
+        "sync_fingerprint",
+        "synthetic_chars",
+        "tags"
+      ]
+    },
+    {
+      "dataset": "hard_cases_v1",
+      "chunker": "legacy",
+      "answerable": 11,
+      "all_docs_seeded_at_10": 11,
+      "all_atoms_local_rank_le_10": 11,
+      "max_document_chunks": 6,
+      "metadata_keys": [
+        "backlinks",
+        "chunk_index",
+        "note_metadata_version",
+        "section_header",
+        "section_index",
+        "sync_chunk_count",
+        "sync_fingerprint",
+        "tags"
+      ]
+    },
+    {
+      "dataset": "hard_cases_v1",
+      "chunker": "structure-v2",
+      "answerable": 11,
+      "all_docs_seeded_at_10": 11,
+      "all_atoms_local_rank_le_10": 11,
+      "max_document_chunks": 5,
+      "metadata_keys": [
+        "backlinks",
+        "block_id",
+        "chunk_index",
+        "chunking_strategy",
+        "code_language",
+        "content_type",
+        "context_spans",
+        "end_line",
+        "end_offset",
+        "limited_context",
+        "note_metadata_version",
+        "section_header",
+        "section_path",
+        "start_line",
+        "start_offset",
+        "sync_chunk_count",
+        "sync_fingerprint",
+        "synthetic_chars",
+        "tags"
+      ]
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "legacy",
+      "answerable": 28,
+      "all_docs_seeded_at_10": 28,
+      "all_atoms_local_rank_le_10": 28,
+      "max_document_chunks": 4,
+      "metadata_keys": [
+        "backlinks",
+        "chunk_index",
+        "note_metadata_version",
+        "section_header",
+        "section_index",
+        "sync_chunk_count",
+        "sync_fingerprint",
+        "tags"
+      ]
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "structure-v2",
+      "answerable": 28,
+      "all_docs_seeded_at_10": 28,
+      "all_atoms_local_rank_le_10": 28,
+      "max_document_chunks": 3,
+      "metadata_keys": [
+        "backlinks",
+        "block_id",
+        "chunk_index",
+        "chunking_strategy",
+        "code_language",
+        "content_type",
+        "context_spans",
+        "end_line",
+        "end_offset",
+        "limited_context",
+        "note_metadata_version",
+        "section_header",
+        "section_path",
+        "start_line",
+        "start_offset",
+        "sync_chunk_count",
+        "sync_fingerprint",
+        "synthetic_chars",
+        "tags"
+      ]
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "legacy",
+      "answerable": 16,
+      "all_docs_seeded_at_10": 16,
+      "all_atoms_local_rank_le_10": 16,
+      "max_document_chunks": 12,
+      "metadata_keys": [
+        "backlinks",
+        "chunk_index",
+        "frontmatter",
+        "note_metadata_version",
+        "section_header",
+        "section_index",
+        "sync_chunk_count",
+        "sync_fingerprint",
+        "tags"
+      ]
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "structure-v2",
+      "answerable": 16,
+      "all_docs_seeded_at_10": 16,
+      "all_atoms_local_rank_le_10": 16,
+      "max_document_chunks": 11,
+      "metadata_keys": [
+        "backlinks",
+        "block_id",
+        "chunk_index",
+        "chunking_strategy",
+        "code_language",
+        "content_type",
+        "context_spans",
+        "end_line",
+        "end_offset",
+        "frontmatter",
+        "limited_context",
+        "note_metadata_version",
+        "section_header",
+        "section_path",
+        "start_line",
+        "start_offset",
+        "sync_chunk_count",
+        "sync_fingerprint",
+        "synthetic_chars",
+        "tags"
+      ]
+    },
+    {
+      "dataset": "stress_1036",
+      "chunker": "legacy",
+      "answerable": 3,
+      "all_docs_seeded_at_10": 3,
+      "all_atoms_local_rank_le_10": 3,
+      "max_document_chunks": 12,
+      "metadata_keys": [
+        "backlinks",
+        "chunk_index",
+        "section_header",
+        "section_index",
+        "tags"
+      ]
+    }
+  ],
+  "structural_audit": [
+    {
+      "dataset": "baseline_v1",
+      "chunker": "legacy",
+      "query_id": "q01",
+      "atoms": [
+        {
+          "document": "@knowledge/arx.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "legacy",
+      "query_id": "q02",
+      "atoms": [
+        {
+          "document": "@knowledge/arx.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 2
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "legacy",
+      "query_id": "q03",
+      "atoms": [
+        {
+          "document": "@knowledge/arx.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "legacy",
+      "query_id": "q04",
+      "atoms": [
+        {
+          "document": "@knowledge/rls.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "legacy",
+      "query_id": "q05",
+      "atoms": [
+        {
+          "document": "@knowledge/rls.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 2,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "legacy",
+      "query_id": "q06",
+      "atoms": [
+        {
+          "document": "@knowledge/rls-database.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 1,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "legacy",
+      "query_id": "q07",
+      "atoms": [
+        {
+          "document": "@knowledge/rls-database.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 1,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "legacy",
+      "query_id": "q08",
+      "atoms": [
+        {
+          "document": "@knowledge/sampling.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "legacy",
+      "query_id": "q09",
+      "atoms": [
+        {
+          "document": "@knowledge/sampling.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 3,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "legacy",
+      "query_id": "q10",
+      "atoms": [
+        {
+          "document": "@knowledge/vault.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "legacy",
+      "query_id": "q11",
+      "atoms": [
+        {
+          "document": "@knowledge/vault.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 2
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "legacy",
+      "query_id": "q12",
+      "atoms": [
+        {
+          "document": "@knowledge/chroma.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "legacy",
+      "query_id": "q13",
+      "atoms": [
+        {
+          "document": "@knowledge/chroma.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "legacy",
+      "query_id": "q14",
+      "atoms": [
+        {
+          "document": "@knowledge/telemetry.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "legacy",
+      "query_id": "q15",
+      "atoms": [
+        {
+          "document": "@knowledge/telemetry.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "legacy",
+      "query_id": "q16",
+      "atoms": [
+        {
+          "document": "@knowledge/drift.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 1,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "legacy",
+      "query_id": "q17",
+      "atoms": [
+        {
+          "document": "@knowledge/timing.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 1,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "legacy",
+      "query_id": "q18",
+      "atoms": [
+        {
+          "document": "@knowledge/timing.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 2,
+          "document_chunks": 1,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "legacy",
+      "query_id": "q19",
+      "atoms": [
+        {
+          "document": "@knowledge/vault.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 2
+        },
+        {
+          "document": "@knowledge/chroma.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 2,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "legacy",
+      "query_id": "q20",
+      "atoms": [
+        {
+          "document": "@knowledge/rls.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 2,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/arx.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "legacy",
+      "query_id": "q21",
+      "atoms": [
+        {
+          "document": "@knowledge/sampling.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/arx.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 2,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "legacy",
+      "query_id": "q22",
+      "atoms": [
+        {
+          "document": "@knowledge/timing.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 1,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/sampling.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 3,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "legacy",
+      "query_id": "q27",
+      "atoms": [
+        {
+          "document": "@knowledge/rls.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 2
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "legacy",
+      "query_id": "q28",
+      "atoms": [
+        {
+          "document": "@knowledge/telemetry.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "structure-v2",
+      "query_id": "q01",
+      "atoms": [
+        {
+          "document": "@knowledge/arx.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "structure-v2",
+      "query_id": "q02",
+      "atoms": [
+        {
+          "document": "@knowledge/arx.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 2
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "structure-v2",
+      "query_id": "q03",
+      "atoms": [
+        {
+          "document": "@knowledge/arx.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "structure-v2",
+      "query_id": "q04",
+      "atoms": [
+        {
+          "document": "@knowledge/rls.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "structure-v2",
+      "query_id": "q05",
+      "atoms": [
+        {
+          "document": "@knowledge/rls.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 2,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "structure-v2",
+      "query_id": "q06",
+      "atoms": [
+        {
+          "document": "@knowledge/rls-database.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 1,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "structure-v2",
+      "query_id": "q07",
+      "atoms": [
+        {
+          "document": "@knowledge/rls-database.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 1,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "structure-v2",
+      "query_id": "q08",
+      "atoms": [
+        {
+          "document": "@knowledge/sampling.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "structure-v2",
+      "query_id": "q09",
+      "atoms": [
+        {
+          "document": "@knowledge/sampling.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 2,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "structure-v2",
+      "query_id": "q10",
+      "atoms": [
+        {
+          "document": "@knowledge/vault.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "structure-v2",
+      "query_id": "q11",
+      "atoms": [
+        {
+          "document": "@knowledge/vault.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 2
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "structure-v2",
+      "query_id": "q12",
+      "atoms": [
+        {
+          "document": "@knowledge/chroma.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "structure-v2",
+      "query_id": "q13",
+      "atoms": [
+        {
+          "document": "@knowledge/chroma.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 2,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "structure-v2",
+      "query_id": "q14",
+      "atoms": [
+        {
+          "document": "@knowledge/telemetry.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "structure-v2",
+      "query_id": "q15",
+      "atoms": [
+        {
+          "document": "@knowledge/telemetry.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "structure-v2",
+      "query_id": "q16",
+      "atoms": [
+        {
+          "document": "@knowledge/drift.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 1,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "structure-v2",
+      "query_id": "q17",
+      "atoms": [
+        {
+          "document": "@knowledge/timing.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 1,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "structure-v2",
+      "query_id": "q18",
+      "atoms": [
+        {
+          "document": "@knowledge/timing.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 2,
+          "document_chunks": 1,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "structure-v2",
+      "query_id": "q19",
+      "atoms": [
+        {
+          "document": "@knowledge/vault.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 2,
+          "document_chunks": 2,
+          "within_document_rank": 2
+        },
+        {
+          "document": "@knowledge/chroma.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "structure-v2",
+      "query_id": "q20",
+      "atoms": [
+        {
+          "document": "@knowledge/rls.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 2,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/arx.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "structure-v2",
+      "query_id": "q21",
+      "atoms": [
+        {
+          "document": "@knowledge/sampling.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/arx.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 2,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "structure-v2",
+      "query_id": "q22",
+      "atoms": [
+        {
+          "document": "@knowledge/timing.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 1,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/sampling.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 2,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "structure-v2",
+      "query_id": "q27",
+      "atoms": [
+        {
+          "document": "@knowledge/rls.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 2
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "baseline_v1",
+      "chunker": "structure-v2",
+      "query_id": "q28",
+      "atoms": [
+        {
+          "document": "@knowledge/telemetry.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "hard_cases_v1",
+      "chunker": "legacy",
+      "query_id": "h01",
+      "atoms": [
+        {
+          "document": "@knowledge/startup.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 6,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/startup.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 6,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/startup.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 6,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "hard_cases_v1",
+      "chunker": "legacy",
+      "query_id": "h02",
+      "atoms": [
+        {
+          "document": "@knowledge/motor.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 2
+        },
+        {
+          "document": "@knowledge/motor.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 2
+        },
+        {
+          "document": "@knowledge/motor.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 2
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "hard_cases_v1",
+      "chunker": "legacy",
+      "query_id": "h03",
+      "atoms": [
+        {
+          "document": "@knowledge/firmware.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 6,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/firmware.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 6,
+          "within_document_rank": 2
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "hard_cases_v1",
+      "chunker": "legacy",
+      "query_id": "h04",
+      "atoms": [
+        {
+          "document": "@knowledge/sensors.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 4,
+          "within_document_rank": 2
+        },
+        {
+          "document": "@knowledge/sensors.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 4,
+          "within_document_rank": 3
+        },
+        {
+          "document": "@knowledge/sensors.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 4,
+          "within_document_rank": 3
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "hard_cases_v1",
+      "chunker": "legacy",
+      "query_id": "h05",
+      "atoms": [
+        {
+          "document": "@knowledge/sensors.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 4,
+          "within_document_rank": 4
+        },
+        {
+          "document": "@knowledge/sensors.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 4,
+          "within_document_rank": 2
+        },
+        {
+          "document": "@knowledge/sensors.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 4,
+          "within_document_rank": 2
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "hard_cases_v1",
+      "chunker": "legacy",
+      "query_id": "h06",
+      "atoms": [
+        {
+          "document": "@knowledge/recovery.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/recovery.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/recovery.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "hard_cases_v1",
+      "chunker": "legacy",
+      "query_id": "h07",
+      "atoms": [
+        {
+          "document": "@knowledge/recovery.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "hard_cases_v1",
+      "chunker": "legacy",
+      "query_id": "h08",
+      "atoms": [
+        {
+          "document": "@knowledge/polish.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/polish.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/polish.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "hard_cases_v1",
+      "chunker": "legacy",
+      "query_id": "h09",
+      "atoms": [
+        {
+          "document": "@knowledge/acquisition.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 5,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/acquisition.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 5,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/acquisition.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 5,
+          "within_document_rank": 3
+        },
+        {
+          "document": "@knowledge/acquisition.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 5,
+          "within_document_rank": 4
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "hard_cases_v1",
+      "chunker": "legacy",
+      "query_id": "h10",
+      "atoms": [
+        {
+          "document": "@knowledge/unusual.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 4,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "hard_cases_v1",
+      "chunker": "legacy",
+      "query_id": "h11",
+      "atoms": [
+        {
+          "document": "@knowledge/startup.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 2,
+          "document_chunks": 6,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/firmware.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 6,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "hard_cases_v1",
+      "chunker": "structure-v2",
+      "query_id": "h01",
+      "atoms": [
+        {
+          "document": "@knowledge/startup.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 5,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/startup.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 5,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/startup.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 5,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "hard_cases_v1",
+      "chunker": "structure-v2",
+      "query_id": "h02",
+      "atoms": [
+        {
+          "document": "@knowledge/motor.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 2
+        },
+        {
+          "document": "@knowledge/motor.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 2
+        },
+        {
+          "document": "@knowledge/motor.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 2
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "hard_cases_v1",
+      "chunker": "structure-v2",
+      "query_id": "h03",
+      "atoms": [
+        {
+          "document": "@knowledge/firmware.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 5,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/firmware.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 5,
+          "within_document_rank": 2
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "hard_cases_v1",
+      "chunker": "structure-v2",
+      "query_id": "h04",
+      "atoms": [
+        {
+          "document": "@knowledge/sensors.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 3
+        },
+        {
+          "document": "@knowledge/sensors.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/sensors.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "hard_cases_v1",
+      "chunker": "structure-v2",
+      "query_id": "h05",
+      "atoms": [
+        {
+          "document": "@knowledge/sensors.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 2
+        },
+        {
+          "document": "@knowledge/sensors.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/sensors.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "hard_cases_v1",
+      "chunker": "structure-v2",
+      "query_id": "h06",
+      "atoms": [
+        {
+          "document": "@knowledge/recovery.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/recovery.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/recovery.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "hard_cases_v1",
+      "chunker": "structure-v2",
+      "query_id": "h07",
+      "atoms": [
+        {
+          "document": "@knowledge/recovery.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "hard_cases_v1",
+      "chunker": "structure-v2",
+      "query_id": "h08",
+      "atoms": [
+        {
+          "document": "@knowledge/polish.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 1,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/polish.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 1,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/polish.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 1,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "hard_cases_v1",
+      "chunker": "structure-v2",
+      "query_id": "h09",
+      "atoms": [
+        {
+          "document": "@knowledge/acquisition.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 4,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/acquisition.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 4,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/acquisition.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 4,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/acquisition.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 4,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "hard_cases_v1",
+      "chunker": "structure-v2",
+      "query_id": "h10",
+      "atoms": [
+        {
+          "document": "@knowledge/unusual.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "hard_cases_v1",
+      "chunker": "structure-v2",
+      "query_id": "h11",
+      "atoms": [
+        {
+          "document": "@knowledge/startup.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 2,
+          "document_chunks": 5,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/firmware.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 5,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "legacy",
+      "query_id": "u01",
+      "atoms": [
+        {
+          "document": "@knowledge/tcp.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 2
+        },
+        {
+          "document": "@knowledge/tcp.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 2
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "legacy",
+      "query_id": "u02",
+      "atoms": [
+        {
+          "document": "@knowledge/tcp.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/tcp.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "legacy",
+      "query_id": "u03",
+      "atoms": [
+        {
+          "document": "@knowledge/can.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "legacy",
+      "query_id": "u04",
+      "atoms": [
+        {
+          "document": "@knowledge/can.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/can.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "legacy",
+      "query_id": "u05",
+      "atoms": [
+        {
+          "document": "@knowledge/foreign-keys.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "legacy",
+      "query_id": "u06",
+      "atoms": [
+        {
+          "document": "@knowledge/foreign-keys.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/foreign-keys.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "legacy",
+      "query_id": "u07",
+      "atoms": [
+        {
+          "document": "@knowledge/ini.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "legacy",
+      "query_id": "u08",
+      "atoms": [
+        {
+          "document": "@knowledge/ini.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/ini.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "legacy",
+      "query_id": "u09",
+      "atoms": [
+        {
+          "document": "@knowledge/async.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/async.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "legacy",
+      "query_id": "u10",
+      "atoms": [
+        {
+          "document": "@knowledge/async.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/async.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "legacy",
+      "query_id": "u11",
+      "atoms": [
+        {
+          "document": "@knowledge/backup.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "legacy",
+      "query_id": "u12",
+      "atoms": [
+        {
+          "document": "@knowledge/backup.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "legacy",
+      "query_id": "u13",
+      "atoms": [
+        {
+          "document": "@knowledge/locks.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "legacy",
+      "query_id": "u14",
+      "atoms": [
+        {
+          "document": "@knowledge/process.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/process.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 2
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "legacy",
+      "query_id": "u15",
+      "atoms": [
+        {
+          "document": "@knowledge/gateway-prod.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 4,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "legacy",
+      "query_id": "u16",
+      "atoms": [
+        {
+          "document": "@knowledge/gateway-lab.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 4,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "legacy",
+      "query_id": "u17",
+      "atoms": [
+        {
+          "document": "@knowledge/timing.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 4,
+          "within_document_rank": 2
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "legacy",
+      "query_id": "u18",
+      "atoms": [
+        {
+          "document": "@knowledge/timing.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 2,
+          "document_chunks": 4,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "legacy",
+      "query_id": "u19",
+      "atoms": [
+        {
+          "document": "@knowledge/calibration.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 4,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/calibration.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 4,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "legacy",
+      "query_id": "u20",
+      "atoms": [
+        {
+          "document": "@knowledge/calibration.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 2,
+          "document_chunks": 4,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/calibration.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 2,
+          "document_chunks": 4,
+          "within_document_rank": 3
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "legacy",
+      "query_id": "u21",
+      "atoms": [
+        {
+          "document": "@knowledge/tcp.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/tcp.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/gateway-prod.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 2,
+          "document_chunks": 4,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "legacy",
+      "query_id": "u22",
+      "atoms": [
+        {
+          "document": "@knowledge/release.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 4,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/calibration.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 2,
+          "document_chunks": 4,
+          "within_document_rank": 4
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "legacy",
+      "query_id": "u23",
+      "atoms": [
+        {
+          "document": "@knowledge/release.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 4,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/backup.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 2,
+          "document_chunks": 3,
+          "within_document_rank": 3
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "legacy",
+      "query_id": "u24",
+      "atoms": [
+        {
+          "document": "@knowledge/timing.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 3,
+          "document_chunks": 4,
+          "within_document_rank": 3
+        },
+        {
+          "document": "@knowledge/gateway-prod.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 2,
+          "document_chunks": 4,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "legacy",
+      "query_id": "u25",
+      "atoms": [
+        {
+          "document": "@knowledge/process.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/async.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 2,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "legacy",
+      "query_id": "u26",
+      "atoms": [
+        {
+          "document": "@project/site-profile.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 2
+        },
+        {
+          "document": "@knowledge/ini.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 2
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "legacy",
+      "query_id": "u27",
+      "atoms": [
+        {
+          "document": "@project/site-profile.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/calibration.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 2,
+          "document_chunks": 4,
+          "within_document_rank": 3
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "legacy",
+      "query_id": "u28",
+      "atoms": [
+        {
+          "document": "@project/site-profile.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 3
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "structure-v2",
+      "query_id": "u01",
+      "atoms": [
+        {
+          "document": "@knowledge/tcp.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/tcp.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "structure-v2",
+      "query_id": "u02",
+      "atoms": [
+        {
+          "document": "@knowledge/tcp.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 3,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/tcp.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 3,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "structure-v2",
+      "query_id": "u03",
+      "atoms": [
+        {
+          "document": "@knowledge/can.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "structure-v2",
+      "query_id": "u04",
+      "atoms": [
+        {
+          "document": "@knowledge/can.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/can.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "structure-v2",
+      "query_id": "u05",
+      "atoms": [
+        {
+          "document": "@knowledge/foreign-keys.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "structure-v2",
+      "query_id": "u06",
+      "atoms": [
+        {
+          "document": "@knowledge/foreign-keys.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/foreign-keys.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "structure-v2",
+      "query_id": "u07",
+      "atoms": [
+        {
+          "document": "@knowledge/ini.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "structure-v2",
+      "query_id": "u08",
+      "atoms": [
+        {
+          "document": "@knowledge/ini.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/ini.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "structure-v2",
+      "query_id": "u09",
+      "atoms": [
+        {
+          "document": "@knowledge/async.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/async.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "structure-v2",
+      "query_id": "u10",
+      "atoms": [
+        {
+          "document": "@knowledge/async.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/async.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "structure-v2",
+      "query_id": "u11",
+      "atoms": [
+        {
+          "document": "@knowledge/backup.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "structure-v2",
+      "query_id": "u12",
+      "atoms": [
+        {
+          "document": "@knowledge/backup.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "structure-v2",
+      "query_id": "u13",
+      "atoms": [
+        {
+          "document": "@knowledge/locks.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "structure-v2",
+      "query_id": "u14",
+      "atoms": [
+        {
+          "document": "@knowledge/process.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/process.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 2
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "structure-v2",
+      "query_id": "u15",
+      "atoms": [
+        {
+          "document": "@knowledge/gateway-prod.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "structure-v2",
+      "query_id": "u16",
+      "atoms": [
+        {
+          "document": "@knowledge/gateway-lab.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "structure-v2",
+      "query_id": "u17",
+      "atoms": [
+        {
+          "document": "@knowledge/timing.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "structure-v2",
+      "query_id": "u18",
+      "atoms": [
+        {
+          "document": "@knowledge/timing.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 2,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "structure-v2",
+      "query_id": "u19",
+      "atoms": [
+        {
+          "document": "@knowledge/calibration.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/calibration.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "structure-v2",
+      "query_id": "u20",
+      "atoms": [
+        {
+          "document": "@knowledge/calibration.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 3,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/calibration.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 3,
+          "document_chunks": 3,
+          "within_document_rank": 3
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "structure-v2",
+      "query_id": "u21",
+      "atoms": [
+        {
+          "document": "@knowledge/tcp.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/tcp.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/gateway-prod.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 3,
+          "document_chunks": 3,
+          "within_document_rank": 2
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "structure-v2",
+      "query_id": "u22",
+      "atoms": [
+        {
+          "document": "@knowledge/release.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/calibration.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 2,
+          "document_chunks": 3,
+          "within_document_rank": 3
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "structure-v2",
+      "query_id": "u23",
+      "atoms": [
+        {
+          "document": "@knowledge/release.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/backup.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 2,
+          "document_chunks": 2,
+          "within_document_rank": 2
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "structure-v2",
+      "query_id": "u24",
+      "atoms": [
+        {
+          "document": "@knowledge/timing.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 3,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/gateway-prod.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 2,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "structure-v2",
+      "query_id": "u25",
+      "atoms": [
+        {
+          "document": "@knowledge/process.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/async.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 2,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "structure-v2",
+      "query_id": "u26",
+      "atoms": [
+        {
+          "document": "@project/site-profile.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/ini.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "structure-v2",
+      "query_id": "u27",
+      "atoms": [
+        {
+          "document": "@project/site-profile.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/calibration.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 4,
+          "document_chunks": 3,
+          "within_document_rank": 2
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "chunker": "structure-v2",
+      "query_id": "u28",
+      "atoms": [
+        {
+          "document": "@project/site-profile.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "legacy",
+      "query_id": "s01",
+      "atoms": [
+        {
+          "document": "@knowledge/wal.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/wal.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "legacy",
+      "query_id": "s02",
+      "atoms": [
+        {
+          "document": "@knowledge/wal.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 2
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "legacy",
+      "query_id": "s03",
+      "atoms": [
+        {
+          "document": "@knowledge/isolation.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 4,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/isolation.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 4,
+          "within_document_rank": 2
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "legacy",
+      "query_id": "s04",
+      "atoms": [
+        {
+          "document": "@knowledge/isolation.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 4,
+          "within_document_rank": 2
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "legacy",
+      "query_id": "s05",
+      "atoms": [
+        {
+          "document": "@knowledge/isolation.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 4,
+          "within_document_rank": 2
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "legacy",
+      "query_id": "s06",
+      "atoms": [
+        {
+          "document": "@knowledge/revert.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 4,
+          "within_document_rank": 2
+        },
+        {
+          "document": "@knowledge/revert.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 4,
+          "within_document_rank": 3
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "legacy",
+      "query_id": "s07",
+      "atoms": [
+        {
+          "document": "@knowledge/revert.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 4,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/revert.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 4,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "legacy",
+      "query_id": "s08",
+      "atoms": [
+        {
+          "document": "@knowledge/codegen.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 4,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "legacy",
+      "query_id": "s09",
+      "atoms": [
+        {
+          "document": "@knowledge/codegen.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 4,
+          "within_document_rank": 2
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "legacy",
+      "query_id": "s10",
+      "atoms": [
+        {
+          "document": "@knowledge/codegen.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 4,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "legacy",
+      "query_id": "s11",
+      "atoms": [
+        {
+          "document": "@project/release-current.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 4,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@project/release-current.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 4,
+          "within_document_rank": 3
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "legacy",
+      "query_id": "s12",
+      "atoms": [
+        {
+          "document": "@project/release-current.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 4,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/release-check.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "legacy",
+      "query_id": "s13",
+      "atoms": [
+        {
+          "document": "@knowledge/isolation.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 2,
+          "document_chunks": 4,
+          "within_document_rank": 2
+        },
+        {
+          "document": "@knowledge/wal.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 2
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "legacy",
+      "query_id": "s14",
+      "atoms": [
+        {
+          "document": "@knowledge/atlas.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 12,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/atlas.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 12,
+          "within_document_rank": 4
+        },
+        {
+          "document": "@knowledge/atlas.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 12,
+          "within_document_rank": 4
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "legacy",
+      "query_id": "s15",
+      "atoms": [
+        {
+          "document": "@knowledge/atlas.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 12,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/atlas.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 12,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "legacy",
+      "query_id": "s16",
+      "atoms": [
+        {
+          "document": "@knowledge/atlas.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 12,
+          "within_document_rank": 3
+        },
+        {
+          "document": "@knowledge/atlas.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 12,
+          "within_document_rank": 3
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "structure-v2",
+      "query_id": "s01",
+      "atoms": [
+        {
+          "document": "@knowledge/wal.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/wal.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "structure-v2",
+      "query_id": "s02",
+      "atoms": [
+        {
+          "document": "@knowledge/wal.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "structure-v2",
+      "query_id": "s03",
+      "atoms": [
+        {
+          "document": "@knowledge/isolation.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 2
+        },
+        {
+          "document": "@knowledge/isolation.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "structure-v2",
+      "query_id": "s04",
+      "atoms": [
+        {
+          "document": "@knowledge/isolation.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "structure-v2",
+      "query_id": "s05",
+      "atoms": [
+        {
+          "document": "@knowledge/isolation.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "structure-v2",
+      "query_id": "s06",
+      "atoms": [
+        {
+          "document": "@knowledge/revert.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 2,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/revert.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 2,
+          "document_chunks": 3,
+          "within_document_rank": 2
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "structure-v2",
+      "query_id": "s07",
+      "atoms": [
+        {
+          "document": "@knowledge/revert.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/revert.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "structure-v2",
+      "query_id": "s08",
+      "atoms": [
+        {
+          "document": "@knowledge/codegen.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "structure-v2",
+      "query_id": "s09",
+      "atoms": [
+        {
+          "document": "@knowledge/codegen.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "structure-v2",
+      "query_id": "s10",
+      "atoms": [
+        {
+          "document": "@knowledge/codegen.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "structure-v2",
+      "query_id": "s11",
+      "atoms": [
+        {
+          "document": "@project/release-current.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@project/release-current.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 2
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "structure-v2",
+      "query_id": "s12",
+      "atoms": [
+        {
+          "document": "@project/release-current.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/release-check.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 1,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "structure-v2",
+      "query_id": "s13",
+      "atoms": [
+        {
+          "document": "@knowledge/isolation.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 3,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/wal.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 2,
+          "document_chunks": 2,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "structure-v2",
+      "query_id": "s14",
+      "atoms": [
+        {
+          "document": "@knowledge/atlas.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 11,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/atlas.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 11,
+          "within_document_rank": 3
+        },
+        {
+          "document": "@knowledge/atlas.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 11,
+          "within_document_rank": 3
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "structure-v2",
+      "query_id": "s15",
+      "atoms": [
+        {
+          "document": "@knowledge/atlas.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 11,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/atlas.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 11,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "structure-v2",
+      "query_id": "s16",
+      "atoms": [
+        {
+          "document": "@knowledge/atlas.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 11,
+          "within_document_rank": 3
+        },
+        {
+          "document": "@knowledge/atlas.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 11,
+          "within_document_rank": 3
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "stress_1036",
+      "chunker": "legacy",
+      "query_id": "s14",
+      "atoms": [
+        {
+          "document": "@knowledge/atlas.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 12,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/atlas.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 12,
+          "within_document_rank": 4
+        },
+        {
+          "document": "@knowledge/atlas.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 12,
+          "within_document_rank": 4
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "stress_1036",
+      "chunker": "legacy",
+      "query_id": "s15",
+      "atoms": [
+        {
+          "document": "@knowledge/atlas.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 12,
+          "within_document_rank": 1
+        },
+        {
+          "document": "@knowledge/atlas.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 12,
+          "within_document_rank": 1
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    },
+    {
+      "dataset": "stress_1036",
+      "chunker": "legacy",
+      "query_id": "s16",
+      "atoms": [
+        {
+          "document": "@knowledge/atlas.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 12,
+          "within_document_rank": 3
+        },
+        {
+          "document": "@knowledge/atlas.md",
+          "document_seeded_at_10": true,
+          "document_first_hit_rank_in_scope": 1,
+          "document_chunks": 12,
+          "within_document_rank": 3
+        }
+      ],
+      "all_required_documents_seeded": true,
+      "all_atoms_within_own_doc_10": true,
+      "interpretation": "Structural opportunity audit only; no documents routed or expanded, no output selection."
+    }
+  ],
+  "s14": [
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "legacy",
+      "query": "Co zabezpieczyć przed aktualizacją firmware Atlas i jakie dwa wyniki muszą znaleźć się w odbiorze?",
+      "atlas_chunks": 12,
+      "top_hit": {
+        "id": "global:atlas.md:2:0",
+        "path": "atlas.md",
+        "cosine": 0.6852033833544733
+      },
+      "evidence": [
+        {
+          "passage": "Before updating Atlas firmware, disconnect the excitation output and verify that the recovery image can be restored.",
+          "id": "global:atlas.md:2:0",
+          "text": "## Prerequisites\nBefore updating Atlas firmware, disconnect the excitation output and verify that the recovery image can be restored. Keep the instrument powered from the approved isolated supply while copying its configuration. A screenshot of the live display is insufficient because it omits calibration and trigger state. Export the complete configuration bundle and record its checksum before opening the maintenance session.",
+          "metadata": {
+            "backlinks": [],
+            "sync_fingerprint": "788db6c4c38ffb1e66fb5aa2116ea5e2d848b5756985a7e87581518152fd4a39",
+            "section_index": 2,
+            "sync_chunk_count": 12,
+            "tags": [],
+            "section_header": "Prerequisites",
+            "note_metadata_version": 1,
+            "chunk_index": 0
+          },
+          "cosine": 0.6852033833544733,
+          "global_rank": 1,
+          "within_atlas_rank": 1,
+          "non_atlas_chunks_outranking": 0,
+          "file_order_distance_from_top_hit": 0
+        },
+        {
+          "passage": "the timestamp drift remains below 80 microseconds over the complete test interval.",
+          "id": "global:atlas.md:10:0",
+          "text": "## Acceptance\nAtlas passes acceptance only when the timestamp drift remains below 80 microseconds over the complete test interval. The acceptance record must also contain a continuous 40-second trace without a dropped sample. Inspect the exported file, not only the live display. A short successful capture does not establish compliance with the complete interval requirement.",
+          "metadata": {
+            "sync_chunk_count": 12,
+            "tags": [],
+            "section_header": "Acceptance",
+            "backlinks": [],
+            "chunk_index": 0,
+            "section_index": 10,
+            "sync_fingerprint": "788db6c4c38ffb1e66fb5aa2116ea5e2d848b5756985a7e87581518152fd4a39",
+            "note_metadata_version": 1
+          },
+          "cosine": 0.4479400068806084,
+          "global_rank": 4,
+          "within_atlas_rank": 4,
+          "non_atlas_chunks_outranking": 0,
+          "file_order_distance_from_top_hit": 8
+        },
+        {
+          "passage": "a continuous 40-second trace without a dropped sample.",
+          "id": "global:atlas.md:10:0",
+          "text": "## Acceptance\nAtlas passes acceptance only when the timestamp drift remains below 80 microseconds over the complete test interval. The acceptance record must also contain a continuous 40-second trace without a dropped sample. Inspect the exported file, not only the live display. A short successful capture does not establish compliance with the complete interval requirement.",
+          "metadata": {
+            "sync_chunk_count": 12,
+            "tags": [],
+            "section_header": "Acceptance",
+            "backlinks": [],
+            "chunk_index": 0,
+            "section_index": 10,
+            "sync_fingerprint": "788db6c4c38ffb1e66fb5aa2116ea5e2d848b5756985a7e87581518152fd4a39",
+            "note_metadata_version": 1
+          },
+          "cosine": 0.4479400068806084,
+          "global_rank": 4,
+          "within_atlas_rank": 4,
+          "non_atlas_chunks_outranking": 0,
+          "file_order_distance_from_top_hit": 8
+        }
+      ],
+      "top_non_atlas": [
+        {
+          "id": "global:release-check.md:0:0",
+          "cosine": 0.3707230606704621,
+          "text": "# Validierung eines Releases"
+        },
+        {
+          "id": "global:release-check.md:1:0",
+          "cosine": 0.3469675533605758,
+          "text": "## Nach der Migration\nNach dem Schemawechsel müssen Integritätsprüfung und ein Schreib-Lese-Test erfolgreich sein.\nDie Prüfung erfolgt vor dem Wiederanlauf der schreibenden Aufgaben."
+        },
+        {
+          "id": "global:wal.md:0:0",
+          "cosine": 0.3316093449663581,
+          "text": "# SQLite WAL engineering note"
+        }
+      ],
+      "cached_atom_ranks": [
+        1,
+        4,
+        4
+      ]
+    },
+    {
+      "dataset": "evidence_supplement_v1",
+      "chunker": "structure-v2",
+      "query": "Co zabezpieczyć przed aktualizacją firmware Atlas i jakie dwa wyniki muszą znaleźć się w odbiorze?",
+      "atlas_chunks": 11,
+      "top_hit": {
+        "id": "global:atlas.md:structure-v2:1",
+        "path": "atlas.md",
+        "cosine": 0.6851438826134029
+      },
+      "evidence": [
+        {
+          "passage": "Before updating Atlas firmware, disconnect the excitation output and verify that the recovery image can be restored.",
+          "id": "global:atlas.md:structure-v2:1",
+          "text": "## Prerequisites\nBefore updating Atlas firmware, disconnect the excitation output and verify that the recovery image can be restored. Keep the instrument powered from the approved isolated supply while copying its configuration. A screenshot of the live display is insufficient because it omits calibration and trigger state. Export the complete configuration bundle and record its checksum before opening the maintenance session.\n\n",
+          "metadata": {
+            "chunk_index": 1,
+            "start_offset": 474,
+            "note_metadata_version": 1,
+            "sync_chunk_count": 11,
+            "tags": [],
+            "code_language": "",
+            "section_path": [
+              "Atlas maintenance manual",
+              "Prerequisites"
+            ],
+            "end_line": 8,
+            "synthetic_chars": 0,
+            "section_header": "Prerequisites",
+            "block_id": "474:906",
+            "limited_context": false,
+            "chunking_strategy": "structure-v2",
+            "start_line": 6,
+            "end_offset": 906,
+            "backlinks": [],
+            "sync_fingerprint": "93eb6845cc396eec74de5d906438313c7295599806ebf70c711dc9cd7a2e3906",
+            "content_type": "text",
+            "context_spans": []
+          },
+          "cosine": 0.6851438826134029,
+          "global_rank": 1,
+          "within_atlas_rank": 1,
+          "non_atlas_chunks_outranking": 0,
+          "file_order_distance_from_top_hit": 0
+        },
+        {
+          "passage": "the timestamp drift remains below 80 microseconds over the complete test interval.",
+          "id": "global:atlas.md:structure-v2:9",
+          "text": "## Acceptance\nAtlas passes acceptance only when the timestamp drift remains below 80 microseconds over the complete test interval. The acceptance record must also contain a continuous 40-second trace without a dropped sample. Inspect the exported file, not only the live display. A short successful capture does not establish compliance with the complete interval requirement.\n\n",
+          "metadata": {
+            "sync_fingerprint": "93eb6845cc396eec74de5d906438313c7295599806ebf70c711dc9cd7a2e3906",
+            "synthetic_chars": 0,
+            "chunk_index": 9,
+            "note_metadata_version": 1,
+            "limited_context": false,
+            "start_line": 30,
+            "chunking_strategy": "structure-v2",
+            "section_header": "Acceptance",
+            "context_spans": [],
+            "end_line": 32,
+            "section_path": [
+              "Atlas maintenance manual",
+              "Acceptance"
+            ],
+            "tags": [],
+            "code_language": "",
+            "backlinks": [],
+            "block_id": "3437:3815",
+            "start_offset": 3437,
+            "end_offset": 3815,
+            "sync_chunk_count": 11,
+            "content_type": "text"
+          },
+          "cosine": 0.4452777487470582,
+          "global_rank": 3,
+          "within_atlas_rank": 3,
+          "non_atlas_chunks_outranking": 0,
+          "file_order_distance_from_top_hit": 8
+        },
+        {
+          "passage": "a continuous 40-second trace without a dropped sample.",
+          "id": "global:atlas.md:structure-v2:9",
+          "text": "## Acceptance\nAtlas passes acceptance only when the timestamp drift remains below 80 microseconds over the complete test interval. The acceptance record must also contain a continuous 40-second trace without a dropped sample. Inspect the exported file, not only the live display. A short successful capture does not establish compliance with the complete interval requirement.\n\n",
+          "metadata": {
+            "sync_fingerprint": "93eb6845cc396eec74de5d906438313c7295599806ebf70c711dc9cd7a2e3906",
+            "synthetic_chars": 0,
+            "chunk_index": 9,
+            "note_metadata_version": 1,
+            "limited_context": false,
+            "start_line": 30,
+            "chunking_strategy": "structure-v2",
+            "section_header": "Acceptance",
+            "context_spans": [],
+            "end_line": 32,
+            "section_path": [
+              "Atlas maintenance manual",
+              "Acceptance"
+            ],
+            "tags": [],
+            "code_language": "",
+            "backlinks": [],
+            "block_id": "3437:3815",
+            "start_offset": 3437,
+            "end_offset": 3815,
+            "sync_chunk_count": 11,
+            "content_type": "text"
+          },
+          "cosine": 0.4452777487470582,
+          "global_rank": 3,
+          "within_atlas_rank": 3,
+          "non_atlas_chunks_outranking": 0,
+          "file_order_distance_from_top_hit": 8
+        }
+      ],
+      "top_non_atlas": [
+        {
+          "id": "global:release-check.md:structure-v2:0",
+          "cosine": 0.3981201964312782,
+          "text": "# Validierung eines Releases\n## Nach der Migration\nNach dem Schemawechsel müssen Integritätsprüfung und ein Schreib-Lese-Test erfolgreich sein.\nDie Prüfung erfolgt vor dem Wiederanlauf der schreibenden Aufgaben.\n"
+        },
+        {
+          "id": "global:isolation.md:structure-v2:0",
+          "cosine": 0.2776313585052756,
+          "text": "# PostgreSQL transaction review\n## Read committed\nRead Committed obtains a new snapshot for each statement.\nTwo reads in one transaction can therefore observe different committed data.\n"
+        },
+        {
+          "id": "global:wal.md:structure-v2:0",
+          "cosine": 0.27548995262053716,
+          "text": "# SQLite WAL engineering note\n## Concurrency\nWAL lets readers overlap a writer, but there is still only one writer at a time.\nAll database processes must share a host; WAL is unsuitable for a network filesystem.\nEach read transaction retains its original committed snapshot until it ends.\n"
+        }
+      ],
+      "cached_atom_ranks": [
+        1,
+        3,
+        3
+      ]
+    },
+    {
+      "dataset": "stress_1036",
+      "chunker": "legacy",
+      "query": "Co zabezpieczyć przed aktualizacją firmware Atlas i jakie dwa wyniki muszą znaleźć się w odbiorze?",
+      "atlas_chunks": 12,
+      "top_hit": {
+        "id": "global:atlas.md:2:0",
+        "path": "atlas.md",
+        "cosine": 0.6852033834271181
+      },
+      "evidence": [
+        {
+          "passage": "Before updating Atlas firmware, disconnect the excitation output and verify that the recovery image can be restored.",
+          "id": "global:atlas.md:2:0",
+          "text": "## Prerequisites\nBefore updating Atlas firmware, disconnect the excitation output and verify that the recovery image can be restored. Keep the instrument powered from the approved isolated supply while copying its configuration. A screenshot of the live display is insufficient because it omits calibration and trigger state. Export the complete configuration bundle and record its checksum before opening the maintenance session.",
+          "metadata": {
+            "section_header": "Prerequisites",
+            "section_index": 2,
+            "chunk_index": 0,
+            "tags": [],
+            "backlinks": []
+          },
+          "cosine": 0.6852033834271181,
+          "global_rank": 1,
+          "within_atlas_rank": 1,
+          "non_atlas_chunks_outranking": 0,
+          "file_order_distance_from_top_hit": 0
+        },
+        {
+          "passage": "the timestamp drift remains below 80 microseconds over the complete test interval.",
+          "id": "global:atlas.md:10:0",
+          "text": "## Acceptance\nAtlas passes acceptance only when the timestamp drift remains below 80 microseconds over the complete test interval. The acceptance record must also contain a continuous 40-second trace without a dropped sample. Inspect the exported file, not only the live display. A short successful capture does not establish compliance with the complete interval requirement.",
+          "metadata": {
+            "section_header": "Acceptance",
+            "section_index": 10,
+            "chunk_index": 0,
+            "tags": [],
+            "backlinks": []
+          },
+          "cosine": 0.4479400068806084,
+          "global_rank": 66,
+          "within_atlas_rank": 4,
+          "non_atlas_chunks_outranking": 62,
+          "file_order_distance_from_top_hit": 8
+        },
+        {
+          "passage": "a continuous 40-second trace without a dropped sample.",
+          "id": "global:atlas.md:10:0",
+          "text": "## Acceptance\nAtlas passes acceptance only when the timestamp drift remains below 80 microseconds over the complete test interval. The acceptance record must also contain a continuous 40-second trace without a dropped sample. Inspect the exported file, not only the live display. A short successful capture does not establish compliance with the complete interval requirement.",
+          "metadata": {
+            "section_header": "Acceptance",
+            "section_index": 10,
+            "chunk_index": 0,
+            "tags": [],
+            "backlinks": []
+          },
+          "cosine": 0.4479400068806084,
+          "global_rank": 66,
+          "within_atlas_rank": 4,
+          "non_atlas_chunks_outranking": 62,
+          "file_order_distance_from_top_hit": 8
+        }
+      ],
+      "top_non_atlas": [
+        {
+          "id": "stress-978",
+          "cosine": 0.5052592145414132,
+          "text": "Synthetic distractor engineering record 978. Subsystem firmware recovery, review area sample buffering. Device group 61 schedules inspection after 22 operating cycles. This fixture discusses maintenance logging, reference measurements and test preparation. Record 978 supplies no Atlas firmware prerequisites or acceptance limits. Its numeric tracking value is 16629 and its channel group is 18."
+        },
+        {
+          "id": "stress-34",
+          "cosine": 0.4943406205912075,
+          "text": "Synthetic distractor engineering record 34. Subsystem firmware recovery, review area firmware recovery. Device group 2 schedules inspection after 6 operating cycles. This fixture discusses maintenance logging, reference measurements and test preparation. Record 34 supplies no Atlas firmware prerequisites or acceptance limits. Its numeric tracking value is 581 and its channel group is 34."
+        },
+        {
+          "id": "stress-290",
+          "cosine": 0.4794197400920637,
+          "text": "Synthetic distractor engineering record 290. Subsystem firmware recovery, review area firmware recovery. Device group 18 schedules inspection after 1 operating cycles. This fixture discusses maintenance logging, reference measurements and test preparation. Record 290 supplies no Atlas firmware prerequisites or acceptance limits. Its numeric tracking value is 4933 and its channel group is 34."
+        }
+      ],
+      "cached_atom_ranks": [
+        1,
+        66,
+        66
+      ]
+    }
+  ],
+  "cached_oracle": {
+    "label": "ORACLE: reuse independently phrased frozen s16 as a known acceptance facet; not automatic decomposition",
+    "query": "Welche Nachweise braucht die Atlas-Abnahme statt nur einer kurzen Anzeige?",
+    "s14_atom_ranks": [
+      4,
+      3,
+      3
+    ]
+  },
+  "manual_oracle_probes": {
+    "status": "not_requested",
+    "rows": []
+  },
+  "parent_budget_inspection": {
+    "label": "Hypothetical one-parent renderer inspection, NOT a parent retriever implementation",
+    "source_chars": 4194,
+    "raw_estimated_tokens": 1049,
+    "rendered_tokens_at_1000": 1000,
+    "truncated": true,
+    "atoms_visible": [
+      true,
+      true,
+      true
+    ],
+    "oracle_labeled_fragments_only": {
+      "label": "ORACLE context-cost lower bound using known labels, not a selector",
+      "count": 2,
+      "estimated_tokens": 231,
+      "atoms_visible": [
+        true,
+        true,
+        true
+      ]
+    }
+  }
+}

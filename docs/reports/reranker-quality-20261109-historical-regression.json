@@ -1,0 +1,26 @@
+[
+  {
+    "dataset": "baseline_v1",
+    "strategy": "legacy",
+    "queries": 28,
+    "differences": []
+  },
+  {
+    "dataset": "baseline_v1",
+    "strategy": "structure-v2",
+    "queries": 28,
+    "differences": []
+  },
+  {
+    "dataset": "hard_cases_v1",
+    "strategy": "legacy",
+    "queries": 13,
+    "differences": []
+  },
+  {
+    "dataset": "hard_cases_v1",
+    "strategy": "structure-v2",
+    "queries": 13,
+    "differences": []
+  }
+]

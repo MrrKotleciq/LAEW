@@ -40,7 +40,103 @@ services:
     security_opt:
       - no-new-privileges:true
 
+  reranker-gte:
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.9.4@sha256:2538ea1c9640d3763b15af668039d24172d063b42337b0c27796fc2be180c78d
+    profiles: [reranker-gte]
+    restart: "no"
+    ports: ["127.0.0.1:8083:80"]
+    environment: &reranker-tei-env
+      HF_HUB_DISABLE_TELEMETRY: "1"
+      OMP_NUM_THREADS: "2"
+      MKL_NUM_THREADS: "2"
+      RAYON_NUM_THREADS: "2"
+      TOKIO_WORKER_THREADS: "2"
+      LOG_LEVEL: info
+    command:
+      - --model-id
+      - Alibaba-NLP/gte-multilingual-reranker-base
+      - --revision
+      - 8215cf04918ba6f7b6a62bb44238ce2953d8831c
+      - --port=80
+      - --hostname=0.0.0.0
+      - --dtype=float32
+      - --huggingface-hub-cache=/data
+      - --max-batch-tokens=1024
+      - --max-batch-requests=1
+      - --max-client-batch-size=16
+      - --max-concurrent-requests=16
+      - --tokenization-workers=1
+      - --payload-limit=524288
+      - --disable-spans
+    volumes: [reranker-gte-cache:/data]
+    cpus: 2.0
+    mem_limit: 3g
+    pids_limit: 128
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    healthcheck: &reranker-tei-health
+      test: [CMD, curl, --fail, --silent, --max-time, "3", http://127.0.0.1:80/health]
+      interval: 30s
+      timeout: 5s
+      start_period: 30m
+      start_interval: 5s
+      retries: 3
+
+  reranker-bge:
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.9.4@sha256:2538ea1c9640d3763b15af668039d24172d063b42337b0c27796fc2be180c78d
+    profiles: [reranker-bge]
+    restart: "no"
+    ports: ["127.0.0.1:8084:80"]
+    environment: *reranker-tei-env
+    command:
+      - --model-id
+      - BAAI/bge-reranker-v2-m3
+      - --revision
+      - 953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e
+      - --port=80
+      - --hostname=0.0.0.0
+      - --dtype=float32
+      - --huggingface-hub-cache=/data
+      - --max-batch-tokens=1024
+      - --max-batch-requests=1
+      - --max-client-batch-size=16
+      - --max-concurrent-requests=16
+      - --tokenization-workers=1
+      - --payload-limit=524288
+      - --disable-spans
+    volumes: [reranker-bge-cache:/data]
+    cpus: 2.0
+    mem_limit: 4g
+    pids_limit: 128
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    healthcheck: *reranker-tei-health
+
+  reranker-mxbai:
+    build: ./tools/rerankers
+    image: laew/reranker-mxbai:0.1.0
+    profiles: [reranker-mxbai]
+    restart: "no"
+    ports: ["127.0.0.1:8085:8080"]
+    environment:
+      HF_HOME: /models/hf
+      MODEL_ID: mixedbread-ai/mxbai-rerank-base-v2
+      MODEL_REVISION: 3ea9d4dffa7d12a4f366be8e275c349de9fc9865
+      OMP_NUM_THREADS: "2"
+      MKL_NUM_THREADS: "2"
+      TOKENIZERS_PARALLELISM: "false"
+      MAX_INPUT_TOKENS: "1024"
+    volumes: [reranker-mxbai-cache:/models/hf]
+    cpus: 2.0
+    mem_limit: 4g
+    pids_limit: 128
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+
 volumes:
+  reranker-gte-cache:
+  reranker-bge-cache:
+  reranker-mxbai-cache:
   chroma_data:
   searxng_cache:
   horizon-model-cache:

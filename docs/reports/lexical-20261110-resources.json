@@ -1,0 +1,290 @@
+{
+  "resources": [
+    {
+      "dataset": "reranker_holdout_v1",
+      "backend": "fts5",
+      "chunks": 52,
+      "backend_import_and_open_seconds": 0.020942500000273867,
+      "build_publish_seconds": 0.0074201999996148515,
+      "rss_before_backend_import": {
+        "working_set_bytes": 57880576,
+        "peak_working_set_bytes": 59678720
+      },
+      "rss_after_open": {
+        "working_set_bytes": 58740736,
+        "peak_working_set_bytes": 59678720
+      },
+      "rss_after_build": {
+        "working_set_bytes": 58978304,
+        "peak_working_set_bytes": 59678720
+      },
+      "rss_warm": {
+        "working_set_bytes": 59346944,
+        "peak_working_set_bytes": 59678720
+      },
+      "rss_reloaded": {
+        "working_set_bytes": 59748352,
+        "peak_working_set_bytes": 59748352
+      },
+      "python_traced_build_peak_bytes": 118426,
+      "mutations": [
+        {
+          "operation": "add",
+          "seconds": 0.003411900000173773,
+          "verified": true,
+          "implementation": "transactional incremental"
+        },
+        {
+          "operation": "update",
+          "seconds": 0.0029160000003685127,
+          "verified": true,
+          "implementation": "transactional incremental"
+        },
+        {
+          "operation": "delete",
+          "seconds": 0.00293599999986327,
+          "verified": true,
+          "implementation": "transactional incremental"
+        }
+      ],
+      "clean_rebuild_seconds": 0.008151299999553885,
+      "post_mutation_equals_clean": true,
+      "reload_seconds": 0.001575100000081875,
+      "reload_verified": true,
+      "active_index_bytes_after_mutations": 155648,
+      "retained_index_bytes_after_mutations": 155648
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "backend": "bm25s",
+      "chunks": 52,
+      "backend_import_and_open_seconds": 0.12651120000009541,
+      "build_publish_seconds": 0.04098749999957363,
+      "rss_before_backend_import": {
+        "working_set_bytes": 55160832,
+        "peak_working_set_bytes": 55160832
+      },
+      "rss_after_open": {
+        "working_set_bytes": 58986496,
+        "peak_working_set_bytes": 62615552
+      },
+      "rss_after_build": {
+        "working_set_bytes": 60080128,
+        "peak_working_set_bytes": 62615552
+      },
+      "rss_warm": {
+        "working_set_bytes": 60149760,
+        "peak_working_set_bytes": 62615552
+      },
+      "rss_reloaded": {
+        "working_set_bytes": 60739584,
+        "peak_working_set_bytes": 62615552
+      },
+      "python_traced_build_peak_bytes": 956633,
+      "mutations": [
+        {
+          "operation": "add",
+          "seconds": 0.011142100000142818,
+          "verified": true,
+          "implementation": "full snapshot rebuild"
+        },
+        {
+          "operation": "update",
+          "seconds": 0.011709399999745074,
+          "verified": true,
+          "implementation": "full snapshot rebuild"
+        },
+        {
+          "operation": "delete",
+          "seconds": 0.010245999999824562,
+          "verified": true,
+          "implementation": "full snapshot rebuild"
+        }
+      ],
+      "clean_rebuild_seconds": 0.01101329999983136,
+      "post_mutation_equals_clean": true,
+      "reload_seconds": 0.062131200000294484,
+      "reload_verified": true,
+      "active_index_bytes_after_mutations": 79014,
+      "retained_index_bytes_after_mutations": 315767
+    },
+    {
+      "dataset": "reranker_holdout_v1",
+      "backend": "dense",
+      "chunks": 52,
+      "backend_import_and_open_seconds": 2.312412499999482,
+      "build_publish_seconds": 0.08628500000031636,
+      "rss_before_backend_import": {
+        "working_set_bytes": 55136256,
+        "peak_working_set_bytes": 55136256
+      },
+      "rss_after_open": {
+        "working_set_bytes": 108130304,
+        "peak_working_set_bytes": 108130304
+      },
+      "rss_after_build": {
+        "working_set_bytes": 121331712,
+        "peak_working_set_bytes": 121331712
+      },
+      "rss_warm": {
+        "working_set_bytes": 121479168,
+        "peak_working_set_bytes": 121479168
+      },
+      "rss_reloaded": {
+        "working_set_bytes": 121679872,
+        "peak_working_set_bytes": 121679872
+      },
+      "python_traced_build_peak_bytes": 2007370,
+      "mutations": [],
+      "clean_rebuild_seconds": null,
+      "post_mutation_equals_clean": null,
+      "reload_seconds": 0.036521799999718496,
+      "reload_verified": true,
+      "active_index_bytes_after_mutations": 977060,
+      "retained_index_bytes_after_mutations": 977060
+    },
+    {
+      "dataset": "stress_1036",
+      "backend": "fts5",
+      "chunks": 1036,
+      "backend_import_and_open_seconds": 0.023863499999606574,
+      "build_publish_seconds": 0.09220960000038758,
+      "rss_before_backend_import": {
+        "working_set_bytes": 95686656,
+        "peak_working_set_bytes": 206245888
+      },
+      "rss_after_open": {
+        "working_set_bytes": 96600064,
+        "peak_working_set_bytes": 206245888
+      },
+      "rss_after_build": {
+        "working_set_bytes": 100405248,
+        "peak_working_set_bytes": 206245888
+      },
+      "rss_warm": {
+        "working_set_bytes": 100483072,
+        "peak_working_set_bytes": 206245888
+      },
+      "rss_reloaded": {
+        "working_set_bytes": 107761664,
+        "peak_working_set_bytes": 206245888
+      },
+      "python_traced_build_peak_bytes": 1661217,
+      "mutations": [
+        {
+          "operation": "add",
+          "seconds": 0.004671800000323856,
+          "verified": true,
+          "implementation": "transactional incremental"
+        },
+        {
+          "operation": "update",
+          "seconds": 0.003991499999756343,
+          "verified": true,
+          "implementation": "transactional incremental"
+        },
+        {
+          "operation": "delete",
+          "seconds": 0.004003900000498106,
+          "verified": true,
+          "implementation": "transactional incremental"
+        }
+      ],
+      "clean_rebuild_seconds": 0.092049699999734,
+      "post_mutation_equals_clean": true,
+      "reload_seconds": 0.0019131999997625826,
+      "reload_verified": true,
+      "active_index_bytes_after_mutations": 1744896,
+      "retained_index_bytes_after_mutations": 1744896
+    },
+    {
+      "dataset": "stress_1036",
+      "backend": "bm25s",
+      "chunks": 1036,
+      "backend_import_and_open_seconds": 0.04552440000043134,
+      "build_publish_seconds": 0.07054549999975279,
+      "rss_before_backend_import": {
+        "working_set_bytes": 95907840,
+        "peak_working_set_bytes": 206077952
+      },
+      "rss_after_open": {
+        "working_set_bytes": 97677312,
+        "peak_working_set_bytes": 206077952
+      },
+      "rss_after_build": {
+        "working_set_bytes": 105132032,
+        "peak_working_set_bytes": 206077952
+      },
+      "rss_warm": {
+        "working_set_bytes": 105222144,
+        "peak_working_set_bytes": 206077952
+      },
+      "rss_reloaded": {
+        "working_set_bytes": 115593216,
+        "peak_working_set_bytes": 206077952
+      },
+      "python_traced_build_peak_bytes": 6138964,
+      "mutations": [
+        {
+          "operation": "add",
+          "seconds": 0.05943089999982476,
+          "verified": true,
+          "implementation": "full snapshot rebuild"
+        },
+        {
+          "operation": "update",
+          "seconds": 0.0582380000005287,
+          "verified": true,
+          "implementation": "full snapshot rebuild"
+        },
+        {
+          "operation": "delete",
+          "seconds": 0.05950539999957982,
+          "verified": true,
+          "implementation": "full snapshot rebuild"
+        }
+      ],
+      "clean_rebuild_seconds": 0.05749160000050324,
+      "post_mutation_equals_clean": true,
+      "reload_seconds": 0.051296300000103656,
+      "reload_verified": true,
+      "active_index_bytes_after_mutations": 940004,
+      "retained_index_bytes_after_mutations": 3759693
+    },
+    {
+      "dataset": "stress_1036",
+      "backend": "dense",
+      "chunks": 1036,
+      "backend_import_and_open_seconds": 1.0102339999994001,
+      "build_publish_seconds": 0.46624359999987064,
+      "rss_before_backend_import": {
+        "working_set_bytes": 95911936,
+        "peak_working_set_bytes": 206258176
+      },
+      "rss_after_open": {
+        "working_set_bytes": 144658432,
+        "peak_working_set_bytes": 206258176
+      },
+      "rss_after_build": {
+        "working_set_bytes": 167264256,
+        "peak_working_set_bytes": 229707776
+      },
+      "rss_warm": {
+        "working_set_bytes": 167497728,
+        "peak_working_set_bytes": 229707776
+      },
+      "rss_reloaded": {
+        "working_set_bytes": 165789696,
+        "peak_working_set_bytes": 229707776
+      },
+      "python_traced_build_peak_bytes": 38955142,
+      "mutations": [],
+      "clean_rebuild_seconds": null,
+      "post_mutation_equals_clean": null,
+      "reload_seconds": 0.0732612000001609,
+      "reload_verified": true,
+      "active_index_bytes_after_mutations": 10779776,
+      "retained_index_bytes_after_mutations": 10779776
+    }
+  ]
+}

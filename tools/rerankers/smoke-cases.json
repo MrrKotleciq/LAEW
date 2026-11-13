@@ -1,0 +1,48 @@
+[
+  {
+    "name": "english-technical-duplicates",
+    "query": "How should the controller be initialized?",
+    "documents": [
+      {"id": "communication", "text": "Initialize communication before enabling the actuator."},
+      {"id": "firmware", "text": "Disconnect the actuator before updating firmware."},
+      {"id": "duplicate", "text": "Initialize communication before enabling the actuator."},
+      {"id": "irrelevant", "text": "The museum is closed on Sundays."}
+    ]
+  },
+  {
+    "name": "polish",
+    "query": "Jak zainicjalizować sterownik?",
+    "documents": [
+      {"id": "pl-1", "text": "Przed włączeniem napędu zainicjalizuj komunikację i sprawdź połączenie."},
+      {"id": "pl-2", "text": "Przed aktualizacją oprogramowania odłącz napęd."},
+      {"id": "pl-3", "text": "Najlepszy przepis na ciasto zawiera jabłka."}
+    ]
+  },
+  {
+    "name": "german",
+    "query": "Wie wird die Steuerung initialisiert?",
+    "documents": [
+      {"id": "de-1", "text": "Initialisieren Sie die Kommunikation, bevor Sie den Antrieb aktivieren."},
+      {"id": "de-2", "text": "Trennen Sie den Antrieb vor dem Firmware-Update."},
+      {"id": "de-3", "text": "Der Zug fährt am Samstag nach Berlin."}
+    ]
+  },
+  {
+    "name": "cross-language",
+    "query": "What must happen before enabling the actuator?",
+    "documents": [
+      {"id": "cross-pl", "text": "Zainicjalizuj komunikację przed włączeniem napędu."},
+      {"id": "cross-de", "text": "Die Kommunikation muss vor dem Aktivieren des Antriebs initialisiert werden."},
+      {"id": "cross-no", "text": "Warszawa jest stolicą Polski."}
+    ]
+  },
+  {
+    "name": "code",
+    "query": "Python: how do I close a file even if parsing raises an exception?",
+    "documents": [
+      {"id": "code-with", "text": "with open(path, encoding='utf-8') as stream:\n    data = json.load(stream)\n# The context manager closes the file on exit, including exceptions."},
+      {"id": "code-finally", "text": "try:\n    parse(stream)\nfinally:\n    stream.close()"},
+      {"id": "code-no", "text": "Use sorted(values, reverse=True) to sort a list in descending order."}
+    ]
+  }
+]

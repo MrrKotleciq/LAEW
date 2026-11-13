@@ -1,0 +1,11 @@
+{
+  "date": "2026-11-11",
+  "authorship": "Agent-authored and frozen before scoring; not independently human judged.",
+  "sha256": {
+    "dataset.json": "fefbece99f7dffe8628ebf98547f93b16570886292653322832a196ca6f863b1",
+    "global/mira.md": "f58ba9f5078b2457b7e54ca500bba9c61b5c322601e198ae8b83ae2815e1f109",
+    "global/orion.md": "1ba68586318a377368bbe17d631a43ac4c2bc77788978581f0be2cc0b16ee2d1",
+    "global/polar.md": "eb351081f5bdf08e8f324b7910b1a37758c6c37deb7daa68b9b1c423981a57de",
+    "project/delta.md": "b23e624a41da00e508f28cd00129a6e85441407a9380fa6237d3da260f2c2230"
+  }
+}

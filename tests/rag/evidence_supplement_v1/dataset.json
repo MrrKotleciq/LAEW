@@ -1,0 +1,478 @@
+{
+  "id": "laew-evidence-source-supplement-v1",
+  "version": 1,
+  "queries": [
+    {
+      "id": "s01",
+      "text": "Czy WAL pozwoli kilku procesom jednocześnie zapisywać bazę na udziale sieciowym?",
+      "language": "pl",
+      "topic_id": "wal",
+      "phenomenon": "cross_language",
+      "split": "source_labeled_supplement",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/wal.md"
+      ],
+      "relevance": {
+        "@knowledge/wal.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/wal.md",
+          "passage": "there is still only one writer at a time."
+        },
+        {
+          "document_id": "@knowledge/wal.md",
+          "passage": "WAL is unsuitable for a network filesystem."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "s02",
+      "text": "Our WAL file keeps growing while reporting holds a read transaction open. What could stop checkpoint progress?",
+      "language": "en",
+      "topic_id": "wal",
+      "phenomenon": "cross_language",
+      "split": "source_labeled_supplement",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/wal.md"
+      ],
+      "relevance": {
+        "@knowledge/wal.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/wal.md",
+          "passage": "A long-lived reader can prevent a checkpoint from advancing past that reader's snapshot."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "s03",
+      "text": "Welche beiden Snapshot-Garantien unterscheiden Read Committed von Repeatable Read?",
+      "language": "de",
+      "topic_id": "isolation",
+      "phenomenon": "cross_language",
+      "split": "source_labeled_supplement",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/isolation.md"
+      ],
+      "relevance": {
+        "@knowledge/isolation.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/isolation.md",
+          "passage": "Read Committed obtains a new snapshot for each statement."
+        },
+        {
+          "document_id": "@knowledge/isolation.md",
+          "passage": "Repeatable Read keeps the snapshot established by the first non-control statement."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "s04",
+      "text": "Transakcja aktualizująca dostała błąd serializacji. Czy ponowić tylko ostatni UPDATE?",
+      "language": "pl",
+      "topic_id": "isolation",
+      "phenomenon": "cross_language",
+      "split": "source_labeled_supplement",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/isolation.md"
+      ],
+      "relevance": {
+        "@knowledge/isolation.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/isolation.md",
+          "passage": "Updating transactions must handle serialization failures by restarting the entire transaction."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "s05",
+      "text": "Would PostgreSQL Serializable remove the need for application retries?",
+      "language": "en",
+      "topic_id": "isolation",
+      "phenomenon": "cross_language",
+      "split": "source_labeled_supplement",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/isolation.md"
+      ],
+      "relevance": {
+        "@knowledge/isolation.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/isolation.md",
+          "passage": "Applications still need transaction retry logic when serialization fails."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "s06",
+      "text": "Jak cofnąć opublikowaną zmianę bez przepisywania historii i jak przygotować kilka cofnięć razem?",
+      "language": "pl",
+      "topic_id": "revert",
+      "phenomenon": "cross_language",
+      "split": "source_labeled_supplement",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/revert.md"
+      ],
+      "relevance": {
+        "@knowledge/revert.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/revert.md",
+          "passage": "Revert records a new commit that reverses the effect of an earlier change."
+        },
+        {
+          "document_id": "@knowledge/revert.md",
+          "passage": "The --no-commit option applies reversals to the working tree and index without making a commit."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "s07",
+      "text": "Why do I need to choose a parent when reverting a merge, and will merging again restore everything?",
+      "language": "en",
+      "topic_id": "revert",
+      "phenomenon": "cross_language",
+      "split": "source_labeled_supplement",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/revert.md"
+      ],
+      "relevance": {
+        "@knowledge/revert.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/revert.md",
+          "passage": "Reverting a merge requires choosing a mainline parent with -m; parent numbering starts at one."
+        },
+        {
+          "document_id": "@knowledge/revert.md",
+          "passage": "Later merges do not automatically restore tree changes from ancestors of the reverted merge."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "s08",
+      "text": "Ninja cannot regenerate a missing auxiliary file from our code generator. What declaration is missing?",
+      "language": "en",
+      "topic_id": "codegen",
+      "phenomenon": "cross_language",
+      "split": "source_labeled_supplement",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/codegen.md"
+      ],
+      "relevance": {
+        "@knowledge/codegen.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/codegen.md",
+          "passage": "Declare secondary generated files with BYPRODUCTS so Ninja knows how to rebuild them when missing."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "s09",
+      "text": "Zwei Targets erzeugen dieselbe Datei parallel. Wie soll die CMake-Abhängigkeit aufgebaut werden?",
+      "language": "de",
+      "topic_id": "codegen",
+      "phenomenon": "cross_language",
+      "split": "source_labeled_supplement",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/codegen.md"
+      ],
+      "relevance": {
+        "@knowledge/codegen.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/codegen.md",
+          "passage": "Use one custom target to drive shared generation and make consumers depend on it."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "s10",
+      "text": "Can two custom COMMAND entries rely on shell variables set by the first one?",
+      "language": "en",
+      "topic_id": "codegen",
+      "phenomenon": "cross_language",
+      "split": "source_labeled_supplement",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/codegen.md"
+      ],
+      "relevance": {
+        "@knowledge/codegen.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/codegen.md",
+          "passage": "Multiple COMMAND entries are not guaranteed to share a stateful shell."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "s11",
+      "text": "I have twelve minutes reserved for R7. Is that the approved window, and what must finish before migration?",
+      "language": "en",
+      "topic_id": "release",
+      "phenomenon": "superseded",
+      "split": "source_labeled_supplement",
+      "allowed_scope": "project",
+      "expected_document_ids": [
+        "@project/release-current.md"
+      ],
+      "relevance": {
+        "@project/release-current.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@project/release-current.md",
+          "passage": "Zatwierdzone okno migracji R7 wynosi 25 minut."
+        },
+        {
+          "document_id": "@project/release-current.md",
+          "passage": "Przed migracją zatrzymaj zadania zapisujące i potwierdź odtworzenie kopii na izolowanym serwerze."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "s12",
+      "text": "Co zrobić przed migracją R7 i jakie sprawdzenia wykonać przed wznowieniem zapisów?",
+      "language": "pl",
+      "topic_id": "release",
+      "phenomenon": "multi_document",
+      "split": "source_labeled_supplement",
+      "allowed_scope": "hybrid",
+      "expected_document_ids": [
+        "@project/release-current.md",
+        "@knowledge/release-check.md"
+      ],
+      "relevance": {
+        "@project/release-current.md": 2,
+        "@knowledge/release-check.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@project/release-current.md",
+          "passage": "Przed migracją zatrzymaj zadania zapisujące i potwierdź odtworzenie kopii na izolowanym serwerze."
+        },
+        {
+          "document_id": "@knowledge/release-check.md",
+          "passage": "Nach dem Schemawechsel müssen Integritätsprüfung und ein Schreib-Lese-Test erfolgreich sein."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "s13",
+      "text": "For the database review, explain both PostgreSQL snapshot stability and why an SQLite WAL checkpoint can stall.",
+      "language": "en",
+      "topic_id": "database-review",
+      "phenomenon": "multi_document",
+      "split": "source_labeled_supplement",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/isolation.md",
+        "@knowledge/wal.md"
+      ],
+      "relevance": {
+        "@knowledge/isolation.md": 2,
+        "@knowledge/wal.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/isolation.md",
+          "passage": "Repeatable Read keeps the snapshot established by the first non-control statement."
+        },
+        {
+          "document_id": "@knowledge/wal.md",
+          "passage": "A long-lived reader can prevent a checkpoint from advancing past that reader's snapshot."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "s14",
+      "text": "Co zabezpieczyć przed aktualizacją firmware Atlas i jakie dwa wyniki muszą znaleźć się w odbiorze?",
+      "language": "pl",
+      "topic_id": "atlas",
+      "phenomenon": "long_procedure",
+      "split": "source_labeled_supplement",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/atlas.md"
+      ],
+      "relevance": {
+        "@knowledge/atlas.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/atlas.md",
+          "passage": "Before updating Atlas firmware, disconnect the excitation output and verify that the recovery image can be restored."
+        },
+        {
+          "document_id": "@knowledge/atlas.md",
+          "passage": "the timestamp drift remains below 80 microseconds over the complete test interval."
+        },
+        {
+          "document_id": "@knowledge/atlas.md",
+          "passage": "a continuous 40-second trace without a dropped sample."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "s15",
+      "text": "Atlas starts successfully after a failed update. May I reconnect its actuator immediately?",
+      "language": "en",
+      "topic_id": "atlas",
+      "phenomenon": "cross_language",
+      "split": "source_labeled_supplement",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/atlas.md"
+      ],
+      "relevance": {
+        "@knowledge/atlas.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/atlas.md",
+          "passage": "Restore the verified recovery image before importing the saved configuration bundle."
+        },
+        {
+          "document_id": "@knowledge/atlas.md",
+          "passage": "Successful startup alone does not approve reconnecting the actuator or releasing the recorder to another operator."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "s16",
+      "text": "Welche Nachweise braucht die Atlas-Abnahme statt nur einer kurzen Anzeige?",
+      "language": "de",
+      "topic_id": "atlas",
+      "phenomenon": "cross_language",
+      "split": "source_labeled_supplement",
+      "allowed_scope": "global",
+      "expected_document_ids": [
+        "@knowledge/atlas.md"
+      ],
+      "relevance": {
+        "@knowledge/atlas.md": 2
+      },
+      "evidence": [
+        {
+          "document_id": "@knowledge/atlas.md",
+          "passage": "the timestamp drift remains below 80 microseconds over the complete test interval."
+        },
+        {
+          "document_id": "@knowledge/atlas.md",
+          "passage": "a continuous 40-second trace without a dropped sample."
+        }
+      ],
+      "no_answer": null
+    },
+    {
+      "id": "s17",
+      "text": "Which torque in newton metres is approved for the Atlas enclosure bolts?",
+      "language": "en",
+      "topic_id": "atlas",
+      "phenomenon": "no_answer",
+      "split": "source_labeled_supplement",
+      "allowed_scope": "global",
+      "expected_document_ids": [],
+      "relevance": {},
+      "evidence": [],
+      "no_answer": "unsupported"
+    },
+    {
+      "id": "s18",
+      "text": "Jaki jest zatwierdzony adres serwera produkcyjnego R7?",
+      "language": "pl",
+      "topic_id": "release",
+      "phenomenon": "no_answer",
+      "split": "source_labeled_supplement",
+      "allowed_scope": "project",
+      "expected_document_ids": [],
+      "relevance": {},
+      "evidence": [],
+      "no_answer": "unsupported"
+    },
+    {
+      "id": "s19",
+      "text": "Which maximum database size guarantees no SQLite WAL busy errors?",
+      "language": "en",
+      "topic_id": "wal",
+      "phenomenon": "no_answer",
+      "split": "source_labeled_supplement",
+      "allowed_scope": "global",
+      "expected_document_ids": [],
+      "relevance": {},
+      "evidence": [],
+      "no_answer": "unsupported"
+    },
+    {
+      "id": "s20",
+      "text": "What is the company's approved CMake generator for its private build farm?",
+      "language": "en",
+      "topic_id": "codegen",
+      "phenomenon": "no_answer",
+      "split": "source_labeled_supplement",
+      "allowed_scope": "global",
+      "expected_document_ids": [],
+      "relevance": {},
+      "evidence": [],
+      "no_answer": "unsupported"
+    }
+  ],
+  "document_languages": {
+    "@knowledge/wal.md": "en",
+    "@knowledge/isolation.md": "en",
+    "@knowledge/revert.md": "en",
+    "@knowledge/codegen.md": "en",
+    "@project/release-current.md": "pl",
+    "@project/release-old.md": "pl",
+    "@knowledge/release-check.md": "de",
+    "@knowledge/atlas.md": "en"
+  },
+  "sources": {
+    "global/wal.md": "https://www.sqlite.org/wal.html",
+    "global/isolation.md": "https://www.postgresql.org/docs/current/transaction-iso.html",
+    "global/revert.md": "https://git-scm.com/docs/git-revert",
+    "global/codegen.md": "https://cmake.org/cmake/help/latest/command/add_custom_command.html",
+    "project/release-current.md": "fictional:release-R7",
+    "project/release-old.md": "fictional:release-R6",
+    "global/release-check.md": "fictional:release-validation",
+    "global/atlas.md": "fictional:atlas-maintenance"
+  }
+}

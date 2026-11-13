@@ -1,0 +1,126 @@
+{
+  "status": "domain-review-pending",
+  "all_negative_paired_recall_differences": [
+    {
+      "question_id": "P01-en",
+      "family_id": "P01",
+      "before": "B",
+      "after": "C",
+      "stages": {
+        "raw": {
+          "recall_delta": -0.6666666666666667,
+          "complete_before": true,
+          "complete_after": false
+        },
+        "eligible": {
+          "recall_delta": -0.6666666666666667,
+          "complete_before": true,
+          "complete_after": false
+        },
+        "selected": {
+          "recall_delta": 0.0,
+          "complete_before": false,
+          "complete_after": false
+        }
+      },
+      "token_delta": 82
+    },
+    {
+      "question_id": "P01-de",
+      "family_id": "P01",
+      "before": "B",
+      "after": "C",
+      "stages": {
+        "raw": {
+          "recall_delta": -0.6666666666666667,
+          "complete_before": true,
+          "complete_after": false
+        },
+        "eligible": {
+          "recall_delta": -0.6666666666666667,
+          "complete_before": true,
+          "complete_after": false
+        },
+        "selected": {
+          "recall_delta": 0.0,
+          "complete_before": false,
+          "complete_after": false
+        }
+      },
+      "token_delta": 3
+    },
+    {
+      "question_id": "P03-en",
+      "family_id": "P03",
+      "before": "B",
+      "after": "C",
+      "stages": {
+        "raw": {
+          "recall_delta": -0.16666666666666663,
+          "complete_before": true,
+          "complete_after": false
+        },
+        "eligible": {
+          "recall_delta": -0.16666666666666663,
+          "complete_before": true,
+          "complete_after": false
+        },
+        "selected": {
+          "recall_delta": -0.16666666666666666,
+          "complete_before": false,
+          "complete_after": false
+        }
+      },
+      "token_delta": 82
+    },
+    {
+      "question_id": "S06-en",
+      "family_id": "S06",
+      "before": "B",
+      "after": "C",
+      "stages": {
+        "raw": {
+          "recall_delta": 0.0,
+          "complete_before": true,
+          "complete_after": true
+        },
+        "eligible": {
+          "recall_delta": 0.0,
+          "complete_before": true,
+          "complete_after": true
+        },
+        "selected": {
+          "recall_delta": -0.5,
+          "complete_before": false,
+          "complete_after": false
+        }
+      },
+      "token_delta": -24
+    },
+    {
+      "question_id": "S12-en",
+      "family_id": "S12",
+      "before": "B",
+      "after": "C",
+      "stages": {
+        "raw": {
+          "recall_delta": -0.5,
+          "complete_before": false,
+          "complete_after": false
+        },
+        "eligible": {
+          "recall_delta": -0.5,
+          "complete_before": false,
+          "complete_after": false
+        },
+        "selected": {
+          "recall_delta": 0.0,
+          "complete_before": false,
+          "complete_after": false
+        }
+      },
+      "token_delta": 67
+    }
+  ],
+  "new_retrieval_runs_for_analysis": 0
+}

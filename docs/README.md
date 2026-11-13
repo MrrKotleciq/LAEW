@@ -75,4 +75,14 @@ Start with `security/` and relevant ADRs.
 
 ### Performance
 Start with `performance/`.
+
+- [Stage 2B.2 adaptive evidence selection](reports/STAGE_2B2_ADAPTIVE_EVIDENCE_SELECTION_20261110.md): isolated model-free selectors, context cost, regression and scaling evaluation; production unchanged.
+- [Stage 2B.2 lexical retrieval — Task 1](reports/STAGE_2B2_LEXICAL_RETRIEVAL_20261110.md): FTS5/BM25S versus dense candidates, synchronization costs and backend recommendation; no hybrid integration.
+- [Stage 2B.2 hybrid retrieval with RRF — Task 2](reports/STAGE_2B2_HYBRID_RRF_20261110.md): fair candidate limits, ranked_fill, regressions and latency; dense-only retained pending Task 3 review.
+- [Stage 2B.2 advanced dense retrieval review — Task 3A](reports/STAGE_2B2_ADVANCED_DENSE_REVIEW_20261111.md): s14 diagnosis, established structural retrieval methods and proposed isolated Task 3B; no retrieval implementation.
+- [Stage 2B.2 hierarchical dense retrieval — Task 3B](reports/STAGE_2B2_HIERARCHICAL_DENSE_20261111.md): fixed three-document drill-down, actual Chroma filtering, grouped stress control, regressions and resource cost; revise before rollout.
+- [Stage 2B.2 real-world dataset and retrieval comparison](reports/STAGE_2B2_REAL_WORLD_DATASET_AND_RETRIEVAL_20261113.md): frozen pilot/sealed drafts, isolated A/B/C results, source restrictions and outstanding human review; no answer generation or production deployment.
+
+Stage 2B.2 code, protocols, synthetic regression fixtures and result summaries are versioned. Large corpus/vector/trace exports and machine-local Git audit logs are ignored; public source snapshots, real-world questions/labels and indexes remain in the external versioned workspaces referenced by the reports.
+
 Cloud provider configuration and troubleshooting: [Unified model providers](CLOUD_CHAT.md).

@@ -1,0 +1,5 @@
+# Frozen synthetic fixture manifests hash original bytes, including line endings.
+# Disable automatic LF/CRLF conversion without changing the existing files.
+tests/rag/reranker_holdout_v1/** -text whitespace=cr-at-eol
+tests/rag/evidence_supplement_v1/** -text whitespace=cr-at-eol
+tests/rag/hierarchical_long_v1/** -text whitespace=cr-at-eol
