@@ -82,6 +82,11 @@ Start with `performance/`.
 - [Stage 2B.2 advanced dense retrieval review — Task 3A](reports/STAGE_2B2_ADVANCED_DENSE_REVIEW_20261111.md): s14 diagnosis, established structural retrieval methods and proposed isolated Task 3B; no retrieval implementation.
 - [Stage 2B.2 hierarchical dense retrieval — Task 3B](reports/STAGE_2B2_HIERARCHICAL_DENSE_20261111.md): fixed three-document drill-down, actual Chroma filtering, grouped stress control, regressions and resource cost; revise before rollout.
 - [Stage 2B.2 real-world dataset and retrieval comparison](reports/STAGE_2B2_REAL_WORLD_DATASET_AND_RETRIEVAL_20261113.md): frozen pilot/sealed drafts, isolated A/B/C results, source restrictions and outstanding human review; no answer generation or production deployment.
+- [Stage 2B.2 post-result evidence audit](reports/STAGE_2B2_EVIDENCE_AUDIT_20261114.md): all 20 families, original versus diagnostic metrics, correction proposals and unresolved human review.
+- [Stage 3C.3 frozen-context answer protocol](reports/STAGE_3C3_ANSWER_EVALUATION_PROTOCOL_20261114.md): prepared 36-attempt Luna pilot, exact offline payloads, manual rubric and runtime prerequisites; no live execution.
+- [Stage 2B.2 scoring calibration v2.1](reports/STAGE_2B2_SCORING_CALIBRATION_20261114.md): essential/conditional/optional/alternative requirements for all 20 families, source-proof diagnostics and reviewer-assisted answer scoring; no retrieval or live-answer changes.
+- [Stage 2B.2 compact-attribution delivery experiment](reports/STAGE_2B2_CONTEXT_DELIVERY_20261114.md): frozen-candidate pilot comparison, metadata-budget gains and warning regressions; D1 rejected and original A/B/C fixtures retained.
+- [Stage 3C.3 Luna live answer pilot](reports/STAGE_3C3_LUNA_LIVE_ANSWER_EVALUATION_20261115.md): 36 completed original A/B/C attempts, durable dispatch guard, provisional v2.1 answer review, usage and paired comparison; no deployment.
 
 Stage 2B.2 code, protocols, synthetic regression fixtures and result summaries are versioned. Large corpus/vector/trace exports and machine-local Git audit logs are ignored; public source snapshots, real-world questions/labels and indexes remain in the external versioned workspaces referenced by the reports.
 
