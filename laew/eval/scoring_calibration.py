@@ -14,6 +14,13 @@ from laew.eval.real_world_retrieval import span_present, union
 
 
 CATEGORIES = {'essential', 'conditional', 'optional', 'alternative'}
+# Explicit reviewer semantics, never inferred from words such as "if". A
+# conditional recommendation still activates the branch's safety requirements;
+# a mere hypothetical mention does not assert that the procedure is advised.
+CONDITION_KINDS = {
+    'recommended': True, 'conditional_recommendation': True, 'explanation': True,
+    'hypothetical_mention': False, 'not_advised': False, 'unknown': None,
+}
 UNITS = {
     'V': ('voltage', '1', '0'), 'kV': ('voltage', '1000', '0'),
     'A': ('current', '1', '0'), 'mA': ('current', '.001', '0'),
@@ -168,6 +175,62 @@ def score_evidence(family, atoms, coverage, texts):
                 chosen_method=chosen['method'], methods=candidates)
 
 
+def answer_conditions(family, answer, review):
+    """Resolve annotated applicability without importing evidence scenarios.
+
+    Family conditions are question-fixed. Method conditions are assumptions for
+    score_evidence, not prohibitions on additional advice. Optional scoped
+    decisions must cover every unfixed condition and bind positive/hypothetical
+    observations to exact answer quotes. Legacy booleans remain replayable but
+    are flagged as lacking scope provenance; absent information stays unknown.
+    """
+    conditions = dict(family['conditions'])
+    supplied = review.get('conditions', {})
+    if not set(supplied) <= set(conditions):
+        raise ValueError('Unknown answer condition')
+    for key, value in supplied.items():
+        if value is not None and type(value) is not bool:
+            raise ValueError('Answer conditions must be boolean or unknown')
+        if conditions[key] is not None and value != conditions[key]:
+            raise ValueError('Answer review changes a question-fixed condition')
+        conditions[key] = value
+    decisions = review.get('condition_decisions')
+    if decisions is not None and not isinstance(decisions, dict):
+        raise ValueError('Scoped condition decisions must be a mapping')
+    trace, gaps = {}, []
+    unfixed = {key for key, value in family['conditions'].items() if value is None}
+    if decisions is not None and set(decisions) != unfixed:
+        raise ValueError('Scoped decisions must cover every unfixed condition')
+    for key in conditions:
+        if family['conditions'][key] is not None:
+            trace[key] = dict(kind='question_fixed', value=conditions[key])
+            continue
+        if decisions is None:
+            trace[key] = dict(kind='legacy_reviewed' if key in supplied else 'unknown',
+                              value=conditions[key])
+            gaps.append(key)
+            continue
+        decision = decisions[key]
+        if not isinstance(decision, dict):
+            raise ValueError('Scoped condition decision must be a mapping')
+        kind = decision.get('kind')
+        if kind not in CONDITION_KINDS or not decision.get('reason'):
+            raise ValueError('Scoped condition needs a known kind and reason')
+        value = CONDITION_KINDS[kind]
+        if key in supplied and supplied[key] is not value:
+            raise ValueError('Scoped condition contradicts reviewed value')
+        quotes = decision.get('quotes', [])
+        if kind in {'recommended', 'conditional_recommendation', 'explanation', 'hypothetical_mention'} and not quotes:
+            raise ValueError('Scoped condition needs answer evidence')
+        for quote in quotes:
+            start, end = quote['start'], quote['end']
+            if not 0 <= start < end <= len(answer) or answer[start:end] != quote['quote']:
+                raise ValueError('Unbound condition annotation')
+        conditions[key] = value
+        trace[key] = dict(kind=kind, value=value, reason=decision['reason'], quotes=quotes)
+    return conditions, trace, gaps
+
+
 def score_answer(family, atoms, texts, coverage, answer, review):
     """Validate exhaustive quote-bound manual semantic review, never guess it.
 
@@ -186,14 +249,7 @@ def score_answer(family, atoms, texts, coverage, answer, review):
     methods = {m['id']: m for m in family['methods']}
     if review['method_id'] not in methods:
         raise ValueError('Unknown chosen method')
-    conditions = dict(family['conditions'])
-    if not set(review.get('conditions', {})) <= set(conditions):
-        raise ValueError('Unknown answer condition')
-    # Question-fixed facts cannot be changed by answer annotations.
-    for key, value in review.get('conditions', {}).items():
-        if conditions[key] is not None and value != conditions[key]:
-            raise ValueError('Answer review changes a question-fixed condition')
-        conditions[key] = value
+    conditions, condition_trace, condition_gaps = answer_conditions(family, answer, review)
     requirements = {r['id']: r for r in family['requirements']}
     reviewed_ranges, claims = [], []
     for annotation in review['annotations']:
@@ -212,7 +268,11 @@ def score_answer(family, atoms, texts, coverage, answer, review):
                 raise ValueError('Unknown procedure trigger')
             if family['conditions'][key] is False:
                 raise ValueError('Claim conflicts with a question-fixed scenario')
+            decision = (review.get('condition_decisions') or {}).get(key)
+            if decision and CONDITION_KINDS[decision['kind']] is not True:
+                raise ValueError('Procedure trigger contradicts scoped condition')
             conditions[key] = True
+            condition_trace[key] = dict(kind='explicit_claim_trigger', value=True)
         rid = annotation.get('requirement_id')
         requirement = requirements.get(rid)
         fields = annotation.get('fields', {})
@@ -252,9 +312,10 @@ def score_answer(family, atoms, texts, coverage, answer, review):
         cursor = end
     if answer[cursor:].strip() or not claims:
         raise ValueError('Unreviewed answer or no substantive judgment')
-    for key, expected in methods[review['method_id']].get('conditions', {}).items():
-        if conditions.get(key) is not None and conditions[key] != expected:
-            raise ValueError('Chosen method contradicts reviewed applicability')
+    # Method.conditions enumerate answer-independent evidence scenarios. Actual
+    # answer advice can add branches; its reviewed conditions govern warnings.
+    # Question-fixed contradictions above and all technical invariants still
+    # fail closed. Missing/unknown conditions are never filled from the method.
     active, unresolved = active_requirements(family, methods[review['method_id']], conditions)
     accepted_ids = {c['requirement_id'] for c in claims if c['accepted']}
     grounded_ids = {c['requirement_id'] for c in claims if c['grounded']}
@@ -268,6 +329,7 @@ def score_answer(family, atoms, texts, coverage, answer, review):
     return dict(correctness='incorrect' if incorrect else ('unresolved' if uncertain else 'correct'),
                 minimum_complete=complete, missing_required=missing,
                 applicable_requirements=[r['id'] for r in active], conditions=conditions,
+                condition_trace=condition_trace, condition_review_gaps=condition_gaps,
                 unresolved_conditions=unresolved, critical_missing=critical_missing,
                 safety_pass=not critical_missing and not incorrect and not unresolved,
                 grounding='supported' if grounded else 'not-fully-supported',

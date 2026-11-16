@@ -87,6 +87,7 @@ Start with `performance/`.
 - [Stage 2B.2 scoring calibration v2.1](reports/STAGE_2B2_SCORING_CALIBRATION_20261114.md): essential/conditional/optional/alternative requirements for all 20 families, source-proof diagnostics and reviewer-assisted answer scoring; no retrieval or live-answer changes.
 - [Stage 2B.2 compact-attribution delivery experiment](reports/STAGE_2B2_CONTEXT_DELIVERY_20261114.md): frozen-candidate pilot comparison, metadata-budget gains and warning regressions; D1 rejected and original A/B/C fixtures retained.
 - [Stage 3C.3 Luna live answer pilot](reports/STAGE_3C3_LUNA_LIVE_ANSWER_EVALUATION_20261115.md): 36 completed original A/B/C attempts, durable dispatch guard, provisional v2.1 answer review, usage and paired comparison; no deployment.
+- [Stage 3C.3 offline scorer repair and adjudication](reports/STAGE_3C3_SCORER_REPAIR_AND_ADJUDICATION_20261115.md): resolved conditional-applicability conflicts, immutable 36-answer replay, disclosed post-result corrections and remaining human-review requirements; no new model work.
 
 Stage 2B.2 code, protocols, synthetic regression fixtures and result summaries are versioned. Large corpus/vector/trace exports and machine-local Git audit logs are ignored; public source snapshots, real-world questions/labels and indexes remain in the external versioned workspaces referenced by the reports.
 
