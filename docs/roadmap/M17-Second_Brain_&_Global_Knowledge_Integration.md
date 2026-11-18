@@ -13,8 +13,8 @@ tags:
 status: completed
 purpose: Make the Obsidian vault a real, curated knowledge source (ADR-002) with structured organization, link-aware chunking, and proper scope separation between @project and @knowledge.
 read_when:
-  - implementing Obsidian vault integration
-  - Milestone 17 (Second Brain & Global Knowledge Integration)
+  - verifying M17 completion and the Obsidian integration inherited by M18
+  - reviewing global vault organization and project versus global knowledge boundaries
 implements:
   - ADR-002
 ---

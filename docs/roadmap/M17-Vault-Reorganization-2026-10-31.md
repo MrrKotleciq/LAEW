@@ -1,12 +1,12 @@
 ---
 name: Global Knowledge Vault Reorganization Verification
-description: Path migration, Obsidian compatibility checks and global-only RAG validation after M17 completion.
+description: Post-M17 vault path migration, Obsidian compatibility checks and global-only RAG validation on 2026-10-31.
 title: Global Knowledge Vault Reorganization — 2026-10-31
 type: report
 scope: project
 status: active
 read_when:
-  - checking the current global vault layout or source selection policy
+  - tracing the completed M17 vault layout and ingestion exclusions inherited by M18
   - reviewing migration evidence and remaining Obsidian UI checks
 ---
 
