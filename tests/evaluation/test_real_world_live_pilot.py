@@ -152,7 +152,30 @@ def test_failure_stops_and_preserves_attempt(tmp_path, rows, monkeypatch, failur
     elif failure == 'timeout_before':
         response = requests.Timeout()
     elif failure == 'timeout_after':
-        response = Response(fs, delay=.02)
+        # Trigger cancellation after the first delivered delta, independent of
+        # SQLite FULL-sync latency or Windows timer scheduling. The former
+        # 30 ms wall-clock race could cancel before any response text arrived.
+        callbacks = []
+
+        class ControlledTimer:
+            def __init__(self, interval, callback):
+                callbacks.append(callback)
+
+            def start(self):
+                pass
+
+            def cancel(self):
+                pass
+
+        class CancelAfterFirstDelta(Response):
+            def iter_content(self, chunk_size):
+                for index, chunk in enumerate(super().iter_content(chunk_size)):
+                    yield chunk
+                    if index == 0:
+                        callbacks[0]()
+
+        monkeypatch.setattr('laew.eval.real_world_live_pilot.threading.Timer', ControlledTimer)
+        response = CancelAfterFirstDelta(fs)
     elif failure == 'refusal':
         fs[0]['type'] = 'response.refusal.delta'
     ledger = Ledger(tmp_path / 'attempts.db', 'fixture')
