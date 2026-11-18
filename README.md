@@ -132,7 +132,7 @@ See [retrieval reliability evaluation](docs/retrieval-reliability-evaluation.md)
 [Horizon service setup](tools/horizon-sufficiency/README.md).
 
 Run the offline regression from a source checkout with
-`python -m pytest tests -m "not live and not ollama"` and the JavaScript unit
+`python scripts/run_isolated.py pytest-offline` and the JavaScript unit
 tests with `node --test tests/ui/*.test.js`.
 
 ## Isolated tests and evaluations
@@ -142,11 +142,17 @@ The runner creates a fresh directory outside the checkout and Obsidian vaults
 for temporary files, Python bytecode, and pytest's base directory and cache.
 
 ```powershell
+python scripts/run_isolated.py pytest-offline
 python scripts/run_isolated.py pytest tests/unit tests/integration -m "not live and not ollama"
 python scripts/run_isolated.py --keep-diagnostics pytest -q tests/unit/test_git_tool.py
 python scripts/run_isolated.py --keep-diagnostics eval laew.eval.memory_sufficiency_eval --output memory.json
 python scripts/run_isolated.py --keep-diagnostics eval laew.eval.knowledge_routing_eval --output routing.json
 ```
+
+`pytest-offline` runs the full Python suite with live and Ollama tests excluded.
+It checks TCP loopback access before pytest starts because HTTP integration
+tests start their own servers on ephemeral `127.0.0.1` ports. If the check
+fails in a managed sandbox, rerun the same command with loopback access.
 
 Evaluators start in the run's `work` directory with copies of the evaluation
 fixtures and manifests. Use a relative output path such as `memory.json`.

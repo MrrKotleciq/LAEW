@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import shutil
 import signal
+import socket
 import stat
 import subprocess
 import sys
@@ -234,14 +235,36 @@ def finish(run, original, keep, process, job):
         print(f"Cleanup stopped: {error}. Check remaining diagnostics at {run}", file=sys.stderr)
 
 
+def check_loopback():
+    """Check access to a disposable local HTTP test port before running pytest."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
+        listener.bind(("127.0.0.1", 0))
+        listener.listen(1)
+        with socket.create_connection(listener.getsockname(), timeout=2):
+            pass
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--keep-diagnostics", action="store_true")
-    parser.add_argument("mode", choices=("pytest", "eval"))
+    parser.add_argument("mode", choices=("pytest", "pytest-offline", "eval"))
     parser.add_argument("args", nargs=argparse.REMAINDER)
     options = parser.parse_args()
-    args = options.args
-    if options.mode == "eval" and (
+    mode, args = options.mode, options.args
+    if mode == "pytest-offline":
+        if args:
+            parser.error("pytest-offline takes no extra arguments; use pytest for a custom selection")
+        try:
+            check_loopback()
+        except OSError as error:
+            print("Offline suite not started: local TCP connections to 127.0.0.1 are unavailable. "
+                  "Run the same isolated command in an environment with loopback access.",
+                  file=sys.stderr)
+            print(f"Loopback check: {error}", file=sys.stderr)
+            return 2
+        mode = "pytest"
+        args = ["-q", "-ra", "--tb=short", "-m", "not live and not ollama", "tests"]
+    if mode == "eval" and (
         not args or not args[0].startswith("laew.eval.")
         or not all(part.isidentifier() for part in args[0].split("."))
     ):
@@ -260,7 +283,7 @@ def main():
             env = os.environ.copy()
             env.update(TEMP=str(run), TMP=str(run), TMPDIR=str(run),
                        PYTHONPYCACHEPREFIX=str(run / "pycache"))
-            command, cwd = prepare_command(options.mode, args, run, env)
+            command, cwd = prepare_command(mode, args, run, env)
             process = subprocess.Popen(
                 [sys.executable, "-m", *command], cwd=cwd, env=env,
                 start_new_session=os.name != "nt",

@@ -1,12 +1,30 @@
 import os
 import subprocess
+import sys
 
 import pytest
 
+from scripts import run_isolated
 from scripts.run_isolated import eval_arguments
 
 
 MODULE = "laew.eval.memory_sufficiency_eval"
+
+
+def test_full_offline_suite_stops_before_pytest_when_loopback_is_blocked(monkeypatch, capsys):
+    monkeypatch.setattr(sys, "argv", ["run_isolated.py", "pytest-offline"])
+
+    def blocked():
+        raise PermissionError("simulated loopback restriction")
+
+    monkeypatch.setattr(run_isolated, "check_loopback", blocked)
+    monkeypatch.setattr(run_isolated, "make_run_directory", lambda: pytest.fail("Started a test run"))
+
+    assert run_isolated.main() == 2
+    diagnostic = capsys.readouterr().err
+    assert "Offline suite not started" in diagnostic
+    assert "127.0.0.1" in diagnostic
+    assert "simulated loopback restriction" in diagnostic
 
 
 def test_eval_output_inside_work(tmp_path):
