@@ -3,3 +3,8 @@
 tests/rag/reranker_holdout_v1/** -text whitespace=cr-at-eol
 tests/rag/evidence_supplement_v1/** -text whitespace=cr-at-eol
 tests/rag/hierarchical_long_v1/** -text whitespace=cr-at-eol
+
+# Sealed RAG replay manifests pin these Python sources by byte digest.
+laew/eval/final_rag_*.py -text whitespace=cr-at-eol
+laew/eval/fixed_body_citations.py -text whitespace=cr-at-eol
+laew/eval/question_decomposition.py -text whitespace=cr-at-eol

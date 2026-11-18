@@ -1,0 +1,11 @@
+# LAEW — streszczenie przeglądu architektury
+
+**Rekomenduję zachować obecną konfigurację produkcyjną i sprawdzić, czy LAEW potrafi doczytać właściwą sekcję dokumentu, który już znalazł.** Na 48 rozwiązywalnych wariantów pytań w ramieniu C dziesięć znalezionych fragmentów zawierało komplet zarejestrowanych dowodów w 21 przypadkach. Pełna treść pierwszych dwóch różnych dokumentów wskazanych przez te same wyniki zawierała go w 42. Ostateczny kontekst osiągał 18/48.
+
+Samo otwarcie właściwych instrukcji rozwiązuje tylko część problemu. Mediana materiału do przeszukania wynosiła ponad 97 tys. znaków. Prosty odczyt akapitów przez BM25 w tych dwóch dokumentach przy historycznym budżecie dostarczył komplet zaledwie w 7/48 przypadków. Najwięcej można się teraz dowiedzieć, badając koszt odnalezienia i przeczytania właściwych ustępów wraz z warunkami i ostrzeżeniami.
+
+**Pierwszy eksperyment może odbyć się bez GPU i generowania odpowiedzi.** Proponuję po jednym istniejącym pytaniu z każdej z 20 rodzin. Porównanie obejmuje zapisany kontekst, większą statyczną porcję tekstu, dostępne już wyszukiwanie i odczyt linii oraz nawigację po sekcjach. Czytelnik wybiera dowody przy ograniczonej liczbie odczytów, a druga osoba sprawdza wynik. Próg dalszej inwestycji to co najmniej trzy dodatkowe kompletne przypadki netto wśród 16 rodzin rozwiązywalnych, w co najmniej dwóch domenach, przy zachowaniu ostrzeżeń, poprawnej wersji i właściwej reakcji na cztery przypadki brakujących informacji. Jeśli wystarczy obecny grep i odczyt linii, nowy interfejs nie uzasadni kosztu. Dopiero pozytywny wynik uzasadnia osobny test z rzeczywistym lokalnym modelem.
+
+Dotychczasowy pilot odpowiedzi używał jednej iteracji i wyłączonych narzędzi, podczas gdy działający LAEW może ponownie szukać i czytać pliki. Wszystkie 60 pytań jest już znane z prac rozwojowych, a rygorystyczna ocena poprawności pozostaje nierozstrzygnięta dla wszystkich 36 historycznych odpowiedzi. Na dziś zmierzono dostępność dowodów, koszt i niepowodzenie jednej taniej metody odczytu. Poprawa jakości odpowiedzi wymaga odrębnego pomiaru.
+
+[Pełny raport po angielsku, porównanie pięciu kierunków i protokół eksperymentu](INDEPENDENT_LAEW_ARCHITECTURE_REVIEW_20261117.md)

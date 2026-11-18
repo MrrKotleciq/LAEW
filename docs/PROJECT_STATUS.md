@@ -14,6 +14,13 @@ read_when:
 
 ## Status
 
+2026-11-18 RAG optimization cycle closed. Production variant A is retained.
+Adaptive chunking and contextual embeddings both received NO-GO decisions.
+The exposed benchmark measures registered evidence completeness. Source
+restrictions, source-quality findings and independent review remain open.
+See the [operational decision](decisions/ADR-003-rag-pipeline-reranking.md#operational-decision--2026-11-18)
+and [final results](reports/FINAL_RAG_OPTIMIZATION_RESULTS_20261118.md).
+
 2026-11-06 Memory Sufficiency and Horizon. The optional assessor evaluates
 recalled Memory evidence before Global RAG fallback. The default heuristic
 policy stays in effect unless model assessment is enabled. The opt-in
@@ -62,6 +69,9 @@ Architecture: LAEW v1.0 documented
 Implementation: Milestone 17 (Second Brain & Global Knowledge Integration) completed
 
 ## Current Focus
+
+The next development priority is
+[M18 — Monitoring, Telemetry & Backup](roadmap/M18-Monitoring_Telemetry_%26_Backup.md).
 
 Milestones 1–17 are complete. Milestones 18–21 remain in progress. The local
 workbench reuses the Chief Agent with project selection and scoped RAG sources.

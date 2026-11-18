@@ -88,7 +88,17 @@ Start with `performance/`.
 - [Stage 2B.2 compact-attribution delivery experiment](reports/STAGE_2B2_CONTEXT_DELIVERY_20261114.md): frozen-candidate pilot comparison, metadata-budget gains and warning regressions; D1 rejected and original A/B/C fixtures retained.
 - [Stage 3C.3 Luna live answer pilot](reports/STAGE_3C3_LUNA_LIVE_ANSWER_EVALUATION_20261115.md): 36 completed original A/B/C attempts, durable dispatch guard, provisional v2.1 answer review, usage and paired comparison; no deployment.
 - [Stage 3C.3 offline scorer repair and adjudication](reports/STAGE_3C3_SCORER_REPAIR_AND_ADJUDICATION_20261115.md): resolved conditional-applicability conflicts, immutable 36-answer replay, disclosed post-result corrections and remaining human-review requirements; no new model work.
+- [Stage 2B.2 source-faithful extraction feasibility](reports/STAGE_2B2_SOURCE_FAITHFUL_EXTRACTION_FEASIBILITY_20261116.md): three separate reference-informed passage libraries, coherent token-cost bounds, all-question safety ledgers and architectural comparison; no production extractor.
+- [Stage 2B.2 query decomposition feasibility](reports/STAGE_2B2_QUERY_DECOMPOSITION_FEASIBILITY_20261116.md): authorized 41-query embedding job, full fair-budget candidate comparisons, combined extraction bounds and rejection of the frozen decomposition; production unchanged.
+- [Architecture review](reports/INDEPENDENT_LAEW_ARCHITECTURE_REVIEW_20261117.md) and [evidence navigation](reports/STAGE_3C4_EVIDENCE_NAVIGATION_20261117.md) cover the document-locality audit and the closed navigation trial.
+- [Final RAG optimization results](reports/FINAL_RAG_OPTIMIZATION_RESULTS_20261118.md) record both NO-GO decisions. [ADR-003](decisions/ADR-003-rag-pipeline-reranking.md#operational-decision--2026-11-18) records closure and the reopening criteria.
 
 Stage 2B.2 code, protocols, synthetic regression fixtures and result summaries are versioned. Large corpus/vector/trace exports and machine-local Git audit logs are ignored; public source snapshots, real-world questions/labels and indexes remain in the external versioned workspaces referenced by the reports.
+
+For offline replay, configure the original sealed package paths using
+`LAEW_RETRIEVAL_BUDGET_ROOT`, `LAEW_FINE_EVIDENCE_ROOT`,
+`LAEW_FIXED_BODY_ROOT` and `LAEW_S0_S1_PREVIOUS_ROOT` as applicable. Historical
+reports retain the original artifact references. Verifying original checkout
+preservation requires the original checkout and sealed runner snapshot.
 
 Cloud provider configuration and troubleshooting: [Unified model providers](CLOUD_CHAT.md).
