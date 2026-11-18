@@ -5,6 +5,7 @@ import contextvars
 from contextlib import contextmanager
 import logging
 import time
+from itertools import islice
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, asdict
 from datetime import datetime, timezone
@@ -89,7 +90,7 @@ class ToolResult:
         return cls(success=False, error_code=code, error_message=message)
 
     def to_dict(self) -> dict[str, Any]:
-        """Convert result to dictionary for logging (sanitized)."""
+        """Convert result to a dictionary, excluding data but retaining error details."""
         return {
             "success": self.success,
             "error_code": self.error_code,
@@ -119,6 +120,53 @@ class ToolInvocationLog:
     def to_json(self) -> str:
         """Convert to JSON string."""
         return json.dumps(self.to_dict())
+
+
+# Fixed labels only: operation names are scoped to their owning tool. Unknown
+# tools and operations remain observable without recording caller-supplied text.
+_LOG_OPERATIONS = {
+    "FilesystemTool": frozenset({"view_file", "list_dir", "find_by_name", "grep_search", "write_file", "replace_file_content", "delete_file", "write_knowledge_note"}),
+    "GitTool": frozenset({"git_status", "git_diff", "git_log", "git_commit", "git_checkout", "git_branch"}),
+    "TerminalTool": frozenset({"run_command"}),
+    "WebTool": frozenset({"search_web", "read_url_content"}),
+    "RagTool": frozenset({"query"}),
+    "MemoryTool": frozenset({"propose", "recall"}),
+    "KnowledgeProposalTool": frozenset({"propose_create", "propose_update", "get_proposal_status"}),
+}
+_LOG_ERROR_CODES = frozenset(code.value for code in ErrorCode) | {
+    # Stable tool-specific codes currently emitted outside ErrorCode.
+    "ERR_INVALID_OPERATION", "ERR_RAG_FAILURE", "ERR_MEMORY_DISABLED",
+    "ERR_MEMORY_UNAVAILABLE", "ERR_MEMORY_RECALL",
+}
+
+
+def _argument_shape(arguments: dict) -> dict[str, int]:
+    """Count only top-level built-in types, without inspecting keys or contents.
+
+    Limit work and counts to the first 100 entries. Custom types are 'other';
+    malformed argument containers are treated as empty.
+    """
+    counts = dict.fromkeys(("null", "bool", "number", "string", "mapping", "array", "other"), 0)
+    if type(arguments) is not dict:
+        return counts
+    for value in islice(arguments.values(), 100):
+        value_type = type(value)
+        if value is None:
+            bucket = "null"
+        elif value_type is bool:
+            bucket = "bool"
+        elif value_type in (int, float):
+            bucket = "number"
+        elif value_type is str:
+            bucket = "string"
+        elif value_type is dict:
+            bucket = "mapping"
+        elif value_type in (list, tuple):
+            bucket = "array"
+        else:
+            bucket = "other"
+        counts[bucket] += 1
+    return counts
 
 
 class ToolLogger:
@@ -166,31 +214,26 @@ class ToolLogger:
             result: Tool result
             duration_ms: Duration in milliseconds
         """
-        # Determine status
-        status = "SUCCESS" if result.success else "FAILURE"
-
-        # Sanitize arguments (remove potentially sensitive data)
-        sanitized_args = self._sanitize_arguments(arguments)
-        if operation == "write_knowledge_note":
-            sanitized_args["content"] = "[REDACTED]"
-        if tool in {"RagTool", "MemoryTool"} and "query" in sanitized_args:
-            sanitized_args["query"] = "[REDACTED]"
-        if tool == "KnowledgeProposalTool":
-            for key in ("content", "evidence", "summary", "title"):
-                if key in sanitized_args:
-                    sanitized_args[key] = "[REDACTED]"
+        safe_tool = tool if type(tool) is str and tool in _LOG_OPERATIONS else "UNKNOWN"
+        safe_operation = (operation if type(operation) is str and
+                          operation in _LOG_OPERATIONS.get(safe_tool, ()) else "UNKNOWN")
+        success = result.success is True
+        code = result.error_code
+        if isinstance(code, ErrorCode):
+            code = code.value
+        safe_code = code if type(code) is str and code in _LOG_ERROR_CODES else None
 
         # Create log entry
         log_entry = ToolInvocationLog(
             timestamp=datetime.now(timezone.utc).isoformat(),
-            tool=tool,
-            operation=operation,
-            arguments=sanitized_args,
-            success=result.success,
-            error_code=result.error_code,
-            error_message=result.error_message,
-            duration_ms=duration_ms,
-            status=status,
+            tool=safe_tool,
+            operation=safe_operation,
+            arguments=_argument_shape(arguments),
+            success=success,
+            error_code=safe_code,
+            error_message=None,
+            duration_ms=duration_ms if type(duration_ms) is int and duration_ms >= 0 else 0,
+            status="SUCCESS" if success else "FAILURE",
         )
 
         # Output to stream if provided
@@ -200,37 +243,6 @@ class ToolLogger:
 
         # Always log to logging infrastructure
         self._logger.info(log_entry.to_json())
-
-    def _sanitize_arguments(self, arguments: dict) -> dict:
-        """
-        Sanitize arguments for logging (remove sensitive data).
-
-        Args:
-            arguments: Raw arguments dictionary
-
-        Returns:
-            Sanitized arguments dictionary
-        """
-        sanitized = {}
-        sensitive_keys = {
-            "password", "secret", "token", "api_key", "auth",
-            "credential", "private_key", "passphrase"
-        }
-
-        for key, value in arguments.items():
-            key_lower = key.lower()
-
-            # Check for sensitive keys
-            if any(sensitive in key_lower for sensitive in sensitive_keys):
-                sanitized[key] = "[REDACTED]"
-            # Truncate large values
-            elif isinstance(value, str) and len(value) > 200:
-                sanitized[key] = value[:199] + "...[TRUNCATED]"
-            else:
-                sanitized[key] = value
-
-        return sanitized
-
 
 # Global tool logger instance (can be configured by application)
 _tool_logger: Optional[ToolLogger] = None
