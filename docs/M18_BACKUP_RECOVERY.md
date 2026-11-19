@@ -55,3 +55,24 @@ Activation requires explicit approval and a complete representative drill. Keep 
 4. If a gate fails, stop writers and record the failure phase. Re-select the recorded complete old generation, verify its mappings and dependency status, and record the rollback before restarting it. Keep the failed generation isolated for diagnosis.
 
 Fixture targets are a 24-hour recovery point and two-hour canonical recovery time. Representative production data size, writer drain, real embeddings and index reconstruction determine the deployed objectives. Schedule installation, archive rotation, session deletion and production activation each require separate authorization.
+
+## Review retention and rotation
+
+Save the successful `--json` response in a private, operator-owned review file as UTF-8. Keep the file outside the stores it describes. Inspect its `data` and obtain explicit authorization before passing its absolute path to `--plan` with `--apply`. Run the same profile, scope and policy options at apply time. A stale plan requires a new review. If an I/O failure interrupts an apply, inspect the current state and produce a fresh plan before retrying.
+
+```powershell
+laew retention plan --json
+laew retention apply --plan <ABSOLUTE_REVIEW> --apply --json
+laew retention plan --scope sessions --profile <ABSOLUTE_PROFILE> --backup-id <BACKUP_UUID> --json
+laew retention apply --scope sessions --profile <ABSOLUTE_PROFILE> --backup-id <BACKUP_UUID> --plan <ABSOLUTE_REVIEW> --acknowledgement <ABSOLUTE_ACK> --apply --json
+laew backup prune --profile <ABSOLUTE_PROFILE> --pin <LAST_KNOWN_GOOD_UUID> --json
+laew backup prune --profile <ABSOLUTE_PROFILE> --pin <LAST_KNOWN_GOOD_UUID> --plan <ABSOLUTE_REVIEW> --apply --json
+```
+
+Telemetry keeps a 30-day window with 256 KiB per run and 256 MiB per protected installation. At capacity the sink stops admitting traces while application work can continue. With separate approval, add `--emergency-free-slots N` to both telemetry commands to recover up to the requested admission headroom. The mode evaluates ordinary age eligibility first and selects the oldest additional verified terminal traces as needed. Active and unverified data stay protected. An insufficient plan is blocked. Operator-owned legacy `--log` exports remain under their existing private handling policy.
+
+Only an explicitly marked archived conversation can qualify. The private operator-owned `session-archive-marks.json` sidecar in the backup destination contains `schema_version: 1`, the matching `profile_id` and `host_id`, a UUID `revision`, and a `marks` array. Each mark has the logical `member`, its `sha256` digest, UTC `archived_at`, and boolean `pinned` and `inactive` fields. Supply marks only after confirming the archive and the operator decision, and advance the revision when updating the ledger. Removal requires 90 days since archiving, the exact current digest in the verified backup, and checks for active state, references, pending work and pins. The legacy named-session format stays protected.
+
+Before session apply, drain and inhibit the restart of every session, memory and curation writer, including older launchers. Create a fresh acknowledgment with the same fields as backup capture, a new `cut_id`, the selected `backup_id`, and `review_sha256` copied from the session plan's `data`. Use a private operator-owned file in a private directory (mode `0600` for the file on Debian, inherited operator ACL on Windows). Keep all writers stopped through apply. Eligibility requires an exact verified copy at the time of deletion. Its later availability follows the reviewed rotation policy and any explicitly maintained last-known-good pin.
+
+Rotation retains the newest verified generations in seven daily and four weekly UTC buckets and the explicit last-known-good pin. Apply rechecks the selected generations under the installation fence and requires a verified backup no older than 24 hours. Unrecognized or corrupt artifacts require separate investigation. The disabled Windows and Debian examples include a missed-window fixture procedure. [Scheduling templates](examples/m18/SCHEDULING.md)

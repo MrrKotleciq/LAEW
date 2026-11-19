@@ -35,15 +35,19 @@ class _Parser(argparse.ArgumentParser):
 
 
 _HELP = {
-    ("backup",): "usage: laew backup {plan,list,verify,create} ...\n\nBackup inspection and explicitly authorized capture commands.",
+    ("backup",): "usage: laew backup {plan,list,verify,create,prune} ...\n\nBackup inspection and explicitly authorized capture and rotation commands.",
     ("backup", "plan"): "usage: laew backup plan --profile PROFILE [--json]\n\nInspect declared source inventory.",
     ("backup", "list"): "usage: laew backup list --profile PROFILE [--json]\n\nList cached committed receipts; does not verify archive contents.",
     ("backup", "verify"): "usage: laew backup verify --profile PROFILE --id ID [--json]\n\nVerify the complete archive and receipt.",
     ("backup", "create"): "usage: laew backup create --profile PROFILE --acknowledgement ABS --apply [--json]\n\nCapture an explicitly quiesced installation.",
+    ("backup", "prune"): "usage: laew backup prune --profile PROFILE --pin ID [--plan ABS --apply] [--json]\n\nReview rotation or apply the unchanged reviewed plan.",
     ("telemetry",): "usage: laew telemetry {show} ...\n\nRead-only telemetry inspection commands.",
     ("telemetry", "show"): "usage: laew telemetry show RUN_ID [--manifest PATH] [--json]\n\nInspect a telemetry trace by UUID.",
     ("restore",): "usage: laew restore --profile PROFILE --id ID (--verify-only | --target ABS --apply) [--project-root ABS] [--json]\n\nVerify or publish an isolated restore.",
     ("status",): "usage: laew status [--manifest PATH] [--profile PROFILE] [--rag-max-age-seconds N] [--probe] [--json]\n\nInspect operational readiness.",
+    ("retention",): "usage: laew retention {plan,apply} ...\n\nReview or apply telemetry and session retention.",
+    ("retention", "plan"): "usage: laew retention plan [--scope telemetry|sessions] [--manifest PATH | --profile PROFILE --backup-id ID] [--emergency-free-slots N] [--json]",
+    ("retention", "apply"): "usage: laew retention apply --plan ABS --apply [--scope telemetry|sessions] [--manifest PATH | --profile PROFILE --backup-id ID --acknowledgement ABS] [--emergency-free-slots N] [--json]",
 }
 
 
@@ -58,7 +62,7 @@ def _parser() -> argparse.ArgumentParser:
     show.add_argument("--json", action="store_true")
     backup = commands.add_parser("backup", add_help=False)
     backup_actions = backup.add_subparsers(dest="action", required=True, parser_class=_Parser)
-    for name in ("plan", "list", "verify", "create"):
+    for name in ("plan", "list", "verify", "create", "prune"):
         action = backup_actions.add_parser(name, add_help=False)
         action.add_argument("--profile", required=True)
         action.add_argument("--json", action="store_true")
@@ -67,6 +71,10 @@ def _parser() -> argparse.ArgumentParser:
         if name == "create":
             action.add_argument("--acknowledgement", required=True)
             action.add_argument("--apply", action="store_true", required=True)
+        if name == "prune":
+            action.add_argument("--pin", required=True)
+            action.add_argument("--apply", action="store_true")
+            action.add_argument("--plan")
     restore = commands.add_parser("restore", add_help=False)
     restore.add_argument("--profile", required=True)
     restore.add_argument("--id", required=True)
@@ -82,6 +90,20 @@ def _parser() -> argparse.ArgumentParser:
     status.add_argument("--rag-max-age-seconds", type=float)
     status.add_argument("--probe", action="store_true")
     status.add_argument("--json", action="store_true")
+    retention = commands.add_parser("retention", add_help=False)
+    actions = retention.add_subparsers(dest="action", required=True, parser_class=_Parser)
+    for name in ("plan", "apply"):
+        action = actions.add_parser(name, add_help=False)
+        action.add_argument("--scope", choices=("telemetry", "sessions"), default="telemetry")
+        action.add_argument("--manifest")
+        action.add_argument("--profile")
+        action.add_argument("--backup-id")
+        action.add_argument("--emergency-free-slots", type=int)
+        action.add_argument("--json", action="store_true")
+        if name == "apply":
+            action.add_argument("--apply", action="store_true", required=True)
+            action.add_argument("--plan", required=True)
+            action.add_argument("--acknowledgement")
     return parser
 
 
@@ -125,7 +147,7 @@ def _unique_object(pairs):
     return result
 
 
-def _bounded_file(path: Path, limit: int) -> bytes:
+def _bounded_file(path: Path, limit: int, *, private: bool = False) -> bytes:
     if not path.is_absolute() or ".." in path.parts:
         raise ValueError("invalid path")
     for component in (*reversed(path.parents), path):
@@ -137,6 +159,11 @@ def _bounded_file(path: Path, limit: int) -> bytes:
         raise ValueError("invalid file")
     if info.st_size > limit:
         raise ValueError("oversized")
+    if private:
+        from laew.backup.restore import _check_permissions, _private
+
+        _private(path.parent)
+        _check_permissions(path, info)
     with path.open("rb") as stream:
         if not os.path.samestat(info, os.fstat(stream.fileno())):
             raise ValueError("changed")
@@ -168,12 +195,14 @@ def _canonical_uuid(value: str) -> str:
     return identifier
 
 
-def _load_acknowledgement(path: str):
+def _load_acknowledgement(path: str, *, session_review: bool = False):
     from laew.backup.capture import WriterAcknowledgement
 
-    doc = json.loads(_bounded_file(Path(path), 65536), object_pairs_hook=_unique_object)
+    doc = json.loads(_bounded_file(Path(path), 65536, private=session_review), object_pairs_hook=_unique_object)
     required = {"schema_version", "profile_id", "host_id", "backup_id", "cut_id", "roster", "stopped",
                 "inventory_complete", "restart_inhibited", "valid_until"}
+    if session_review:
+        required.add("review_sha256")
     if type(doc) is not dict or set(doc) != required or type(doc["schema_version"]) is not int or doc["schema_version"] != 1:
         raise ValueError("invalid acknowledgement")
     backup_id = _canonical_uuid(doc["backup_id"])
@@ -198,6 +227,10 @@ def _load_acknowledgement(path: str):
     proof = WriterAcknowledgement(profile_id=doc["profile_id"], host_id=doc["host_id"], backup_id=backup_id, cut_id=cut_id,
                                   roster=frozenset(doc["roster"]), stopped=frozenset(doc["stopped"]),
                                   inventory_complete=True, restart_inhibited=True, valid_until=deadline)
+    if session_review:
+        from laew.retention import SessionRetentionAcknowledgement
+
+        return SessionRetentionAcknowledgement(writers=proof, review_sha256=doc["review_sha256"])
     return backup_id, cut_id, proof
 
 
@@ -239,6 +272,8 @@ def _backup_display(result, as_json):
 
 
 def _backup_dispatch(args) -> int:
+    if args.action == "prune":
+        return _prune_dispatch(args)
     result = {"schema_version": 1, "command": "backup." + args.action,
               "state": "error", "error_code": None, "data": None}
     try:
@@ -354,6 +389,115 @@ def _status_dispatch(args) -> int:
     return status_exit_code(result)
 
 
+def _reviewed_plan(path, command):
+    raw = _bounded_file(Path(path), 8 << 20)
+    envelope = json.loads(raw, object_pairs_hook=_unique_object)
+    if (type(envelope) is not dict or set(envelope) != {"schema_version", "command", "state", "error_code", "data"} or
+            type(envelope["schema_version"]) is not int or envelope["schema_version"] != 1 or
+            envelope["command"] != command or envelope["state"] != "ok" or envelope["error_code"] is not None or
+            type(envelope["data"]) is not dict):
+        raise ValueError("unverified reviewed plan")
+    return envelope["data"]
+
+
+def _operator_result(command, state="error", error_code=None, data=None):
+    return {"schema_version": 1, "command": command, "state": state, "error_code": error_code, "data": data}
+
+
+def _prune_dispatch(args):
+    from laew.backup.rotation import RotationPlanChanged, apply_rotation, plan_rotation
+
+    command = "backup.prune"
+    try:
+        pin = _canonical_uuid(args.pin)
+        if args.apply != bool(args.plan):
+            raise _InvalidArguments
+    except (ValueError, TypeError, _InvalidArguments):
+        _backup_display(_operator_result(command, "invalid", "invalid_arguments"), args.json)
+        return 2
+    try:
+        profile = _load_profile(args.profile)
+        target = backup_target_from_profile(profile)
+        identity = {"pin": pin, "profile": profile}
+        if args.apply:
+            data = apply_rotation(target.destination, Path(profile["fence"]).parent,
+                                  _reviewed_plan(args.plan, command), **identity)
+        else:
+            data = plan_rotation(target.destination, **identity)
+    except RotationPlanChanged:
+        _backup_display(_operator_result(command, error_code="reviewed_plan_changed"), args.json)
+        return 1
+    except (OSError, ValueError, TypeError, KeyError):
+        _backup_display(_operator_result(command, error_code="rotation_unverified"), args.json)
+        return 1
+    _backup_display(_operator_result(command, "ok", data=data), args.json)
+    return 0
+
+
+def _retention_dispatch(args, telemetry_root_resolver):
+    from laew.retention import MARKS_FILENAME, RetentionError, apply_session_retention, plan_session_retention
+    from laew.telemetry_retention import TelemetryPlanChanged, apply_telemetry_retention, plan_telemetry_retention
+
+    command = "retention." + args.action
+    sessions = args.scope == "sessions"
+    apply = args.action == "apply"
+    acknowledgement = args.acknowledgement if apply else None
+    try:
+        if sessions:
+            if (not args.profile or not args.backup_id or args.manifest or args.emergency_free_slots is not None
+                    or (apply and not acknowledgement)):
+                raise _InvalidArguments
+            backup_id = _canonical_uuid(args.backup_id)
+        elif (args.profile or args.backup_id or acknowledgement
+              or (args.emergency_free_slots is not None and args.emergency_free_slots < 1)):
+            raise _InvalidArguments
+    except (ValueError, TypeError, _InvalidArguments):
+        _backup_display(_operator_result(command, "invalid", "invalid_arguments"), args.json)
+        return 2
+    try:
+        reviewed = _reviewed_plan(args.plan, "retention.plan") if apply else None
+        if sessions:
+            inventory = _load_inventory(_load_profile(args.profile))
+            options = {"marks_path": inventory.destination / MARKS_FILENAME, "backup_id": backup_id}
+            if apply:
+                try:
+                    proof = _load_acknowledgement(acknowledgement, session_review=True)
+                except (OSError, ValueError, TypeError, RuntimeError):
+                    raise RetentionError("writer_acknowledgement_unverified") from None
+                data = apply_session_retention(inventory, reviewed_plan=reviewed, acknowledgement=proof, **options)
+            else:
+                data = plan_session_retention(inventory, **options)
+        else:
+            root = telemetry_root_resolver(args.manifest) if telemetry_root_resolver is not None else None
+            if root is None:
+                _backup_display(_operator_result(command, "disabled", "protected_storage_unavailable"), args.json)
+                return 1
+            options = {"emergency_free_slots": args.emergency_free_slots}
+            data = (apply_telemetry_retention(root, reviewed, **options) if apply else
+                    plan_telemetry_retention(root, **options))
+            if data.get("state") == "insufficient_inactive_traces":
+                _backup_display(_operator_result(command, "blocked", "insufficient_inactive_traces", data), args.json)
+                return 1
+    except (TelemetryPlanChanged, RetentionError) as exc:
+        error = "retention_unverified"
+        if isinstance(exc, TelemetryPlanChanged) or str(exc) == "reviewed_plan_changed":
+            error = "reviewed_plan_changed"
+        elif str(exc) == "writer_acknowledgement_unverified":
+            error = "writer_acknowledgement_unverified"
+        elif re.fullmatch(r"partial_apply_[0-9]{1,5}", str(exc)):
+            error = "partial_apply"
+            _backup_display(_operator_result(command, error_code=error,
+                                             data={"removed": int(str(exc).rsplit("_", 1)[1])}), args.json)
+            return 1
+        _backup_display(_operator_result(command, error_code=error), args.json)
+        return 1
+    except (OSError, ValueError, TypeError, KeyError):
+        _backup_display(_operator_result(command, error_code="retention_unverified"), args.json)
+        return 1
+    _backup_display(_operator_result(command, "ok", data=data), args.json)
+    return 0
+
+
 def dispatch(argv: list[str], *,
              telemetry_root_resolver: Callable[[str | None], str | Path | None] | None = None) -> int:
     """Dispatch an operator command; do not initialize application services.
@@ -373,6 +517,8 @@ def dispatch(argv: list[str], *,
             return _restore_dispatch(args)
         if args.command == "status":
             return _status_dispatch(args)
+        if args.command == "retention":
+            return _retention_dispatch(args, telemetry_root_resolver)
         identifier = str(UUID(args.run_id))
         if identifier != args.run_id:
             raise _InvalidArguments
@@ -385,9 +531,13 @@ def dispatch(argv: list[str], *,
                              "error_code": "invalid_arguments", "data": None}, json_requested)
             return 2
         if argv and argv[0] == "backup":
-            action = argv[1] if len(argv) > 1 and argv[1] in ("plan", "list", "verify", "create") else "unknown"
+            action = argv[1] if len(argv) > 1 and argv[1] in ("plan", "list", "verify", "create", "prune") else "unknown"
             _backup_display({"schema_version": 1, "command": "backup." + action,
                              "state": "invalid", "error_code": "invalid_arguments", "data": None}, json_requested)
+            return 2
+        if argv and argv[0] == "retention":
+            action = argv[1] if len(argv) > 1 and argv[1] in ("plan", "apply") else "unknown"
+            _backup_display(_operator_result("retention." + action, "invalid", "invalid_arguments"), json_requested)
             return 2
         _display(_result("invalid", error_code="invalid_arguments"), json_requested)
         return 2

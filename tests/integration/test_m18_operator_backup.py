@@ -46,6 +46,28 @@ def _call(capsys, args):
     return code, json.loads(output.out)
 
 
+def test_prune_reviews_exact_ledger_and_keeps_pinned_archive(profile, capsys):
+    path, data = profile
+    staged = path.parent / "staged"
+    staged.write_bytes(b"canonical fixture")
+    identifier = str(uuid4())
+    seal_archive(data["destination"], {"vault/note.txt": staged}, backup_id=identifier,
+                 cut_id=str(uuid4()), profile_id="fixture", host_id="host1",
+                 capture=dict(directories=["conversations", "vault"], shared_session_root=True,
+                              manifest_sha256="1" * 64, package_python_sha256="2" * 64))
+    args = ["backup", "prune", "--profile", str(path), "--pin", identifier]
+    before = set(path.parent.rglob("*"))
+    code, result = _call(capsys, args)
+    assert code == 0 and result["command"] == "backup.prune"
+    assert set(path.parent.rglob("*")) == before
+    review = path.parent / "review.json"
+    review.write_text(json.dumps(result), encoding="utf-8")
+    assert _call(capsys, args + ["--plan", str(review)])[0] == 2
+    code, applied = _call(capsys, args + ["--plan", str(review), "--apply"])
+    assert code == 0 and applied["data"]["removed"] == []
+    assert _call(capsys, ["backup", "verify", "--profile", str(path), "--id", identifier])[0] == 0
+
+
 def test_plan_and_empty_list_are_read_only(profile, capsys):
     path, data = profile
     before = set(path.parent.rglob("*"))
@@ -138,7 +160,7 @@ def test_list_and_verify_after_source_loss(profile, capsys):
 
 
 @pytest.mark.parametrize("args, expected", [
-    (["backup", "--help"], "{plan,list,verify,create}"),
+    (["backup", "--help"], "{plan,list,verify,create,prune}"),
     (["backup", "plan", "--help"], "--profile"),
     (["backup", "list", "--help"], "--profile"),
     (["backup", "verify", "--help"], "--id"),

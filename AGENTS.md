@@ -29,6 +29,8 @@ available commands with `--help` and add `--json` for automation.
 | `backup list --profile PROFILE --json` | Check the latest cached verified receipt and its timestamp. |
 | `backup verify --profile PROFILE --id ID --json` | Recheck the ZIP, manifest, receipt and member hashes. |
 | `restore --profile PROFILE --id ID --verify-only --json` | Check eligibility for isolated recovery without publishing a target. |
+| `retention plan --json` | Review aged telemetry. Use `--scope sessions --profile PROFILE --backup-id ID` to review archived conversations. |
+| `backup prune --profile PROFILE --pin ID --json` | Review rotation while preserving the last-known-good receipt. |
 
 JSON includes `schema_version`, `command`, `state` and `error_code`. Exit `0`
 means successful inspection, `1` means unavailable or invalid state, and `2`
@@ -45,6 +47,11 @@ filesystem paths into a report. A cached receipt is only a freshness indicator.
 against real state, obtain explicit authorization for the source, destination,
 writer boundary and operation. Creation requires an unexpired writer
 acknowledgement. Restore requires a private fresh or empty isolated target.
+`retention apply` and `backup prune --apply` require explicit authorization and
+the unchanged JSON plan via `--plan ABSOLUTE_PATH`. Telemetry emergency recovery
+requires separate approval and the same `--emergency-free-slots N` on both calls.
+Session deletion also requires `--acknowledgement ABSOLUTE_PATH` with fresh
+writer-quiescence evidence bound to the plan's `review_sha256`.
 Keep application sessions, SQLite, vault, telemetry and backup roots under their
 owning tools. Do not edit, clean, overwrite, migrate or expose them directly.
 An unavailable command or dependency is an operational observation. Inspect
