@@ -264,7 +264,7 @@ def copy_verified_member(container, row, output):
                "Archive member digest mismatch.")
 
 
-def _verify_container(path, identity, limits):
+def _verify_container(path, identity, limits, *, expected=None, on_verified=None):
     before = _file(path)
     with open(path, "rb") as stream:
         _check(os.path.samestat(before, os.fstat(stream.fileno())), "Archive was replaced.")
@@ -305,13 +305,18 @@ def _verify_container(path, identity, limits):
                     _validate_names(names)
                 for row in rows:
                     copy_verified_member(archive, row, None)
+                metrics = dict(archive_bytes=size, archive_sha256=archive_hash,
+                               manifest_sha256=hashlib.sha256(raw).hexdigest(), member_count=len(rows))
+                if expected is not None:
+                    _check(all(expected[key] == value for key, value in metrics.items()), "Receipt verification failed.")
+                if on_verified is not None:
+                    on_verified(archive, manifest)
         except (zipfile.BadZipFile, EOFError, UnicodeError, NotImplementedError) as exc:
             raise ArchiveError("Corrupt archive container.") from exc
         after = os.fstat(stream.fileno())
         _check(after.st_size == before.st_size and after.st_mtime_ns == before.st_mtime_ns and
                os.path.samestat(after, path.lstat()), "Archive changed during verification.")
-    return dict(archive_bytes=size, archive_sha256=archive_hash, manifest_sha256=hashlib.sha256(raw).hexdigest(),
-                member_count=len(rows))
+    return metrics
 
 
 def _sync_dir(directory):
@@ -430,10 +435,10 @@ def read_receipt(destination, backup_id, *, limits=ArchiveLimits()):
     return receipt
 
 
-def verify_archive(destination, backup_id, *, limits=ArchiveLimits()):
+def verify_archive(destination, backup_id, *, limits=ArchiveLimits(), on_verified=None):
     """Verify receipt, full container and all member bytes without extraction."""
     receipt = read_receipt(destination, backup_id, limits=limits)
     identity = {key: receipt[key] for key in _IDENTITY}
-    metrics = _verify_container(Path(destination) / (backup_id + ".zip"), identity, limits)
-    _check(all(receipt[key] == value for key, value in metrics.items()), "Receipt verification failed.")
+    _verify_container(Path(destination) / (backup_id + ".zip"), identity, limits, expected=receipt,
+                      on_verified=on_verified)
     return receipt

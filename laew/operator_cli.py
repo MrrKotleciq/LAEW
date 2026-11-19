@@ -41,6 +41,7 @@ _HELP = {
     ("backup", "create"): "usage: laew backup create --profile PROFILE --acknowledgement ABS --apply [--json]\n\nCapture an explicitly quiesced installation.",
     ("telemetry",): "usage: laew telemetry {show} ...\n\nRead-only telemetry inspection commands.",
     ("telemetry", "show"): "usage: laew telemetry show RUN_ID [--manifest PATH] [--json]\n\nInspect a telemetry trace by UUID.",
+    ("restore",): "usage: laew restore --profile PROFILE --id ID (--verify-only | --target ABS --apply) [--project-root ABS] [--json]\n\nVerify or publish an isolated restore.",
 }
 
 
@@ -64,6 +65,15 @@ def _parser() -> argparse.ArgumentParser:
         if name == "create":
             action.add_argument("--acknowledgement", required=True)
             action.add_argument("--apply", action="store_true", required=True)
+    restore = commands.add_parser("restore", add_help=False)
+    restore.add_argument("--profile", required=True)
+    restore.add_argument("--id", required=True)
+    mode = restore.add_mutually_exclusive_group(required=True)
+    mode.add_argument("--verify-only", action="store_true")
+    mode.add_argument("--target")
+    restore.add_argument("--apply", action="store_true")
+    restore.add_argument("--project-root", action="append", default=[])
+    restore.add_argument("--json", action="store_true")
     return parser
 
 
@@ -258,6 +268,53 @@ def _backup_dispatch(args) -> int:
     return code
 
 
+def _restore_dispatch(args) -> int:
+    result = {"schema_version": 1, "command": "restore", "state": "error", "error_code": None, "data": None}
+    try:
+        identifier = _canonical_uuid(args.id)
+        if args.verify_only and (args.apply or args.project_root):
+            raise _InvalidArguments
+        if args.target and (not args.apply or not Path(args.target).is_absolute()):
+            raise _InvalidArguments
+        if len(args.project_root) > 32:
+            raise _InvalidArguments
+    except (ValueError, TypeError, _InvalidArguments):
+        result.update(state="invalid", error_code="invalid_arguments")
+        _backup_display(result, args.json)
+        return 2
+    try:
+        from laew.backup.restore import restore_backup, verify_restore
+        profile = _load_profile(args.profile)
+        if args.verify_only:
+            receipt = verify_restore(profile, identifier)
+            verification = "archive"
+        else:
+            from laew.backup.recovery_checks import validate_recovery
+
+            workspace = Path(profile["workspace_root"]).resolve()
+            vault = Path(profile["vault"]).resolve()
+            roots = tuple(Path(raw) for raw in args.project_root)
+            for root in roots:
+                canonical = root.resolve(strict=True)
+                if (not root.is_absolute() or ".." in root.parts or canonical == workspace or
+                        not canonical.is_relative_to(workspace) or canonical.is_relative_to(vault) or
+                        vault.is_relative_to(canonical)):
+                    raise ValueError("invalid project scope")
+
+            receipt = restore_backup(
+                profile, identifier, target=Path(args.target),
+                validate_staged=lambda staged, manifest: validate_recovery(staged, manifest, project_roots=roots),
+            )
+            verification = "isolated"
+        result.update(state="ok", data={"receipt": receipt, "verification": verification})
+        code = 0
+    except Exception:
+        result["error_code"] = "unavailable_or_invalid"
+        code = 1
+    _backup_display(result, args.json)
+    return code
+
+
 def dispatch(argv: list[str], *,
              telemetry_root_resolver: Callable[[str | None], str | Path | None] | None = None) -> int:
     """Dispatch an operator command; do not initialize application services.
@@ -273,10 +330,16 @@ def dispatch(argv: list[str], *,
         args = _parser().parse_args(argv)
         if args.command == "backup":
             return _backup_dispatch(args)
+        if args.command == "restore":
+            return _restore_dispatch(args)
         identifier = str(UUID(args.run_id))
         if identifier != args.run_id:
             raise _InvalidArguments
     except (ValueError, TypeError, _InvalidArguments):
+        if argv and argv[0] == "restore":
+            _backup_display({"schema_version": 1, "command": "restore", "state": "invalid",
+                             "error_code": "invalid_arguments", "data": None}, json_requested)
+            return 2
         if argv and argv[0] == "backup":
             action = argv[1] if len(argv) > 1 and argv[1] in ("plan", "list", "verify", "create") else "unknown"
             _backup_display({"schema_version": 1, "command": "backup." + action,

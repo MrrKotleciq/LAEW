@@ -915,7 +915,7 @@ def cmd_rag_migrate(args) -> int:
 
 def main() -> int:
     """Main CLI entry point."""
-    if len(sys.argv) > 1 and sys.argv[1] in {"telemetry", "backup"}:
+    if len(sys.argv) > 1 and sys.argv[1] in {"telemetry", "backup", "restore"}:
         from laew.operator_cli import dispatch
         from laew.security.protected_profile import read_telemetry_root
         return dispatch(sys.argv[1:], telemetry_root_resolver=read_telemetry_root)
@@ -934,6 +934,7 @@ def main() -> int:
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
     subparsers.add_parser("telemetry", help="Inspect a run by its telemetry UUID")
     subparsers.add_parser("backup", help="Inspect backup inventory and archived generations")
+    subparsers.add_parser("restore", help="Verify or publish an isolated recovery target")
 
     memory_parser=subparsers.add_parser('memory',help='Manage long-term memory')
     memory_parser.add_argument('action',choices=['list','add','delete','analyze','status','sync'])
