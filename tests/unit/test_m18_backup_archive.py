@@ -42,6 +42,17 @@ def test_receipt_and_verified_members(fixture):
         seal_archive(media, members, **identity)
 
 
+@pytest.mark.parametrize(("has_db", "digest"), [(False, "a" * 64), (True, None), (True, "A" * 64),
+                                              (True, "private/path"), (True, 17)])
+def test_only_canonical_memory_namespace_evidence_is_accepted(fixture, has_db, digest):
+    media, members, identity = fixture
+    payload = next(iter(members.values()))
+    capture = dict(directories=["conversations", "vault"], shared_session_root=True,
+                   manifest_sha256="1" * 64, package_python_sha256="2" * 64, memory_namespace_sha256=digest)
+    with pytest.raises(ArchiveError, match="namespace"):
+        seal_archive(media, {"memory_db/memory.db": payload} if has_db else {}, capture=capture, **identity)
+
+
 @pytest.mark.parametrize("name", ["file", "vault/", "vault/../x", "/root/a", "c:/file", "vault/C:foo",
     "vault/x:stream", "vault/a\\b", "vault/CON.txt", "vault/lpt¹", "vault/com1 .ext", "vault/x. ",
     "vault/a\x00b", "vault/a//b", "vault/./b", "vault/De\u0301", "vault/\u202etest"])

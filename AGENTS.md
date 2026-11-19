@@ -32,14 +32,17 @@ available commands with `--help` and add `--json` for automation.
 | `retention plan --json` | Review aged telemetry. Use `--scope sessions --profile PROFILE --backup-id ID` to review archived conversations. |
 | `backup prune --profile PROFILE --pin ID --json` | Review rotation while preserving the last-known-good receipt. |
 
-JSON includes `schema_version`, `command`, `state` and `error_code`. Exit `0`
-means successful inspection, `1` means unavailable or invalid state, and `2`
-means invalid arguments. For `status`, `0` means required checks passed, `1`
-means degraded or required unknown, and `2` means invalid configuration or an
-unavailable required dependency. Default status uses no network. `--probe`
+JSON includes `schema_version`, `command` and `error_code`. Lookup and backup
+commands report `state`. Status reports `overall` and per-component `checks`.
+Exit `0` means successful inspection, `1` means unavailable or invalid state,
+and `2` means invalid arguments. For `status`, `0` means required checks passed,
+`1` means degraded or required unknown, and `2` means invalid configuration or
+an unavailable required dependency. Default status uses no network. `--probe`
 explicitly enables bounded loopback metadata checks. RAG marker age is reported
 when available. The `--rag-max-age-seconds N` threshold is opt-in.
 Record disabled, unknown and corrupt states explicitly.
+For a failed run, use the UUID from the protected launcher's `telemetry_run`
+diagnostic and correlate its terminal outcome with `status --json`.
 Use the operator lookup instead of copying logs, payloads, session contents or
 filesystem paths into a report. A cached receipt is only a freshness indicator.
 

@@ -1,10 +1,11 @@
 from pathlib import Path
+import hashlib
 import pytest
 
 from laew.backup.inventory import InventoryError, build_inventory, is_excluded
 from laew.console.session_store import conversation_store_from_manifest, session_store_from_manifest
 from laew.knowledge.integration import knowledge_storage_path
-from laew.memory.integration import memory_storage_path
+from laew.memory.integration import memory_collection_name, memory_storage_path
 
 
 @pytest.fixture
@@ -54,6 +55,26 @@ def test_override_and_disabled_store(fixture_profile, tmp_path):
     assert sources['curation_db'] == knowledge_storage_path(sources['conversations'])
     sources['curation_db'].unlink()
     assert 'curation_db' not in {s.logical_id for s in build_inventory(profile, manifest).sources}
+
+
+def test_memory_namespace_matches_runtime_default_and_override(fixture_profile, tmp_path, monkeypatch):
+    profile, manifest = fixture_profile
+    default = build_inventory(profile, manifest)
+    path = next(s.path for s in default.sources if s.logical_id == "memory_db")
+    monkeypatch.setenv("LAEW_MEMORY_STORAGE", str(tmp_path / "unrelated-launcher"))
+    assert memory_collection_name(None) == "laew_long_term_memory"
+    assert default.memory_namespace_sha256 == hashlib.sha256(b"laew_long_term_memory").hexdigest()
+    explicit = build_inventory(dict(profile, memory_storage=str(path)), manifest)
+    expected = "laew_ltm_" + hashlib.sha256(str(path.resolve()).encode()).hexdigest()[:16]
+    assert memory_collection_name(str(path)) == expected
+    assert explicit.memory_namespace_sha256 == hashlib.sha256(expected.encode()).hexdigest()
+    assert explicit.memory_namespace_sha256 != default.memory_namespace_sha256
+    moved = tmp_path / "restored.db"
+    moved.touch()
+    assert build_inventory(dict(profile, memory_storage=moved), manifest).memory_namespace_sha256 not in (
+        default.memory_namespace_sha256, explicit.memory_namespace_sha256)
+    path.unlink()
+    assert build_inventory(dict(profile, memory_enabled=False), manifest).memory_namespace_sha256 is None
 
 
 @pytest.mark.parametrize('key,value', [('schema_version', True), ('schema_version', 2),

@@ -98,9 +98,12 @@ def _validate_names(names, directories=()):
 
 
 def _validate_capture(metadata, names, limits):
-    _check(type(metadata) is dict and set(metadata) == {
-        "directories", "shared_session_root", "manifest_sha256", "package_python_sha256"
-    }, "Invalid capture metadata.")
+    required = {"directories", "shared_session_root", "manifest_sha256", "package_python_sha256"}
+    _check(type(metadata) is dict and set(metadata) in (required, required | {"memory_namespace_sha256"}),
+           "Invalid capture metadata.")
+    if "memory_namespace_sha256" in metadata:
+        _check(_digest(metadata["memory_namespace_sha256"]) and "memory_db/memory.db" in names,
+               "Invalid memory namespace evidence.")
     dirs = metadata["directories"]
     _check(type(dirs) is list and len(dirs) + len(names) <= limits.max_members
            and all(type(name) is str for name in dirs) and dirs == sorted(set(dirs))

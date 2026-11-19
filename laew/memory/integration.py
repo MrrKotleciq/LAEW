@@ -15,13 +15,22 @@ def memory_storage_path(conversation_directory, override=None):
     return Path(override) if override else Path(conversation_directory).parent / "memory" / "memory.db"
 
 
+def memory_collection_name(storage_override=None):
+    """Return the existing runtime collection identity for the launch override."""
+    if not storage_override:
+        return "laew_long_term_memory"
+    path_digest = hashlib.sha256(str(Path(storage_override).resolve()).encode()).hexdigest()
+    return "laew_ltm_" + path_digest[:16]
+
+
 def build_memory(manifest, manifest_path):
     from laew.console.session_store import conversation_store_from_manifest
     from laew.runtime import build_embedding_service
     from laew.rag.vector_store import ChromaVectorStore
     from laew.rag.embedding import embedding_model_identity
     sessions=conversation_store_from_manifest(manifest, manifest_path)
-    path=memory_storage_path(sessions.directory, os.environ.get('LAEW_MEMORY_STORAGE'))
+    storage_override = os.environ.get('LAEW_MEMORY_STORAGE')
+    path=memory_storage_path(sessions.directory, storage_override)
     store=MemoryStore(path)
     embedding=None
     def embed():
@@ -31,7 +40,7 @@ def build_memory(manifest, manifest_path):
             if hasattr(embedding,'timeout'): embedding.timeout=min(embedding.timeout,3)
         return embedding
     config=manifest.get('rag',{}).get('vector_store',{})
-    collection_name=('laew_ltm_'+hashlib.sha256(str(path.resolve()).encode()).hexdigest()[:16]) if os.environ.get('LAEW_MEMORY_STORAGE') else 'laew_long_term_memory'
+    collection_name = memory_collection_name(storage_override)
     def index(*, read_only=False):
         if not config.get('enabled'): raise RuntimeError('ChromaDB is disabled in the manifest.')
         return ChromaVectorStore(host=config.get('host','localhost'),port=int(config.get('port',8000)),

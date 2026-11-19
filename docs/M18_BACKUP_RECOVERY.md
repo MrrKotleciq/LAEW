@@ -15,6 +15,43 @@ From the trusted installation, use the repository environment for inspection. Su
 
 `plan` resolves the sources and exclusions without opening session payloads or creating stores. `list` reports cached receipts. `verify` independently checks the receipt, archive, manifest and member hashes. Both receipt commands can operate when the original sources are missing. Exit `0` means success, `1` means the state or data is unavailable or invalid, and `2` means the command arguments are invalid. JSON responses contain `schema_version`, `command`, `state`, `error_code` and `data`.
 
+### Profile inputs
+
+The backup profile is an operator-owned JSON object with `schema_version: 1`,
+stable `profile_id` and `host_id`, absolute `manifest_path`, `launch_cwd`,
+`workspace_root`, `vault`, `destination` and `fence` paths, and `config_files`
+mapping approved aliases to absolute paths. Set `memory_enabled` and
+`knowledge_enabled` to match the source launchers. Supply absolute
+`memory_storage` and `knowledge_storage` for launcher overrides, or `null` when
+those launchers use their defaults. Include the exact vault spelling. Use
+`installation.lock` for the preprovisioned fence and put operator media outside
+the workspace aliases and runtime source trees. Check `backup plan --json`
+before accepting the profile and its source inventory.
+
+### Protected telemetry profile
+
+Retained telemetry is opt-in for a separate installation and service identity.
+The authorized operator sets `LAEW_PROTECTED_PROFILE` to its private absolute
+JSON profile path. Version 1 has `legacy_installation`, `manifest`,
+`telemetry_root`, `backup_roots`, `projects`, and `executables` in addition to
+`schema_version`. Use an absolute path for every root and executable. The legacy
+installation must have a different owner. Place the manifest inside the
+protected installation and set `telemetry.enabled: true` and `telemetry.root` to
+the same private root as the profile. Each project maps `root`, `scratch` and an
+`appcontainer` label on Windows. On Debian use `null` for `appcontainer` and
+provide the profile's separate `readonly_roots` allowlist for trusted
+dependencies. Approve and verify the operating system boundary before enabling
+retained traces. The implementation refuses unsupported AppContainer or
+Landlock configurations. Keep retained traces and backup media outside
+project aliases and protect them with the installation owner's ACLs.
+
+For diagnosis, take the UUID from the protected launcher's `telemetry_run`
+diagnostic. Call `laew telemetry show <RUN_UUID> --json`, then
+`laew status --manifest <ABSOLUTE_MANIFEST> --json`. Look at the terminal outcome,
+provider attempts and tool decisions first. For unavailable dependencies, an
+operator can request `status --probe` to check supported loopback metadata.
+Keep project data and diagnostic output on the protected installation.
+
 ## Capture under an approved maintenance window
 
 1. Obtain approval for the production scope, destination and downtime. Confirm the profile, available capacity, media ownership and access rights, launch directories, environment overrides and writer roster. Keep the destination and installation fence outside all project and knowledge roots. Keep archives on private media and use the deployment's approved encryption and transfer procedures.
@@ -40,6 +77,13 @@ Choose a committed receipt and independently verify the archive. Isolated recove
 `--verify-only` opens no target. A target can be new or positively verified empty under a preprovisioned private operator directory. Restore writes into private staging, verifies extracted content and writes `restore.receipt.json` before publishing the target. A completed target cannot be overwritten. For an archive with project-scoped records, add `--project-root <ABSOLUTE_EQUIVALENT_ROOT>` separately for each independently recovered project. An archive from an earlier fixture format without capture topology is eligible for verification only.
 
 Use the archive's logical roots to map named sessions, conversations, vault, private configuration and enabled databases as one generation. When the capture used one physical session directory, preserve that relationship. Verify supported session formats, SQLite integrity, pending jobs, outbox entries and curation state before activation. A staged verification must keep recorded lease and publication state intact. Exercise interrupted-session recovery in a disposable runtime copy and confirm that it resumes without replaying historical tool or provider effects.
+
+Read the `recovery_validation` fields in the response or durable isolated
+receipt. `activation_blocked: true` means a pending or running job has a missing
+conversation. Keep workers stopped and reconcile the missing source under an
+approved procedure. `missing_historical_references` counts references handled
+as historical evidence. `memory_namespace: unknown` requires independent
+verification of the original override and collection before activation.
 
 Project-scoped records depend on the canonical absolute project path. Preserve the project identities in an isolated path-equivalent environment. Refuse unknown project references or an unverified path change. The project repositories and their worktrees have an independently managed backup. Preserve the exact vault spelling used by each launcher. Windows commonly treats `Knowledge` and `KNOWLEDGE` as the same name, while Debian can distinguish them.
 
@@ -76,3 +120,11 @@ Only an explicitly marked archived conversation can qualify. The private operato
 Before session apply, drain and inhibit the restart of every session, memory and curation writer, including older launchers. Create a fresh acknowledgment with the same fields as backup capture, a new `cut_id`, the selected `backup_id`, and `review_sha256` copied from the session plan's `data`. Use a private operator-owned file in a private directory (mode `0600` for the file on Debian, inherited operator ACL on Windows). Keep all writers stopped through apply. Eligibility requires an exact verified copy at the time of deletion. Its later availability follows the reviewed rotation policy and any explicitly maintained last-known-good pin.
 
 Rotation retains the newest verified generations in seven daily and four weekly UTC buckets and the explicit last-known-good pin. Apply rechecks the selected generations under the installation fence and requires a verified backup no older than 24 hours. Unrecognized or corrupt artifacts require separate investigation. The disabled Windows and Debian examples include a missed-window fixture procedure. [Scheduling templates](examples/m18/SCHEDULING.md)
+
+After an interrupted capture or prune, use `backup list` and `backup verify`
+to confirm the previous good generation. Incomplete staging and a ZIP lacking
+its receipt are orphan artifacts. Record them separately and keep them outside
+the set of eligible generations. `backup prune` skips them. Retire them only
+through an approved operator maintenance procedure after confirming no capture
+or recovery still owns them. Treat stale receipts as a missed recovery point
+and investigate writer or schedule failures before the next capture window.

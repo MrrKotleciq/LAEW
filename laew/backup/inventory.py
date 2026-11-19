@@ -19,7 +19,7 @@ from fnmatch import fnmatchcase
 from laew.backup.fence import FENCE_FILENAME
 from laew.console.session_store import session_storage_from_manifest
 from laew.knowledge.integration import knowledge_storage_path
-from laew.memory.integration import memory_storage_path
+from laew.memory.integration import memory_collection_name, memory_storage_path
 from laew.rag.config import resolve_project_root
 
 _ID = re.compile(r"[a-z][a-z0-9_-]{0,63}\Z")
@@ -53,10 +53,16 @@ class Inventory:
     exclusions: tuple[str, ...] = DEFAULT_EXCLUSIONS
     manifest_path: Path | None = None
     manifest_content_digest: str | None = None
+    memory_namespace_sha256: str | None = None
 
 
 def manifest_content_digest(manifest):
     return hashlib.sha256(yaml.safe_dump(manifest, sort_keys=True).encode()).hexdigest()
+
+
+def memory_namespace_sha256(storage_override):
+    """Fingerprint the actual collection identity without serializing a private path."""
+    return hashlib.sha256(memory_collection_name(storage_override).encode("ascii")).hexdigest()
 
 
 @dataclass(frozen=True)
@@ -252,5 +258,7 @@ def build_inventory(profile, manifest):
         raise InventoryError("operator paths overlap")
     if any(_overlap(manifest_path, source.path) for source in sources):
         raise InventoryError("manifest overlaps a capture source")
+    namespace = (memory_namespace_sha256(profile["memory_storage"])
+                 if any(source.logical_id == "memory_db" for source in sources) else None)
     return Inventory(pid, host, destination, fence, tuple(sources), manifest_path=manifest_path,
-                     manifest_content_digest=manifest_content_digest(manifest))
+                     manifest_content_digest=manifest_content_digest(manifest), memory_namespace_sha256=namespace)

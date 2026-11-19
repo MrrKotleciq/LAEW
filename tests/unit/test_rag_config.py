@@ -78,7 +78,7 @@ def test_default_aliases_match_nested_project_and_sibling_global_vault(tmp_path)
     """A project-local Knowledge folder remains under @project; global stays sibling."""
     project = tmp_path / "Projects" / "LAEW"
     local = project / "Knowledge"
-    global_vault = tmp_path / "Knowledge"
+    global_vault = tmp_path / "KNOWLEDGE"
     local.mkdir(parents=True)
     global_vault.mkdir()
 

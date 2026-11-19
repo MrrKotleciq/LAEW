@@ -171,15 +171,22 @@ Example — chat with a slow CPU model and a longer timeout:
 $ laew chat --provider ollama --timeout 600 --model llama3.1
 ```
 
-## Cloud Chat
+## Cloud models
 
-Workbench offers text-only **OpenAI API** and **ChatGPT** modes alongside the
-local Chief Agent. API mode reads `OPENAI_API_KEY` only from the backend process
-environment. For ChatGPT account sign-in, install `python -m pip install ".[cloud]"`
-and use **Continue with ChatGPT**. Choose an exact model before sending a message.
-These cloud conversations have no local tools, files, profile or RAG access.
-See [Cloud Chat configuration and security](CLOUD_CHAT.md) for credential storage,
-account eligibility, conversation isolation, usage limits and Stop behavior.
+Workbench uses cloud models through the same Chief Agent, permission broker and
+scoped tools as local models. The backend reads API keys from its environment.
+For ChatGPT account sign-in, install `python -m pip install ".[cloud]"` and use
+**Continue with ChatGPT**. Choose an exact model before sending a message.
+See [unified model providers](CLOUD_CHAT.md) for supported providers, credential
+storage, scope and permissions.
+
+## Operator CLI and recovery
+
+Start with `laew status --json` from the repository environment. Run `laew --help`
+to discover operator commands. Retained telemetry requires a separately
+provisioned and verified protected installation. Follow the [M18 recovery
+runbook](M18_BACKUP_RECOVERY.md) for profile setup, backup verification,
+isolated recovery, reviewed retention and disabled schedule examples.
 
 ## Troubleshooting
 
@@ -198,5 +205,5 @@ untrusted input. Restart existing LAEW processes to load the updated WebTool.
   models are slow; raise the request timeout via `LAEW_TIMEOUT`, `--timeout`, or a
   manifest `timeout` entry.
 - **`Unsupported provider type`** — the manifest declares a provider `type` that is
-  not registered; local chat supports `ollama` and `llama.cpp`. Cloud Chat is
-  selected separately in Workbench and is not an agent-provider manifest entry.
+  not registered. Check the provider configuration and the supported selections
+  in [unified model providers](CLOUD_CHAT.md).

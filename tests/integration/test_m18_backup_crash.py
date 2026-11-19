@@ -18,7 +18,7 @@ from laew.backup import capture
 from laew.backup.archive import verify_archive
 from laew.backup.capture import CaptureError, WriterAcknowledgement, capture_backup
 from laew.backup.fence import FENCE_FILENAME, FenceBusyError, host_fence
-from laew.backup.inventory import Inventory, Source, manifest_content_digest
+from laew.backup.inventory import Inventory, Source, manifest_content_digest, memory_namespace_sha256
 from laew.console.session_store import SessionStore, SessionStoreError, make_chat_payload
 from laew.knowledge.store import KnowledgeStore
 from laew.memory.store import MemoryStore
@@ -62,6 +62,7 @@ def test_fenced_snapshot_includes_committed_wal_and_pending_jobs(fixture, tmp_pa
     inv, args, conversation = fixture
     (tmp_path / "vault" / "empty" / "nested").mkdir(parents=True)
     memory = next(row.path for row in inv.sources if row.logical_id == "memory_db")
+    inv = replace(inv, memory_namespace_sha256=memory_namespace_sha256(memory))
     with closing(sqlite3.connect(memory)) as writer:
         writer.execute("PRAGMA wal_autocheckpoint=0")
         writer.execute("INSERT INTO extraction_jobs(id,conversation_id,start_sequence,end_sequence,model_json,"
@@ -77,6 +78,8 @@ def test_fenced_snapshot_includes_committed_wal_and_pending_jobs(fixture, tmp_pa
         assert metadata["shared_session_root"] is True
         assert metadata["manifest_sha256"] == hashlib.sha256(inv.manifest_path.read_bytes()).hexdigest()
         assert len(bytes.fromhex(metadata["package_python_sha256"])) == 32
+        assert metadata["memory_namespace_sha256"] == memory_namespace_sha256(memory)
+        assert memory.name not in json.dumps(metadata) and str(memory.parent) not in json.dumps(metadata)
         assert b"fixture-canary" not in container.read("manifest.json")
         names = {row["name"] for row in manifest["members"]}
         assert names == {"vault/note.md", "config_settings/settings.json", "memory_db/memory.db",

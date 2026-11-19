@@ -1,12 +1,15 @@
 """Exercise correlated telemetry through a synthetic Workbench execution."""
 
 from http import HTTPStatus
+import json
+from pathlib import Path
 from threading import Event
 from types import SimpleNamespace
 
 import pytest
 
 from laew.agent.executor import StreamCancelled
+from laew.operator_cli import dispatch
 from laew.telemetry import TelemetrySink, read_run, summarize_run
 from laew.web import WorkspaceService
 
@@ -96,3 +99,38 @@ def test_rejected_workbench_message_creates_no_trace(service_with_trace):
     assert service.chat("")[0] == HTTPStatus.UNPROCESSABLE_ENTITY
     assert service.chat("accept me", expected_project_id="wrong-scope")[0] == HTTPStatus.CONFLICT
     assert list(root.iterdir()) == []
+
+
+def test_operator_diagnoses_failed_run_by_id_and_status(service_with_trace, capsys):
+    service, root = service_with_trace
+    source = Path(__file__).resolve().parents[2] / "manifests" / "SYSTEM_MANIFEST.yaml"
+    service.manifest_path.write_bytes(source.read_bytes())
+
+    class Executor:
+        def run(self, message, *, on_diagnostic, **_options):
+            on_diagnostic("provider_request", {"attempt": 1, "tool_results": 0})
+            on_diagnostic("provider_dispatch", {})
+            on_diagnostic("provider_outcome", {"status": "failed", "elapsed_ms": 1,
+                                               "error_category": "private-canary"})
+            return SimpleNamespace(success=False, steps=[], error="private-canary")
+
+    service._executor = Executor()
+    assert service.chat("private-canary")[0] == HTTPStatus.BAD_GATEWAY
+    trace, = root.glob("*.jsonl")
+
+    def inspect(args):
+        code = dispatch([*args, "--manifest", str(service.manifest_path), "--json"],
+                        telemetry_root_resolver=lambda _: root)
+        output = capsys.readouterr()
+        assert not output.err and "private-canary" not in output.out
+        return code, json.loads(output.out)
+
+    code, trace_result = inspect(["telemetry", "show", trace.stem])
+    assert code == 0 and trace_result["run_id"] == trace.stem
+    assert trace_result["summary"]["status"] == "failed"
+    assert trace_result["summary"]["dispatched_attempts"] == 1
+    assert trace_result["summary"]["usage"]["input"]["unavailable"] == 1
+    code, readiness = inspect(["status"])
+    assert code == 1 and readiness["overall"] == "degraded"
+    assert any(check["component"] == "provider" and check["reason"] == "not_probed"
+               for check in readiness["checks"])

@@ -185,3 +185,46 @@ def test_unknown_logical_member_rejected_before_validator(generation):
     with pytest.raises(RestoreError, match="Unknown logical"):
         restore_backup(profile, backup_id, target=target, validate_staged=lambda *_: pytest.fail("unexpected runtime"))
     assert not target.exists()
+
+
+def test_receipt_persists_only_allowlisted_semantic_block(generation):
+    profile, receipt, target = generation
+    result = restore_backup(profile, receipt['backup_id'], target=target,
+                            validate_staged=lambda *_: {'status': 'validated', 'blocked_missing_jobs': 2,
+                                                       'missing_historical_references': 3, 'secret': 'canary'})
+    summary = result['recovery_validation']
+    assert summary == {'status': 'reported', 'activation_blocked': True, 'blocked_missing_jobs': 2,
+                       'missing_historical_references': 3, 'memory_namespace': 'not_applicable'}
+    assert json.loads((target / 'restore.receipt.json').read_text())['recovery_validation'] == summary
+    assert 'canary' not in json.dumps(result)
+
+
+def test_legacy_callback_has_unknown_validation(generation):
+    profile, receipt, target = generation
+    result = restore_backup(profile, receipt['backup_id'], target=target, validate_staged=lambda *_: None)
+    assert result['recovery_validation']['status'] == 'not_reported'
+    assert result['recovery_validation']['activation_blocked'] is None
+
+
+@pytest.mark.parametrize('namespace', ['matched', 'mismatch', 'unknown'])
+def test_memory_namespace_identity_and_legacy_unknown(generation, namespace):
+    from laew.backup.inventory import memory_namespace_sha256
+    profile, _, target = generation
+    memory_path = target.parent.parent / 'fixture-memory.db'
+    memory_path.write_bytes(b'synthetic db')
+    profile.update(memory_enabled=True, memory_storage=memory_path)
+    metadata = dict(directories=['conversations', 'vault'], shared_session_root=True,
+                    manifest_sha256='1' * 64, package_python_sha256='2' * 64)
+    if namespace != 'unknown':
+        metadata['memory_namespace_sha256'] = (memory_namespace_sha256(memory_path) if namespace == 'matched'
+                                                 else '0' * 64)
+    key = str(uuid4())
+    seal_archive(profile['destination'], {'memory_db/memory.db': memory_path}, backup_id=key,
+                 cut_id=str(uuid4()), profile_id='fixture', host_id='host', capture=metadata)
+    if namespace == 'mismatch':
+        with pytest.raises(RestoreError):
+            restore_backup(profile, key, target=target, validate_staged=lambda *_: None)
+        assert not target.exists()
+    else:
+        result = restore_backup(profile, key, target=target, validate_staged=lambda *_: None)
+        assert result['recovery_validation']['memory_namespace'] == namespace

@@ -81,6 +81,11 @@ def test_offline_capture_restore_and_memory_rebuild(tmp_path, monkeypatch, with_
     restore_backup(profile, backup_id, target=target,
                    validate_staged=lambda stage, sealed: validation.append(validate_recovery(stage, sealed)))
     measure("canonical_restore_seconds", started)
+    archive_bytes = (media / (backup_id + '.zip')).stat().st_size
+    canonical_bytes = sum(path.stat().st_size for path in target.rglob('*') if path.is_file())
+    record_property('archive_bytes', archive_bytes)
+    record_property('canonical_bytes', canonical_bytes)
+    print(f'm18_fixture archive_bytes={archive_bytes} canonical_bytes={canonical_bytes}')
     assert validation[0]['named_sessions'] == 1 and validation[0]['conversations'] == 1
     original = (target / 'conversations' / f'conversation-{cid}.json').read_bytes()
     assert SessionStore(target / 'conversations').load('named')['kind'] == 'chat'

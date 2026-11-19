@@ -138,6 +138,11 @@ def _expected(profile, manifest):
             _require(root == "vault" and _vault_member(relative), "Unknown logical source.")
         directories.add(name.rpartition("/")[0])
         files[name] = row
+    namespace = manifest['capture'].get('memory_namespace_sha256')
+    if namespace is not None:
+        from laew.backup.inventory import memory_namespace_sha256
+        _require(namespace == memory_namespace_sha256(profile['memory_storage']),
+                 "Memory namespace does not match the recovery profile.")
     for enabled, name in (("memory_enabled", "memory_db/memory.db"), ("knowledge_enabled", "curation_db/curation.db")):
         _require(not profile[enabled] or name in files, "Missing required database.")
     for key, path in profile["config_files"].items():
@@ -211,6 +216,10 @@ def restore_backup(profile, backup_id, *, target, validate_staged, limits=Archiv
         _mkdir(stage)
         _private(stage)
 
+        validation = {"status": "not_reported", "activation_blocked": None,
+                      "blocked_missing_jobs": None, "missing_historical_references": None,
+                      "memory_namespace": "not_applicable"}
+
         def extract(container, manifest):
             _identity(profile, manifest)
             directories, files = _expected(profile, manifest)
@@ -227,7 +236,21 @@ def restore_backup(profile, backup_id, *, target, validate_staged, limits=Archiv
             _audit(stage, directories, files, mounts)
             # The validator may create a separate disposable runtime for its drill.
             # Give it an independent object so it cannot change our expected hashes.
-            validate_staged(stage, json.loads(json.dumps(manifest)))
+            reported = validate_staged(stage, json.loads(json.dumps(manifest)))
+            has_memory = "memory_db/memory.db" in files
+            validation['memory_namespace'] = (
+                "matched" if has_memory and "memory_namespace_sha256" in manifest['capture'] else
+                "unknown" if has_memory else "not_applicable")
+            if reported is not None:
+                _require(type(reported) is dict and reported.get('status') == 'validated',
+                         "Invalid semantic validation result.")
+                blocked = reported.get('blocked_missing_jobs')
+                missing = reported.get('missing_historical_references')
+                _require(type(blocked) is int and 0 <= blocked <= 1000000 and
+                         type(missing) is int and 0 <= missing <= 1000000,
+                         "Invalid semantic validation counts.")
+                validation.update(status="reported", activation_blocked=bool(blocked),
+                                  blocked_missing_jobs=blocked, missing_historical_references=missing)
             _audit(stage, directories, files, mounts)
             for name in sorted(directories, reverse=True):
                 _sync_directory(stage / name)
@@ -235,7 +258,8 @@ def restore_backup(profile, backup_id, *, target, validate_staged, limits=Archiv
         verified = verify_archive(source.destination, backup_id, limits=limits, on_verified=extract)
         receipt = {key: verified[key] for key in ("schema_version", "backup_id", "cut_id", "profile_id", "host_id",
                                                   "archive_sha256", "manifest_sha256", "member_count")}
-        receipt.update(restored_at=datetime.now(timezone.utc).isoformat(), state="isolated")
+        receipt.update(restored_at=datetime.now(timezone.utc).isoformat(), state="isolated",
+                       recovery_validation=validation)
         with _new_file(stage / "restore.receipt.json") as out:
             out.write(json.dumps(receipt, sort_keys=True).encode())
         _sync_directory(stage)

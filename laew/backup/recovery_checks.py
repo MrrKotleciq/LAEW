@@ -74,6 +74,7 @@ def validate_recovery(staged_root, manifest, *, project_roots=(), timeout=5.0):
                 named += 1
         missing = 0
         databases = 0
+        blocked_jobs = 0
         for key, filename in _DBS.items():
             path = staged.get(key + '/' + filename)
             if path is None:
@@ -92,15 +93,48 @@ def validate_recovery(staged_root, manifest, *, project_roots=(), timeout=5.0):
                 for cid, sequence in db.execute(f'SELECT conversation_id,sequence FROM {prefix}_checkpoints'):
                     if cid not in sessions:
                         missing += 1
-                    elif type(sequence) is not int or sequence < 0 or sequence >= len(sessions[cid]['events']):
+                    elif type(sequence) is not int or sequence < -1 or sequence >= len(sessions[cid]['events']):
                         raise ValueError('Invalid conversation checkpoint.')
-                for cid, start, end in db.execute(f'SELECT conversation_id,start_sequence,end_sequence FROM {prefix}_jobs'):
+                for cid, start, end, status in db.execute(f'SELECT conversation_id,start_sequence,end_sequence,status FROM {prefix}_jobs'):
+                    if status not in {'pending', 'running', 'completed'}:
+                        raise ValueError('Unsupported job status.')
                     if type(start) is not int or type(end) is not int or start < -1 or end < 0 or end <= start:
                         raise ValueError('Invalid job sequence.')
                     if cid not in sessions:
-                        missing += 1
+                        if status in {'pending', 'running'}:
+                            blocked_jobs += 1
+                        else:
+                            missing += 1
                     elif end >= len(sessions[cid]['events']):
                         raise ValueError('Job exceeds conversation sequence.')
+                if key == 'curation_db':
+                    for project, raw in db.execute('SELECT project_id,payload FROM knowledge_proposals'):
+                        payload = _json(raw)
+                        if not isinstance(payload, dict):
+                            raise ValueError('Invalid curation payload.')
+                        if 'conversation_id' not in payload and 'sources' not in payload and 'source_event_ids' not in payload:
+                            continue
+                        cid, ids, sources = payload.get('conversation_id'), payload.get('source_event_ids'), payload.get('sources')
+                        if (not isinstance(cid, str) or not isinstance(ids, list) or not ids or len(ids) > 20
+                                or not all(isinstance(eid, str) for eid in ids) or len(set(ids)) != len(ids)
+                                or not isinstance(sources, list) or len(sources) != len(ids)):
+                            raise ValueError('Invalid curation references.')
+                        for eid, source in zip(ids, sources):
+                            if not isinstance(source, dict) or source.get('conversation_id') != cid or source.get('event_id') != eid:
+                                raise ValueError('Inconsistent curation references.')
+                        if cid not in sessions:
+                            missing += 1
+                            continue
+                        conversation = sessions[cid]
+                        if conversation['project_id'] != project:
+                            raise ValueError('Curation source scope mismatch.')
+                        by_id = {event['id']: event for event in conversation['events']}
+                        for eid, source in zip(ids, sources):
+                            event = by_id.get(eid)
+                            if (event is None or event['kind'] not in {'user', 'assistant'} or event.get('generated')
+                                    or source.get('role') != event['kind']
+                                    or source.get('source_scope') != ('project' if project else 'general')):
+                                raise ValueError('Invalid curation source event.')
                 if key == 'memory_db':
                     for cid, eid in db.execute('SELECT conversation_id,event_id FROM memory_sources WHERE conversation_id IS NOT NULL'):
                         if cid not in sessions:
@@ -113,6 +147,7 @@ def validate_recovery(staged_root, manifest, *, project_roots=(), timeout=5.0):
         _curation(staged, vault, tree, remaining)
         return {'status': 'validated', 'named_sessions': named, 'conversations': len(sessions),
                 'databases': databases, 'missing_historical_references': missing,
+                'blocked_missing_jobs': blocked_jobs,
                 'index_rebuild_verified': False}
     except Exception as exc:
         raise RecoveryValidationError('Staged semantic validation failed.') from exc

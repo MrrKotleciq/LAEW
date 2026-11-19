@@ -434,7 +434,9 @@ def capture_backup(inventory, *, backup_id, cut_id, writers, limits=ArchiveLimit
                          "Writer acknowledgement expired.")
 
             unchanged()
+            metadata = dict(provenance, directories=directories, shared_session_root="sessions_named" not in sources)
+            if inventory.memory_namespace_sha256 is not None:
+                metadata["memory_namespace_sha256"] = inventory.memory_namespace_sha256
             return seal_archive(inventory.destination, staged, backup_id=backup_id, cut_id=cut_id,
                                 profile_id=inventory.profile_id, host_id=inventory.host_id, limits=limits,
-                                before_publish=unchanged, capture=dict(provenance, directories=directories,
-                                shared_session_root="sessions_named" not in sources))
+                                before_publish=unchanged, capture=metadata)

@@ -70,6 +70,9 @@ def test_operator_capture_review_apply_and_restore(tmp_path, capsys):
         return code, json.loads(captured.out)
     code, created = call(['backup', 'create', '--profile', str(profile_path), '--acknowledgement', str(ack_path), '--apply'])
     assert code == 0 and created['data']['receipt']['backup_id'] == backup_id
+    _, readiness = call(['status', '--manifest', str(manifest_path), '--profile', str(profile_path)])
+    backup = next(check for check in readiness['checks'] if check['component'] == 'backup')
+    assert backup['state'] == 'ok' and backup['reason'] == 'cached_receipt'
     mark = {'member': 'conversations/' + session_path.name, 'sha256': hashlib.sha256(exact).hexdigest(),
             'archived_at': stamp, 'pinned': False, 'inactive': True}
     marks_path = media / MARKS_FILENAME
