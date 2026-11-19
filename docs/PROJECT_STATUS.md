@@ -70,14 +70,14 @@ Implementation: Milestone 17 (Second Brain & Global Knowledge Integration) compl
 
 ## Current Focus
 
-The next development priority is
-[M18 — Monitoring, Telemetry & Backup](roadmap/M18-Monitoring_Telemetry_%26_Backup.md).
+[M18 — Monitoring, Telemetry & Backup](roadmap/M18-Monitoring_Telemetry_%26_Backup.md)
+is implemented and fixture-verified. Production rollout requires separate
+authorization and a representative recovery drill.
 
-Milestones 1–17 are complete. Milestones 18–21 remain in progress. The local
-workbench reuses the Chief Agent with project selection and scoped RAG sources.
-The approved Polish Global Knowledge vault is populated, indexed and verified
-against actual content. Operational monitoring, backup/retention and later
-roadmap work remain outside M17 completion.
+Milestones 1–18 are complete for their stated implementation scope. Milestones
+19–21 remain in progress. The local Workbench reuses the Chief Agent with
+project selection and scoped RAG sources. The approved Polish Global Knowledge
+vault is populated, indexed and verified against actual content.
 
 ## Milestone Summary
 
@@ -100,7 +100,7 @@ roadmap work remain outside M17 completion.
 | M15 — Multi-Model Routing & Provider Fallback | ✅ Completed | 2026-09-16 |
 | M16 — Parallel Multi-Agent Execution & Semantic Conflict Detection | ✅ Completed | 2026-09-16 |
 | M17 — Second Brain & Global Knowledge Integration | ✅ Completed | 2026-10-29 |
-| M18 — Monitoring, Telemetry & Backup | 🚧 In Progress | — |
+| M18 — Monitoring, Telemetry & Backup | ✅ Implemented and Fixture-Verified | 2026-11-19 |
 | M19 — MCP Tools Layer | 🚧 In Progress | — |
 | M20 — Multi-Project Workspace | 🚧 In Progress | — |
 | M21 — v1.0 Stabilization & Release | 🚧 In Progress | — |
