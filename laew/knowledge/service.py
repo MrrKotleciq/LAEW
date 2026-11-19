@@ -412,7 +412,7 @@ class KnowledgeCurationService:
                        (key, conversation['id'], start, max(event['sequence'] for event in turns), json.dumps(selection | {'manual': manual}), time.time()))
         return key
 
-    def process_extraction(self, conversations, provider_factory):
+    def process_extraction(self, conversations, provider_factory, *, telemetry=None):
         from laew.llm.base import LLMMessage, MessageRole
         now = time.time()
         token = str(uuid.uuid4())
@@ -421,6 +421,9 @@ class KnowledgeCurationService:
             if job is None:
                 return False
             db.execute("UPDATE knowledge_jobs SET status='running',lease_until=?,lease_token=?,attempts=attempts+1 WHERE id=?", (now + 600, token, job['id']))
+        from laew.telemetry_observer import observe_generation, provider_label
+        trace = telemetry.start_run("curation_worker") if telemetry is not None else None
+        outcome = "failed"
         try:
             selection = json.loads(job['selection'])
             manual = selection.pop('manual', False)
@@ -455,7 +458,9 @@ class KnowledgeCurationService:
                       'source_type is user_fact or inference; verification is confirmed or needs_verification. '
                       'Do not include secrets, raw logs, project identifiers or redundant notes. Write proposed notes in Polish. '
                       'No candidates is a valid result. Creating a candidate never approves or writes it.')
-            response = provider.generate([LLMMessage(MessageRole.SYSTEM, prompt), LLMMessage(MessageRole.USER, json.dumps([{'id': event['id'], 'role': event['kind'], 'content': event['content']} for event in events], ensure_ascii=False))], model=model, temperature=0, max_tokens=4000)
+            messages = [LLMMessage(MessageRole.SYSTEM, prompt), LLMMessage(MessageRole.USER, json.dumps([{'id': event['id'], 'role': event['kind'], 'content': event['content']} for event in events], ensure_ascii=False))]
+            response = observe_generation(trace, provider_label(provider, selection.get("provider")),
+                                          provider.generate, messages, model=model, temperature=0, max_tokens=4000)
             raw = response.content.strip()
             fenced = re.fullmatch(r'```(?:json)?\s*\n(.*?)\n```', raw, re.DOTALL | re.IGNORECASE)
             payload = json.loads(fenced.group(1) if fenced else raw)
@@ -488,8 +493,15 @@ class KnowledgeCurationService:
             with self.store.transaction() as db:
                 db.execute('INSERT INTO knowledge_checkpoints VALUES(?,?) ON CONFLICT(conversation_id) DO UPDATE SET sequence=MAX(sequence,excluded.sequence)', (conversation['id'], end))
                 db.execute("UPDATE knowledge_jobs SET status='completed',lease_until=0,error=NULL WHERE id=? AND lease_token=?", (job['id'], token))
+            outcome = "completed"
             return True
         except Exception:
             with self.store.transaction() as db:
                 db.execute("UPDATE knowledge_jobs SET status='pending',lease_until=0,retry_at=?,error=? WHERE id=? AND lease_token=?", (time.time() + 60, 'Knowledge extraction failed; retry pending.', job['id'], token))
             return False
+        except KeyboardInterrupt:
+            outcome = "cancelled"
+            raise
+        finally:
+            if trace is not None:
+                trace.finish(outcome, {"failed": "internal_error", "cancelled": "cancelled"}.get(outcome))

@@ -135,6 +135,7 @@ class MultiAgentCoordinator:
         self.chief = chief
         self.agents = agents
         self._delegations: List[DelegationResult] = []
+        self.telemetry_run = None
 
     # --------------------------------------------------------------------- #
     # Delegation helpers
@@ -171,7 +172,11 @@ class MultiAgentCoordinator:
         executor = AgentExecutor(agent)
 
         prompt = self._build_delegation_prompt(subtask, shared_context)
-        result: ExecutionResult = executor.run(prompt)
+        if self.telemetry_run is None:
+            result: ExecutionResult = executor.run(prompt)
+        else:
+            from laew.telemetry_observer import ExecutionObserver
+            result = ExecutionObserver(self.telemetry_run, role="worker").execute(executor, prompt)
 
         if result.success:
             output = result.final_response.strip()
@@ -369,7 +374,11 @@ class MultiAgentCoordinator:
             "INFERENCE — never present an inference or hypothesis as a fact.\n\n"
             + shared_context.render("Accumulated context from specialists:")
         )
-        result = executor.run(prompt)
+        if self.telemetry_run is None:
+            result = executor.run(prompt)
+        else:
+            from laew.telemetry_observer import ExecutionObserver
+            result = ExecutionObserver(self.telemetry_run, role="coordinator").execute(executor, prompt)
         return result.final_response.strip() if result.success else ""
 
     # --------------------------------------------------------------------- #

@@ -128,7 +128,14 @@ def cmd_agent_run(args: list, state: SessionState) -> int:
         from laew.console.permissions import console_broker, console_call
         fs = agent.tools.get("FilesystemTool")
         broker = console_broker(state, fs.resolver.project_root)
-        result = executor.run(prompt, on_tool_call=lambda tool, op, args: console_call(broker, tool, op, args, f"console-{id(state)}"))
+        callback = lambda tool, op, args: console_call(broker, tool, op, args, f"console-{id(state)}")
+        sink = getattr(state, "_telemetry_sink", None)
+        if sink is None:
+            result = executor.run(prompt, on_tool_call=callback)
+        else:
+            from laew.telemetry_observer import execute_observed_turn
+            result = execute_observed_turn(executor, prompt, sink=sink, scope="project", routing={},
+                                       on_diagnostic=None, surface="console", on_tool_call=callback)
     except Exception as e:
         return _err(f"execution failed: {e}")
     elapsed = time.perf_counter() - start
@@ -181,7 +188,14 @@ def cmd_agent_chat(args: list, state: SessionState) -> int:
         if user_input.lower() in ("exit", "quit"):
             break
 
-        result = executor.run(user_input, stream=True, on_tool_call=lambda tool, op, args: console_call(broker, tool, op, args, f"console-{id(state)}"))
+        callback = lambda tool, op, args: console_call(broker, tool, op, args, f"console-{id(state)}")
+        sink = getattr(state, "_telemetry_sink", None)
+        if sink is None:
+            result = executor.run(user_input, stream=True, on_tool_call=callback)
+        else:
+            from laew.telemetry_observer import execute_observed_turn
+            result = execute_observed_turn(executor, user_input, sink=sink, scope="project", routing={},
+                                       on_diagnostic=None, surface="console", stream=True, on_tool_call=callback)
         _print_trace(result, state)
         if result.success:
             tokens = (

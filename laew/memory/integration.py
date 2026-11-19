@@ -66,8 +66,9 @@ def extraction_provider(manifest, selection, cloud=None):
 
 
 class MemoryWorker:
-    def __init__(self, service, conversations, provider_factory):
+    def __init__(self, service, conversations, provider_factory, *, telemetry=None):
         self.service=service; self.conversations=conversations; self.provider_factory=provider_factory
+        self.telemetry = telemetry
         self.stop_event=threading.Event(); self.wake_event=threading.Event(); self.thread=None
         self.rebuild=False; self._guard=threading.Lock()
 
@@ -88,9 +89,12 @@ class MemoryWorker:
                 with self.service.store.connection() as db:
                     pending=db.execute('SELECT 1 FROM memory_index_outbox WHERE completed_at IS NULL LIMIT 1').fetchone()
                 if pending or rebuild: self.service.sync_index(rebuild=rebuild)
-                self.service.process_extraction(self.conversations,self.provider_factory)
+                if self.telemetry is None:
+                    self.service.process_extraction(self.conversations, self.provider_factory)
+                else:
+                    self.service.process_extraction(self.conversations, self.provider_factory, telemetry=self.telemetry)
             except Exception:
-                log.exception('Memory background operation failed')
+                log.warning('Memory background operation failed')
             self.wake_event.wait(60); self.wake_event.clear()
 
     def close(self):

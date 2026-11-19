@@ -26,7 +26,8 @@ from laew.workflow.yaml_loader import load_workflow_from_yaml
 from laew.workflow.engine import WorkflowEngine
 from laew.security.path_resolver import PathResolver
 from laew.agent.base import Agent, AgentConfig, AgentRole
-from laew.agent.executor import AgentExecutor
+from laew.agent.executor import AgentExecutor, StreamCancelled
+from laew.telemetry_observer import execute_observed_turn, finish_observed_run, start_observed_run
 from laew.logging_config import configure_logging
 from laew.console.session_store import (
     SessionStoreError,
@@ -204,7 +205,35 @@ def cmd_tool(args) -> int:
         from laew.security.permissions import PermissionBroker
         from laew.console.permissions import console_call
         broker = PermissionBroker(Path.cwd(), "manual" if args.require_approval else "auto")
-        result = console_call(broker, tool, operation, tool_args, "cli-tool")
+        from uuid import uuid4
+        from time import perf_counter
+        from laew.telemetry_observer import _error_code
+        trace = start_observed_run(getattr(args, "_telemetry_sink", None), "cli_tool")
+        span = str(uuid4())
+        started = perf_counter()
+        if trace:
+            trace.emit("tool.started", status="started", span_id=span,
+                       parent_span_id=trace.span_id, tool=tool.name, operation=operation)
+        trace_status, trace_error, decision = "failed", "internal_error", "unknown"
+        try:
+            result = console_call(broker, tool, operation, tool_args, "cli-tool")
+            trace_status = "completed" if result.success else "failed"
+            trace_error = None if result.success else _error_code(result.error_code)
+            from laew.tools.base import ErrorCode
+            if result.error_code == ErrorCode.ERR_UNAUTHORIZED:
+                decision = "denied"
+        except KeyboardInterrupt:
+            trace_status, trace_error = "cancelled", "cancelled"
+            raise
+        finally:
+            if trace:
+                # Without a dispatch receipt, a result alone cannot prove
+                # whether the broker invoked the underlying tool.
+                trace.emit("tool.finished", status=trace_status, error_code=trace_error,
+                           span_id=span, parent_span_id=trace.span_id, tool=tool.name,
+                           operation=operation, decision=decision,
+                           duration_ms=(perf_counter() - started) * 1000)
+            finish_observed_run(trace, trace_status, trace_error)
 
         # Output result
         if result.success:
@@ -265,7 +294,19 @@ def cmd_workflow_run(args) -> int:
 
         # Create and run workflow engine
         engine = WorkflowEngine(definition, tool_registry=tool_registry)
-        engine.run()
+        trace = start_observed_run(getattr(args, "_telemetry_sink", None), "workflow")
+        if trace is not None:
+            engine.telemetry_run = trace
+            engine.rollback_engine.telemetry_run = trace
+        status, error = "failed", "internal_error"
+        try:
+            engine.run()
+            status, error = "completed", None
+        except KeyboardInterrupt:
+            status, error = "cancelled", "cancelled"
+            raise
+        finally:
+            finish_observed_run(trace, status, error)
 
         print("[OK] Workflow executed successfully")
         return 0
@@ -380,11 +421,22 @@ def cmd_multiagent_run(args) -> int:
         agents={r: a for r, a in specialists.items()},
     )
 
+    trace = start_observed_run(getattr(args, "_telemetry_sink", None), "multiagent")
+    if trace is not None:
+        coordinator.telemetry_run = trace
+    status, error = "failed", "internal_error"
     try:
         result = coordinator.run(plan)
+        if result.success:
+            status, error = "completed", None
+    except KeyboardInterrupt:
+        status, error = "cancelled", "cancelled"
+        raise
     except Exception as e:
         print(f"[FAIL] Multi-agent run failed: {e}")
         return 1
+    finally:
+        finish_observed_run(trace, status, error)
 
     # Report the outcome.
     for delegation in result.delegations:
@@ -578,7 +630,7 @@ def cmd_chat(args) -> int:
         memory=build_memory(manifest,args.manifest)
         agent.register_tool(MemoryTool(memory,project_id,conversation_id))
         if conversation_store is not None:
-            memory_worker=MemoryWorker(memory,conversation_store,lambda selection:extraction_provider(manifest,selection))
+            memory_worker=MemoryWorker(memory,conversation_store,lambda selection:extraction_provider(manifest,selection), **({"telemetry": args._telemetry_sink} if getattr(args, "_telemetry_sink", None) is not None else {}))
             memory_worker.start()
     except Exception as exc:
         print(f'[WARN] Memory is unavailable: {type(exc).__name__}')
@@ -608,7 +660,7 @@ def cmd_chat(args) -> int:
                 broker_factory=lambda scope: permission_broker,sync_callback=knowledge_sync,
                 discovery_base=lambda: agent.tools['RagTool']._pipeline.knowledge_base if 'RagTool' in agent.tools else None)
             agent.register_tool(KnowledgeProposalTool(knowledge,project_id,conversation_id))
-            knowledge_worker=KnowledgeWorker(knowledge,conversation_store,lambda selection:extraction_provider(manifest,selection))
+            knowledge_worker=KnowledgeWorker(knowledge,conversation_store,lambda selection:extraction_provider(manifest,selection), **({"telemetry": args._telemetry_sink} if getattr(args, "_telemetry_sink", None) is not None else {}))
             knowledge_worker.start()
         except Exception as exc:
             print(f'[WARN] Knowledge curation is unavailable: {type(exc).__name__}')
@@ -637,117 +689,137 @@ def cmd_chat(args) -> int:
             if user_input.lower() in ("exit", "quit"):
                 break
 
-            from laew.knowledge.routing import KnowledgeTurn
-            from laew.knowledge.sufficiency import configured_assessor
-            turn = KnowledgeTurn(lambda tool, op, kwargs: console_call(permission_broker, tool, op, kwargs, "cli-chat"),
-                                 assessor=configured_assessor(manifest, agent))
-            def prepare():
-                turn.prepare(executor, user_input, project_id, lambda: memory, agent.tools.get("RagTool"))
-                if turn.diagnostics["memory_requested"]:
-                    recall = turn.diagnostics["memory_recall"]
-                    print(f"[Memory] {recall.get('skip_reason', recall['status'])} ({recall['selected']} selected)")
-                for search in turn.diagnostics["prefetch"]:
-                    print(f"[RAG] {search['scope']}: {search['status']} ({search['chunks']} fragments)")
-                    if search["scope"] in turn.prefetch_errors:
-                        print(f"[RAG] {turn.prefetch_errors[search['scope']]}")
-            run_options = {"on_tool_call": turn.call, "on_diagnostic": turn.observe, "on_tool_batch": turn.after_tools}
-            if conversation_store is None:
-                prepare()
-                result = executor.run(user_input, stream=not args.no_stream, **run_options)
-            else:
-                import uuid
-                try:
-                    if conversation_id is None:
-                        conversation_record=conversation_store.create_conversation('project' if project_id else 'general',project_id)
-                        conversation_id=conversation_record['id']
-                        if memory: agent.tools['MemoryTool'].conversation_id=conversation_id
-                        if knowledge: agent.tools['KnowledgeProposalTool'].conversation_id=conversation_id
-                    if memory: memory.baseline(conversation_store.load_conversation(conversation_id))
-                    if knowledge: knowledge.baseline(conversation_store.load_conversation(conversation_id))
-                    with conversation_store.conversation_run(conversation_id):
-                        conversation_store.recover_interrupted_runs(conversation_id)
-                        agent.history = conversation_store.conversation_messages(conversation_id)
-                        run_id = uuid.uuid4().hex
-                        user_event_id = uuid.uuid4().hex
-                        assistant_event_id = None
-                        checkpointed = False
-                        def persist(event):
-                            nonlocal assistant_event_id
-                            conversation_store.append_conversation_event(conversation_id, {**event, "run_id": run_id})
-                            if event.get('kind') == 'user' and not event.get('generated'):
-                                if memory:
-                                    agent.tools['MemoryTool'].event_id = user_event_id
-                                if knowledge:
-                                    agent.tools['KnowledgeProposalTool'].event_id = user_event_id
-                            if event.get('kind') == 'assistant':
-                                assistant_event_id = event['id']
-                        def persist_agent_event(event):
-                            if event.get("kind") != "user" or event.get("generated"):
-                                persist(event)
-                        def observe(phase, details):
-                            nonlocal checkpointed
-                            turn.observe(phase, details)
-                            if phase == "provider_request" and not checkpointed:
-                                conversation_store.checkpoint_turn(conversation_id, run_id, turn.snapshot())
-                                checkpointed = True
-                        persist({"id": uuid.uuid4().hex, "kind": "run", "status": "running", "content": "",
-                                 "user_event_id": user_event_id})
-                        state, reason = "failed", "Run failed."
-                        try:
-                            persist({"id": user_event_id, "kind": "user", "status": "completed",
-                                     "content": user_input, "message": LLMMessage(MessageRole.USER, user_input).to_dict()})
-                            prepare()
-                            result = executor.run(user_input, stream=not args.no_stream,
-                                                  on_event=persist_agent_event, on_tool_call=turn.call,
-                                                  on_tool_batch=turn.after_tools,
-                                                  on_diagnostic=observe)
-                            state = "completed" if result.success else "failed"
-                            reason = "" if result.success else (result.error or "Run failed.")
-                        except KeyboardInterrupt:
-                            state = "cancelled"
-                            reason = "Run cancelled."
-                            raise
-                        finally:
-                            persist({"id": uuid.uuid4().hex, "kind": "run", "status": state, "content": reason,
-                                     "user_event_id": user_event_id, "diagnostics": turn.snapshot(),
-                                     "assistant_event_id": assistant_event_id if state == "completed" else None})
-                            if state=='completed' and knowledge is not None:
-                                try:
-                                    if knowledge.settings()['model_source'] == 'active':
-                                        selection = {'provider': getattr(args, 'provider', None) or 'manifest', 'model': model_name}
-                                    else:
-                                        selection = memory.store.settings(project_id)['extraction_model'] if memory else None
-                                    knowledge.enqueue(conversation_store.load_conversation(conversation_id),selection)
-                                    knowledge_worker.request()
-                                except Exception: print('[WARN] Knowledge analysis could not be scheduled.')
-                            if state=='completed' and memory is not None:
-                                try:
-                                    memory.enqueue(conversation_store.load_conversation(conversation_id),{'provider':getattr(args,'provider',None) or 'manifest','model':model_name})
-                                    memory_worker.request()
-                                except Exception: print('[WARN] Memory analysis could not be scheduled.')
-                except SessionStoreError as exc:
-                    print(f"[FAIL] Conversation storage: {exc}")
-                    continue
-            if result.success:
-                print(f"\nAgent: {result.final_response}")
-                if result.total_tokens:
-                    print(
-                        f"[tokens] {result.prompt_tokens} prompt / "
-                        f"{result.completion_tokens} completion"
-                    )
-                # Persist the exchange if session is active
-                if session_store and session_name:
-                    # Build updated conversation for storage
-                    conversation.append({"role": "user", "content": user_input})
-                    if result.final_response:
-                        conversation.append({"role": "assistant", "content": result.final_response})
+            trace = start_observed_run(
+                None if args.no_persist else getattr(args, "_telemetry_sink", None),
+                "cli_chat", "project" if project_id else "global")
+            trace_status, trace_error = "failed", "internal_error"
+            storage_failed = False
+            try:
+                from laew.knowledge.routing import KnowledgeTurn
+                from laew.knowledge.sufficiency import configured_assessor
+                turn = KnowledgeTurn(lambda tool, op, kwargs: console_call(permission_broker, tool, op, kwargs, "cli-chat"),
+                                     assessor=configured_assessor(manifest, agent))
+                def prepare():
+                    turn.prepare(executor, user_input, project_id, lambda: memory, agent.tools.get("RagTool"))
+                    if turn.diagnostics["memory_requested"]:
+                        recall = turn.diagnostics["memory_recall"]
+                        print(f"[Memory] {recall.get('skip_reason', recall['status'])} ({recall['selected']} selected)")
+                    for search in turn.diagnostics["prefetch"]:
+                        print(f"[RAG] {search['scope']}: {search['status']} ({search['chunks']} fragments)")
+                        if search["scope"] in turn.prefetch_errors:
+                            print(f"[RAG] {turn.prefetch_errors[search['scope']]}")
+                run_options = {"on_tool_call": turn.call, "on_diagnostic": turn.observe, "on_tool_batch": turn.after_tools}
+                if conversation_store is None:
+                    prepare()
+                    result = execute_observed_turn(executor, user_input,
+                        sink=None, run=trace,
+                        scope="project" if project_id else "global", routing=turn.diagnostics,
+                        stream=not args.no_stream, **run_options)
+                else:
+                    import uuid
                     try:
-                        payload = make_chat_payload(args.manifest, validate_conversation(conversation))
-                        session_store.save(session_name, payload)
-                    except SessionStoreError as e:
-                        print(f"[WARN] Could not save session: {e}")
-            else:
-                print(f"\n[FAIL] {result.error}")
+                        if conversation_id is None:
+                            conversation_record=conversation_store.create_conversation('project' if project_id else 'general',project_id)
+                            conversation_id=conversation_record['id']
+                            if memory: agent.tools['MemoryTool'].conversation_id=conversation_id
+                            if knowledge: agent.tools['KnowledgeProposalTool'].conversation_id=conversation_id
+                        if memory: memory.baseline(conversation_store.load_conversation(conversation_id))
+                        if knowledge: knowledge.baseline(conversation_store.load_conversation(conversation_id))
+                        with conversation_store.conversation_run(conversation_id):
+                            conversation_store.recover_interrupted_runs(conversation_id)
+                            agent.history = conversation_store.conversation_messages(conversation_id)
+                            run_id = uuid.uuid4().hex
+                            user_event_id = uuid.uuid4().hex
+                            assistant_event_id = None
+                            checkpointed = False
+                            def persist(event):
+                                nonlocal assistant_event_id
+                                conversation_store.append_conversation_event(conversation_id, {**event, "run_id": run_id})
+                                if event.get('kind') == 'user' and not event.get('generated'):
+                                    if memory:
+                                        agent.tools['MemoryTool'].event_id = user_event_id
+                                    if knowledge:
+                                        agent.tools['KnowledgeProposalTool'].event_id = user_event_id
+                                if event.get('kind') == 'assistant':
+                                    assistant_event_id = event['id']
+                            def persist_agent_event(event):
+                                if event.get("kind") != "user" or event.get("generated"):
+                                    persist(event)
+                            def observe(phase, details):
+                                nonlocal checkpointed
+                                turn.observe(phase, details)
+                                if phase == "provider_request" and not checkpointed:
+                                    conversation_store.checkpoint_turn(conversation_id, run_id, turn.snapshot())
+                                    checkpointed = True
+                            persist({"id": uuid.uuid4().hex, "kind": "run", "status": "running", "content": "",
+                                     "user_event_id": user_event_id})
+                            state, reason = "failed", "Run failed."
+                            try:
+                                persist({"id": user_event_id, "kind": "user", "status": "completed",
+                                         "content": user_input, "message": LLMMessage(MessageRole.USER, user_input).to_dict()})
+                                prepare()
+                                result = execute_observed_turn(executor, user_input,
+                                                      sink=None, run=trace,
+                                                      scope="project" if project_id else "global",
+                                                      routing=turn.diagnostics, stream=not args.no_stream,
+                                                      on_event=persist_agent_event, on_tool_call=turn.call,
+                                                      on_tool_batch=turn.after_tools,
+                                                      on_diagnostic=observe)
+                                state = "completed" if result.success else "failed"
+                                reason = "" if result.success else (result.error or "Run failed.")
+                            except KeyboardInterrupt:
+                                state = "cancelled"
+                                reason = "Run cancelled."
+                                raise
+                            finally:
+                                persist({"id": uuid.uuid4().hex, "kind": "run", "status": state, "content": reason,
+                                         "user_event_id": user_event_id, "diagnostics": turn.snapshot(),
+                                         "assistant_event_id": assistant_event_id if state == "completed" else None})
+                                if state=='completed' and knowledge is not None:
+                                    try:
+                                        if knowledge.settings()['model_source'] == 'active':
+                                            selection = {'provider': getattr(args, 'provider', None) or 'manifest', 'model': model_name}
+                                        else:
+                                            selection = memory.store.settings(project_id)['extraction_model'] if memory else None
+                                        knowledge.enqueue(conversation_store.load_conversation(conversation_id),selection)
+                                        knowledge_worker.request()
+                                    except Exception: print('[WARN] Knowledge analysis could not be scheduled.')
+                                if state=='completed' and memory is not None:
+                                    try:
+                                        memory.enqueue(conversation_store.load_conversation(conversation_id),{'provider':getattr(args,'provider',None) or 'manifest','model':model_name})
+                                        memory_worker.request()
+                                    except Exception: print('[WARN] Memory analysis could not be scheduled.')
+                    except SessionStoreError as exc:
+                        print(f"[FAIL] Conversation storage: {exc}")
+                        continue
+                if result.success:
+                    print(f"\nAgent: {result.final_response}")
+                    if result.total_tokens:
+                        print(
+                            f"[tokens] {result.prompt_tokens} prompt / "
+                            f"{result.completion_tokens} completion"
+                        )
+                    # Persist the exchange if session is active
+                    if session_store and session_name:
+                        # Build updated conversation for storage
+                        conversation.append({"role": "user", "content": user_input})
+                        if result.final_response:
+                            conversation.append({"role": "assistant", "content": result.final_response})
+                        try:
+                            payload = make_chat_payload(args.manifest, validate_conversation(conversation))
+                            session_store.save(session_name, payload)
+                        except SessionStoreError as e:
+                            storage_failed = True
+                            print(f"[WARN] Could not save session: {e}")
+                else:
+                    print(f"\n[FAIL] {result.error}")
+                if result.success and not storage_failed:
+                    trace_status, trace_error = "completed", None
+            except (KeyboardInterrupt, StreamCancelled):
+                trace_status, trace_error = "cancelled", "cancelled"
+                raise
+            finally:
+                finish_observed_run(trace, trace_status, trace_error)
     except KeyboardInterrupt:
         print("\n\nSession interrupted.")
         return 1
@@ -820,7 +892,10 @@ def cmd_console(args) -> int:
     """
     from laew.console import run_console
 
-    return run_console(manifest_path=args.manifest)
+    sink = getattr(args, "_telemetry_sink", None)
+    if sink is None:
+        return run_console(manifest_path=args.manifest)
+    return run_console(manifest_path=args.manifest, _telemetry_sink=sink)
 
 
 def cmd_rag_migrate(args) -> int:
@@ -840,9 +915,10 @@ def cmd_rag_migrate(args) -> int:
 
 def main() -> int:
     """Main CLI entry point."""
-    if len(sys.argv) > 1 and sys.argv[1] == "backup":
+    if len(sys.argv) > 1 and sys.argv[1] in {"telemetry", "backup"}:
         from laew.operator_cli import dispatch
-        return dispatch(sys.argv[1:])
+        from laew.security.protected_profile import read_telemetry_root
+        return dispatch(sys.argv[1:], telemetry_root_resolver=read_telemetry_root)
     configure_logging()  # app-level logger (console stderr), Phase 3
     parser = argparse.ArgumentParser(
         prog="laew",
@@ -856,7 +932,8 @@ def main() -> int:
     )
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
-    subparsers.add_parser("backup", help="Inspect and capture backup generations")
+    subparsers.add_parser("telemetry", help="Inspect a run by its telemetry UUID")
+    subparsers.add_parser("backup", help="Inspect backup inventory and archived generations")
 
     memory_parser=subparsers.add_parser('memory',help='Manage long-term memory')
     memory_parser.add_argument('action',choices=['list','add','delete','analyze','status','sync'])
@@ -1074,6 +1151,11 @@ def main() -> int:
         except (FenceBusyError, FenceConfigurationError, OSError):
             print("[FAIL] Installation maintenance fence is unavailable.", file=sys.stderr)
             return 1
+        if args.command != "ui":
+            from laew.security.protected_profile import activate_runtime_protection
+            args._telemetry_sink = activate_runtime_protection(
+                getattr(args, "manifest", None), retain=not getattr(args, "no_persist", False),
+            )
     return args.func(args)
 
 

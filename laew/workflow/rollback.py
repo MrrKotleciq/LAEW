@@ -3,6 +3,7 @@ from typing import Any, Dict, List, Optional
 from laew.workflow.definition import WorkflowStep, RollbackConfig, StepType
 from laew.workflow.exceptions import WorkflowExecutionError, RollbackError
 from laew.tools.base import Tool, ToolResult
+from laew.workflow.telemetry import call_agent, call_tool
 
 logger = logging.getLogger("laew.workflow.rollback")
 
@@ -14,10 +15,12 @@ class RollbackEngine:
         execution_context: Dict[str, Any],
         tool_registry: Optional[Dict[str, Tool]] = None,
         agent_executor: Optional[Any] = None,
+        telemetry_run: Optional[Any] = None,
     ):
         self.execution_context = execution_context
         self.tool_registry = tool_registry or {}
         self.agent_executor = agent_executor
+        self.telemetry_run = telemetry_run
         self._rollback_stack: List[RollbackConfig] = []
 
     def push_rollback(self, rollback: RollbackConfig):
@@ -41,7 +44,7 @@ class RollbackEngine:
                         rollback.tool,
                     )
                     return
-                result = tool.call(rollback.operation or "", **rollback.arguments)
+                result = call_tool(self.telemetry_run, tool, rollback.operation or "", rollback.arguments)
                 self.execution_context[f"rollback:{rollback.tool}:{rollback.operation}"] = result
                 if not result.success:
                     raise RollbackError(
@@ -55,7 +58,7 @@ class RollbackEngine:
                         rollback.agent_role,
                     )
                     return
-                execution_result = self.agent_executor.run(rollback.arguments.get("prompt", ""))
+                execution_result = call_agent(self.telemetry_run, self.agent_executor, rollback.arguments.get("prompt", ""))
                 if not execution_result.success:
                     raise RollbackError(
                         f"Rollback agent '{rollback.agent_role}' failed: {execution_result.error}"

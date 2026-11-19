@@ -29,6 +29,7 @@ from laew.cloud_chat import CLOUD_PROVIDERS, CloudChatService, CloudError
 from laew.manifest import ManifestError, load_manifest
 from laew.project_config import load_project_settings, save_project_language, save_project_settings
 from laew.security.permissions import PermissionBroker
+from laew.telemetry_observer import ExecutionObserver
 from laew.runtime import (
     build_provider_for_role,
     build_explicit_provider,
@@ -65,8 +66,11 @@ class WorkspaceService:
         projects_root: Optional[Path] = None,
         workspace_root: Optional[Path] = None,
         registered_projects: Optional[list[Path]] = None,
+        *,
+        telemetry=None,
     ):
         self.manifest_path = manifest_path
+        self._telemetry = telemetry
         if workspace_root is None:
             workspace_root = projects_root.parent if projects_root is not None else resolve_workspace_root()
         self.workspace_root = Path(workspace_root).resolve()
@@ -242,7 +246,7 @@ class WorkspaceService:
             manifest=load_manifest(self.manifest_path)
             self._memory=build_memory(manifest,self.manifest_path)
             self._memory_worker=MemoryWorker(self._memory,self.conversation_store(),
-                lambda selection: extraction_provider(manifest,selection,self.cloud))
+                lambda selection: extraction_provider(manifest,selection,self.cloud), telemetry=self._telemetry)
         return self._memory
 
     def memory_selection(self):
@@ -272,7 +276,7 @@ class WorkspaceService:
                     knowledge_root=self.knowledge_root, broker_factory=broker, sync_callback=sync,
                     discovery_base=lambda: next(iter(self._sync_bases.copy().values()), None))
                 self._knowledge_worker = KnowledgeWorker(self._knowledge, self.conversation_store(),
-                    lambda selection: extraction_provider(manifest, selection, self.cloud))
+                    lambda selection: extraction_provider(manifest, selection, self.cloud), telemetry=self._telemetry)
             return self._knowledge
 
     def knowledge_selection(self, project_id=None):
@@ -785,13 +789,21 @@ class WorkspaceService:
         except Exception:
             logging.getLogger(__name__).debug("Memory tool unavailable")
 
+    def _start_telemetry_run(self, selection):
+        if self._telemetry is not None and not (isinstance(selection, str) and selection in CLOUD_PROVIDERS):
+            return self._telemetry.start_run("workbench", "project" if self._active_project_id else "global")
+        return None
+
     def chat(self, message: str, selection: object = "manifest", expected_project_id: object = _UNSPECIFIED_SCOPE) -> tuple[int, dict[str, Any]]:
         if not isinstance(message, str) or not message.strip():
             return HTTPStatus.UNPROCESSABLE_ENTITY, {"error": "A non-empty message is required."}
+        telemetry_run = None
+        outcome = "failed"
         try:
             with self._lock:
                 if expected_project_id is not _UNSPECIFIED_SCOPE and expected_project_id != self._active_project_id:
                     return HTTPStatus.CONFLICT, {"error": "The active project changed before this message started. Review the selected project and retry."}
+                telemetry_run = self._start_telemetry_run(selection)
                 self._ensure_runtime(selection)
                 assert self._executor is not None
                 self._register_memory_tool()
@@ -801,8 +813,15 @@ class WorkspaceService:
                 turn = KnowledgeTurn(lambda tool, op, args: self._call_tool(tool, op, args, None), assessor=assessor)
                 turn.prepare(self._executor, message.strip(), self._active_project_id, self.memory,
                              self._agent.tools.get("RagTool") if self._agent else None)
-                result = self._executor.run(message.strip(), stream=False, on_tool_call=turn.call,
-                                            on_diagnostic=turn.observe, on_tool_batch=turn.after_tools)
+                options = {"stream": False, "on_tool_call": turn.call,
+                           "on_diagnostic": turn.observe, "on_tool_batch": turn.after_tools}
+                if telemetry_run is not None:
+                    observer = ExecutionObserver(telemetry_run, provider=self._provider_name)
+                    observer.routing(turn.diagnostics)
+                    result = observer.execute(self._executor, message.strip(), **options)
+                    observer.routing(turn.diagnostics)
+                else:
+                    result = self._executor.run(message.strip(), **options)
             steps = [
                 {"number": step.step_number, "tool": step.tool_name, "operation": step.operation, "call_id": step.call_id,
                  "success": None if step.tool_result is None else step.tool_result.success,
@@ -813,6 +832,7 @@ class WorkspaceService:
             ]
             if not result.success:
                 return HTTPStatus.BAD_GATEWAY, {"error": result.error or "The Chief Agent did not complete the run.", "steps": steps}
+            outcome = "completed"
             return HTTPStatus.OK, {"response": result.final_response, "provider": self._provider_name,
                                    "model": self._model, "steps": steps, "routing": turn.diagnostics,
                                    "usage": {"prompt_tokens": result.prompt_tokens,
@@ -821,6 +841,12 @@ class WorkspaceService:
         except (OSError, ManifestError, LLMError, RuntimeError, ValueError) as exc:
             self._error = str(exc)
             return HTTPStatus.SERVICE_UNAVAILABLE, {"error": self._error}
+        except (StreamCancelled, KeyboardInterrupt):
+            outcome = "cancelled"
+            raise
+        finally:
+            if telemetry_run is not None:
+                telemetry_run.finish(outcome, {"failed": "internal_error", "cancelled": "cancelled"}.get(outcome))
 
     def stream_chat(
         self, message, selection, expected_project_id, emit, session_id=None,
@@ -948,6 +974,8 @@ class WorkspaceService:
         if not isinstance(message, str) or not message.strip():
             emit({"type": "error", "error": "A non-empty message is required."})
             return
+        telemetry_run = None
+        outcome = "failed"
         try:
             with self._lock:
                 if expected_project_id is not _UNSPECIFIED_SCOPE and expected_project_id != self._active_project_id:
@@ -956,6 +984,7 @@ class WorkspaceService:
                         "error": "The active project changed before this message started. Review the selected project and retry.",
                     })
                     return
+                telemetry_run = self._start_telemetry_run(selection)
                 self._activate_session(session_id, conversation_id) if conversation_id else self._activate_session(session_id)
                 if selection in CLOUD_PROVIDERS or model is not None:
                     self._ensure_runtime(selection, model, account_id)
@@ -978,7 +1007,10 @@ class WorkspaceService:
                     logging.getLogger(__name__).exception('Knowledge proposal tool unavailable')
                 self._register_memory_tool(conversation_id, source_event_id)
                 from laew.knowledge.routing import KnowledgeTurn
+                observer = ExecutionObserver(telemetry_run, provider=self._provider_name) if telemetry_run is not None else None
                 def routing_event(diagnostics):
+                    if observer is not None:
+                        observer.routing(diagnostics)
                     if on_diagnostic is not None:
                         on_diagnostic("context_preparation", turn.snapshot())
                         if cancellation and cancellation.is_set():
@@ -1005,7 +1037,12 @@ class WorkspaceService:
                     elif phase == "provider_dispatch":
                         routing_event(turn.snapshot()["routing"])
                 run_options["on_diagnostic"] = observe
-                result = self._executor.run(
+                if observer is not None:
+                    from functools import partial
+                    execute = partial(observer.execute, self._executor)
+                else:
+                    execute = self._executor.run
+                result = execute(
                     message.strip(), stream=True,
                     on_delta=lambda text: emit(
                         {"type": "reset"} if text is None else {"type": "delta", "text": text}
@@ -1043,13 +1080,20 @@ class WorkspaceService:
                           "completion_tokens": result.completion_tokens,
                           "total_tokens": result.total_tokens},
             })
+            outcome = "completed"
         except StreamCancelled:
+            outcome = "cancelled"
             if on_diagnostic is not None:
                 raise
             return
         except (OSError, ManifestError, LLMError, RuntimeError, ValueError) as exc:
             self._error = str(exc)
             emit({"type": "error", "error": self._error})
+        finally:
+            if telemetry_run is not None:
+                if outcome == "failed" and cancellation and cancellation.is_set():
+                    outcome = "cancelled"
+                telemetry_run.finish(outcome, {"failed": "internal_error", "cancelled": "cancelled"}.get(outcome))
 
     def _call_tool_checked(self, tool, operation, args, emit, session_id, cancellation):
         if cancellation and cancellation.is_set():
@@ -1272,7 +1316,9 @@ def serve(
     manifest_path = Path(manifest).expanduser()
     if not manifest_path.is_absolute():
         manifest_path = application_root / manifest_path
-    service = WorkspaceService(manifest_path.resolve(), project_root, catalog_root, root)
+    from laew.security.protected_profile import activate_runtime_protection
+    trace_sink = activate_runtime_protection(manifest_path)
+    service = WorkspaceService(manifest_path.resolve(), project_root, catalog_root, root, telemetry=trace_sink)
     server = ThreadingHTTPServer(("127.0.0.1", port), make_handler(service))
     service.start_sync()
     url = f"http://127.0.0.1:{server.server_port}"

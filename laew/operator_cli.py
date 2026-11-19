@@ -1,4 +1,9 @@
-"""Operator backup inspection and explicitly acknowledged capture."""
+"""Operator inspection and explicitly acknowledged backup capture commands.
+
+This module neither provisions storage nor establishes a protected profile.
+The caller must verify authorization, isolation and root disjointness before
+returning a root from the resolver. Without a resolver telemetry is disabled.
+"""
 from __future__ import annotations
 
 import argparse
@@ -8,8 +13,10 @@ import re
 import stat
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Callable
 from uuid import UUID
 
+from laew.telemetry import read_run, summarize_events
 from laew.backup.archive import read_receipt, verify_archive
 from laew.backup.inventory import backup_target_from_profile, build_inventory
 from laew.manifest import validate_manifest
@@ -32,12 +39,20 @@ _HELP = {
     ("backup", "list"): "usage: laew backup list --profile PROFILE [--json]\n\nList cached committed receipts; does not verify archive contents.",
     ("backup", "verify"): "usage: laew backup verify --profile PROFILE --id ID [--json]\n\nVerify the complete archive and receipt.",
     ("backup", "create"): "usage: laew backup create --profile PROFILE --acknowledgement ABS --apply [--json]\n\nCapture an explicitly quiesced installation.",
+    ("telemetry",): "usage: laew telemetry {show} ...\n\nRead-only telemetry inspection commands.",
+    ("telemetry", "show"): "usage: laew telemetry show RUN_ID [--manifest PATH] [--json]\n\nInspect a telemetry trace by UUID.",
 }
 
 
 def _parser() -> argparse.ArgumentParser:
     parser = _Parser(prog="laew", add_help=False)
     commands = parser.add_subparsers(dest="command", required=True, parser_class=_Parser)
+    telemetry = commands.add_parser("telemetry", add_help=False)
+    actions = telemetry.add_subparsers(dest="action", required=True, parser_class=_Parser)
+    show = actions.add_parser("show", add_help=False)
+    show.add_argument("run_id")
+    show.add_argument("--manifest")
+    show.add_argument("--json", action="store_true")
     backup = commands.add_parser("backup", add_help=False)
     backup_actions = backup.add_subparsers(dest="action", required=True, parser_class=_Parser)
     for name in ("plan", "list", "verify", "create"):
@@ -50,6 +65,37 @@ def _parser() -> argparse.ArgumentParser:
             action.add_argument("--acknowledgement", required=True)
             action.add_argument("--apply", action="store_true", required=True)
     return parser
+
+
+def _result(state: str, *, run_id: str | None = None,
+            error_code: str | None = None, events: list | None = None) -> dict:
+    records = events if events is not None else []
+    return {
+        "schema_version": 1,
+        "command": "telemetry.show",
+        "state": state,
+        "run_id": run_id,
+        "error_code": error_code,
+        "summary": summarize_events(records, state),
+        "events": records,
+    }
+
+
+def _display(result: dict, as_json: bool) -> None:
+    if as_json:
+        print(json.dumps(result, separators=(",", ":"), allow_nan=False))
+        return
+    print("Telemetry: " + result["state"])
+    if result["run_id"] is not None:
+        print("Run: " + result["run_id"])
+    if result["error_code"] is not None:
+        print("Error: " + result["error_code"])
+    if result["events"]:
+        print("Events: " + str(result["summary"]["event_count"]))
+        if result["summary"]["status"] is not None:
+            print("Outcome: " + result["summary"]["status"])
+        for event in result["events"]:
+            print(json.dumps(event, separators=(",", ":"), allow_nan=False))
 
 
 def _unique_object(pairs):
@@ -212,16 +258,51 @@ def _backup_dispatch(args) -> int:
     return code
 
 
-def dispatch(argv: list[str]) -> int:
-    """Dispatch a backup command independently of runtime services."""
+def dispatch(argv: list[str], *,
+             telemetry_root_resolver: Callable[[str | None], str | Path | None] | None = None) -> int:
+    """Dispatch an operator command; do not initialize application services.
+
+    Exit 0: operation succeeded; 1: unavailable or invalid state; 2: invalid
+    arguments. Resolver failures are reported only as a coarse unavailable state.
+    """
     if argv and argv[-1] in ("--help", "-h") and tuple(argv[:-1]) in _HELP:
         print(_HELP[tuple(argv[:-1])])
         return 0
+    json_requested = "--json" in argv
     try:
-        return _backup_dispatch(_parser().parse_args(argv))
+        args = _parser().parse_args(argv)
+        if args.command == "backup":
+            return _backup_dispatch(args)
+        identifier = str(UUID(args.run_id))
+        if identifier != args.run_id:
+            raise _InvalidArguments
     except (ValueError, TypeError, _InvalidArguments):
-        valid = ("plan", "list", "verify", "create")
-        action = argv[1] if len(argv) > 1 and argv[0] == "backup" and argv[1] in valid else "unknown"
-        _backup_display({"schema_version": 1, "command": "backup." + action,
-                         "state": "invalid", "error_code": "invalid_arguments", "data": None}, "--json" in argv)
+        if argv and argv[0] == "backup":
+            action = argv[1] if len(argv) > 1 and argv[1] in ("plan", "list", "verify", "create") else "unknown"
+            _backup_display({"schema_version": 1, "command": "backup." + action,
+                             "state": "invalid", "error_code": "invalid_arguments", "data": None}, json_requested)
+            return 2
+        _display(_result("invalid", error_code="invalid_arguments"), json_requested)
         return 2
+
+    if telemetry_root_resolver is None:
+        _display(_result("disabled", run_id=identifier, error_code="disabled"), args.json)
+        return 1
+    try:
+        root = telemetry_root_resolver(args.manifest)
+        if root is None:
+            _display(_result("disabled", run_id=identifier, error_code="disabled"), args.json)
+            return 1
+        trace = read_run(root, identifier)
+    except Exception:
+        _display(_result("unknown", run_id=identifier, error_code="unavailable"), args.json)
+        return 1
+
+    state = trace["state"]
+    if state in ("finished", "active", "interrupted"):
+        _display(_result(state, run_id=identifier, events=trace["events"]), args.json)
+        return 0
+    code = state if state in ("not_found", "corrupt") else "unavailable"
+    _display(_result(state if state in ("not_found", "corrupt") else "unknown",
+                     run_id=identifier, error_code=code), args.json)
+    return 1

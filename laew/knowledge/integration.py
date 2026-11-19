@@ -51,10 +51,11 @@ def build_knowledge(manifest, conversations, *, projects_root,
 class KnowledgeWorker:
     """One bounded worker; jobs and index retry state remain in SQLite."""
 
-    def __init__(self, service, conversations, provider_factory):
+    def __init__(self, service, conversations, provider_factory, *, telemetry=None):
         self.service = service
         self.conversations = conversations
         self.provider_factory = provider_factory
+        self.telemetry = telemetry
         self._stop = threading.Event()
         self._wake = threading.Event()
         self._guard = threading.Lock()
@@ -75,9 +76,12 @@ class KnowledgeWorker:
         while not self._stop.is_set():
             try:
                 self.service.sync_index()
-                self.service.process_extraction(self.conversations, self.provider_factory)
+                if self.telemetry is None:
+                    self.service.process_extraction(self.conversations, self.provider_factory)
+                else:
+                    self.service.process_extraction(self.conversations, self.provider_factory, telemetry=self.telemetry)
             except Exception:
-                log.exception('Knowledge background operation failed')
+                log.warning('Knowledge background operation failed')
             self._wake.wait(60)
             self._wake.clear()
 

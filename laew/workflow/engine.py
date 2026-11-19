@@ -4,6 +4,7 @@ from laew.workflow.exceptions import WorkflowExecutionError, ApprovalRequiredErr
 from laew.workflow.approval import ApprovalGate
 from laew.workflow.rollback import RollbackEngine
 from laew.tools.base import Tool, ToolResult
+from laew.workflow.telemetry import call_agent, call_tool
 
 class WorkflowEngine:
     """Orchestrates workflow execution."""
@@ -13,6 +14,7 @@ class WorkflowEngine:
         definition: WorkflowDefinition,
         tool_registry: Optional[Dict[str, Tool]] = None,
         agent_executor: Optional[Any] = None,
+        telemetry_run: Optional[Any] = None,
     ):
         """
         Initialize engine.
@@ -26,12 +28,14 @@ class WorkflowEngine:
         self.definition = definition
         self.tool_registry = tool_registry or {}
         self.agent_executor = agent_executor
+        self.telemetry_run = telemetry_run
         self.approval_gate = ApprovalGate()
         self.execution_context: Dict[str, Any] = {}
         self.rollback_engine = RollbackEngine(
             self.execution_context,
             tool_registry=self.tool_registry,
             agent_executor=self.agent_executor,
+            telemetry_run=self.telemetry_run,
         )
 
     def run(self):
@@ -82,7 +86,7 @@ class WorkflowEngine:
                     f"Step {step.id}: cannot execute tool step - "
                     f"tool '{step.tool}' not found in the tool registry"
                 )
-            result = tool.call(step.operation or "", **step.arguments)
+            result = call_tool(self.telemetry_run, tool, step.operation or "", step.arguments)
             self.execution_context[step.id] = {
                 "tool": step.tool,
                 "operation": step.operation,
@@ -99,7 +103,7 @@ class WorkflowEngine:
                     f"Step {step.id}: cannot execute agent step - "
                     "no agent executor was provided to WorkflowEngine"
                 )
-            execution_result = self.agent_executor.run(step.prompt or "")
+            execution_result = call_agent(self.telemetry_run, self.agent_executor, step.prompt or "")
             self.execution_context[step.id] = {
                 "agent_role": step.agent_role,
                 "result": execution_result,
