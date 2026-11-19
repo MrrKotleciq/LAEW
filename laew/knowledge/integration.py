@@ -7,6 +7,11 @@ from pathlib import Path
 log = logging.getLogger(__name__)
 
 
+def knowledge_storage_path(conversation_directory, override=None):
+    """Resolve curation storage without constructing a database."""
+    return Path(override) if override else Path(conversation_directory).parent / "knowledge" / "curation.db"
+
+
 def build_knowledge(manifest, conversations, *, projects_root,
                     knowledge_root, broker_factory, sync_callback, discovery_base=None):
     from laew.security.path_resolver import PathResolver
@@ -15,8 +20,7 @@ def build_knowledge(manifest, conversations, *, projects_root,
     from laew.rag.config import manifest_global_exclusions, resolve_knowledge_root
     from laew.rag.knowledge_base import KnowledgeScope
     from laew.rag.pipeline import RAGPipeline
-    path = (Path(os.environ['LAEW_KNOWLEDGE_STORAGE']) if os.environ.get('LAEW_KNOWLEDGE_STORAGE')
-            else conversations.directory.parent / 'knowledge' / 'curation.db')
+    path = knowledge_storage_path(conversations.directory, os.environ.get('LAEW_KNOWLEDGE_STORAGE'))
     filesystem = FilesystemTool(PathResolver(projects_root=projects_root,
         knowledge_root=knowledge_root, general=True))
     index_root = resolve_knowledge_root(manifest, project_root=None,

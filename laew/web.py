@@ -1261,6 +1261,8 @@ def serve(
     workspace_root: Optional[str] = None,
 ) -> None:
     """Run the workbench on loopback only until interrupted."""
+    from laew.backup.writer import enroll_writer_process
+    enroll_writer_process()
     root = resolve_workspace_root(workspace_root)
     application_root = Path(__file__).resolve().parents[1]
     catalog_root = Path(projects_root).expanduser().resolve() if projects_root else (root / "Projects").resolve()

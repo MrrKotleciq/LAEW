@@ -10,13 +10,18 @@ from .service import MemoryService
 log = logging.getLogger(__name__)
 
 
+def memory_storage_path(conversation_directory, override=None):
+    """Resolve memory storage without constructing a database."""
+    return Path(override) if override else Path(conversation_directory).parent / "memory" / "memory.db"
+
+
 def build_memory(manifest, manifest_path):
     from laew.console.session_store import conversation_store_from_manifest
     from laew.runtime import build_embedding_service
     from laew.rag.vector_store import ChromaVectorStore
     from laew.rag.embedding import embedding_model_identity
     sessions=conversation_store_from_manifest(manifest, manifest_path)
-    path=Path(os.environ['LAEW_MEMORY_STORAGE']) if os.environ.get('LAEW_MEMORY_STORAGE') else sessions.directory.parent/'memory'/'memory.db'
+    path=memory_storage_path(sessions.directory, os.environ.get('LAEW_MEMORY_STORAGE'))
     store=MemoryStore(path)
     embedding=None
     def embed():

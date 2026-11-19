@@ -730,6 +730,11 @@ def session_store_from_manifest(manifest: dict) -> SessionStore:
         A store rooted at ``memory.session.storage`` (default
         ``runtime/sessions``), interpreted relative to the current directory.
     """
+    return SessionStore(session_storage_from_manifest(manifest))
+
+
+def session_storage_from_manifest(manifest: dict) -> Path:
+    """Return the configured named-session path without opening a store."""
     storage = (
         manifest.get("memory", {})
         .get("session", {})
@@ -737,17 +742,21 @@ def session_store_from_manifest(manifest: dict) -> SessionStore:
     )
     if not isinstance(storage, str) or not storage:
         storage = DEFAULT_SESSION_STORAGE
-    return SessionStore(storage)
+    return Path(storage)
+
+
+def conversation_directory_from_manifest(manifest: dict, manifest_path: str | Path) -> Path:
+    """Resolve the conversation root without constructing a store."""
+    from laew.rag.config import manifest_base_dir
+    directory = session_storage_from_manifest(manifest).expanduser()
+    if not directory.is_absolute():
+        directory = manifest_base_dir(manifest_path) / directory
+    return directory.resolve()
 
 
 def conversation_store_from_manifest(manifest: dict, manifest_path: str | Path) -> SessionStore:
     """Resolve the same session directory for every application surface."""
-    from laew.rag.config import manifest_base_dir
-    existing = session_store_from_manifest(manifest)
-    directory = existing.directory.expanduser()
-    if not directory.is_absolute():
-        directory = manifest_base_dir(manifest_path) / directory
-    return SessionStore(directory.resolve())
+    return SessionStore(conversation_directory_from_manifest(manifest, manifest_path))
 
 
 def _safe_isfile(path: Path) -> bool:

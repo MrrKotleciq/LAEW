@@ -840,6 +840,9 @@ def cmd_rag_migrate(args) -> int:
 
 def main() -> int:
     """Main CLI entry point."""
+    if len(sys.argv) > 1 and sys.argv[1] == "backup":
+        from laew.operator_cli import dispatch
+        return dispatch(sys.argv[1:])
     configure_logging()  # app-level logger (console stderr), Phase 3
     parser = argparse.ArgumentParser(
         prog="laew",
@@ -853,6 +856,7 @@ def main() -> int:
     )
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
+    subparsers.add_parser("backup", help="Inspect and capture backup generations")
 
     memory_parser=subparsers.add_parser('memory',help='Manage long-term memory')
     memory_parser.add_argument('action',choices=['list','add','delete','analyze','status','sync'])
@@ -1062,6 +1066,14 @@ def main() -> int:
         parser.print_help()
         return 1
 
+    if args.command != "check":
+        from laew.backup.fence import FenceBusyError, FenceConfigurationError
+        from laew.backup.writer import enroll_writer_process
+        try:
+            enroll_writer_process()
+        except (FenceBusyError, FenceConfigurationError, OSError):
+            print("[FAIL] Installation maintenance fence is unavailable.", file=sys.stderr)
+            return 1
     return args.func(args)
 
 

@@ -1,0 +1,227 @@
+"""Operator backup inspection and explicitly acknowledged capture."""
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import stat
+from datetime import datetime, timezone
+from pathlib import Path
+from uuid import UUID
+
+from laew.backup.archive import read_receipt, verify_archive
+from laew.backup.inventory import backup_target_from_profile, build_inventory
+from laew.manifest import validate_manifest
+import yaml
+
+
+class _InvalidArguments(Exception):
+    pass
+
+
+class _Parser(argparse.ArgumentParser):
+    def error(self, message: str) -> None:
+        # Never display argparse's input-dependent diagnostics.
+        raise _InvalidArguments
+
+
+_HELP = {
+    ("backup",): "usage: laew backup {plan,list,verify,create} ...\n\nBackup inspection and explicitly authorized capture commands.",
+    ("backup", "plan"): "usage: laew backup plan --profile PROFILE [--json]\n\nInspect declared source inventory.",
+    ("backup", "list"): "usage: laew backup list --profile PROFILE [--json]\n\nList cached committed receipts; does not verify archive contents.",
+    ("backup", "verify"): "usage: laew backup verify --profile PROFILE --id ID [--json]\n\nVerify the complete archive and receipt.",
+    ("backup", "create"): "usage: laew backup create --profile PROFILE --acknowledgement ABS --apply [--json]\n\nCapture an explicitly quiesced installation.",
+}
+
+
+def _parser() -> argparse.ArgumentParser:
+    parser = _Parser(prog="laew", add_help=False)
+    commands = parser.add_subparsers(dest="command", required=True, parser_class=_Parser)
+    backup = commands.add_parser("backup", add_help=False)
+    backup_actions = backup.add_subparsers(dest="action", required=True, parser_class=_Parser)
+    for name in ("plan", "list", "verify", "create"):
+        action = backup_actions.add_parser(name, add_help=False)
+        action.add_argument("--profile", required=True)
+        action.add_argument("--json", action="store_true")
+        if name == "verify":
+            action.add_argument("--id", required=True)
+        if name == "create":
+            action.add_argument("--acknowledgement", required=True)
+            action.add_argument("--apply", action="store_true", required=True)
+    return parser
+
+
+def _unique_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate key")
+        result[key] = value
+    return result
+
+
+def _bounded_file(path: Path, limit: int) -> bytes:
+    if not path.is_absolute() or ".." in path.parts:
+        raise ValueError("invalid path")
+    for component in (*reversed(path.parents), path):
+        info = component.lstat()
+        if (stat.S_ISLNK(info.st_mode) or getattr(component, "is_junction", lambda: False)()
+                or getattr(info, "st_file_attributes", 0) & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0)):
+            raise ValueError("linked path")
+    if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1:
+        raise ValueError("invalid file")
+    if info.st_size > limit:
+        raise ValueError("oversized")
+    with path.open("rb") as stream:
+        if not os.path.samestat(info, os.fstat(stream.fileno())):
+            raise ValueError("changed")
+        data = stream.read(limit + 1)
+    if len(data) != info.st_size or len(data) > limit:
+        raise ValueError("changed")
+    return data
+
+
+def _load_profile(profile_path: str):
+    profile = json.loads(_bounded_file(Path(profile_path), 65536), object_pairs_hook=_unique_object)
+    if type(profile) is not dict or type(profile.get("manifest_path")) is not str:
+        raise ValueError("invalid profile")
+    return profile
+
+
+def _load_inventory(profile):
+    manifest = yaml.safe_load(_bounded_file(Path(profile["manifest_path"]), 1048576))
+    if type(manifest) is not dict:
+        raise ValueError("invalid manifest")
+    validate_manifest(manifest)
+    return build_inventory(profile, manifest)
+
+
+def _canonical_uuid(value: str) -> str:
+    identifier = str(UUID(value))
+    if identifier != value:
+        raise ValueError("invalid identifier")
+    return identifier
+
+
+def _load_acknowledgement(path: str):
+    from laew.backup.capture import WriterAcknowledgement
+
+    doc = json.loads(_bounded_file(Path(path), 65536), object_pairs_hook=_unique_object)
+    required = {"schema_version", "profile_id", "host_id", "backup_id", "cut_id", "roster", "stopped",
+                "inventory_complete", "restart_inhibited", "valid_until"}
+    if type(doc) is not dict or set(doc) != required or type(doc["schema_version"]) is not int or doc["schema_version"] != 1:
+        raise ValueError("invalid acknowledgement")
+    backup_id = _canonical_uuid(doc["backup_id"])
+    cut_id = _canonical_uuid(doc["cut_id"])
+    if any(type(doc[key]) is not str or not re.fullmatch(r"[a-z][a-z0-9_-]{0,63}", doc[key]) for key in ("profile_id", "host_id")):
+        raise ValueError("invalid acknowledgement")
+    if doc["inventory_complete"] is not True or doc["restart_inhibited"] is not True:
+        raise ValueError("invalid acknowledgement")
+    for key in ("roster", "stopped"):
+        owners = doc[key]
+        if (type(owners) is not list or not 0 < len(owners) <= 256 or
+                any(type(owner) is not str or owner == "unknown" or not re.fullmatch(r"[a-z][a-z0-9_-]{0,63}", owner) for owner in owners) or
+                len(set(owners)) != len(owners)):
+            raise ValueError("invalid acknowledgement")
+    if set(doc["roster"]) != set(doc["stopped"]):
+        raise ValueError("invalid acknowledgement")
+    if type(doc["valid_until"]) is not str or len(doc["valid_until"]) > 40:
+        raise ValueError("invalid acknowledgement")
+    deadline = datetime.fromisoformat(doc["valid_until"])
+    if deadline.tzinfo != timezone.utc or deadline.isoformat() != doc["valid_until"] or deadline <= datetime.now(timezone.utc):
+        raise ValueError("invalid acknowledgement")
+    proof = WriterAcknowledgement(profile_id=doc["profile_id"], host_id=doc["host_id"], backup_id=backup_id, cut_id=cut_id,
+                                  roster=frozenset(doc["roster"]), stopped=frozenset(doc["stopped"]),
+                                  inventory_complete=True, restart_inhibited=True, valid_until=deadline)
+    return backup_id, cut_id, proof
+
+
+def _cached_receipt(inventory, identifier: str) -> dict:
+    receipt = read_receipt(inventory.destination, identifier)
+    if receipt["backup_id"] != identifier or receipt["profile_id"] != inventory.profile_id or receipt["host_id"] != inventory.host_id:
+        raise ValueError("foreign receipt")
+    return receipt
+
+
+def _list_backups(inventory) -> dict:
+    names = []
+    with os.scandir(inventory.destination) as entries:
+        for entry in entries:
+            names.append(entry.name)
+            if len(names) > 1000:
+                raise ValueError("directory limit")
+    receipts, bad = [], 0
+    for name in sorted(names):
+        if not name.endswith(".receipt.json"):
+            continue
+        try:
+            identifier = _canonical_uuid(name[:-len(".receipt.json")])
+            receipt = _cached_receipt(inventory, identifier)
+        except (OSError, ValueError, TypeError, KeyError, RecursionError):
+            bad += 1
+            continue
+        receipts.append(receipt)
+        if len(receipts) > 100:
+            raise ValueError("receipt limit")
+    return {"receipts": receipts, "receipt_state": "cached", "invalid_receipts": bad}
+
+
+def _backup_display(result, as_json):
+    if as_json:
+        print(json.dumps(result, separators=(",", ":"), allow_nan=False))
+    else:
+        print(json.dumps(result, indent=2, allow_nan=False))
+
+
+def _backup_dispatch(args) -> int:
+    result = {"schema_version": 1, "command": "backup." + args.action,
+              "state": "error", "error_code": None, "data": None}
+    try:
+        identifier = _canonical_uuid(args.id) if args.action == "verify" else None
+    except (ValueError, TypeError):
+        result.update(state="invalid", error_code="invalid_arguments")
+        _backup_display(result, args.json)
+        return 2
+    try:
+        profile = _load_profile(args.profile)
+        if args.action == "create":
+            backup_id, cut_id, proof = _load_acknowledgement(args.acknowledgement)
+        inventory = _load_inventory(profile) if args.action in ("plan", "create") else backup_target_from_profile(profile)
+        if args.action == "plan":
+            data = {"profile_id": inventory.profile_id, "host_id": inventory.host_id,
+                    "sources": [{"logical_id": source.logical_id, "kind": source.kind} for source in inventory.sources],
+                    "exclusions": list(inventory.exclusions)}
+        elif args.action == "list":
+            data = _list_backups(inventory)
+        elif args.action == "verify":
+            receipt = verify_archive(inventory.destination, identifier)
+            if receipt["profile_id"] != inventory.profile_id or receipt["host_id"] != inventory.host_id:
+                raise ValueError("foreign receipt")
+            data = {"receipt": receipt, "receipt_state": "verified"}
+        else:
+            from laew.backup.capture import capture_backup
+            receipt = capture_backup(inventory, backup_id=backup_id, cut_id=cut_id, writers=proof)
+            data = {"receipt": receipt, "receipt_state": "verified"}
+        result.update(state="ok", data=data)
+        code = 0
+    except Exception:
+        result["error_code"] = "unavailable_or_invalid"
+        code = 1
+    _backup_display(result, args.json)
+    return code
+
+
+def dispatch(argv: list[str]) -> int:
+    """Dispatch a backup command independently of runtime services."""
+    if argv and argv[-1] in ("--help", "-h") and tuple(argv[:-1]) in _HELP:
+        print(_HELP[tuple(argv[:-1])])
+        return 0
+    try:
+        return _backup_dispatch(_parser().parse_args(argv))
+    except (ValueError, TypeError, _InvalidArguments):
+        valid = ("plan", "list", "verify", "create")
+        action = argv[1] if len(argv) > 1 and argv[0] == "backup" and argv[1] in valid else "unknown"
+        _backup_display({"schema_version": 1, "command": "backup." + action,
+                         "state": "invalid", "error_code": "invalid_arguments", "data": None}, "--json" in argv)
+        return 2

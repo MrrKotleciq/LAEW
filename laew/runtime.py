@@ -27,7 +27,7 @@ from laew.rag.knowledge_base import KnowledgeBase
 from laew.rag.pipeline import RAGPipeline
 from laew.rag.rag_tool import RagTool
 from laew.security.path_resolver import PathResolver
-from laew.llm.registry import create_provider, get_provider_for_role
+from laew.llm.registry import ProviderRegistry, create_provider, get_provider_for_role
 from laew.prompts.context_budget import ContextBudget
 from laew.tools import (
     FilesystemTool,
