@@ -46,6 +46,10 @@ _LEASE_OFFSET = 262144  # Outside any byte that belongs to a trace.
 _PROCESS_LOCK = threading.RLock()
 
 
+class _QuotaFull(OSError):
+    pass
+
+
 def _regular(info):
     return (stat.S_ISREG(info.st_mode) and
             not getattr(info, "st_file_attributes", 0) & stat.FILE_ATTRIBUTE_REPARSE_POINT)
@@ -59,6 +63,28 @@ def _file_info(path):
     if not _regular(info):
         raise OSError("invalid")
     return info
+
+
+def _read_storage_policy(root):
+    path = root / ".quota.json"
+    info = _file_info(path)
+    if info is None:
+        return None
+    if info.st_nlink != 1 or info.st_size > _QUOTA_METADATA_RESERVE:
+        raise ValueError("invalid quota state")
+    with path.open("rb") as stream:
+        if not os.path.samestat(info, os.fstat(stream.fileno())):
+            raise ValueError("quota state changed")
+        raw = stream.read(_QUOTA_METADATA_RESERVE + 1)
+    policy = json.loads(raw)
+    if (len(raw) != info.st_size or type(policy) is not dict or
+            set(policy) != {"version", "run_bytes", "total_bytes"} or
+            type(policy["version"]) is not int or policy["version"] != 1 or
+            type(policy["run_bytes"]) is not int or not 4096 <= policy["run_bytes"] <= 262144 or
+            type(policy["total_bytes"]) is not int or
+            not policy["run_bytes"] + _QUOTA_METADATA_RESERVE <= policy["total_bytes"] <= 268435456):
+        raise ValueError("invalid quota state")
+    return policy
 
 
 def _reserve_slot(root, run_bytes, total_bytes):
@@ -78,7 +104,21 @@ def _reserve_slot(root, run_bytes, total_bytes):
                 raise OSError("invalid")
             ids.add(identifier)
             if (len(ids) + 1) * run_bytes + _QUOTA_METADATA_RESERVE > total_bytes:
-                raise OSError("quota")
+                raise _QuotaFull("quota")
+
+
+def inspect_telemetry_storage(root):
+    """Report cached quota admission in a verified root without opening writers."""
+    try:
+        policy = _read_storage_policy(root)
+        if policy is None:
+            return "unknown", "no_quota_state"
+        _reserve_slot(root, policy["run_bytes"], policy["total_bytes"])
+    except _QuotaFull:
+        return "degraded", "quota_full"
+    except (OSError, ValueError, TypeError, KeyError):
+        return "degraded", "invalid_quota_state"
+    return "ok", "cached_storage_available"
 
 
 def _uuid(value: object) -> str | None:

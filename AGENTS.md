@@ -23,6 +23,7 @@ available commands with `--help` and add `--json` for automation.
 
 | Read-only command | Use |
 |---|---|
+| `status --json` | Check readiness, dependency configuration, telemetry and disk state. Add `--profile PROFILE` for cached backup freshness. |
 | `telemetry show RUN_ID --json` | Inspect one recorded run by its UUID. Check terminal outcome, attempts, tool decisions and usage availability. Enabled traces require a verified protected installation. |
 | `backup plan --profile PROFILE --json` | Inspect the canonical source roster and exclusions. |
 | `backup list --profile PROFILE --json` | Check the latest cached verified receipt and its timestamp. |
@@ -31,7 +32,12 @@ available commands with `--help` and add `--json` for automation.
 
 JSON includes `schema_version`, `command`, `state` and `error_code`. Exit `0`
 means successful inspection, `1` means unavailable or invalid state, and `2`
-means invalid arguments. Record disabled, unknown and corrupt states explicitly.
+means invalid arguments. For `status`, `0` means required checks passed, `1`
+means degraded or required unknown, and `2` means invalid configuration or an
+unavailable required dependency. Default status uses no network. `--probe`
+explicitly enables bounded loopback metadata checks. RAG marker age is reported
+when available. The `--rag-max-age-seconds N` threshold is opt-in.
+Record disabled, unknown and corrupt states explicitly.
 Use the operator lookup instead of copying logs, payloads, session contents or
 filesystem paths into a report. A cached receipt is only a freshness indicator.
 

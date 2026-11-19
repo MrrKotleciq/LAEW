@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import re
 import stat
@@ -42,6 +43,7 @@ _HELP = {
     ("telemetry",): "usage: laew telemetry {show} ...\n\nRead-only telemetry inspection commands.",
     ("telemetry", "show"): "usage: laew telemetry show RUN_ID [--manifest PATH] [--json]\n\nInspect a telemetry trace by UUID.",
     ("restore",): "usage: laew restore --profile PROFILE --id ID (--verify-only | --target ABS --apply) [--project-root ABS] [--json]\n\nVerify or publish an isolated restore.",
+    ("status",): "usage: laew status [--manifest PATH] [--profile PROFILE] [--rag-max-age-seconds N] [--probe] [--json]\n\nInspect operational readiness.",
 }
 
 
@@ -74,6 +76,12 @@ def _parser() -> argparse.ArgumentParser:
     restore.add_argument("--apply", action="store_true")
     restore.add_argument("--project-root", action="append", default=[])
     restore.add_argument("--json", action="store_true")
+    status = commands.add_parser("status", add_help=False)
+    status.add_argument("--manifest", default="manifests/SYSTEM_MANIFEST.yaml")
+    status.add_argument("--profile")
+    status.add_argument("--rag-max-age-seconds", type=float)
+    status.add_argument("--probe", action="store_true")
+    status.add_argument("--json", action="store_true")
     return parser
 
 
@@ -315,6 +323,37 @@ def _restore_dispatch(args) -> int:
     return code
 
 
+def _status_error(error_code):
+    return {"schema_version": 1, "command": "status", "observed_at": datetime.now(timezone.utc).isoformat(),
+            "overall": "unavailable", "error_code": error_code, "checks": []}
+
+
+def _status_dispatch(args) -> int:
+    from laew.status import collect_status, status_exit_code
+
+    threshold = args.rag_max_age_seconds
+    if threshold is not None and (not math.isfinite(threshold) or threshold < 0):
+        _backup_display(_status_error("invalid_arguments"), args.json)
+        return 2
+    try:
+        profile = _load_profile(args.profile) if args.profile else None
+        result = collect_status(args.manifest, probe=args.probe, backup_profile=profile,
+                                rag_max_age_seconds=threshold)
+    except (OSError, ValueError, TypeError, KeyError):
+        _backup_display(_status_error("configuration_unavailable"), args.json)
+        return 2
+    result["command"] = "status"
+    result["error_code"] = next(("invalid_configuration" for check in result["checks"]
+                                 if check["component"] == "manifest" and check["reason"] == "invalid_config"), None)
+    if args.json:
+        _backup_display(result, True)
+    else:
+        print(f"LAEW status: {result['overall']}")
+        for check in result["checks"]:
+            print(f"{check['component']}: {check['state']} ({check['reason']})")
+    return status_exit_code(result)
+
+
 def dispatch(argv: list[str], *,
              telemetry_root_resolver: Callable[[str | None], str | Path | None] | None = None) -> int:
     """Dispatch an operator command; do not initialize application services.
@@ -332,10 +371,15 @@ def dispatch(argv: list[str], *,
             return _backup_dispatch(args)
         if args.command == "restore":
             return _restore_dispatch(args)
+        if args.command == "status":
+            return _status_dispatch(args)
         identifier = str(UUID(args.run_id))
         if identifier != args.run_id:
             raise _InvalidArguments
     except (ValueError, TypeError, _InvalidArguments):
+        if argv and argv[0] == "status":
+            _backup_display(_status_error("invalid_arguments"), json_requested)
+            return 2
         if argv and argv[0] == "restore":
             _backup_display({"schema_version": 1, "command": "restore", "state": "invalid",
                              "error_code": "invalid_arguments", "data": None}, json_requested)
