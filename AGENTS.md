@@ -24,6 +24,7 @@ available commands with `--help` and add `--json` for automation.
 | Read-only command | Use |
 |---|---|
 | `status --json` | Check readiness, dependency configuration, telemetry and disk state. Add `--profile PROFILE` for cached backup freshness. |
+| `telemetry list --limit 10 --json` | Find recent run UUIDs by surface and outcome in the protected installation. The list includes summaries only. |
 | `telemetry show RUN_ID --json` | Inspect one recorded run by its UUID. Check terminal outcome, attempts, tool decisions and usage availability. Enabled traces require a verified protected installation. |
 | `backup plan --profile PROFILE --json` | Inspect the canonical source roster and exclusions. |
 | `backup list --profile PROFILE --json` | Check the latest cached verified receipt and its timestamp. |
@@ -41,8 +42,10 @@ an unavailable required dependency. Default status uses no network. `--probe`
 explicitly enables bounded loopback metadata checks. RAG marker age is reported
 when available. The `--rag-max-age-seconds N` threshold is opt-in.
 Record disabled, unknown and corrupt states explicitly.
-For a failed run, use the UUID from the protected launcher's `telemetry_run`
-diagnostic and correlate its terminal outcome with `status --json`.
+For a failed run, find the UUID via `telemetry list` or the protected
+launcher's `telemetry_run` diagnostic. Use `telemetry show` and correlate its
+terminal outcome with `status --json`. Use `check` for the CI manifest report.
+`ui` starts the local Workbench and is separate from read-only diagnostics.
 Use the operator lookup instead of copying logs, payloads, session contents or
 filesystem paths into a report. A cached receipt is only a freshness indicator.
 

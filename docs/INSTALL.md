@@ -77,55 +77,21 @@ Validate the system manifest and workspace configuration:
 $ laew check --manifest manifests/SYSTEM_MANIFEST.yaml
 ```
 
-## Starting the local LLM
+## Start Workbench
 
-1. Start Ollama: `ollama serve` (usually already running as a background service).
-2. Confirm a model is available: `ollama pull llama3.1`.
-3. Chat with the local model:
+Use an installed local model or choose a configured cloud provider in Workbench.
 
 ```console
-$ laew chat --model llama3.1
+laew ui
 ```
 
-Run a multi-agent plan:
-
-```console
-$ laew multiagent run tests/multiagent/test_plan.yaml --manifest manifests/SYSTEM_MANIFEST.yaml
-```
-
-## Interactive Testing Console
-
-The console REPL lets you explore the full runtime surface in one session.
-Start it with:
-
-```console
-$ laew console --manifest manifests/SYSTEM_MANIFEST.yaml
-```
-
-Inside the console, `help` lists all commands. Key groups:
-
-| Group | Example commands |
-|-------|------------------|
-| System | `check`, `info`, `set timeout 600`, `set approval auto` |
-| Provider | `provider info`, `provider models`, `provider health`, `provider generate "hi"` |
-| Tools | `tool filesystem list_dir directory_path=@project`, `tool terminal run_command command=ls`, `tools` |
-| Agent | `agent run "list files in docs/"`, `agent chat`, `trace on` |
-| RAG | `rag query "find docs" scope=project k=5`, `rag embed`, `rag stats` |
-| Workflow | `workflow discover`, `workflow show test_simple_workflow.yaml`, `workflow run test_simple_workflow.yaml` |
-| Multi-agent | `multiagent discover`, `multiagent show test_plan.yaml`, `multiagent run test_plan.yaml` |
-| Evaluation | `eval datasets`, `eval tasks laew_specific`, `eval task 001`, `eval dataset laew_specific` |
-| Prompts | `prompt list`, `prompt show code_review`, `budget "some text"` |
-| Console | `history`, `!5` (re-run history item 5), `exit` |
-
-All commands work **offline** (no Ollama required) except: `provider *` (needs a reachable model), `agent *` (needs a reachable model), and `rag embed` (needs embeddings). Offline commands show a clear `[!]` when the provider is unreachable.
-
-Use `set approval auto` to auto-approve mutations for faster testing, `set approval deny` to verify gates block mutations, or `set approval ask` (default) for interactive prompts.
+Run `laew ui --help` for the loopback port, workspace and browser options.
 
 ## Configuration
 
 LAEW reads provider configuration from the system manifest
-(`manifests/SYSTEM_MANIFEST.yaml`), then overlays environment variables, then CLI
-flags. Precedence: **CLI flag > environment variable > manifest > provider default**.
+(`manifests/SYSTEM_MANIFEST.yaml`). Supported environment overrides apply to local
+provider configuration. Select the provider and model in Workbench.
 
 Manifest provider entries live under `agent.llm.providers`, for example:
 
@@ -141,35 +107,12 @@ agent:
         timeout: 300   # seconds; raises for slow CPU models
 ```
 
-`laew chat` and `laew multiagent run` select a provider by `type`. Only
-`type: ollama` is registered in the provider registry today; unknown types raise
-`UNSUPPORTED_PROVIDER`.
-
 ### Environment variables
 
-The following `LAEW_*` variables override manifest values when set. They apply to
-`laew chat` and `laew multiagent run`:
-
-| Variable          | Type   | Purpose                                  | Example value          |
-|-------------------|--------|------------------------------------------|------------------------|
-| `LAEW_BASE_URL`   | string | LLM API base URL                         | `http://localhost:11434` |
-| `LAEW_TIMEOUT`    | int    | Request timeout in seconds               | `600`                  |
-
-### CLI flags
-
-| Flag          | Applies to                          | Purpose                      |
-|---------------|-------------------------------------|------------------------------|
-| `--model`     | `chat`, `multiagent run`            | Override the manifest model      |
-| `--base-url`  | `chat`, `multiagent run`            | Override the LLM API base URL    |
-| `--provider`  | `chat`, `multiagent run`            | Select provider by type          |
-| `--timeout`   | `chat`, `multiagent run`            | Request timeout in seconds       |
-| `--manifest`  | All commands                        | Path to the system manifest      |
-
-Example — chat with a slow CPU model and a longer timeout:
-
-```console
-$ laew chat --provider ollama --timeout 600 --model llama3.1
-```
+| Variable | Purpose | Example |
+|---|---|---|
+| `LAEW_BASE_URL` | Local model API base URL | `http://localhost:11434` |
+| `LAEW_TIMEOUT` | Model request timeout in seconds | `600` |
 
 ## Cloud models
 
@@ -184,9 +127,16 @@ storage, scope and permissions.
 
 Start with `laew status --json` from the repository environment. Run `laew --help`
 to discover operator commands. Retained telemetry requires a separately
-provisioned and verified protected installation. Follow the [M18 recovery
+provisioned and verified protected installation. With it, use `laew telemetry
+list --json` to discover a run UUID and `laew telemetry show RUN_UUID --json` to
+diagnose it. Follow the [M18 recovery
 runbook](M18_BACKUP_RECOVERY.md) for profile setup, backup verification,
 isolated recovery, reviewed retention and disabled schedule examples.
+
+`laew ui` remains the Workbench launcher and `laew check` remains the CI manifest
+check. The public CLI retired `console`, `chat`, `memory`, `tool`, `workflow run`,
+`multiagent run` and `rag-migrate`. Use Workbench for chat and memory management.
+Scripts calling the retired commands must be migrated before using this version.
 
 ## Troubleshooting
 

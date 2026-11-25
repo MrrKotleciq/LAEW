@@ -16,13 +16,11 @@ Choose **General Chat** in the Workbench project list to use the Chief Agent wit
 
 General Chat exposes global RAG, WebTool and the filesystem operations constrained to `@knowledge`. Project and hybrid RAG, project aliases, Git and terminal are unavailable. Global note writes use the existing explicit approval and note validation. General scope requires separate Projects and Knowledge roots and does not create a project collection.
 
-In the CLI use `laew chat --general`, optionally with `--workspace-root` pointing to a directory containing `Projects` and `Knowledge`. Add `--new-conversation` to persist it, or use `--conversation ID` to resume. A noninteractive console cannot approve a global write.
-
 ## Configuration
 
 Select Manifest default, llama.cpp, OpenAI API key, ChatGPT OAuth or Google AI Studio in Workbench. Load models or enter an exact model ID. API keys are read from backend environment variables OPENAI_API_KEY and GEMINI_API_KEY. Models & Services can save them to Windows user environment variables and apply them immediately to the current backend. When setting them outside the UI, restart the backend from an updated environment; never put secrets in chat, manifests or knowledge. OAuth retains the existing protected OS keyring, refresh, registration and logout flow. Install optional authentication dependencies with `pip install ".[cloud]"`.
 
-CLI: `laew chat --provider gemini --model gemini-3.8-flash` (or openai-api/chatgpt with an exact available model). Console provider/model overrides use the same registry. Cloud adapters ignore local endpoint overrides and do not select a different model automatically.
+Cloud adapters ignore local endpoint overrides and keep the selected model.
 
 ## Protocols
 
@@ -34,7 +32,7 @@ Schemas derive from registered operation metadata and Python signatures. The exe
 
 ## History and streaming
 
-Workbench and CLI store new conversations through the shared SessionStore; legacy named CLI sessions retain their existing user/final-answer format. Switching models preserves the conversation. Native tool messages are provider-neutral with optional scoped continuation metadata. Local adapters receive text renderings of completed native history. See [conversation history](architecture/CONVERSATION_HISTORY.md) for persistence and recovery.
+Workbench stores new conversations through SessionStore. Legacy named sessions retain their existing user/final-answer format for backup and recovery. Switching models preserves the conversation. Native tool messages are provider-neutral with optional scoped continuation metadata. Local adapters receive text renderings of completed native history. See [conversation history](architecture/CONVERSATION_HISTORY.md) for persistence and recovery.
 
 The existing Sources, approval and Stop interfaces serve every provider. Cloud selection sends conversation context and requested tool results to that provider. It does not upload the entire vault or create hosted vector stores. Session approvals include all arguments. Cancellation closes the transport; incomplete function calls never execute.
 

@@ -27,3 +27,5 @@ The fixture-verified implementation provides protected opt-in run telemetry, rea
 operator status, verified single-host backup, isolated recovery and reviewed
 retention. The execution register tracks integration acceptance and production
 authorization separately. Production rollout requires a representative recovery drill and owner approval. [Execution register](../reports/M18_IMPLEMENTATION_READINESS_AND_PLAN_20261118.md) · [Verification report](../reports/M18_IMPLEMENTATION_AND_VERIFICATION_20261119.md) · [Operator runbook](../M18_BACKUP_RECOVERY.md)
+
+The approved standalone backup worker starts with supervised capture and gates unattended operation on a verified writer barrier. Production deployment remains a separate decision. [ADR-024](../decisions/ADR-024-standalone-backup-worker.md) · [Worker implementation plan](../reports/M18_BACKUP_WORKER_IMPLEMENTATION_PLAN_20261124.md)

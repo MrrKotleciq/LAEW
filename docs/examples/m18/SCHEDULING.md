@@ -8,6 +8,20 @@ The backup destination, installation fence, and writer acknowledgement must
 already satisfy the backup runbook. Running a backup or prune is a separate
 operator decision.
 
+## Standalone worker verification
+
+Use the [disabled Windows task](laew-backup-worker-verify-task.xml.example) or the
+[Debian service](laew-backup-worker-verify.service.example) and [timer](laew-backup-worker-verify.timer.example)
+as inert templates. They run the protected worker interpreter in isolated mode
+and independently verify a single operator-approved generation. Review and
+update the selected UUID after a new generation is approved. The advisory path
+must be provisioned as described in the [operator runbook](../../M18_BACKUP_RECOVERY.md).
+On Windows the example uses the approved operator's interactive token. A logged-out
+task needs separate qualification of its logon mode and effective ACLs. On
+Debian the worker identity must already be provisioned and non-root. Keep an
+external freshness check for missed runs. Supervised capture remains an explicit
+operator command with a current writer acknowledgement and release evidence.
+
 ## Windows Task Scheduler
 
 Create a disabled task manually under the approved operator identity. Its

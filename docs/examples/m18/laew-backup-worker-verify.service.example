@@ -1,0 +1,12 @@
+[Unit]
+Description=Verify an approved LAEW backup generation
+
+[Service]
+Type=oneshot
+User=APPROVED_BACKUP_USER
+WorkingDirectory=/PATH/TO/PROTECTED/WORKING/DIRECTORY
+ExecStart=/PATH/TO/TRUSTED/WORKER/bin/python -I -m laew.backup_worker backup verify --id APPROVED_GENERATION_UUID --profile /PATH/TO/PROFILE.json --status-file /PATH/TO/ADVISORY/status.json --json
+NoNewPrivileges=true
+PrivateNetwork=true
+TimeoutStartSec=1h
+Restart=no

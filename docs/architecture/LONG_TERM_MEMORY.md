@@ -219,16 +219,11 @@ API routes are `/api/memory/state`, `/api/memory/get`, and POST
 reads project inheritance and writes language or memory overrides. They share the
 existing loopback/Origin boundary. Canonical record edits require expected versions.
 
-## CLI
+## Operator entry point
 
-`laew chat` and `laew chat --general` use recall. Ordinary persisted chats create a
-SessionStore conversation on the first actual input; named legacy sessions remain
-supported and are not migrated. `--no-persist` does not enable automatic extraction.
-`laew memory list|add|delete|analyze|status|sync` uses the same service. Use `--general`
-for User Memory alone; project operations are bound to the configured project root.
-Deletion requires `--id` and `--version`. Manual analysis requires `--conversation`
-and an explicit `--model` when no fixed extraction model is configured. It never
-chooses a potentially paid replacement model.
+Use the Workbench memory controls for listing, editing, extraction and index
+maintenance. Existing conversation data and memory identities stay in the same
+stores. Use the operator CLI for status and verified backup or recovery.
 
 ## Validation and limits
 
