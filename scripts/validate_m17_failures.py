@@ -1,7 +1,7 @@
 """Run a disposable M17 validation against a dedicated local Chroma server.
 
-The script never opens the production database or vault. It leaves the test
-workspace and JSON report under the Git-ignored runtime directory for review.
+The script uses a temporary workspace. Pass --keep-diagnostics to retain the
+workspace and JSON report for review.
 Existing chat and embedding servers are used read-only for inference.
 """
 
@@ -12,7 +12,6 @@ import os
 import socket
 import subprocess
 import sys
-import tempfile
 import threading
 import time
 import uuid
@@ -26,6 +25,11 @@ from laew.manifest import load_manifest
 from laew.rag.sync import synchronize_scope
 from laew.runtime import build_rag_tool
 from laew.web import WorkspaceService, make_handler
+
+if __package__:
+    from ._validation_workspace import validation_workspace
+else:
+    from _validation_workspace import validation_workspace
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -59,20 +63,20 @@ def main():
     parser.add_argument("--model", action="store_true", help="Also exercise the configured live chat model")
     parser.add_argument("--hold", type=int, default=0, help="Keep the isolated Workbench open for this many seconds")
     parser.add_argument("--first-only", action="store_true", help="Capture only the embedding-failure agent scenario")
+    parser.add_argument("--keep-diagnostics", action="store_true", help="Retain this temporary workspace")
     args = parser.parse_args()
     if not args.run:
         parser.error("Pass --run to create the isolated test workspace.")
-    base = ROOT / "runtime" / ("m17-validation-" + uuid.uuid4().hex[:12])
-    base.mkdir(parents=True, exist_ok=False)
+    with validation_workspace(args.keep_diagnostics) as base:
+        validate(args, base)
+
+
+def validate(args, base):
     projects = base / "Projects"; projects.mkdir()
     a = projects / "Project-A"; a.mkdir()
     external = base / "External" / "Project-B"; external.mkdir(parents=True)
     vault = base / "Knowledge"; vault.mkdir()
-    locks = base / "locks"; locks.mkdir()
-    for key in ("TEMP", "TMP", "TMPDIR"):
-        os.environ[key] = str(locks)
-    tempfile.tempdir = str(locks)
-    for key in ("LAEW_BASE_URL", "LAEW_TIMEOUT", "LAEW_WORKSPACE_ROOT"):
+    for key in ("LAEW_BASE_URL", "LAEW_TIMEOUT"):
         os.environ.pop(key, None)
     for project, code in ((a, "M17-PROJECT-A-7319"), (external, "M17-PROJECT-B-4826")):
         (project / "docs").mkdir()
@@ -87,6 +91,7 @@ def main():
                                              "global_collection": "m17_global_test"})
     manifest["rag"]["project_sources"]["allowlist"] = ["docs/*.md"]
     manifest_path = base / "test-manifest.yaml"
+    manifest["memory"]["session"]["storage"] = str(base / "runtime" / "sessions")
     manifest_path.write_text(yaml.safe_dump(manifest, sort_keys=False, allow_unicode=True), encoding="utf-8")
     # Fail closed before starting any service or building a RAG client.
     cfg = manifest["rag"]["vector_store"]

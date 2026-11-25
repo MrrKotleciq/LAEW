@@ -191,7 +191,7 @@ def main():
         if not report["catalog_verified"]:
             raise CloudError("MODEL_UNAVAILABLE", "The exact requested model is absent from the account catalog.")
         adapter = ObservedAdapter(provider)
-        with tempfile.TemporaryDirectory(prefix=".luna-eval-", dir=".") as scratch:
+        with tempfile.TemporaryDirectory(prefix="laew-luna-eval-") as scratch:
             root = Path(scratch).resolve()
             with isolated_routing_fixture(cases, root) as (general, project, embedding):
                 conversations = {}

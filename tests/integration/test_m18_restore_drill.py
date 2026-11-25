@@ -46,6 +46,8 @@ def test_offline_capture_restore_and_memory_rebuild(tmp_path, monkeypatch, with_
     fence.touch()
     manifest = install / 'manifest.yaml'
     manifest.write_text('fixture: true\n', encoding='utf-8')
+    project_config = install / '.laew-project.json'
+    project_config.write_text('{"documentation_language":"en","permission_mode":"restricted"}\n', encoding='utf-8')
     chat = SessionStore(sessions)
     chat.save('named', make_chat_payload('manifest.yaml', []))
     conversation = chat.create_conversation('general', None)
@@ -61,7 +63,7 @@ def test_offline_capture_restore_and_memory_rebuild(tmp_path, monkeypatch, with_
     memory.delete(deleted['id'], 1)
     sources = (Source('sessions_named', sessions, 'directory'), Source('conversations', sessions, 'directory'),
                Source('vault', vault, 'directory'), Source('memory_db', memory.path, 'sqlite'),
-               Source('curation_db', knowledge.path, 'sqlite'))
+               Source('curation_db', knowledge.path, 'sqlite'), Source('config_project', project_config, 'file'))
     inventory = Inventory('fixture', 'host', media, fence, sources, manifest_path=manifest,
                           manifest_content_digest=manifest_content_digest({'fixture': True}))
     backup_id, cut_id = str(uuid4()), str(uuid4())
@@ -73,7 +75,7 @@ def test_offline_capture_restore_and_memory_rebuild(tmp_path, monkeypatch, with_
     measure("capture_seconds", started)
     profile = dict(schema_version=1, profile_id='fixture', host_id='host', manifest_path=manifest,
                    launch_cwd=install, workspace_root=install, vault=vault, destination=media,
-                   fence=fence, config_files={}, memory_enabled=True, knowledge_enabled=True,
+                   fence=fence, config_files={'project': project_config}, memory_enabled=True, knowledge_enabled=True,
                    memory_storage=memory.path, knowledge_storage=knowledge.path)
     target = recovery / 'restored'
     validation = []
@@ -87,6 +89,7 @@ def test_offline_capture_restore_and_memory_rebuild(tmp_path, monkeypatch, with_
     record_property('canonical_bytes', canonical_bytes)
     print(f'm18_fixture archive_bytes={archive_bytes} canonical_bytes={canonical_bytes}')
     assert validation[0]['named_sessions'] == 1 and validation[0]['conversations'] == 1
+    assert (target / 'config_project' / '.laew-project.json').read_bytes() == project_config.read_bytes()
     original = (target / 'conversations' / f'conversation-{cid}.json').read_bytes()
     assert SessionStore(target / 'conversations').load('named')['kind'] == 'chat'
     copy = recovery / 'working'

@@ -194,7 +194,7 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     datasets = {}
-    with tempfile.TemporaryDirectory(prefix=".routing-eval-", dir=".") as scratch:
+    with tempfile.TemporaryDirectory(prefix="laew-routing-eval-") as scratch:
         for dataset in [*DATASETS, CONTROL_DATASET]:
             data = dataset.read_bytes()
             cases = json.loads(data.decode("utf-8-sig"))

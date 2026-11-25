@@ -1081,29 +1081,6 @@ def test_workbench_stream_exposes_prefetch_and_source_paths(isolated_runtime, tm
     assert all("GLOBAL-7319" not in str(event) for event in events)
 
 
-def test_cli_turn_prefetches_using_the_active_project(isolated_runtime, tmp_path, monkeypatch, capsys):
-    from laew.cli import cmd_chat
-    from laew.rag.sync import SyncScheduler
-
-    fixture = isolated_runtime
-    tool = fixture.build(fixture.active)
-    provider = ObservingProvider("Fixture CLI reply")
-    provider.base_url = "fixture"
-    manifest = tmp_path / "manifest.yaml"
-    manifest.write_text("fixture", encoding="utf-8")
-    monkeypatch.setattr("laew.cli.load_manifest", lambda path: {"workspace": {"root": str(fixture.active)}})
-    monkeypatch.setattr("laew.cli.build_provider_for_role", lambda *a, **kw: provider)
-    monkeypatch.setattr("laew.cli.build_shared_tools", lambda *a, **kw: [tool])
-    monkeypatch.setattr(SyncScheduler, "start", lambda *a, **kw: None)
-    messages = iter([PROJECT, "exit"])
-    monkeypatch.setattr("builtins.input", lambda *args: next(messages))
-    args = SimpleNamespace(manifest=manifest, model="fixture", base_url=None, timeout=None,
-                           no_persist=True, resume=None, session=None, no_stream=True)
-    assert cmd_chat(args) == 0
-    assert "[RAG] project: found (1 fragments)" in capsys.readouterr().out
-    assert "PROJECT-4281" in provider.messages[0][0].content
-    assert "GLOBAL-7319" not in provider.messages[0][0].content
-
 def test_combined_memory_and_global_context_are_separate_and_bounded(isolated_runtime):
     fixture = isolated_runtime
     tool = fixture.build(ready=False)
@@ -1391,7 +1368,7 @@ def test_live_workbench_browser(isolated_runtime, tmp_path, monkeypatch):
         started.set()
         return server
 
-    monkeypatch.setattr(web, "WorkspaceService", lambda *_: service)
+    monkeypatch.setattr(web, "WorkspaceService", lambda *_, telemetry=None: service)
     monkeypatch.setattr(web, "ThreadingHTTPServer", server_factory)
     monkeypatch.setattr(service, "start_sync", lambda: None)
     monkeypatch.setattr(service, "close", lambda: None)

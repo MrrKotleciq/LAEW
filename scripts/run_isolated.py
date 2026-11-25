@@ -187,8 +187,8 @@ def prepare_command(mode, args, run, env):
         options = ["--basetemp", str(run / "pytest"), "-o", f"cache_dir={run / 'pytest-cache'}"]
         return ["pytest", *args[:split], *options, *args[split:]], REPO
 
-    # Existing evaluators use relative fixture paths and some explicitly use
-    # the working directory for SQLite/Chroma scratch space.
+    # Evaluators use relative fixture and report paths. A private working
+    # directory anchors these paths independently of the checkout.
     work = run / "work"
     for path in ("tests/evaluation", "tests/rag", "manifests"):
         shutil.copytree(REPO / path, work / path, symlinks=True,
@@ -244,6 +244,24 @@ def check_loopback():
             pass
 
 
+OPERATIONAL_BACKUP_ENV = ("LAEW_INSTALLATION_FENCE", "LAEW_PROTECTED_PROFILE",
+                          "LAEW_MANAGED_WRITER_GATE", "LAEW_MANAGED_WRITER_UNIT",
+                          "LAEW_BACKUP_WORKBENCH_VIEW", "LAEW_BACKUP_WORKBENCH_OWNER")
+
+
+def run_environment(run):
+    """Keep inherited operational storage overrides out of child processes."""
+    env = os.environ.copy()
+    for name in OPERATIONAL_BACKUP_ENV:
+        env.pop(name, None)
+    env.update(TEMP=str(run), TMP=str(run), TMPDIR=str(run),
+               PYTHONPYCACHEPREFIX=str(run / "pycache"),
+               LAEW_WORKSPACE_ROOT=str(run / "workspace"),
+               LAEW_MEMORY_STORAGE=str(run / "storage" / "memory.db"),
+               LAEW_KNOWLEDGE_STORAGE=str(run / "storage" / "curation.db"))
+    return env
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--keep-diagnostics", action="store_true")
@@ -280,9 +298,7 @@ def main():
         process = None
         interrupted = False
         try:
-            env = os.environ.copy()
-            env.update(TEMP=str(run), TMP=str(run), TMPDIR=str(run),
-                       PYTHONPYCACHEPREFIX=str(run / "pycache"))
+            env = run_environment(run)
             command, cwd = prepare_command(mode, args, run, env)
             process = subprocess.Popen(
                 [sys.executable, "-m", *command], cwd=cwd, env=env,

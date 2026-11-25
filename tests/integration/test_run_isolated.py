@@ -11,6 +11,15 @@ from scripts.run_isolated import eval_arguments
 MODULE = "laew.eval.memory_sufficiency_eval"
 
 
+def test_child_environment_replaces_inherited_storage_overrides(tmp_path, monkeypatch):
+    monkeypatch.setenv('LAEW_MEMORY_STORAGE', 'operational-memory')
+    monkeypatch.setenv('LAEW_KNOWLEDGE_STORAGE', 'operational-knowledge')
+    env = run_isolated.run_environment(tmp_path)
+    assert env['LAEW_MEMORY_STORAGE'] == str(tmp_path / 'storage' / 'memory.db')
+    assert env['LAEW_KNOWLEDGE_STORAGE'] == str(tmp_path / 'storage' / 'curation.db')
+    assert env['TEMP'] == env['TMP'] == env['TMPDIR'] == str(tmp_path)
+
+
 def test_full_offline_suite_stops_before_pytest_when_loopback_is_blocked(monkeypatch, capsys):
     monkeypatch.setattr(sys, "argv", ["run_isolated.py", "pytest-offline"])
 

@@ -1,37 +1,41 @@
 """Start a disposable Workbench for browser verification, with restart control.
 
-Pass the workspace left by validate_m17.py. The manifest must point to the
+Pass the workspace retained by validate_m17.py --keep-diagnostics. The manifest must point to the
 workspace's isolated Chroma port, never a production service port. Commands
 on stdin: restart, stop.
 """
+import argparse
 import os
 import json
+import subprocess
 import sys
-import tempfile
 import threading
 from http.server import ThreadingHTTPServer
 from pathlib import Path
 
 import yaml
 
-from validate_m17 import free_port, wait_http
 from laew.web import WorkspaceService, make_handler
 from laew.llm.llamacpp import LlamaCppProvider
 
-base = Path(sys.argv[1]).resolve()
-root = (Path(__file__).resolve().parents[1] / "runtime").resolve()
-base.relative_to(root)
-if not base.name.startswith("m17-validation-"):
-    raise ValueError("Expected an isolated M17 validation workspace")
+if __package__:
+    from ._validation_workspace import retained_m17_workspace, validation_environment
+    from .validate_m17 import free_port, wait_http
+else:
+    from _validation_workspace import retained_m17_workspace, validation_environment
+    from validate_m17 import free_port, wait_http
+
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("workspace", help="Retained temporary M17 validation workspace")
+base = retained_m17_workspace(parser.parse_args().workspace)
 manifest_path = base / "test-manifest.yaml"
 manifest = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
 cfg = manifest["rag"]["vector_store"]
 port = cfg["port"]
 if cfg["host"] != "127.0.0.1" or port in (8000, 8080, 8081, 8765) or cfg["global_collection"] != "m17_global_test":
     raise ValueError("Unsafe Chroma configuration")
-for key in ("TEMP", "TMP", "TMPDIR"):
-    os.environ[key] = str(base / "locks")
-tempfile.tempdir = str(base / "locks")
+if Path(manifest["memory"]["session"]["storage"]) != base / "runtime" / "sessions":
+    raise ValueError("Unsafe session storage configuration")
 original_request = LlamaCppProvider._request
 def capture_request(provider, *args, **kwargs):
     response = original_request(provider, *args, **kwargs)
@@ -54,31 +58,45 @@ def capture_stream_chat(service, message, selection, expected_project_id, emit, 
             emit(event)
         return original_stream_chat(service, message, selection, expected_project_id, capture, session_id)
 WorkspaceService.stream_chat = capture_stream_chat
-import subprocess
-chroma = Path(sys.executable).with_name("chroma.exe" if os.name == "nt" else "chroma")
-child = subprocess.Popen([str(chroma), "run", "--host", "127.0.0.1", "--port", str(port),
-                          "--path", str(base / "chroma-data")], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-service = server = None
-web_port = free_port()
-try:
-    wait_http(f"http://127.0.0.1:{port}/api/v2/heartbeat", child)
-    while True:
-        service = WorkspaceService(manifest_path, base / "Projects" / "Project-A", base / "Projects", base,
-                                   registered_projects=[base / "External" / "Project-B"])
-        server = ThreadingHTTPServer(("127.0.0.1", web_port), make_handler(service))
-        threading.Thread(target=server.serve_forever, daemon=True).start()
-        service.start_sync()
-        print(f"WORKBENCH=http://127.0.0.1:{web_port} CHROMA={port}", flush=True)
-        command = sys.stdin.readline().strip()
-        server.shutdown(); server.server_close(); server = None
-        service.close(); service = None
-        if command != "restart":
-            break
-finally:
-    if server:
-        server.shutdown(); server.server_close()
-    if service:
-        service.close()
-    child.terminate()
-    try: child.wait(timeout=10)
-    except subprocess.TimeoutExpired: child.kill(); child.wait(timeout=10)
+
+
+def serve():
+    chroma = Path(sys.executable).with_name("chroma.exe") if os.name == "nt" else "chroma"
+    web_port = free_port()
+    service = server = None
+    with validation_environment(base):
+        child = subprocess.Popen([str(chroma), "run", "--host", "127.0.0.1", "--port", str(port),
+                                  "--path", str(base / "chroma-data")], stdout=subprocess.DEVNULL,
+                                 stderr=subprocess.DEVNULL)
+        try:
+            wait_http(f"http://127.0.0.1:{port}/api/v2/heartbeat", child)
+            while True:
+                service = WorkspaceService(manifest_path, base / "Projects" / "Project-A", base / "Projects", base,
+                                           registered_projects=[base / "External" / "Project-B"])
+                server = ThreadingHTTPServer(("127.0.0.1", web_port), make_handler(service))
+                threading.Thread(target=server.serve_forever, daemon=True).start()
+                service.start_sync()
+                print(f"WORKBENCH=http://127.0.0.1:{web_port} CHROMA={port}", flush=True)
+                command = sys.stdin.readline().strip()
+                server.shutdown()
+                server.server_close()
+                server = None
+                service.close()
+                service = None
+                if command != "restart":
+                    break
+        finally:
+            if server:
+                server.shutdown()
+                server.server_close()
+            if service:
+                service.close()
+            child.terminate()
+            try:
+                child.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                child.kill()
+                child.wait(timeout=10)
+
+
+serve()
