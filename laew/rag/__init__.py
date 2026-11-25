@@ -1,10 +1,14 @@
 """LAEW RAG (Retrieval-Augmented Generation) system."""
 
-from laew.rag.embedding import EmbeddingService, OllamaEmbedding
-from laew.rag.llamacpp import LlamaCppEmbedding
-from laew.rag.vector_store import VectorStore, ChromaVectorStore, DocumentChunk
-from laew.rag.knowledge_base import KnowledgeBase, KnowledgeScope
-from laew.rag.pipeline import RAGPipeline, RAGResult
+from importlib import import_module
+
+_EXPORTS = {
+    'EmbeddingService': 'embedding', 'OllamaEmbedding': 'embedding',
+    'LlamaCppEmbedding': 'llamacpp', 'VectorStore': 'vector_store',
+    'ChromaVectorStore': 'vector_store', 'DocumentChunk': 'vector_store',
+    'KnowledgeBase': 'knowledge_base', 'KnowledgeScope': 'knowledge_base',
+    'RAGPipeline': 'pipeline', 'RAGResult': 'pipeline',
+}
 
 __all__ = [
     "EmbeddingService",
@@ -18,3 +22,9 @@ __all__ = [
     "RAGPipeline",
     "RAGResult",
 ]
+
+
+def __getattr__(name):
+    if name not in _EXPORTS:
+        raise AttributeError(name)
+    return getattr(import_module(f'{__name__}.{_EXPORTS[name]}'), name)

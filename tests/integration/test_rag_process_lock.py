@@ -198,6 +198,12 @@ def test_different_projects_sync_concurrently_in_separate_processes(tmp_path, mo
     vault = tmp_path / "vault"; vault.mkdir()
     (a / "note.md").write_text("Project A", encoding="utf-8")
     (b / "note.md").write_text("Project B", encoding="utf-8")
+    # Initialize the shared disposable database before racing the project syncs.
+    # Concurrent first-time Chroma migrations can fail before either sync starts.
+    subprocess.run(
+        [sys.executable, "-c", "import chromadb,sys; chromadb.PersistentClient(path=sys.argv[1])", str(tmp_path / "db")],
+        check=True, capture_output=True, text=True, timeout=30,
+    )
     script = '''
 import sys,chromadb
 import laew.rag.vector_store as vs
@@ -217,8 +223,13 @@ synchronize_scope(kb,"project",lock_timeout=15)
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=2)
     try:
         futures = [executor.submit(process.stdout.readline) for process in processes]
-        for future in futures:
-            assert future.result(timeout=20).strip() == "embedding"
+        for process, future in zip(processes, futures):
+            line = future.result(timeout=20).strip()
+            if line != "embedding":
+                if process.poll() is None:
+                    process.kill()
+                _, error = process.communicate(timeout=5)
+                pytest.fail(f"Expected embedding, got {line!r}; child stderr: {error[-4000:]}")
         for process in processes:
             process.stdin.write("continue\n"); process.stdin.flush()
         for process in processes:

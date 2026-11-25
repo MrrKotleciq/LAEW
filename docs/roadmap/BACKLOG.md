@@ -36,3 +36,23 @@ read_when:
 - Semantics-aware RAG reranking upgrades beyond cosine similarity (nested/colBERT-style). Evaluate broad Polish ownership paraphrases against the production false negative recorded in [M17 verification](M17-Knowledge-Preparation-2026-10-29.md); focused topic retrieval already passes.
 - Interactive plan editor / workflow authoring UI.
 - Multi-agent autonomous mode with manual and disabled fallbacks (ADR-015) fully exercised.
+
+## Deferred M18 work
+
+### Windows Backup Worker BW-07/BW-08
+
+**Deferred due to insufficient RAM for Windows VM testing.** The Hyper-V guest booted with 4 GiB, but Windows Setup ran out of memory applying the image. Offline deployment reached first boot before the operator stopped the attempt. The guest, disks and ISO were removed. Qualification of unattended Windows operation remains open. [M18 qualification report](../reports/M18_BW08_QUALIFICATION_20261125.md#windows-follow-up)
+
+**Resume when** an approved disposable Windows Hyper-V guest can be provisioned from verified installation media on a host with enough available RAM to complete setup and run the fixture with headroom. Confirm the guest can boot, reboot and run the tests with synthetic sources and a loopback SFTP endpoint. Use separate writer, worker, Core reader and legacy fixture identities. [M18 implementation plan](../reports/M18_BACKUP_WORKER_IMPLEMENTATION_PLAN_20261124.md)
+
+- **BW-07 managed service adapter and writer exclusion.** Implement the fixed Windows service roster and protected restart gate. Prove containment before the first write, graceful shutdown, complete descendant exit and denial of unmanaged writes and restarts throughout capture. Refuse capture when the roster or exclusion cannot be established.
+- **BW-07 OpenSSH and permission boundaries.** Implement the Windows trust adapter for the system OpenSSH client. Qualify the dedicated worker key under its noninteractive token while logged out and after reboot. Verify strict pinning, rejection of unavailable credentials and isolated recovery from the replicated copy. Confirm the Core reader can read status and settings projections but cannot modify, delete or replace them or their ancestors, or access private settings, keys or archives.
+- **BW-08 scheduled capture and recovery.** Exercise the actual guest task in its noninteractive logon mode. Cover late and concurrent starts, stale or replayed cuts, reboot, and worker or controller crash. Require a terminal worker before explicit recovery resumes the originally active writers.
+- **BW-08 power-loss publication safety.** Cut guest power around archive and receipt publication, then independently verify visible generations, reject incomplete generations and confirm the prior verified copy survives. Keep the writer gate closed on ambiguous state.
+- **BW-08 legacy exclusion and final regression.** Verify that the retired 0.1.0 executable and account cannot create or modify managed media. Close managed admission before supervised rollback and verify archive compatibility and preservation. Rerun the full offline regression against the final Windows candidate and record the qualification evidence.
+
+### ChromaDB HNSW reload after cache eviction
+
+**Accepted external dependency limitation for M18 publication.** ChromaDB 1.5.9 can fail to reload a small, unsynchronized HNSW segment after cache eviction. The standalone Windows reproducer failed in 2 of 192 two-collection trials and in 75 of 134 reads after exceeding the default cache capacity. The full LAEW regression also recorded one RAG failure and found the same unpersisted segment state. Keep 1.5.9 and retain the existing tests and assertions. [ChromaDB issue #7946](https://github.com/chroma-core/chroma/issues/7946) · [Upstream live-index change #7765](https://github.com/chroma-core/chroma/pull/7765) · [M18 reproduction and regression evidence](../reports/M18_BW08_QUALIFICATION_20261125.md#chromadb-lifecycle-investigation)
+
+**Resume when** a future stable ChromaDB release contains the relevant HNSW changes. With separate approval, qualify that release on Windows against the default-settings two-collection and cache-pressure reproducers, then run the unchanged recovery tests and full offline regression before adopting it. Use stable releases for qualification.

@@ -110,9 +110,10 @@ def test_knowledge_show_note(state, tmp_path, capsys):
     assert parse_note.call_count == 1
 
 
-def test_knowledge_show_missing_note(state, capsys):
+def test_knowledge_show_missing_note(state, tmp_path, capsys):
     """``knowledge show`` on a missing note returns a failure code."""
-    assert _cmd_show(["does-not-exist.md"], state) == 1
+    with patch("laew.console.commands.knowledge._manifest_knowledge_cfg", return_value=_cfg(tmp_path)):
+        assert _cmd_show(["does-not-exist.md"], state) == 1
     assert "note not found" in capsys.readouterr().out
 
 
@@ -140,7 +141,7 @@ def test_manifest_knowledge_alias_resolves_to_workspace_vault(tmp_path):
         state,
     )
     assert cfg["project_root"] == project.resolve()
-    assert cfg["knowledge_root"] == (tmp_path / "Knowledge").resolve()
+    assert cfg["knowledge_root"] == (tmp_path / "KNOWLEDGE").resolve()
 
 
 def test_knowledge_stats_reports_vault_and_store(state, tmp_path, capsys):

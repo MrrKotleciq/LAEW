@@ -1,0 +1,9 @@
+# INERT EXAMPLE ONLY: replace every placeholder after owner approval.
+[Unit]
+Description=LAEW backup (approved maintenance window only)
+
+[Service]
+Type=oneshot
+User=<APPROVED_OPERATOR_IDENTITY>
+ExecStart="<ABSOLUTE_LAEW_EXECUTABLE>" backup create --profile "<ABSOLUTE_PROFILE_PATH>" --acknowledgement "<ABSOLUTE_CURRENT_ACK_PATH>" --apply
+Restart=no

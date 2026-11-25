@@ -3,6 +3,7 @@ import logging
 import os
 import threading
 from pathlib import Path
+from laew.storage_paths import knowledge_storage_path
 
 log = logging.getLogger(__name__)
 
@@ -15,8 +16,7 @@ def build_knowledge(manifest, conversations, *, projects_root,
     from laew.rag.config import manifest_global_exclusions, resolve_knowledge_root
     from laew.rag.knowledge_base import KnowledgeScope
     from laew.rag.pipeline import RAGPipeline
-    path = (Path(os.environ['LAEW_KNOWLEDGE_STORAGE']) if os.environ.get('LAEW_KNOWLEDGE_STORAGE')
-            else conversations.directory.parent / 'knowledge' / 'curation.db')
+    path = knowledge_storage_path(conversations.directory, os.environ.get('LAEW_KNOWLEDGE_STORAGE'))
     filesystem = FilesystemTool(PathResolver(projects_root=projects_root,
         knowledge_root=knowledge_root, general=True))
     index_root = resolve_knowledge_root(manifest, project_root=None,
@@ -47,10 +47,11 @@ def build_knowledge(manifest, conversations, *, projects_root,
 class KnowledgeWorker:
     """One bounded worker; jobs and index retry state remain in SQLite."""
 
-    def __init__(self, service, conversations, provider_factory):
+    def __init__(self, service, conversations, provider_factory, *, telemetry=None):
         self.service = service
         self.conversations = conversations
         self.provider_factory = provider_factory
+        self.telemetry = telemetry
         self._stop = threading.Event()
         self._wake = threading.Event()
         self._guard = threading.Lock()
@@ -71,9 +72,12 @@ class KnowledgeWorker:
         while not self._stop.is_set():
             try:
                 self.service.sync_index()
-                self.service.process_extraction(self.conversations, self.provider_factory)
+                if self.telemetry is None:
+                    self.service.process_extraction(self.conversations, self.provider_factory)
+                else:
+                    self.service.process_extraction(self.conversations, self.provider_factory, telemetry=self.telemetry)
             except Exception:
-                log.exception('Knowledge background operation failed')
+                log.warning('Knowledge background operation failed')
             self._wake.wait(60)
             self._wake.clear()
 

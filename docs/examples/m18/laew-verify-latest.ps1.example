@@ -1,0 +1,65 @@
+# Inactive example. Use an approved, trusted LAEW installation and private profile.
+[CmdletBinding()]
+param(
+    [Parameter(Mandatory)][string]$PythonExecutable,
+    [Parameter(Mandatory)][string]$Profile
+)
+
+$ErrorActionPreference = 'Stop'
+$stage = 'configuration'
+
+function Invoke-BackupInspection {
+    param([Parameter(Mandatory)][string[]]$Arguments)
+
+    $output = & $PythonExecutable -m laew.cli @Arguments --profile $Profile --json 2>$null
+    $code = $LASTEXITCODE
+    if ($code -ne 0) {
+        throw 'Operator check failed.'
+    }
+    $result = ($output -join [Environment]::NewLine) | ConvertFrom-Json
+    if ($result.schema_version -ne 1 -or $result.state -ne 'ok') {
+        throw 'Operator result was not successful.'
+    }
+    return $result.data
+}
+
+try {
+    foreach ($path in @($PythonExecutable, $Profile)) {
+        if ($path -notmatch '^[A-Za-z]:\\' -or -not (Test-Path -LiteralPath $path -PathType Leaf)) {
+            throw 'Expected an existing absolute local file.'
+        }
+    }
+
+    $stage = 'receipt_inventory'
+    $data = Invoke-BackupInspection -Arguments @('backup', 'list')
+    if ($data.receipt_state -ne 'cached' -or $data.invalid_receipts -ne 0 -or -not $data.receipts) {
+        throw 'Receipt inventory is incomplete.'
+    }
+    $receipt = $data.receipts | Sort-Object { [DateTimeOffset]$_.verified_at } -Descending |
+        Select-Object -First 1
+    $id = [guid]::ParseExact($receipt.backup_id, 'D').ToString()
+
+    $stage = 'archive_verification'
+    $verified = Invoke-BackupInspection -Arguments @('backup', 'verify', '--id', $id)
+    if ($verified.receipt_state -ne 'verified' -or $verified.receipt.backup_id -ne $id -or
+        $verified.receipt.archive_sha256 -ne $receipt.archive_sha256) {
+        throw 'Archive verification did not match the listed receipt.'
+    }
+
+    $stage = 'receipt_age'
+    $age = [DateTimeOffset]::UtcNow - [DateTimeOffset]$verified.receipt.verified_at
+    if ($age.TotalHours -lt 0 -or $age.TotalHours -gt 24) {
+        throw 'Verified receipt is outside the freshness window.'
+    }
+
+    [pscustomobject]@{
+        outcome = 'verified'
+        backup_id = $id
+        age_seconds = [math]::Round($age.TotalSeconds)
+    } | ConvertTo-Json -Compress
+    exit 0
+}
+catch {
+    [pscustomobject]@{ outcome = 'failed'; stage = $stage } | ConvertTo-Json -Compress
+    exit 1
+}

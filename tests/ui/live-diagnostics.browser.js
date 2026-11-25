@@ -171,6 +171,16 @@ async function main() {
     await click('#tab-sources');
     await expectPanel(/Choose a conversation turn/);
     assert.doesNotMatch(await text(), /Turn 1|1 selected/);
+
+    await click('#nav-settings');
+    await waitFor(() => evaluate('!document.querySelector("#settings-view").hidden'), 'Settings page');
+    await waitFor(() => evaluate('document.querySelector("#backup-health").textContent.includes("unconfigured")'),
+      'read-only backup status');
+    assert.equal(await evaluate('document.querySelector("#backup-directory").placeholder'), 'D:\\LAEW-Backups');
+    assert.equal(await evaluate('document.querySelector("#backup-port").value'), '');
+    assert.equal(await evaluate('document.querySelector("#backup-key").selectedOptions[0].text'), 'Select SSH private key');
+    await click('#backup-test-connection');
+    assert.match(await evaluate('document.querySelector("#backup-settings-result").textContent'), /protected backup settings view is unavailable/);
   } finally {
     if (socket?.readyState === WebSocket.OPEN && command) {
       await Promise.race([command('Browser.close').catch(() => {}), sleep(500)]);

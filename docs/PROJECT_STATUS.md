@@ -70,14 +70,16 @@ Implementation: Milestone 17 (Second Brain & Global Knowledge Integration) compl
 
 ## Current Focus
 
-The next development priority is
-[M18 — Monitoring, Telemetry & Backup](roadmap/M18-Monitoring_Telemetry_%26_Backup.md).
+[M18 — Monitoring, Telemetry & Backup](roadmap/M18-Monitoring_Telemetry_%26_Backup.md)
+is implemented and fixture-verified for its original scope. The supervised
+Windows backup and isolated recovery drill passed. Wider production rollout
+requires separate approval, and unattended Windows backup qualification
+remains deferred. [Backup Worker qualification](reports/M18_BW08_QUALIFICATION_20261125.md) · [Windows backlog](roadmap/BACKLOG.md#windows-backup-worker-bw-07bw-08)
 
-Milestones 1–17 are complete. Milestones 18–21 remain in progress. The local
-workbench reuses the Chief Agent with project selection and scoped RAG sources.
-The approved Polish Global Knowledge vault is populated, indexed and verified
-against actual content. Operational monitoring, backup/retention and later
-roadmap work remain outside M17 completion.
+Milestones 1–18 are complete for their stated implementation scope. Milestones
+19–21 remain in progress. The local Workbench reuses the Chief Agent with
+project selection and scoped RAG sources. The approved Polish Global Knowledge
+vault is populated, indexed and verified against actual content.
 
 ## Milestone Summary
 
@@ -100,7 +102,7 @@ roadmap work remain outside M17 completion.
 | M15 — Multi-Model Routing & Provider Fallback | ✅ Completed | 2026-09-16 |
 | M16 — Parallel Multi-Agent Execution & Semantic Conflict Detection | ✅ Completed | 2026-09-16 |
 | M17 — Second Brain & Global Knowledge Integration | ✅ Completed | 2026-10-29 |
-| M18 — Monitoring, Telemetry & Backup | 🚧 In Progress | — |
+| M18 — Monitoring, Telemetry & Backup | ✅ Implemented and Fixture-Verified | 2026-11-19 |
 | M19 — MCP Tools Layer | 🚧 In Progress | — |
 | M20 — Multi-Project Workspace | 🚧 In Progress | — |
 | M21 — v1.0 Stabilization & Release | 🚧 In Progress | — |
@@ -111,7 +113,7 @@ roadmap work remain outside M17 completion.
 - **manifests/SYSTEM_MANIFEST.yaml** — System manifest v1.0 (workspace boundaries, model roles, tool policies, memory layers, RAG configuration)
 - **tools/** — Tool contracts for filesystem, git, terminal, web (each with CONTRACT.md and Python implementation)
 - **prompts/** — Layered prompt templates (core.md, chief-agent.md, architecture.md, research.md, code-review.md, debugging.md, documentation.md, rag.md)
-- **tests/** — Test specifications for security, agent, rag, workflow, multi-agent, console, CLI, web, benchmarking, and documentation validation (1015 unit tests across 52 suites)
+- **tests/** — Test specifications for security, agent, rag, workflow, multi-agent, console, CLI, web, benchmarking, and documentation validation (1165 unit tests across 64 test suites)
 - **docs/** — Architecture, principles, decisions, context, status, history, roadmap, performance, security, and source reference material
 - **.claude/** — Agent SDK configuration, settings, prompts, and skills (project-sync, research, architecture-review)
 - **laew/** — Python package (tool runtime wrappers, CLI, LLM provider, prompt management, agent loop, multi-agent coordination, RAG, workflow, evaluation)
@@ -157,7 +159,7 @@ roadmap work remain outside M17 completion.
   two documents/five chunks; unchanged synchronization embedded zero chunks.
   Existing LAEW and global collection records/vectors were unchanged.
 
-- **1015 unit tests** collected across **52 test suites** (in `tests/unit`)
+- **1165 unit tests** collected across **64 test suites** (in `tests/unit`)
 - Earlier offline unit and component verification for M17: 887 passed, 2 skipped. Separate isolated live tests exercised ChromaDB, embeddings, the Chief Agent and a browser; M17 was still in progress at that stage.
 - 2026-10-28/29 final verification: 826 passed, 2 skipped, 1 deselected for
   `tests/unit tests/integration -m "not ollama"`; a focused RAG, process,
@@ -191,7 +193,7 @@ LAEW v1.0 implements:
 - **Workflow automation**: YAML workflow definitions, sequential execution engine, approval gates, compensating rollback.
 - **Multi-agent architecture**: Message protocol, shared context journal, specialist roles, chief coordinator, YAML plan schema.
 - **Production hardening**: Provider registry with factory dispatch, config precedence (CLI > env > manifest > default), PEP 621 packaging, app-level logging, bandit SAST gate in CI.
-- **Interactive console**: REPL driving all implemented surfaces with approval gates, session history, and !N replay.
+- **Operator CLI**: Noninteractive status, protected telemetry, backup, isolated recovery and reviewed retention. The Workbench launcher and CI manifest check remain available.
 - **Session persistence**: Durable conversation state with atomic writes and hardened path validation.
 - **Performance optimizations**: O(n) context trimming (previously O(k²)), token calibration, streaming chat, pytest-benchmark baselines.
 - **Parallel multi-agent execution**: Concurrent subtask execution with thread-safe shared context and semantic conflict detection.

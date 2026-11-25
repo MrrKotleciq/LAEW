@@ -128,7 +128,7 @@ def main():
         if not report["catalog_verified"]:
             raise CloudError("MODEL_UNAVAILABLE", "The exact requested model is absent from the account catalog.")
         adapter = CaptureAdapter(provider)
-        with tempfile.TemporaryDirectory(prefix=".evidence-eval-", dir=".") as scratch:
+        with tempfile.TemporaryDirectory(prefix="laew-evidence-eval-") as scratch:
             run_baseline(cases, Path(scratch).resolve(), adapter, report)
     except LLMError as exc:
         report["error_code"] = exc.code

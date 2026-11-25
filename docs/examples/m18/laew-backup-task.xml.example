@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- INERT EXAMPLE ONLY: replace placeholders after owner approval. -->
+<Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <Triggers>
+    <CalendarTrigger><StartBoundary>&lt;APPROVED_WINDOW_START&gt;</StartBoundary><Enabled>false</Enabled><ScheduleByDay><DaysInterval>1</DaysInterval></ScheduleByDay></CalendarTrigger>
+  </Triggers>
+  <Principals><Principal id="Operator"><UserId>&lt;APPROVED_OPERATOR_IDENTITY&gt;</UserId><LogonType>InteractiveToken</LogonType></Principal></Principals>
+  <Settings><MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy><StartWhenAvailable>false</StartWhenAvailable><Enabled>false</Enabled></Settings>
+  <Actions Context="Operator"><Exec><Command>&lt;ABSOLUTE_LAEW_EXECUTABLE&gt;</Command><Arguments>backup create --profile &quot;&lt;ABSOLUTE_PROFILE_PATH&gt;&quot; --acknowledgement &quot;&lt;ABSOLUTE_CURRENT_ACK_PATH&gt;&quot; --apply</Arguments></Exec></Actions>
+</Task>

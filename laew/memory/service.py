@@ -212,12 +212,15 @@ class MemoryService:
                 (key,conversation['id'],start,max(ends),json.dumps({**(settings['extraction_model'] or selection),'manual':manual}),time.time()))
             return key
 
-    def process_extraction(self, conversations, provider_factory):
+    def process_extraction(self, conversations, provider_factory, *, telemetry=None):
         token=identifier(); now=time.time()
         with self.store.transaction() as db:
             job=db.execute("SELECT * FROM extraction_jobs WHERE status!='completed' AND lease_until<? AND retry_at<=? ORDER BY created_at LIMIT 1",(now,now)).fetchone()
             if not job: return False
             db.execute("UPDATE extraction_jobs SET status='running',lease_until=?,lease_token=?,attempts=attempts+1 WHERE id=?",(now+600,token,job['id']))
+        from laew.telemetry_observer import observe_generation, provider_label
+        trace = telemetry.start_run("memory_worker") if telemetry is not None else None
+        outcome = "failed"
         try:
             conversation=conversations.load_conversation(job['conversation_id'])
             complete={x.get('run_id') for x in conversation['events'] if x['kind']=='run' and x['status']=='completed'}
@@ -262,13 +265,15 @@ class MemoryService:
                         "confirmed":{"type":"boolean"},"operation":{"type":"string","enum":["create","update","duplicate"]},"target_id":{"type":["string","null"]}},
                         "required":["content","category","scope","event_id","evidence","confirmed","operation","target_id"],"additionalProperties":False}}},
                         "required":["candidates"],"additionalProperties":False}}
-                response=provider.generate_tools(messages,model,[definition])
+                response = observe_generation(trace, provider_label(provider, selection.get("provider")),
+                                              provider.generate_tools, messages, model, [definition])
                 if response.tool_calls:
                     if len(response.tool_calls)!=1 or response.tool_calls[0].name!='memory_candidates': raise ValueError('Unexpected extraction function.')
                     raw=response.tool_calls[0].arguments
                 else: raw=response.content
             else:
-                response=provider.generate(messages,model=model,temperature=0,max_tokens=4000)
+                response = observe_generation(trace, provider_label(provider, selection.get("provider")),
+                                              provider.generate, messages, model=model, temperature=0, max_tokens=4000)
                 raw=response.content
             payload=json.loads(raw)
             if not isinstance(payload,dict) or set(payload)!={'candidates'} or not isinstance(payload['candidates'],list) or len(payload['candidates'])>20: raise ValueError('Invalid extraction output.')
@@ -316,12 +321,19 @@ class MemoryService:
                             db.execute('UPDATE memory_sources SET memory_id=? WHERE proposal_id=?',(memory_id,key))
                 db.execute('INSERT INTO extraction_checkpoints VALUES(?,?) ON CONFLICT(conversation_id) DO UPDATE SET sequence=MAX(sequence,excluded.sequence)',(conversation['id'],processed_end))
                 db.execute("UPDATE extraction_jobs SET status='completed',lease_until=0,error=NULL WHERE id=? AND lease_token=?",(job['id'],token))
+            outcome = "completed"
             return True
         except Exception as exc:
             with self.store.transaction() as db:
                 db.execute("UPDATE extraction_jobs SET status='pending',lease_until=0,retry_at=?,error=? WHERE id=? AND lease_token=?",(time.time()+60,type(exc).__name__+': extraction failed',job['id'],token))
             self.last_error=type(exc).__name__+': extraction failed'
             return False
+        except KeyboardInterrupt:
+            outcome = "cancelled"
+            raise
+        finally:
+            if trace is not None:
+                trace.finish(outcome, {"failed": "internal_error", "cancelled": "cancelled"}.get(outcome))
 
     def status(self):
         chroma=False

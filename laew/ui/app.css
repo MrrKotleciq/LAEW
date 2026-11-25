@@ -160,6 +160,7 @@ a {color:var(--accent);text-underline-offset:3px;} code,pre {font-family:var(--m
 .settings-section {border-bottom:1px solid var(--line-soft);padding:16px 0 24px;max-width:950px;}
 .settings-section h2 {font-size:18px;}
 .settings-section p {font-size:12px;color:var(--muted);}
+#backup-settings-form input::placeholder, #backup-key.backup-placeholder {color:var(--muted);opacity:1;}
 .settings-form {display:grid;gap:10px;max-width:650px;}
 .settings-form label,.settings-form details label {display:flex;align-items:center;justify-content:space-between;gap:15px;}
 .settings-form input[type=checkbox] {min-height:18px;}

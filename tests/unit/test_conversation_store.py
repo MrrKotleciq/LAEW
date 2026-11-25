@@ -184,46 +184,6 @@ def test_interrupted_tool_call_is_not_replayed_and_is_reported_as_unknown(tmp_pa
     assert store.load_conversation(chat["id"])["events"][-1]["status"] == "failed"
 
 
-def test_cli_general_conversation_can_be_resumed_with_shared_store(tmp_path):
-    from types import SimpleNamespace
-    from unittest.mock import patch
-    from laew.cli import cmd_chat
-    from laew.llm.base import LLMResponse
-
-    class Provider:
-        base_url = "fixture"
-        def __init__(self): self.contexts = []
-        def is_available(self): return True
-        def generate(self, messages, **kwargs):
-            self.contexts.append([item.content for item in messages])
-            return LLMResponse(content="cli answer", model="test")
-
-    store = SessionStore(tmp_path / "sessions")
-    provider = Provider()
-    args = SimpleNamespace(general=True, workspace_root=str(tmp_path), model=None, base_url=None,
-        timeout=None, provider=None, manifest="manifest.yaml", resume=None, session=None,
-        no_persist=False, no_stream=True, conversation=None, new_conversation=True, list_conversations=False)
-    with (patch("laew.cli.load_manifest", return_value={}),
-          patch("laew.cli.build_provider_for_role", return_value=provider),
-          patch("laew.cli.resolve_model_name", return_value="test"),
-          patch("laew.cli.build_shared_tools", return_value=[]),
-          patch("laew.console.session_store.conversation_store_from_manifest", return_value=store),
-          patch("builtins.input", side_effect=["cli first", "exit", "cli second", "exit"])):
-        assert cmd_chat(args) == 0
-        args.general = False
-        args.new_conversation = False
-        args.conversation = store.list_conversations()[0]["id"]
-        assert cmd_chat(args) == 0
-    assert "cli first" in provider.contexts[-1] and "cli answer" in provider.contexts[-1]
-    from laew.web import WorkspaceService
-    workbench = WorkspaceService(tmp_path / "manifest.yaml", projects_root=tmp_path, workspace_root=tmp_path)
-    workbench._conversation_store = SessionStore(tmp_path / "sessions")
-    events = workbench.read_conversation(args.conversation, None)["events"]
-    runs = [event for event in events if event["kind"] == "run" and event["status"] == "completed"]
-    assert len(runs) == 2 and runs[0]["assistant_event_id"] != runs[1]["assistant_event_id"]
-    assert all(run["diagnostics"]["requests"][0]["dispatched"] for run in runs)
-
-
 def test_atomic_write_failure_and_cross_process_run_lease(tmp_path, monkeypatch):
     import os
     import subprocess

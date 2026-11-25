@@ -112,7 +112,31 @@ def cmd_tool(args: list, state: SessionState) -> int:
     from laew.console.permissions import console_broker, console_call
     project_root = getattr(getattr(tool, "resolver", None), "project_root", None) or getattr(tool, "workspace_root", None) or Path.cwd()
     broker = console_broker(state, Path(project_root))
-    result = console_call(broker, tool, operation, tool_kwargs, f"console-{id(state)}")
+    from laew.telemetry_observer import start_observed_run, finish_observed_run
+    from laew.telemetry_observer import _error_code
+    from time import perf_counter
+    from uuid import uuid4
+    trace = start_observed_run(getattr(state, "_telemetry_sink", None), "console", "project")
+    span, started = str(uuid4()), perf_counter()
+    if trace:
+        trace.emit("tool.started", status="started", span_id=span,
+                   parent_span_id=trace.span_id, tool=tool.name, operation=operation)
+    status, error, decision = "failed", "internal_error", "unknown"
+    try:
+        result = console_call(broker, tool, operation, tool_kwargs, f"console-{id(state)}")
+        status = "completed" if result.success else "failed"
+        error = None if result.success else _error_code(result.error_code)
+        if result.error_code == ErrorCode.ERR_UNAUTHORIZED:
+            decision = "denied"
+    except KeyboardInterrupt:
+        status, error = "cancelled", "cancelled"
+        raise
+    finally:
+        if trace:
+            trace.emit("tool.finished", status=status, error_code=error, span_id=span,
+                       parent_span_id=trace.span_id, tool=tool.name, operation=operation,
+                       decision=decision, duration_ms=(perf_counter() - started) * 1000)
+        finish_observed_run(trace, status, error)
 
     if result.success:
         print("[OK] operation succeeded")

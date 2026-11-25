@@ -7,6 +7,7 @@ from pathlib import Path, PurePosixPath
 
 LANGUAGES = {"en": "English", "pl": "Polish"}
 CONFIG_NAME = ".laew-project.json"
+PERMISSION_MODES = ("auto", "manual", "restricted")
 
 
 def validate_rag_source_allowlist(value: object) -> list[str]:

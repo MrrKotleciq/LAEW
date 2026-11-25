@@ -1,3 +1,14 @@
+---
+name: M17 Verification Snapshot
+title: M17 Verification Snapshot — 2026-10-28
+description: Historical M17 verification snapshot preceding the 2026-10-29 production acceptance.
+type: report
+scope: project
+status: historical
+read_when:
+  - tracing M17 fixture and recovery evidence before production acceptance
+---
+
 # M17 verification — 2026-10-28
 
 Historical status at this verification stage: **in progress**. M17 was completed

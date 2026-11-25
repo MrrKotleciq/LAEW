@@ -93,38 +93,31 @@ configuration schema, see `docs/INSTALL.md`.
 ## Configuration
 
 Provider configuration lives under `agent.llm.providers` in the system manifest
-(`manifests/SYSTEM_MANIFEST.yaml`) and can be overridden by environment variables
-and CLI flags:
+(`manifests/SYSTEM_MANIFEST.yaml`). Configure local provider overrides with
+`LAEW_TIMEOUT` and `LAEW_BASE_URL`, and select the provider and model in Workbench.
 
-- Environment: `LAEW_TIMEOUT` (request timeout in seconds), `LAEW_BASE_URL` (LLM
-  API base URL).
-- CLI: `laew chat --provider ollama --timeout 600 --model llama3.1`.
+## Operator CLI
 
-Precedence is **CLI flag > environment variable > manifest > provider default**.
-The provider selection is dispatch by manifest `provider.type` through the
-provider registry (`laew/llm/registry.py`).
-
-## Interactive Testing Console
-
-`laew console` provides an interactive REPL that drives the full runtime surface
-(tools, provider settings, agent loop, RAG, workflow, multi-agent, evaluation)
-in one persistent, exploratory session. Use `help` within the console to list commands.
+Start Workbench with `laew ui`. Use `laew check` to validate the configuration and
+`laew status --json` to diagnose readiness; use `laew --help` to discover the
+telemetry, backup, recovery and retention commands. The former REPL and direct
+execution commands were retired from the public CLI.
 
 ## Project Status
 
-Milestones 1–17 are complete. See the [project status](docs/PROJECT_STATUS.md)
-for current work and dated validation results.
+See the [project status](docs/PROJECT_STATUS.md) for implementation and validation
+through M18. [Unattended Windows backup qualification](docs/roadmap/BACKLOG.md#windows-backup-worker-bw-07bw-08)
+remains deferred.
 
 The repository implements:
 - Declarative foundation with system manifest and tool contracts
 - Tool runtime wrappers with programmatic security
 - CLI, LLM provider abstraction, context budgeting, and agent orchestration
-- Interactive Testing Console REPL for exploratory testing (Milestone 12)
 - RAG system with embeddings, vector store, knowledge base, and retrieval pipeline
 - Persistent knowledge store backed by ChromaDB in Docker (falls back to in-memory store when unavailable)
 - Provider registry + factory with timeout/base_url configuration (Milestone 11)
 - PEP 621 packaging via `pyproject.toml` with install guides (Milestone 11)
-- Workbench and CLI knowledge routing with scoped source selection and long-term memory
+- Workbench knowledge routing with scoped source selection and long-term memory
 - Optional memory sufficiency assessment and advisory Horizon NLI
 
 See [retrieval reliability evaluation](docs/retrieval-reliability-evaluation.md),
@@ -153,9 +146,13 @@ python scripts/run_isolated.py --keep-diagnostics eval laew.eval.knowledge_routi
 It checks TCP loopback access before pytest starts because HTTP integration
 tests start their own servers on ephemeral `127.0.0.1` ports. If the check
 fails in a managed sandbox, rerun the same command with loopback access.
+Writable Workbench subprocess tests pass a fixture `--manifest` with
+`memory.session.storage` inside the test directory. Backup and restore tests
+likewise use fixture profiles and destinations.
 
 Evaluators start in the run's `work` directory with copies of the evaluation
-fixtures and manifests. Use a relative output path such as `memory.json`.
+fixtures and manifests. Their scratch databases use the run's temporary storage.
+Use a relative output path such as `memory.json`.
 `--output` must resolve inside `work` and cannot contain `..`. Use absolute
 paths for inputs outside the copied fixtures.
 
@@ -167,5 +164,11 @@ open handle, unexpected link, or changed entry can stop cleanup. The runner
 prints the path to whatever remains. A conflict during deletion can leave a
 partially cleaned tree.
 On Unix, automatic cleanup requires `lsof` to check for open files.
+
+The standalone M17, knowledge-preparation and cloud smoke validators also use
+fresh temporary workspaces. Pass `--keep-diagnostics` to keep a report and its
+workspace for inspection. For the M17 browser check, pass the workspace path
+printed by `validate_m17.py --run --keep-diagnostics` to
+`validate_m17_browser.py`.
 
 See `docs/ROADMAP.md` for the development roadmap and future milestones.

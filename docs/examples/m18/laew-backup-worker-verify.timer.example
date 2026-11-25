@@ -1,0 +1,10 @@
+[Unit]
+Description=Run the LAEW backup verification template
+
+[Timer]
+OnCalendar=daily
+Persistent=false
+WakeSystem=false
+Unit=laew-backup-worker-verify.service
+
+# Intentionally no [Install] section. This is an inactive example.

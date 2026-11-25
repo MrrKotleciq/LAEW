@@ -30,23 +30,17 @@ Accepted
 Tool calling failures are difficult to diagnose without visibility into what was called, with what arguments, and what result was returned. When an agent misuses a tool or a tool returns unexpected output, the absence of structured logs forces guesswork.
 
 ## Decision
-All tool invocations must produce structured logs containing at minimum:
-- **Timestamp**: When the invocation occurred.
-- **Tool name**: Which tool was called.
-- **Arguments**: What parameters were passed.
-- **Result**: What output or error was returned.
-- **Duration**: How long the invocation took.
-- **Status**: Success, failure, or timeout.
+All tool invocations must produce structured audit logs containing the timestamp, approved tool and operation labels, argument shape, duration and outcome. The M18 privacy decision retains the existing top-level JSONL fields. `arguments` records bounded top-level type counts. Unknown tool and operation labels become `UNKNOWN`. `error_code` contains an approved code or null, and `error_message` is null. `status` and `success` distinguish completion from failure, with timeout identified by its approved error code. The subsequent operator CLI removed the direct `laew tool --log` command. The format remains applicable to existing exports and the tool audit logger.
 
-Logs must be accessible for debugging and stored in a location separate from project source files.
+The audit record excludes argument names and values, result contents and exception text. The invoking tool caller retains its existing response under the current access rules. Keep audit files in operator-controlled storage separate from project source files. Retained run telemetry requires explicit opt-in. See the [M18 decision register](../reports/M18_IMPLEMENTATION_READINESS_AND_PLAN_20261118.md#p01-progress-and-decision-register).
 
 ## Consequences
 ### Positive
-- Tool calling problems can be diagnosed by inspecting actual invocations.
+- Tool calling problems can be diagnosed using the recorded operation, outcome and argument types.
 - Performance bottlenecks are visible through duration tracking.
 - Error patterns become identifiable across sessions.
 
 ### Negative
 - Log storage consumes disk space over time.
 - Requires log rotation or archival strategy for long-running systems.
-- Sensitive arguments (paths, query content) must be handled carefully if logs are shared.
+- Older audit files may contain sensitive content and remain private.

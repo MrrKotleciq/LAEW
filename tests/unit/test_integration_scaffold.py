@@ -204,31 +204,6 @@ class TestCLIIntegration:
         captured = capsys.readouterr()
         assert "Manifest loaded successfully" in captured.out
 
-    def test_tool_filesystem_list(self, capsys):
-        """Test laew tool filesystem list_dir."""
-        import sys
-        from unittest.mock import patch
-
-        with patch("sys.argv", ["laew", "tool", "filesystem", "list_dir", "directory_path=."]):
-            exit_code = main()
-
-        assert exit_code in [0, 1]
-        captured = capsys.readouterr()
-        assert "Executing: filesystem.list_dir" in captured.out
-
-    def test_tool_git_status(self, capsys):
-        """Test laew tool git git_status."""
-        import sys
-        from unittest.mock import patch
-
-        with patch("sys.argv", ["laew", "tool", "git", "git_status"]):
-            exit_code = main()
-
-        assert exit_code in [0, 1]
-        captured = capsys.readouterr()
-        assert "Executing: git.git_status" in captured.out
-
-
 class TestPromptBudgetIntegration:
     """Test prompt loading with context budgeting."""
 

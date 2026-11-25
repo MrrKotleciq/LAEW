@@ -73,6 +73,21 @@ def validate_manifest(manifest: dict[str, Any]) -> None:
                 f"Manifest key '{key}' must be a YAML mapping."
             )
 
+    if "telemetry" in manifest:
+        telemetry = manifest["telemetry"]
+        if not isinstance(telemetry, dict):
+            raise ManifestError("Manifest key 'telemetry' must be a YAML mapping.")
+        if set(telemetry) - {"enabled", "root"}:
+            raise ManifestError("Manifest key 'telemetry' contains unknown options.")
+        enabled = telemetry.get("enabled", False)
+        root = telemetry.get("root")
+        if not isinstance(enabled, bool):
+            raise ManifestError("Manifest key 'telemetry.enabled' must be a boolean.")
+        if root is not None and (not isinstance(root, str) or not Path(root).is_absolute()):
+            raise ManifestError("Manifest key 'telemetry.root' must be an absolute path.")
+        if enabled and not root:
+            raise ManifestError("Enabled telemetry requires an absolute root.")
+
     workspace = manifest["workspace"]
 
     required_workspace_keys = {

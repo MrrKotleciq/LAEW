@@ -133,7 +133,7 @@ def evaluate(cases, settings, *, horizon=False, additional_assessors=()):
     """Evaluate the fixtures. API callers can explicitly inject comparison assessors."""
     import chromadb
     import laew.rag.vector_store as vector_store
-    with tempfile.TemporaryDirectory(prefix='.memory-eval-', dir='.') as folder:
+    with tempfile.TemporaryDirectory(prefix='laew-memory-eval-') as folder:
         root = Path(folder).resolve()
         vault, projects = root / 'knowledge', root / 'projects'
         vault.mkdir(); projects.mkdir()

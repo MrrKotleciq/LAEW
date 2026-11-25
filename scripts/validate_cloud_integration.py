@@ -8,7 +8,6 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
-import tempfile
 from http.server import ThreadingHTTPServer
 
 import yaml
@@ -19,6 +18,11 @@ from laew.rag.sync import synchronize_scope
 from laew.runtime import build_shared_tools
 from laew.security.permissions import PermissionBroker
 from laew.web import WorkspaceService, make_handler
+
+if __package__:
+    from ._validation_workspace import validation_workspace
+else:
+    from _validation_workspace import validation_workspace
 
 
 class FixtureEmbedding:
@@ -43,14 +47,11 @@ def main():
     parser.add_argument("--provider", required=True, choices=["chatgpt", "openai-api", "gemini"])
     parser.add_argument("--model", required=True)
     parser.add_argument("--serve", action="store_true")
+    parser.add_argument("--keep-diagnostics", action="store_true", help="Retain this temporary workspace")
     args = parser.parse_args()
-    app = Path(__file__).resolve().parents[1]
-    root = app / "runtime" / "cloud-validation"
-    root.mkdir(parents=True, exist_ok=True)
     protected = [Path("C:/ROOT/Knowledge"), Path("C:/ROOT/Projects/Studia")]
     before = resource_digest(protected)
-    with tempfile.TemporaryDirectory(prefix="live-", dir=root) as temporary:
-        workspace = Path(temporary)
+    with validation_workspace(args.keep_diagnostics) as workspace:
         projects, vault = workspace / "Projects", workspace / "Knowledge"
         project = projects / "CloudIntegrationFixture"
         project.mkdir(parents=True); vault.mkdir()
@@ -59,7 +60,7 @@ def main():
         manifest = {"version": "1.0", "system_name": "isolated-smoke", "stage": "test",
             "workspace": {"root": str(project), "allowed_paths": [str(project)], "restricted_paths": [], "ignored_patterns": []},
             "models": {"roles": {"primary": {}, "embedding": {}, "reviewer": {}}},
-            "memory": {"session": {}, "second_brain": {}},
+            "memory": {"session": {"storage": str(workspace / "runtime" / "sessions")}, "second_brain": {}},
             "tools": {"categories": {"filesystem": {"policy": "read_only_by_default"},
                 "git": {"enabled": False, "policy": "inspection_first"},
                 "terminal": {"enabled": False, "policy": "safe_command_allowlist", "allowlist": []},

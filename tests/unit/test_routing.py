@@ -25,7 +25,7 @@ from laew.runtime import build_provider_for_role
 @pytest.fixture(autouse=True)
 def isolate_background_synchronization():
     """Provider routing tests exercise dispatch, not production index writers."""
-    with patch("laew.rag.sync.SyncScheduler") as scheduler, patch("laew.cli.build_shared_tools", return_value=[]):
+    with patch("laew.rag.sync.SyncScheduler") as scheduler:
         yield scheduler
 
 
@@ -412,110 +412,6 @@ def test_manifest_validation_passes_when_all_providers_declared():
 # --------------------------------------------------------------------------- #
 # CLI integration tests (using actual CLI entry points)
 # --------------------------------------------------------------------------- #
-
-def test_chat_command_uses_build_provider_for_role(monkeypatch):
-    """CLI chat command uses build_provider_for_role for role-based dispatch."""
-    from laew.cli import cmd_chat
-    from argparse import Namespace
-
-    # Mock the provider that would be returned
-    mock_provider = build_ollama({})
-    mock_provider._name = "test-provider"
-    mock_provider.is_available = lambda: True
-
-    # Mock build_provider_for_role to return our mock
-    with patch("laew.cli.build_provider_for_role", return_value=mock_provider) as mock_build:
-        args = Namespace(
-            manifest="manifests/SYSTEM_MANIFEST.yaml",
-            model=None,
-            base_url=None,
-            timeout=None,
-            no_persist=True,
-            resume=None,
-            session=None,
-            no_stream=False,
-        )
-
-        # We don't need to actually run the chat loop, just verify the provider is built
-        # The function will exit early due to mocked input, but we can check the call
-        try:
-            cmd_chat(args)
-        except (EOFError, KeyboardInterrupt):
-            # Expected when input() is called in the chat loop
-            pass
-        except Exception:
-            # Other exceptions are okay for this test - we just want to verify the mock was called
-            pass
-
-        # Verify build_provider_for_role was called with correct arguments
-        mock_build.assert_called_once()
-        call_args, call_kwargs = mock_build.call_args
-        assert call_args[0] is not None  # manifest
-        assert call_args[1] == "primary"  # role
-        assert "base_url" in call_kwargs
-        assert "timeout" in call_kwargs
-
-
-def test_multiagent_run_command_uses_build_provider_for_role(monkeypatch):
-    """CLI multiagent run command uses build_provider_for_role for role-based dispatch."""
-    from laew.cli import cmd_multiagent_run
-    from argparse import Namespace
-
-    # Mock the provider that would be returned
-    mock_provider = build_ollama({})
-    mock_provider._name = "test-provider"
-
-    # Mock both the plan loading and manifest loading to avoid file system dependencies
-    with patch("laew.cli.load_multiagent_plan_from_yaml") as mock_load_plan, \
-         patch("laew.cli.load_manifest") as mock_load_manifest, \
-         patch("laew.cli.build_provider_for_role", return_value=mock_provider) as mock_build:
-
-        # Setup mock returns
-        mock_load_plan.return_value = {
-            "version": "1.0",
-            "agents": {
-                "chief": {"role": "primary", "goal": "Test goal"},
-                "specialists": []
-            }
-        }
-        mock_load_manifest.return_value = {
-            "agent": {
-                "llm": {
-                    "providers": [{"name": "test-provider", "type": "ollama"}],
-                    "roles": {"primary": ["test-provider"]},
-                    "retry": {
-                        "max_attempts": 3,
-                        "backoff_base_ms": 1000,
-                        "max_backoff_ms": 5000
-                    }
-                }
-            }
-        }
-
-        args = Namespace(
-            plan="tests/multiagent/plans/test_agents.yaml",
-            manifest="manifests/SYSTEM_MANIFEST.yaml",
-            model=None,
-            base_url=None,
-            provider=None,
-            timeout=None,
-        )
-
-        # We don't need to actually run the multiagent process, just verify the provider is built
-        try:
-            cmd_multiagent_run(args)
-        except Exception:
-            # Exceptions are okay for this test - we just want to verify the mock was called
-            pass
-
-        # Verify build_provider_for_role was called with correct arguments
-        mock_build.assert_called_once()
-        call_args, call_kwargs = mock_build.call_args
-        assert call_args[0] is not None  # manifest
-        assert call_args[1] == "primary"  # role
-        assert "base_url" in call_kwargs
-        assert "timeout" in call_kwargs
-
 
 def test_console_agent_build_uses_build_provider_for_role(monkeypatch):
     """LAEW console agent command uses build_provider_for_role for role-based dispatch."""

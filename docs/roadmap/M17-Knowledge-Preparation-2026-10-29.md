@@ -1,13 +1,13 @@
 ---
 name: M17 Knowledge Organization Verification
-description: Production acceptance after approved Polish knowledge deployment, with the historical preparation record.
+description: M17 completion and production acceptance on 2026-10-29 following approved Polish knowledge deployment.
 title: M17 Knowledge Organization Verification — 2026-10-29
 type: report
 scope: project
 status: active
 read_when:
-  - reviewing the prepared knowledge package before production approval
-  - checking the remaining M17 completion requirement
+  - verifying the approved M17 deployment and milestone completion
+  - reviewing the historical preparation record and acceptance evidence
 ---
 
 # M17 knowledge organization verification — 2026-10-29

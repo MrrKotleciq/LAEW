@@ -24,7 +24,7 @@ jobs:
           pip install -e .[dev]
       - name: Run tests
         run: |
-          pytest -v
+          python scripts/run_isolated.py pytest-offline
       - name: Security scan (bandit)
         run: |
           python -m pip install --quiet bandit

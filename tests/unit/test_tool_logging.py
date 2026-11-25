@@ -1,189 +1,134 @@
-"""Tests for tool invocation logging (ADR-016)."""
+"""Tests for privacy-preserving tool invocation logging (ADR-016)."""
 
-import json
 import io
-import tempfile
-from pathlib import Path
+import json
+import logging
 
 import pytest
 
-from laew.tools.base import (
-    Tool,
-    ToolResult,
-    ErrorCode,
-    configure_tool_logger,
-    get_tool_logger,
-)
+import laew.tools.base as base
+from laew.tools.base import ErrorCode, Tool, ToolLogger, ToolResult, configure_tool_logger
 from laew.tools.filesystem import FilesystemTool
 
 
 class DummyTool(Tool):
-    """Dummy tool for testing logging."""
+    def validate(self, operation, **kwargs):
+        return (False, "validation SECRET_MESSAGE") if operation == "fail" else (True, None)
 
-    def validate(self, operation: str, **kwargs) -> tuple[bool, Optional[str]]:
-        if operation == "fail":
-            return False, "Test failure"
-        return True, None
-
-    def execute(self, operation: str, **kwargs) -> ToolResult:
-        if operation == "fail":
-            return ToolResult.error(
-                ErrorCode.ERR_INVALID_INPUT, "Test failure"
-            )
-        elif operation == "success":
-            return ToolResult.ok(data={"result": "success"})
-        else:
-            return ToolResult.error(
-                ErrorCode.ERR_INVALID_INPUT, f"Unknown operation: {operation}"
-            )
+    def execute(self, operation, **kwargs):
+        return ToolResult.ok({"response": "SECRET_RESPONSE"})
 
 
-def test_tool_logging_success():
-    """Test that successful tool invocations are logged."""
-    # Create string buffer to capture logs
-    log_buffer = io.StringIO()
-
-    # Configure logger to use our buffer
-    configure_tool_logger(output=log_buffer)
-
-    # Create and use dummy tool
-    tool = DummyTool()
-    tool.approve()  # Bypass approval for testing
-
-    result = tool.call("success", test_arg="test_value")
-
-    # Verify result
-    assert result.success
-    assert result.data["result"] == "success"
-
-    # Get log output
-    log_output = log_buffer.getvalue().strip()
-    assert log_output
-
-    # Parse JSON log entry
-    log_entry = json.loads(log_output)
-
-    # Verify log structure
-    assert log_entry["tool"] == "DummyTool"
-    assert log_entry["operation"] == "success"
-    assert log_entry["arguments"]["test_arg"] == "test_value"
-    assert log_entry["success"] is True
-    assert log_entry["error_code"] is None
-    assert log_entry["error_message"] is None
-    assert log_entry["status"] == "SUCCESS"
-    assert isinstance(log_entry["duration_ms"], int)
-    assert log_entry["duration_ms"] >= 0
-    assert "timestamp" in log_entry
+@pytest.fixture(autouse=True)
+def restore_global_logger(monkeypatch):
+    monkeypatch.setattr(base, "_tool_logger", base._tool_logger)
 
 
-def test_tool_logging_failure():
-    """Test that failed tool invocations are logged."""
-    # Create string buffer to capture logs
-    log_buffer = io.StringIO()
-
-    # Configure logger to use our buffer
-    configure_tool_logger(output=log_buffer)
-
-    # Create and use dummy tool
-    tool = DummyTool()
-    tool.approve()  # Bypass approval for testing
-
-    result = tool.call("fail", test_arg="test_value")
-
-    # Verify result
-    assert not result.success
-    assert result.error_code == ErrorCode.ERR_INVALID_INPUT
-    assert result.error_message == "Test failure"
-
-    # Get log output
-    log_output = log_buffer.getvalue().strip()
-    assert log_output
-
-    # Parse JSON log entry
-    log_entry = json.loads(log_output)
-
-    # Verify log structure
-    assert log_entry["tool"] == "DummyTool"
-    assert log_entry["operation"] == "fail"
-    assert log_entry["arguments"]["test_arg"] == "test_value"
-    assert log_entry["success"] is False
-    assert log_entry["error_code"] == ErrorCode.ERR_INVALID_INPUT
-    assert log_entry["error_message"] == "Test failure"
-    assert log_entry["status"] == "FAILURE"
-    assert isinstance(log_entry["duration_ms"], int)
-    assert log_entry["duration_ms"] >= 0
-    assert "timestamp" in log_entry
+EMPTY_SHAPE = {"null": 0, "bool": 0, "number": 0, "string": 0,
+               "mapping": 0, "array": 0, "other": 0}
 
 
-def test_tool_logging_argument_sanitization():
-    """Test that sensitive arguments are sanitized in logs."""
-    # Create string buffer to capture logs
-    log_buffer = io.StringIO()
+@pytest.mark.parametrize("operation,success", [("success", True), ("fail", False)])
+def test_real_logging_and_stream_exclude_content(caplog, operation, success):
+    stream = io.StringIO()
+    configure_tool_logger(output=stream)
+    with caplog.at_level(logging.INFO, logger="laew.tools"):
+        result = DummyTool().call(operation, plaintext="SECRET_PLAINTEXT", nested={"SECRET_KEY": ["SECRET_NESTED"]})
 
-    # Configure logger to use our buffer
-    configure_tool_logger(output=log_buffer)
-
-    # Create and use dummy tool
-    tool = DummyTool()
-    tool.approve()  # Bypass approval for testing
-
-    result = tool.call(
-        "success",
-        normal_arg="visible",
-        password="secret123",
-        api_key="key_abc",
-        long_string="x" * 300
-    )
-
-    # Get log output
-    log_output = log_buffer.getvalue().strip()
-    assert log_output
-
-    # Parse JSON log entry
-    log_entry = json.loads(log_output)
-
-    # Verify sanitization
-    assert log_entry["arguments"]["normal_arg"] == "visible"
-    assert log_entry["arguments"]["password"] == "[REDACTED]"
-    assert log_entry["arguments"]["api_key"] == "[REDACTED]"
-    assert "...[TRUNCATED]" in log_entry["arguments"]["long_string"]
-    assert len(log_entry["arguments"]["long_string"]) <= 213  # 200 + "...[TRUNCATED]"
+    assert result.success is success
+    if success:
+        assert result.data == {"response": "SECRET_RESPONSE"}
+    else:
+        assert result.error_message == "validation SECRET_MESSAGE"
+        assert result.error_code == ErrorCode.ERR_INVALID_INPUT
+    assert len(caplog.records) == 1
+    assert stream.getvalue().strip() == caplog.records[0].getMessage()
+    text = stream.getvalue()
+    assert "SECRET" not in text
+    entry = json.loads(text)
+    assert set(entry) == {"timestamp", "tool", "operation", "arguments", "success", "error_code", "error_message", "duration_ms", "status"}
+    assert entry["tool"] == "UNKNOWN"
+    assert entry["operation"] == "UNKNOWN"
+    assert entry["arguments"] == EMPTY_SHAPE | {"string": 1, "mapping": 1}
+    assert entry["success"] is success
+    assert entry["status"] == ("SUCCESS" if success else "FAILURE")
+    assert entry["error_code"] == (None if success else "ERR_INVALID_INPUT")
+    assert entry["error_message"] is None
+    assert isinstance(entry["duration_ms"], int) and entry["duration_ms"] >= 0
 
 
-def test_real_tool_logging_filesystem():
-    """Test that real filesystem tools produce logs."""
-    # Create string buffer to capture logs
-    log_buffer = io.StringIO()
-
-    # Configure logger to use our buffer
-    configure_tool_logger(output=log_buffer)
-
-    # Use real filesystem tool
+def test_real_tool_preserves_allowed_labels():
+    stream = io.StringIO()
+    configure_tool_logger(output=stream)
     tool = FilesystemTool()
-    tool.approve()  # Bypass approval for testing
-
-    # Test successful operation
     result = tool.call("view_file", file_path="README.md")
-
-    # Verify we get a result (might fail if file doesn't exist, but should still log)
-    # The important part is that logging happened
-
-    # Get log output
-    log_output = log_buffer.getvalue().strip()
-    assert log_output
-
-    # Parse JSON log entry
-    log_entry = json.loads(log_output)
-
-    # Verify log structure
-    assert log_entry["tool"] == "FilesystemTool"
-    assert log_entry["operation"] == "view_file"
-    assert log_entry["arguments"]["file_path"] == "README.md"
-    assert "timestamp" in log_entry
-    assert isinstance(log_entry["duration_ms"], int)
-    assert log_entry["duration_ms"] >= 0
-    assert log_entry["status"] in ["SUCCESS", "FAILURE"]
+    assert result.success
+    entry = json.loads(stream.getvalue())
+    assert entry["tool"] == "FilesystemTool"
+    assert entry["operation"] == "view_file"
+    assert entry["arguments"] == EMPTY_SHAPE | {"string": 1}
+    assert "README.md" not in stream.getvalue()
 
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+@pytest.mark.parametrize("tool,operation,code", [
+    ("SECRET_TOOL", "SECRET_OPERATION", "SECRET_CODE"),
+    ("FilesystemTool", "SECRET_OPERATION", "SECRET_CODE"),
+    ("FilesystemTool", "git_status", "SECRET_CODE"),
+    (["SECRET_TOOL"], {"SECRET_OPERATION": 1}, {"SECRET_CODE": 1}),
+])
+def test_custom_and_malformed_labels_never_reach_either_sink(caplog, tool, operation, code):
+    stream = io.StringIO()
+    logger = ToolLogger(output=stream)
+    with caplog.at_level(logging.INFO, logger="laew.tools"):
+        logger.log_invocation(tool, operation, {"SECRET_KEY": {"nested": "SECRET_VALUE"}},
+                              ToolResult.error(code, "SECRET_ERROR"), 1)
+    assert len(caplog.records) == 1
+    assert caplog.records[0].getMessage() == stream.getvalue().strip()
+    assert "SECRET" not in stream.getvalue()
+    entry = json.loads(stream.getvalue())
+    assert entry["tool"] == ("FilesystemTool" if tool == "FilesystemTool" else "UNKNOWN")
+    assert entry["operation"] == "UNKNOWN"
+    assert entry["error_code"] is None
+    assert entry["error_message"] is None
+    assert entry["arguments"] == EMPTY_SHAPE | {"mapping": 1}
+
+
+def test_argument_shape_is_fixed_bounded_and_does_not_inspect_nested_values():
+    stream = io.StringIO()
+    logger = ToolLogger(output=stream)
+    logger.log_invocation("GitTool", "git_status", {}, ToolResult.ok(), 0)
+    logger.log_invocation("GitTool", "git_diff", {
+        "a": None, "b": True, "c": 3, "d": 1.5, "e": "SECRET",
+        "f": {"SECRET": "SECRET"}, "g": ["SECRET"], "h": object(),
+    }, ToolResult.ok(), 0)
+    logger.log_invocation("GitTool", "git_diff", {str(i): "SECRET" for i in range(150)}, ToolResult.ok(), 0)
+    lines = stream.getvalue().splitlines()
+    assert "SECRET" not in stream.getvalue()
+    assert json.loads(lines[0])["arguments"] == EMPTY_SHAPE
+    assert json.loads(lines[1])["arguments"] == {
+        "null": 1, "bool": 1, "number": 2, "string": 1,
+        "mapping": 1, "array": 1, "other": 1,
+    }
+    assert json.loads(lines[2])["arguments"] == EMPTY_SHAPE | {"string": 100}
+
+
+def test_allowed_operation_labels_match_builtin_schemas():
+    from laew.knowledge.tool import KnowledgeProposalTool
+    from laew.memory.tool import MemoryTool
+    from laew.rag.rag_tool import RagTool
+    from laew.tools.git import GitTool
+    from laew.tools.terminal import TerminalTool
+    from laew.tools.web import WebTool
+
+    for cls in (FilesystemTool, GitTool, TerminalTool, WebTool, RagTool,
+                MemoryTool, KnowledgeProposalTool):
+        assert base._LOG_OPERATIONS[cls.__name__] == set(cls.operations)
+
+
+@pytest.mark.parametrize("code", ["ERR_RAG_FAILURE", "ERR_INVALID_OPERATION",
+                                    "ERR_MEMORY_DISABLED", "ERR_MEMORY_UNAVAILABLE", "ERR_MEMORY_RECALL"])
+def test_known_tool_specific_error_codes_are_retained(code):
+    stream = io.StringIO()
+    ToolLogger(output=stream).log_invocation("MemoryTool", "recall", {}, ToolResult.error(code, "SECRET"), 0)
+    assert json.loads(stream.getvalue())["error_code"] == code
+    assert "SECRET" not in stream.getvalue()

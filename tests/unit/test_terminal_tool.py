@@ -239,7 +239,7 @@ def _normalize_pwd_output(stdout: str) -> str:
     to the OS temp directory so both forms compare equal.
     """
     path_str = stdout.strip()
-    if path_str.startswith("/tmp/"):
+    if os.name == "nt" and path_str.startswith("/tmp/"):
         path_str = os.path.join(tempfile.gettempdir(), path_str[len("/tmp/"):])
     return os.path.normcase(os.path.normpath(path_str))
 

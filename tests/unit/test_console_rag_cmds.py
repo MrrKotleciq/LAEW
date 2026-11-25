@@ -55,7 +55,7 @@ def test_build_pipeline_resolves_manifest_knowledge_alias_to_shared_root(tmp_pat
 
     _, kwargs = knowledge_base.call_args
     assert Path(kwargs["project_root"]) == project.resolve()
-    assert Path(kwargs["knowledge_root"]) == (tmp_path / "Knowledge").resolve()
+    assert Path(kwargs["knowledge_root"]) == (tmp_path / "KNOWLEDGE").resolve()
     knowledge_base.assert_called_once()
 
 
@@ -177,7 +177,7 @@ def test_manifest_project_source_allowlist_keeps_scopes_separate(state):
     config = _manifest_rag_config(state.load_manifest(), state)
     allowlist = config["project_source_allowlist"]
     assert Path(config["project_root"]).resolve() == Path.cwd().resolve()
-    assert Path(config["knowledge_root"]).resolve() == Path(r"C:\ROOT\Knowledge")
+    assert Path(config["knowledge_root"]).resolve() == (Path.cwd().resolve().parent.parent / "KNOWLEDGE").resolve()
     assert "README.md" in allowlist
     assert "docs/decisions/ADR-011-project-memory-vs-global-knowledge-separation.md" in allowlist
     assert "knowledge/**/*.md" in allowlist

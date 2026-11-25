@@ -127,6 +127,9 @@ class GitTool(Tool):
             if forbidden in cmd_str:
                 raise PermissionError(f"Forbidden git subcommand: {forbidden}")
 
+        from laew.security.protected_profile import requires_isolation, run_project_process
+        if requires_isolation():
+            return run_project_process(["git", *args], cwd=self.repo_root, timeout=30)
         import os
         env = os.environ.copy()
         env["LC_ALL"] = "C"

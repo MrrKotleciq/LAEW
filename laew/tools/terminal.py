@@ -207,15 +207,19 @@ class TerminalTool(Tool):
                 )
 
             # Subprocess execution
-            process = subprocess.run(
-                argv,
-                shell=False,
-                cwd=cwd_str,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                timeout=timeout_ms / 1000.0
-            )
+            from laew.security.protected_profile import requires_isolation, run_project_process
+            if requires_isolation():
+                process = run_project_process(argv, cwd=actual_cwd, timeout=timeout_ms / 1000.0)
+            else:
+                process = subprocess.run(
+                    argv,
+                    shell=False,
+                    cwd=cwd_str,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                    timeout=timeout_ms / 1000.0
+                )
 
             duration_ms = int((time.time() - start_time) * 1000)
 

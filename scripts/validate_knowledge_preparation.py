@@ -12,7 +12,6 @@ import os
 import shutil
 import subprocess
 import sys
-import tempfile
 import threading
 import uuid
 from http.server import ThreadingHTTPServer
@@ -27,7 +26,13 @@ from laew.rag.identity import project_collection_name
 from laew.rag.sync import synchronize_scope
 from laew.runtime import build_rag_tool
 from laew.web import WorkspaceService, make_handler
-from scripts.validate_m17 import free_port, wait_http
+
+if __package__:
+    from ._validation_workspace import validation_workspace
+    from .validate_m17 import free_port, wait_http
+else:
+    from _validation_workspace import validation_workspace
+    from validate_m17 import free_port, wait_http
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -50,6 +55,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run", action="store_true")
     parser.add_argument("--model", action="store_true")
+    parser.add_argument("--keep-diagnostics", action="store_true", help="Retain this temporary workspace")
     parser.add_argument("--project", type=Path, default=ROOT.parent / "Studia")
     parser.add_argument("--candidates", type=Path,
                         default=ROOT / "runtime/knowledge-preparation-2026-10-29/Global-Knowledge")
@@ -60,9 +66,12 @@ def main():
     candidates = args.candidates.resolve(strict=True)
     if not project.is_dir() or not candidates.is_dir():
         parser.error("Project and candidate paths must be directories.")
+    with validation_workspace(args.keep_diagnostics) as base:
+        validate(args, base, project, candidates)
+
+
+def validate(args, base, project, candidates):
     # Copy inputs before opening any database; never point the test at a real vault.
-    base = ROOT / "runtime" / ("knowledge-validation-" + uuid.uuid4().hex[:12])
-    base.mkdir(parents=True)
     vault = base / "Knowledge"
     shutil.copytree(candidates, vault)
     projects = base / "Projects"
@@ -85,12 +94,7 @@ def main():
     (other / "README.md").write_text("PID OTHER-PROJECT-ONLY fixture", encoding="utf-8")
     project_before = snapshot(project)
     candidate_before = snapshot(candidates)
-    locks = base / "locks"
-    locks.mkdir()
-    for key in ("TEMP", "TMP", "TMPDIR"):
-        os.environ[key] = str(locks)
-    tempfile.tempdir = str(locks)
-    for key in ("LAEW_BASE_URL", "LAEW_TIMEOUT", "LAEW_WORKSPACE_ROOT"):
+    for key in ("LAEW_BASE_URL", "LAEW_TIMEOUT"):
         os.environ.pop(key, None)
     chroma_port, web_port = free_port(), free_port()
     while chroma_port == web_port:
@@ -103,6 +107,7 @@ def main():
     if cfg["port"] in {8000, 8080, 8081, 8765} or cfg["global_collection"] == "laew_global":
         raise RuntimeError("Refusing production service configuration.")
     manifest_path = base / "manifest.yaml"
+    manifest["memory"]["session"]["storage"] = str(base / "runtime" / "sessions")
     manifest_path.write_text(yaml.safe_dump(manifest, allow_unicode=True), encoding="utf-8")
     chroma_exe = Path(sys.executable).with_name("chroma.exe" if os.name == "nt" else "chroma")
     report = {"workspace": str(base), "project": str(project), "project_settings": load_project_settings(project),

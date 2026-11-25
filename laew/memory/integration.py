@@ -1,11 +1,11 @@
 """Shared memory composition and one bounded, lifecycle-managed worker."""
-import hashlib
 import logging
 import os
 import threading
 from pathlib import Path
 from .store import MemoryStore
 from .service import MemoryService
+from laew.storage_paths import memory_collection_name, memory_storage_path
 
 log = logging.getLogger(__name__)
 
@@ -16,7 +16,8 @@ def build_memory(manifest, manifest_path):
     from laew.rag.vector_store import ChromaVectorStore
     from laew.rag.embedding import embedding_model_identity
     sessions=conversation_store_from_manifest(manifest, manifest_path)
-    path=Path(os.environ['LAEW_MEMORY_STORAGE']) if os.environ.get('LAEW_MEMORY_STORAGE') else sessions.directory.parent/'memory'/'memory.db'
+    storage_override = os.environ.get('LAEW_MEMORY_STORAGE')
+    path=memory_storage_path(sessions.directory, storage_override)
     store=MemoryStore(path)
     embedding=None
     def embed():
@@ -26,7 +27,7 @@ def build_memory(manifest, manifest_path):
             if hasattr(embedding,'timeout'): embedding.timeout=min(embedding.timeout,3)
         return embedding
     config=manifest.get('rag',{}).get('vector_store',{})
-    collection_name=('laew_ltm_'+hashlib.sha256(str(path.resolve()).encode()).hexdigest()[:16]) if os.environ.get('LAEW_MEMORY_STORAGE') else 'laew_long_term_memory'
+    collection_name = memory_collection_name(storage_override)
     def index(*, read_only=False):
         if not config.get('enabled'): raise RuntimeError('ChromaDB is disabled in the manifest.')
         return ChromaVectorStore(host=config.get('host','localhost'),port=int(config.get('port',8000)),
@@ -61,8 +62,9 @@ def extraction_provider(manifest, selection, cloud=None):
 
 
 class MemoryWorker:
-    def __init__(self, service, conversations, provider_factory):
+    def __init__(self, service, conversations, provider_factory, *, telemetry=None):
         self.service=service; self.conversations=conversations; self.provider_factory=provider_factory
+        self.telemetry = telemetry
         self.stop_event=threading.Event(); self.wake_event=threading.Event(); self.thread=None
         self.rebuild=False; self._guard=threading.Lock()
 
@@ -83,9 +85,12 @@ class MemoryWorker:
                 with self.service.store.connection() as db:
                     pending=db.execute('SELECT 1 FROM memory_index_outbox WHERE completed_at IS NULL LIMIT 1').fetchone()
                 if pending or rebuild: self.service.sync_index(rebuild=rebuild)
-                self.service.process_extraction(self.conversations,self.provider_factory)
+                if self.telemetry is None:
+                    self.service.process_extraction(self.conversations, self.provider_factory)
+                else:
+                    self.service.process_extraction(self.conversations, self.provider_factory, telemetry=self.telemetry)
             except Exception:
-                log.exception('Memory background operation failed')
+                log.warning('Memory background operation failed')
             self.wake_event.wait(60); self.wake_event.clear()
 
     def close(self):

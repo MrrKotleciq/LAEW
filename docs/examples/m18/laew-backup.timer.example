@@ -1,0 +1,11 @@
+# INERT EXAMPLE ONLY: no installation or activation is performed.
+[Unit]
+Description=LAEW backup approved window
+
+[Timer]
+OnCalendar=<APPROVED_WINDOW>
+Persistent=false
+Unit=laew-backup.service
+
+[Install]
+WantedBy=timers.target

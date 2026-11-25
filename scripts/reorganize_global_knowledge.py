@@ -159,4 +159,8 @@ def apply_plan(plan_path: Path) -> None:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--apply-plan", required=True, type=Path)
-    apply_plan(parser.parse_args().apply_plan)
+    args = parser.parse_args()
+    if os.environ.get("LAEW_INSTALLATION_FENCE"):
+        from laew.backup.writer import enroll_writer_process
+        enroll_writer_process()
+    apply_plan(args.apply_plan)

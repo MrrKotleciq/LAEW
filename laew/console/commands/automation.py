@@ -97,10 +97,22 @@ def cmd_workflow(args: list, state: SessionState) -> int:
 
         print(f"Running workflow '{definition.name}' ({definition.mode.value})...")
         engine = WorkflowEngine(definition, tool_registry=tool_registry)
+        from laew.telemetry_observer import start_observed_run, finish_observed_run
+        trace = start_observed_run(getattr(state, "_telemetry_sink", None), "console")
+        if trace is not None:
+            engine.telemetry_run = trace
+            engine.rollback_engine.telemetry_run = trace
+        status, error = "failed", "internal_error"
         try:
             engine.run()
+            status, error = "completed", None
+        except KeyboardInterrupt:
+            status, error = "cancelled", "cancelled"
+            raise
         except Exception as e:
             return _err(f"workflow execution failed: {e}")
+        finally:
+            finish_observed_run(trace, status, error)
         print("[OK] workflow completed")
         return 0
 
@@ -212,7 +224,20 @@ def cmd_multiagent(args: list, state: SessionState) -> int:
 
         coordinator = MultiAgentCoordinator(chief=chief, agents=specialists)
         print(f"Running multi-agent plan '{plan.name}'...")
-        result = coordinator.run(plan)
+        from laew.telemetry_observer import start_observed_run, finish_observed_run
+        trace = start_observed_run(getattr(state, "_telemetry_sink", None), "console")
+        if trace is not None:
+            coordinator.telemetry_run = trace
+        status, error = "failed", "internal_error"
+        try:
+            result = coordinator.run(plan)
+            if result.success:
+                status, error = "completed", None
+        except KeyboardInterrupt:
+            status, error = "cancelled", "cancelled"
+            raise
+        finally:
+            finish_observed_run(trace, status, error)
 
         for delegation in result.delegations:
             status = "OK" if delegation.success else f"FAILED ({delegation.error})"
