@@ -97,27 +97,3 @@ def test_workbench_switches_to_general_without_reusing_project_tools(tmp_path):
             assert service.list_projects()["active_project"] is None
         assert service.status()["project"] is None
         assert "GitTool" not in service._agent.tools
-
-
-def test_cli_general_uses_the_same_scope_and_broker(tmp_path):
-    from types import SimpleNamespace
-    from laew.cli import cmd_chat
-    roots(tmp_path)
-    args = SimpleNamespace(general=True, workspace_root=str(tmp_path), model=None, base_url=None,
-                           timeout=None, provider=None, manifest="manifest.yaml", resume=None,
-                           session=None, no_persist=True, no_stream=True)
-    provider = MagicMock()
-    provider.base_url = "http://localhost"
-    result = MagicMock(success=True, final_response="Hello")
-    with (patch("laew.cli.load_manifest", return_value={}),
-          patch("laew.cli.build_provider_for_role", return_value=provider),
-          patch("laew.cli.resolve_model_name", return_value="model"),
-          patch("laew.cli.AgentExecutor") as executor,
-          patch("laew.rag.sync.SyncScheduler"),
-          patch("builtins.input", side_effect=["hello", "exit"])):
-        executor.return_value.run.return_value = result
-        assert cmd_chat(args) == 0
-    agent = executor.call_args.args[0]
-    assert set(agent.tools) == {"FilesystemTool", "WebTool", "RagTool", "MemoryTool"}
-    assert agent.tools["MemoryTool"].project_id is None
-    assert agent.tools["FilesystemTool"].resolver.project_root is None

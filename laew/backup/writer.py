@@ -24,6 +24,10 @@ def enroll_writer_process():
     """
     global _lease, _lock_path, _owner_pid
     configured = os.environ.get("LAEW_INSTALLATION_FENCE")
+    gate = os.environ.get("LAEW_MANAGED_WRITER_GATE")
+    unit = os.environ.get("LAEW_MANAGED_WRITER_UNIT")
+    if bool(gate) != bool(unit) or (gate and not configured):
+        raise FenceConfigurationError("Managed writer enrollment is incomplete.")
     if not configured:
         return
     path = Path(configured)
@@ -36,6 +40,13 @@ def enroll_writer_process():
             return
         lease = host_fence(path.parent, mode="writer")
         lease.__enter__()
+        try:
+            if gate:
+                from laew.backup.managed import writer_gate_open
+                writer_gate_open(gate, unit)
+        except (ValueError, OSError) as exc:
+            lease.__exit__(None, None, None)
+            raise FenceConfigurationError("Managed writer start is inhibited.") from exc
         _lease = lease
         _lock_path = path
         _owner_pid = os.getpid()

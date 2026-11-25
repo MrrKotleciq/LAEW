@@ -101,6 +101,62 @@ def test_time_and_output_limits(app_fixture):
     assert finished.stdout.strip() == b"ok"
 
 
+def test_backup_projection_read_only_for_native_restricted_consumer(app_fixture, monkeypatch):
+    from ctypes import wintypes as W
+    from datetime import datetime, timezone
+    import json
+
+    from laew.backup.controls import workbench_view
+    from laew.security.windows_security import get_current_user_sid
+
+    profile, project, marker, cmd, env = app_fixture
+    sid = ac._P()
+    assert ac._derive(profile, ctypes.byref(sid)) == 0
+    try:
+        label = W.LPWSTR()
+        ac._required(ac._sid_string(sid, ctypes.byref(label)))
+        try:
+            reader = "*" + label.value
+        finally:
+            ac._free(ctypes.cast(label, ac._P))
+    finally:
+        ac._free_sid(sid)
+    owner = get_current_user_sid()
+    projection = project.parent / "projection"
+    projection.mkdir()
+    acl = Path(env["SYSTEMROOT"]) / "System32/icacls.exe"
+    for operations in (
+        ("/inheritance:r", "/grant:r", f"*{owner}:(OI)(CI)F", "*S-1-5-18:(OI)(CI)F",
+         "*S-1-5-32-544:(OI)(CI)F", reader + ":(OI)(CI)RX"),
+        ("/setintegritylevel", "(OI)(CI)L"),
+    ):
+        subprocess.run([str(acl), str(projection), *operations], check=True, capture_output=True,
+                       creationflags=subprocess.CREATE_NO_WINDOW, timeout=15)
+    view = projection / "backup-settings.json"
+    original = json.dumps(dict(state="enabled", revision="a" * 64, directories=[], keys=[], local="validated",
+                               local_backup="ok", connection="connected", remote="verified",
+                               observed_at=datetime.now(timezone.utc).isoformat())).encode("ascii")
+    view.write_bytes(original)
+    # This fixture checks real reader access to the projection, with temp
+    # ancestry that is unsuitable for deployment.
+    monkeypatch.setattr("laew.backup.health._check_ancestry", lambda *_: None)
+    assert workbench_view(view, owner)["remote"] == "verified"
+    (project / "acl.cmd").write_text(r"""@echo off
+type ..\projection\backup-settings.json >nul || exit /b 11
+type ..\operator\private.txt >nul 2>nul && exit /b 12
+echo bad>>..\projection\backup-settings.json 2>nul && exit /b 13
+echo bad>..\projection\new.json 2>nul && exit /b 14
+del ..\projection\backup-settings.json >nul 2>nul
+if not exist ..\projection\backup-settings.json exit /b 15
+move ..\projection ..\replaced >nul 2>nul && exit /b 16
+exit /b 0
+""", encoding="ascii")
+    result = ac.run_appcontainer([cmd, "/d", "/c", "acl.cmd"], profile_name=profile, cwd=project, env=env, timeout=10)
+    assert result.returncode == 0, (result.stdout, result.stderr)
+    assert view.read_bytes() == original and not (projection / "new.json").exists()
+    assert marker.is_file() and not projection.with_name("replaced").exists()
+
+
 def test_profile_git_environment_uses_scratch_and_fixed_settings(app_fixture):
     profile, project, _, cmd, env = app_fixture
     from types import SimpleNamespace

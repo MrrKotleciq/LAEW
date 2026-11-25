@@ -4,9 +4,6 @@ import cmd
 import sys
 from typing import Optional
 
-from .session import ConsoleSession
-
-
 def run_console(manifest_path: Optional[str] = None, *, _telemetry_sink=None) -> int:
     """
     Run the LAEW interactive testing console.
@@ -17,6 +14,7 @@ def run_console(manifest_path: Optional[str] = None, *, _telemetry_sink=None) ->
     Returns:
         Exit code (0 for normal exit, 1 for error)
     """
+    from .session import ConsoleSession
     try:
         session = ConsoleSession(manifest_path=manifest_path)
         if _telemetry_sink is not None:
@@ -32,3 +30,10 @@ def run_console(manifest_path: Optional[str] = None, *, _telemetry_sink=None) ->
 
 
 __all__ = ["run_console", "ConsoleSession"]
+
+
+def __getattr__(name):
+    if name == "ConsoleSession":
+        from .session import ConsoleSession
+        return ConsoleSession
+    raise AttributeError(name)

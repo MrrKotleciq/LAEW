@@ -92,6 +92,27 @@
       </section>
       <section class="settings-section"><h2>Knowledge</h2><p>Every new document and update requires your approval in Knowledge Review.</p><form id="knowledge-settings-form" class="settings-form"><label><input id="knowledge-enabled" type="checkbox" checked> Analyze conversations for reusable knowledge</label><label>Analyze every N completed turns <input id="knowledge-interval" type="number" min="2" max="20" value="5" required></label><label>Extraction model source <select id="knowledge-model-source"><option value="memory">Memory extraction model</option><option value="active">Active chat model</option></select></label><p class="muted-note">Analysis runs as a separate request. The active model can incur additional API costs.</p><p>Selected model: <span id="knowledge-model">Loading…</span></p><button type="submit">Save knowledge settings</button></form><div class="settings-actions"><button id="knowledge-analyze" type="button">Analyze current conversation</button><button id="knowledge-sync" type="button">Retry knowledge indexing</button></div><p id="knowledge-settings-result" role="status"></p><details><summary>Knowledge operations &amp; RAG status</summary><pre id="knowledge-status"></pre></details></section>
       <section class="settings-section"><h2>Saved memories &amp; Review Queue</h2><div class="settings-actions"><label>Project <select id="memory-project"><option value="">User Memory only</option></select></label><label>Show <select id="memory-filter"><option value="all">Active &amp; Pending Review</option><option value="user">User Memory</option><option value="project">Project Memory</option><option value="active">Active</option><option value="pending">Pending Review</option></select></label><button id="memory-add" type="button">Add memory</button></div><div id="memory-list"></div></section>
+      <section class="settings-section" aria-labelledby="backup-settings-title">
+        <h2 id="backup-settings-title">Backup &amp; Recovery</h2>
+        <p id="backup-health" role="status">Backup status unavailable.</p>
+        <form id="backup-settings-form" class="settings-form">
+          <label title="Turning this off preserves existing copies."><input id="backup-enabled" type="checkbox"> Enable backups</label>
+          <label>Local disk <select id="backup-disk"><option value="">Select an approved disk</option></select></label>
+          <label title="Choose an approved folder or type an absolute directory.">Local directory <input id="backup-directory" list="backup-folders" placeholder="D:\LAEW-Backups" maxlength="512"></label>
+          <datalist id="backup-folders"></datalist>
+          <label title="Verify the SSH host fingerprint in the operator review.">Server <input id="backup-host" placeholder="192.168.1.100 or hostname" maxlength="240"></label>
+          <label>Port <input id="backup-port" type="number" min="1" max="65535" placeholder="22"></label>
+          <label>Username <input id="backup-user" placeholder="backup_user" maxlength="240"></label>
+          <label>Remote directory <input id="backup-remote-directory" placeholder="/backups/laew" maxlength="240"></label>
+          <label title="Select a key reference enrolled by the operator.">SSH key <select id="backup-key" class="backup-placeholder"><option value="" disabled selected>Select SSH private key</option></select></label>
+          <div class="settings-actions">
+            <button type="submit">Prepare settings change</button>
+            <button id="backup-validate-directory" type="button">Prepare folder validation</button>
+            <button id="backup-test-connection" type="button">Prepare connection test</button>
+          </div>
+        </form>
+        <p id="backup-settings-result" role="status"></p>
+      </section>
       <p id="settings-result" role="status"></p>
     </main>
     <aside id="context" aria-label="Execution details"><nav class="panel-tabs" role="tablist" aria-label="Execution detail tabs"><button class="tab active" id="tab-setup" role="tab" aria-controls="panel" tabindex="0" data-tab="setup" aria-selected="true">Setup</button><button class="tab" id="tab-sources" role="tab" aria-controls="panel" tabindex="-1" data-tab="sources" aria-selected="false">Sources</button><button class="tab" id="tab-run" role="tab" aria-controls="panel" tabindex="-1" data-tab="run" aria-selected="false">Run</button></nav><section id="panel" role="tabpanel" aria-labelledby="tab-setup" tabindex="0"></section></aside>

@@ -17,7 +17,6 @@ from pathlib import Path
 from typing import Callable
 from uuid import UUID
 
-from laew.telemetry import read_run, summarize_events
 from laew.backup.archive import read_receipt, verify_archive
 from laew.backup.inventory import backup_target_from_profile, build_inventory
 from laew.manifest import validate_manifest
@@ -41,8 +40,9 @@ _HELP = {
     ("backup", "verify"): "usage: laew backup verify --profile PROFILE --id ID [--json]\n\nVerify the complete archive and receipt.",
     ("backup", "create"): "usage: laew backup create --profile PROFILE --acknowledgement ABS --apply [--json]\n\nCapture an explicitly quiesced installation.",
     ("backup", "prune"): "usage: laew backup prune --profile PROFILE --pin ID [--plan ABS --apply] [--json]\n\nReview rotation or apply the unchanged reviewed plan.",
-    ("telemetry",): "usage: laew telemetry {show} ...\n\nRead-only telemetry inspection commands.",
+    ("telemetry",): "usage: laew telemetry {show,list} ...\n\nRead-only telemetry inspection commands.",
     ("telemetry", "show"): "usage: laew telemetry show RUN_ID [--manifest PATH] [--json]\n\nInspect a telemetry trace by UUID.",
+    ("telemetry", "list"): "usage: laew telemetry list [--limit N] [--manifest PATH] [--json]\n\nList recent run summaries from protected storage (default 10, maximum 50).",
     ("restore",): "usage: laew restore --profile PROFILE --id ID (--verify-only | --target ABS --apply) [--project-root ABS] [--json]\n\nVerify or publish an isolated restore.",
     ("status",): "usage: laew status [--manifest PATH] [--profile PROFILE] [--rag-max-age-seconds N] [--probe] [--json]\n\nInspect operational readiness.",
     ("retention",): "usage: laew retention {plan,apply} ...\n\nReview or apply telemetry and session retention.",
@@ -60,6 +60,10 @@ def _parser() -> argparse.ArgumentParser:
     show.add_argument("run_id")
     show.add_argument("--manifest")
     show.add_argument("--json", action="store_true")
+    recent = actions.add_parser("list", add_help=False)
+    recent.add_argument("--manifest")
+    recent.add_argument("--limit", type=int, default=10)
+    recent.add_argument("--json", action="store_true")
     backup = commands.add_parser("backup", add_help=False)
     backup_actions = backup.add_subparsers(dest="action", required=True, parser_class=_Parser)
     for name in ("plan", "list", "verify", "create", "prune"):
@@ -87,6 +91,9 @@ def _parser() -> argparse.ArgumentParser:
     status = commands.add_parser("status", add_help=False)
     status.add_argument("--manifest", default="manifests/SYSTEM_MANIFEST.yaml")
     status.add_argument("--profile")
+    status.add_argument("--backup-worker-status")
+    status.add_argument("--backup-worker-profile-id")
+    status.add_argument("--backup-worker-owner")
     status.add_argument("--rag-max-age-seconds", type=float)
     status.add_argument("--probe", action="store_true")
     status.add_argument("--json", action="store_true")
@@ -109,6 +116,7 @@ def _parser() -> argparse.ArgumentParser:
 
 def _result(state: str, *, run_id: str | None = None,
             error_code: str | None = None, events: list | None = None) -> dict:
+    from laew.telemetry import summarize_events
     records = events if events is not None else []
     return {
         "schema_version": 1,
@@ -271,15 +279,19 @@ def _backup_display(result, as_json):
         print(json.dumps(result, indent=2, allow_nan=False))
 
 
-def _backup_dispatch(args) -> int:
+def _backup_dispatch(args, on_result=None, provenance_check=None) -> int:
+    from laew.backup.fence import FenceBusyError
     if args.action == "prune":
         return _prune_dispatch(args)
     result = {"schema_version": 1, "command": "backup." + args.action,
               "state": "error", "error_code": None, "data": None}
+    observer_reason = None
     try:
         identifier = _canonical_uuid(args.id) if args.action == "verify" else None
     except (ValueError, TypeError):
         result.update(state="invalid", error_code="invalid_arguments")
+        if on_result is not None:
+            on_result(dict(result))
         _backup_display(result, args.json)
         return 2
     try:
@@ -300,13 +312,25 @@ def _backup_dispatch(args) -> int:
             data = {"receipt": receipt, "receipt_state": "verified"}
         else:
             from laew.backup.capture import capture_backup
-            receipt = capture_backup(inventory, backup_id=backup_id, cut_id=cut_id, writers=proof)
+            from laew.backup.policy import admission
+            options = {"provenance_check": provenance_check} if provenance_check is not None else {}
+            with admission(args.profile, operation="capture"):
+                receipt = capture_backup(inventory, backup_id=backup_id, cut_id=cut_id, writers=proof, **options)
             data = {"receipt": receipt, "receipt_state": "verified"}
         result.update(state="ok", data=data)
         code = 0
+    except FenceBusyError:
+        result["error_code"] = "unavailable_or_invalid"
+        observer_reason = "writer_busy"
+        code = 1
     except Exception:
         result["error_code"] = "unavailable_or_invalid"
         code = 1
+    if on_result is not None:
+        observed = dict(result)
+        if observer_reason:
+            observed['error_code'] = observer_reason
+        on_result(observed)
     _backup_display(result, args.json)
     return code
 
@@ -367,13 +391,16 @@ def _status_dispatch(args) -> int:
     from laew.status import collect_status, status_exit_code
 
     threshold = args.rag_max_age_seconds
-    if threshold is not None and (not math.isfinite(threshold) or threshold < 0):
+    worker = (args.backup_worker_status, args.backup_worker_profile_id, args.backup_worker_owner)
+    if ((threshold is not None and (not math.isfinite(threshold) or threshold < 0))
+            or (any(value is not None for value in worker) and (not all(worker) or args.profile))):
         _backup_display(_status_error("invalid_arguments"), args.json)
         return 2
     try:
         profile = _load_profile(args.profile) if args.profile else None
+        kwargs = {"worker_status": (Path(worker[0]), worker[1], worker[2])} if all(worker) else {}
         result = collect_status(args.manifest, probe=args.probe, backup_profile=profile,
-                                rag_max_age_seconds=threshold)
+                                rag_max_age_seconds=threshold, **kwargs)
     except (OSError, ValueError, TypeError, KeyError):
         _backup_display(_status_error("configuration_unavailable"), args.json)
         return 2
@@ -498,6 +525,21 @@ def _retention_dispatch(args, telemetry_root_resolver):
     return 0
 
 
+def _telemetry_list(args, resolver):
+    from laew.telemetry import recent_runs
+    command = "telemetry.list"
+    try:
+        root = resolver(args.manifest) if resolver is not None else None
+        if root is None:
+            result = _operator_result(command, "disabled", "disabled")
+        else:
+            result = _operator_result(command, "ok", data={"runs": recent_runs(root, args.limit)})
+    except Exception:
+        result = _operator_result(command, "unknown", "unavailable")
+    _backup_display(result, args.json)
+    return 0 if result["state"] == "ok" else 1
+
+
 def dispatch(argv: list[str], *,
              telemetry_root_resolver: Callable[[str | None], str | Path | None] | None = None) -> int:
     """Dispatch an operator command; do not initialize application services.
@@ -519,6 +561,10 @@ def dispatch(argv: list[str], *,
             return _status_dispatch(args)
         if args.command == "retention":
             return _retention_dispatch(args, telemetry_root_resolver)
+        if args.action == "list":
+            if not 1 <= args.limit <= 50:
+                raise _InvalidArguments
+            return _telemetry_list(args, telemetry_root_resolver)
         identifier = str(UUID(args.run_id))
         if identifier != args.run_id:
             raise _InvalidArguments
@@ -539,6 +585,9 @@ def dispatch(argv: list[str], *,
             action = argv[1] if len(argv) > 1 and argv[1] in ("plan", "apply") else "unknown"
             _backup_display(_operator_result("retention." + action, "invalid", "invalid_arguments"), json_requested)
             return 2
+        if argv[:2] == ["telemetry", "list"]:
+            _backup_display(_operator_result("telemetry.list", "invalid", "invalid_arguments"), json_requested)
+            return 2
         _display(_result("invalid", error_code="invalid_arguments"), json_requested)
         return 2
 
@@ -550,6 +599,7 @@ def dispatch(argv: list[str], *,
         if root is None:
             _display(_result("disabled", run_id=identifier, error_code="disabled"), args.json)
             return 1
+        from laew.telemetry import read_run
         trace = read_run(root, identifier)
     except Exception:
         _display(_result("unknown", run_id=identifier, error_code="unavailable"), args.json)

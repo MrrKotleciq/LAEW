@@ -7,9 +7,67 @@
     const data=await response.json(); if(!response.ok) throw new Error(data.error || 'Settings operation failed.'); return data;
   }
   function option(value,label){const node=document.createElement('option');node.value=value;node.textContent=label;return node;}
+  function diskFor(path){return /^[A-Za-z]:[\\/]/.test(path)?path.slice(0,3):'/';}
+  function backupProposal(operation,revision,values){
+    return {schema_version:1,operation,revision,enabled:values.enabled,directory:values.directory.trim(),
+      host:values.host.trim(),port:values.port===''?null:Number(values.port),user:values.user.trim(),
+      remote_directory:values.remote_directory.trim(),key:values.key};
+  }
+  function bindBackupSettings(){
+    const form=q('#backup-settings-form'),disk=q('#backup-disk'),key=q('#backup-key');
+    const result=q('#backup-settings-result'),health=q('#backup-health');
+    let view=null,refreshKey=0;
+    function folders(){
+      const allowed=view?.directories || [];
+      q('#backup-folders').replaceChildren(...allowed.filter(item=>!disk.value || diskFor(item)===disk.value).map(item=>option(item,item)));
+    }
+    disk.addEventListener('change',folders);
+    key.addEventListener('change',()=>{key.classList.toggle('backup-placeholder',!key.value);});
+    function prepare(operation){
+      if(!view?.revision){result.textContent='The protected backup settings view is unavailable.';return;}
+      if(!form.reportValidity())return;
+      const text=name=>q('#backup-'+name).value;
+      const data=backupProposal(operation,view.revision,{enabled:q('#backup-enabled').checked,
+        directory:text('directory'),host:text('host'),port:text('port'),user:text('user'),
+        remote_directory:text('remote-directory'),key:key.value});
+      if(operation==='test-connection' && !(data.host && data.port && data.user && data.remote_directory && data.key)){
+        result.textContent='Enter the server, port, account and directory, and choose an approved key.';return;
+      }
+      const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+      const link=document.createElement('a');link.href=url;link.download='laew-backup-'+operation+'.json';link.click();
+      setTimeout(()=>URL.revokeObjectURL(url),1000);
+      result.textContent='Request downloaded. Review and apply it with the protected Backup Worker.';
+    }
+    form.addEventListener('submit',event=>{event.preventDefault();prepare('settings');});
+    q('#backup-validate-directory').addEventListener('click',()=>prepare('validate-directory'));
+    q('#backup-test-connection').addEventListener('click',()=>prepare('test-connection'));
+    return async function refreshBackup(){
+      const token=++refreshKey;
+      try{
+        const next=await request('/api/backup/settings');
+        if(token!==refreshKey)return;
+        view=next;
+        const prior=disk.value,priorKey=key.value;
+        disk.replaceChildren(option('','Select an approved disk'),...Array.from(new Set(view.directories.map(diskFor)),item=>option(item,item)));
+        disk.value=prior;folders();
+        const prompt=option('','Select SSH private key');prompt.disabled=true;
+        key.replaceChildren(prompt,...view.keys.map(item=>option(item,item)));
+        key.value=view.keys.includes(priorKey)?priorKey:'';
+        key.classList.toggle('backup-placeholder',!key.value);
+        if(!form.dataset.initialized && view.revision){
+          q('#backup-enabled').checked=view.state==='enabled';
+          form.dataset.initialized='true';
+        }
+        health.textContent=`Backups: ${view.state} · Local destination: ${view.local} · Local backup: ${view.local_backup} · Connection: ${view.connection} · Remote copy: ${view.remote}`;
+      }catch{
+        if(token===refreshKey){view=null;health.textContent='Backup status unavailable.';}
+      }
+    };
+  }
   function create(app){
     let state=null,editor=null,deleting=null,project=null,menuProject=null,trigger=null,refreshId=0;
     const result=q('#settings-result'),menu=q('#project-settings-menu');
+    const refreshBackup=bindBackupSettings();
     const selectedProject=()=>q('#memory-project').value || null;
     const report=error=>{result.textContent=error.message || error;};
     async function action(name,body={}){const data=await request('/api/memory/'+name,{project_id:selectedProject(),...body});await refresh();return data;}
@@ -114,6 +172,7 @@
       }catch(error){q('#memory-editor-error').textContent=error.message;}finally{event.submitter.disabled=false;}
     });
     async function refresh(){
+      void refreshBackup();
       const id=++refreshId,projectId=selectedProject();
       try{
         const [data,defaults]=await Promise.all([request('/api/memory/state'+(projectId?'?'+new URLSearchParams({project_id:projectId}):'')),request('/api/settings')]);
@@ -146,5 +205,5 @@
     for(const name of ['sync','rebuild'])q('#memory-'+name).addEventListener('click',async()=>{try{if(name==='rebuild'&&!window.confirm('Rebuild only the Long-Term Memory semantic index from SQLite?'))return;const data=await action(name);report(data.message);}catch(error){report(error);}});
     return {refresh,projectMenu,openProject};
   }
-  root.LAEWSettings={create};
+  root.LAEWSettings={create,backupProposal};
 })(window);

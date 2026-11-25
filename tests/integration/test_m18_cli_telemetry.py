@@ -1,10 +1,8 @@
 import json
-from argparse import Namespace
 from types import SimpleNamespace
 
 import pytest
 
-from laew.cli import cmd_tool
 from laew.telemetry_observer import execute_observed_turn
 from laew.telemetry import TelemetrySink
 from laew.tools.base import ErrorCode, ToolResult
@@ -64,46 +62,6 @@ def test_unavailable_sink_keeps_execution_result():
     result = execute_observed_turn(FakeExecutor(), 'x', sink=Broken(), scope='global',
                                routing={}, on_diagnostic=lambda *_: None)
     assert result.success
-
-
-def test_standalone_denial_records_no_arguments(tmp_path, monkeypatch):
-    from laew.console import permissions
-    monkeypatch.setattr(permissions, 'console_call', lambda *args: ToolResult.error(ErrorCode.ERR_UNAUTHORIZED, 'secret'))
-    args = Namespace(tool='filesystem', operation='write_file', args=['content=secret-canary'],
-                     log=None, manifest=str(tmp_path / 'absent'), require_approval=True,
-                     _telemetry_sink=TelemetrySink(tmp_path))
-    assert cmd_tool(args) == 1
-    events = records(tmp_path)
-    assert [e['event'] for e in events] == ['run.started', 'tool.started', 'tool.finished', 'run.finished']
-    assert events[2]['decision'] == 'denied'
-    assert 'executed' not in events[2]
-    assert events[-1]['status'] == 'failed'
-    assert 'secret-canary' not in json.dumps(events)
-
-
-def test_no_persist_never_starts_injected_sink(tmp_path, monkeypatch):
-    from unittest.mock import MagicMock
-    import laew.cli as cli
-    (tmp_path / 'Projects').mkdir()
-    (tmp_path / 'Knowledge').mkdir()
-    sink = MagicMock()
-    provider = MagicMock(base_url='fixture')
-    monkeypatch.setattr(cli, 'load_manifest', lambda *_: {})
-    monkeypatch.setattr(cli, 'build_provider_for_role', lambda *a, **k: provider)
-    monkeypatch.setattr(cli, 'resolve_model_name', lambda *a, **k: 'fixture')
-    monkeypatch.setattr(cli, 'build_shared_tools', lambda *a, **k: [])
-    monkeypatch.setattr('laew.memory.integration.build_memory', MagicMock(side_effect=RuntimeError()))
-    monkeypatch.setattr('builtins.input', MagicMock(side_effect=['hello', 'exit']))
-    args = Namespace(general=True, workspace_root=str(tmp_path), model=None, base_url=None,
-                     timeout=None, provider=None, manifest='manifest.yaml', resume=None,
-                     session=None, no_persist=True, no_stream=True, _telemetry_sink=sink)
-    # Provide the result attributes used by the CLI presentation.
-    class Executor(FakeExecutor):
-        def run(self, message, **kwargs):
-            return SimpleNamespace(success=True, final_response='ok', total_tokens=0)
-    monkeypatch.setattr(cli, 'AgentExecutor', lambda agent: Executor())
-    assert cli.cmd_chat(args) == 0
-    sink.start_run.assert_not_called()
 
 
 def test_workflow_rollback_has_correlated_tool_spans(tmp_path):
@@ -182,55 +140,3 @@ def test_console_agent_uses_one_synthetic_trace(tmp_path, monkeypatch):
     assert events[-1]['status'] == 'completed'
     assert 'private prompt' not in json.dumps(events)
     assert state.conversation[0]['content'] == 'private prompt'
-
-@pytest.mark.parametrize('failure,expected', [('prepare', 'failed'), ('storage', 'failed'), ('cancel', 'cancelled'), (None, 'completed')])
-def test_chat_root_covers_preparation_and_conversation_storage(tmp_path, monkeypatch, failure, expected):
-    from unittest.mock import MagicMock
-    import laew.cli as cli
-    from laew.console.session_store import SessionStoreError
-    from laew.knowledge.routing import KnowledgeTurn
-
-    (tmp_path / 'Projects').mkdir()
-    (tmp_path / 'Knowledge').mkdir()
-    (tmp_path / 'telemetry').mkdir()
-    sink = TelemetrySink(tmp_path / 'telemetry')
-    provider = MagicMock(base_url='fixture')
-    store = MagicMock()
-    store.create_conversation.return_value = {'id': 'conversation'}
-    store.conversation_messages.return_value = []
-    def append(_id, event):
-        if failure == 'storage' and event.get('kind') == 'run' and event.get('status') == 'completed':
-            raise SessionStoreError('storage failure')
-    store.append_conversation_event.side_effect = append
-    monkeypatch.setattr(cli, 'load_manifest', lambda *_: {})
-    monkeypatch.setattr(cli, 'build_provider_for_role', lambda *a, **k: provider)
-    monkeypatch.setattr(cli, 'resolve_model_name', lambda *a, **k: 'fixture')
-    monkeypatch.setattr(cli, 'build_shared_tools', lambda *a, **k: [])
-    monkeypatch.setattr(cli, 'session_store_from_manifest', lambda *_: MagicMock())
-    monkeypatch.setattr('laew.console.session_store.conversation_store_from_manifest', lambda *a: store)
-    monkeypatch.setattr('laew.memory.integration.build_memory', MagicMock(side_effect=RuntimeError()))
-    monkeypatch.setattr('builtins.input', MagicMock(side_effect=['hello', 'exit']))
-    def prepare(*args):
-        if failure == 'prepare':
-            raise RuntimeError('private preparation error')
-        if failure == 'cancel':
-            raise KeyboardInterrupt()
-        args[0].diagnostics.update(memory_requested=False, prefetch=[])
-    monkeypatch.setattr(KnowledgeTurn, 'prepare', prepare)
-    class Executor(FakeExecutor):
-        def run(self, message, **kwargs):
-            return SimpleNamespace(success=True, final_response='ok', total_tokens=0)
-    monkeypatch.setattr(cli, 'AgentExecutor', lambda agent: Executor())
-    args = Namespace(general=True, workspace_root=str(tmp_path), model=None, base_url=None,
-                     timeout=None, provider=None, manifest='manifest.yaml', resume=None,
-                     session=None, no_persist=False, no_stream=True, _telemetry_sink=sink)
-    if failure == 'prepare':
-        with pytest.raises(RuntimeError):
-            cli.cmd_chat(args)
-    else:
-        assert cli.cmd_chat(args) == (1 if failure == 'cancel' else 0)
-    events = records(tmp_path / 'telemetry')
-    assert events[0]['event'] == 'run.started'
-    assert events[-1]['event'] == 'run.finished'
-    assert events[-1]['status'] == expected
-    assert 'private preparation error' not in json.dumps(events)

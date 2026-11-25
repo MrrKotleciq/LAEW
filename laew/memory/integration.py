@@ -1,26 +1,13 @@
 """Shared memory composition and one bounded, lifecycle-managed worker."""
-import hashlib
 import logging
 import os
 import threading
 from pathlib import Path
 from .store import MemoryStore
 from .service import MemoryService
+from laew.storage_paths import memory_collection_name, memory_storage_path
 
 log = logging.getLogger(__name__)
-
-
-def memory_storage_path(conversation_directory, override=None):
-    """Resolve memory storage without constructing a database."""
-    return Path(override) if override else Path(conversation_directory).parent / "memory" / "memory.db"
-
-
-def memory_collection_name(storage_override=None):
-    """Return the existing runtime collection identity for the launch override."""
-    if not storage_override:
-        return "laew_long_term_memory"
-    path_digest = hashlib.sha256(str(Path(storage_override).resolve()).encode()).hexdigest()
-    return "laew_ltm_" + path_digest[:16]
 
 
 def build_memory(manifest, manifest_path):

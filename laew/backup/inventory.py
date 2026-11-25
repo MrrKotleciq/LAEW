@@ -18,8 +18,7 @@ from fnmatch import fnmatchcase
 
 from laew.backup.fence import FENCE_FILENAME
 from laew.console.session_store import session_storage_from_manifest
-from laew.knowledge.integration import knowledge_storage_path
-from laew.memory.integration import memory_collection_name, memory_storage_path
+from laew.storage_paths import knowledge_storage_path, memory_collection_name, memory_storage_path
 from laew.rag.config import resolve_project_root
 
 _ID = re.compile(r"[a-z][a-z0-9_-]{0,63}\Z")

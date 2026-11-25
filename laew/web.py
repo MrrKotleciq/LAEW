@@ -27,7 +27,7 @@ from laew.llm.base import LLMError
 from laew.llm.cancellation import Cancellation
 from laew.cloud_chat import CLOUD_PROVIDERS, CloudChatService, CloudError
 from laew.manifest import ManifestError, load_manifest
-from laew.project_config import load_project_settings, save_project_language, save_project_settings
+from laew.project_config import PERMISSION_MODES, load_project_settings, save_project_language, save_project_settings
 from laew.security.permissions import PermissionBroker
 from laew.telemetry_observer import ExecutionObserver
 from laew.runtime import (
@@ -592,7 +592,7 @@ class WorkspaceService:
                 project = self.active_project
                 if project_id != project["id"]:
                     return HTTPStatus.CONFLICT, {"error": "The active project changed."}
-                if mode not in ("auto", "manual", "restricted"):
+                if mode not in PERMISSION_MODES:
                     return HTTPStatus.UNPROCESSABLE_ENTITY, {"error": "Invalid permission mode."}
                 save_project_settings(project["path"], {"permission_mode": mode})
                 if self._permissions is not None:
@@ -1138,6 +1138,11 @@ def make_handler(service: WorkspaceService):
                 self._json(status,data); return
             if parsed.path == "/api/settings":
                 status,data=service.application_settings(); self._json(status,data); return
+            if parsed.path == "/api/backup/settings":
+                from laew.backup.controls import workbench_view
+                view = workbench_view(os.environ.get("LAEW_BACKUP_WORKBENCH_VIEW"),
+                                      os.environ.get("LAEW_BACKUP_WORKBENCH_OWNER"))
+                self._json(HTTPStatus.OK, view); return
             if parsed.path in {"/api/conversations", "/api/conversation"}:
                 from laew.console.session_store import SessionStoreError
                 try:

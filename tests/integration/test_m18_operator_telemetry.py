@@ -1,4 +1,5 @@
 import json
+import os
 
 import pytest
 
@@ -81,9 +82,49 @@ def test_interrupted_and_human_output(tmp_path, capsys):
 
 
 @pytest.mark.parametrize("args, expected", [
-    (["telemetry", "--help"], "{show}"),
+    (["telemetry", "--help"], "{show,list}"),
     (["telemetry", "show", "--help"], "RUN_ID"),
+    (["telemetry", "list", "--help"], "--limit"),
 ])
 def test_operator_telemetry_help(args, expected, capsys):
     assert dispatch(args) == 0
     assert expected in capsys.readouterr().out
+
+
+def test_list_discovers_latest_run_without_exposing_trace_content(tmp_path, capsys):
+    sink = TelemetrySink(tmp_path)
+    older = sink.start_run("workbench")
+    older.finish("completed")
+    later = sink.start_run("cloud_chat")
+    later.emit("llm.finished", provider="fake", prompt="PRIVATE_CANARY")
+    later.finish("failed", "timeout")
+    os.utime(tmp_path / (older.run_id + ".jsonl"), (1, 1))
+    before = {path.name: path.read_bytes() for path in tmp_path.iterdir()}
+
+    def resolver(manifest):
+        assert manifest == "fixture.yaml"
+        return tmp_path
+
+    assert dispatch(["telemetry", "list", "--manifest", "fixture.yaml", "--limit", "1", "--json"],
+                    telemetry_root_resolver=resolver) == 0
+    result = _json(capsys)
+    assert result["schema_version"] == 1 and result["command"] == "telemetry.list"
+    run, = result["data"]["runs"]
+    assert run["run_id"] == later.run_id and run["outcome"] == "failed" and run["error_code"] == "timeout"
+    assert run["surface"] == "cloud_chat" and run["state"] == "finished"
+    assert "PRIVATE_CANARY" not in str(result) and "events" not in run
+    assert {path.name: path.read_bytes() for path in tmp_path.iterdir()} == before
+
+
+def test_list_reports_disabled_and_rejects_unbounded_or_invalid_limits(capsys):
+    assert dispatch(["telemetry", "list", "--json"]) == 1
+    assert _json(capsys)["state"] == "disabled"
+
+    def resolver(_):
+        raise AssertionError("invalid arguments must be rejected before storage resolution")
+
+    for limit in ("0", "51", "PRIVATE_CANARY"):
+        assert dispatch(["telemetry", "list", "--limit", limit, "--json"], telemetry_root_resolver=resolver) == 2
+        result = _json(capsys)
+        assert result["command"] == "telemetry.list" and result["error_code"] == "invalid_arguments"
+        assert "PRIVATE_CANARY" not in str(result)

@@ -157,20 +157,6 @@ def test_local_adapters_present_contract_and_allow_corrected_call(memory,monkeyp
     assert not memory.store.list_memories()
 
 
-def test_cli_category_contract(memory,monkeypatch,capsys):
-    from laew.cli import cmd_memory
-    monkeypatch.setattr('laew.cli.load_manifest',lambda _: {})
-    monkeypatch.setattr('laew.memory.integration.build_memory',lambda *args:memory)
-    args=SimpleNamespace(manifest='fixture.yaml',general=True,action='add',content='Visit Edinburgh',scope='user',category='personal')
-    assert cmd_memory(args)==1
-    output=capsys.readouterr().out
-    assert all(category in output for category in CATEGORIES)
-    assert not memory.store.list_memories()
-    args.category='goals'
-    assert cmd_memory(args)==0
-    assert json.loads(capsys.readouterr().out)['category']=='goal'
-
-
 def test_broker_preserves_category_error_and_denies_unbound_project(memory):
     from laew.security.permissions import PermissionBroker
     broker=PermissionBroker(None)

@@ -424,6 +424,45 @@ def summarize_run(root: str | Path, run_id: str) -> dict:
     return summarize_events(trace["events"], trace["state"])
 
 
+def recent_runs(root: str | Path, limit: int = 10) -> list[dict]:
+    """Discover bounded run summaries inside an already verified private root."""
+    if type(limit) is not int or not 1 <= limit <= 50:
+        raise ValueError("invalid limit")
+    root = Path(root)
+    info = root.lstat()
+    if not stat.S_ISDIR(info.st_mode) or getattr(info, "st_file_attributes", 0) & stat.FILE_ATTRIBUTE_REPARSE_POINT:
+        raise OSError("invalid storage")
+    policy = _read_storage_policy(root)
+    slots = ((policy["total_bytes"] - _QUOTA_METADATA_RESERVE) // policy["run_bytes"]) if policy else 0
+    candidates = []
+    with os.scandir(root) as entries:
+        for count, entry in enumerate(entries, 1):
+            if count > 2 * slots + 2:
+                raise OSError("invalid storage")
+            identifier, _, suffix = entry.name.rpartition(".")
+            if suffix != "jsonl" or _uuid(identifier) != identifier:
+                continue
+            try:
+                # Windows DirEntry metadata can omit the hard-link count.
+                info = os.lstat(entry.path)
+            except FileNotFoundError:
+                continue
+            if _regular(info) and info.st_nlink == 1:
+                candidates.append((info.st_mtime_ns, identifier))
+    runs = []
+    for _, identifier in sorted(candidates, reverse=True)[:limit]:
+        trace = read_run(root, identifier)
+        if trace["state"] == "not_found":
+            continue
+        records = trace["events"]
+        terminal = records[-1] if trace["state"] == "finished" else {}
+        runs.append({"run_id": identifier, "state": trace["state"],
+                     "started_at": records[0]["ts"] if records else None,
+                     "surface": records[0]["surface"] if records else None,
+                     "outcome": terminal.get("status"), "error_code": terminal.get("error_code")})
+    return runs
+
+
 def summarize_events(events, state):
     """Aggregate already validated records from the same trace read."""
     result = {"state": state, "event_count": len(events), "attempts": 0, "dispatched_attempts": 0,

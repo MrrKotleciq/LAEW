@@ -27,6 +27,9 @@ def test_receipt_and_verified_members(fixture):
     receipt = seal_archive(media, members, **identity)
     assert receipt == verify_archive(media, identity["backup_id"])
     path = media / (identity["backup_id"] + ".zip")
+    with path.open("rb") as stream:
+        header = stream.read(30)
+    assert header[:4] == b"PK\x03\x04" and header[28:30] == b"\0\0"
     with zipfile.ZipFile(path) as container:
         raw = container.read("manifest.json")
         name, source = next(iter(members.items()))
@@ -40,6 +43,21 @@ def test_receipt_and_verified_members(fixture):
     assert receipt["member_count"] == 1
     with pytest.raises(FileExistsError):
         seal_archive(media, members, **identity)
+
+
+def test_release_evidence_failure_cannot_publish_a_receipt(fixture):
+    media, members, identity = fixture
+
+    def invalid_evidence(receipt):
+        assert receipt["archive_sha256"]
+        assert (media / (identity["backup_id"] + ".zip")).is_file()
+        raise OSError("Release record publication failed.")
+
+    with pytest.raises(OSError, match="Release record"):
+        seal_archive(media, members, **identity, before_receipt=invalid_evidence)
+    assert {item.name for item in media.iterdir()} == {identity["backup_id"] + ".zip"}
+    with pytest.raises((OSError, ArchiveError)):
+        verify_archive(media, identity["backup_id"])
 
 
 @pytest.mark.parametrize(("has_db", "digest"), [(False, "a" * 64), (True, None), (True, "A" * 64),

@@ -3,13 +3,9 @@ import logging
 import os
 import threading
 from pathlib import Path
+from laew.storage_paths import knowledge_storage_path
 
 log = logging.getLogger(__name__)
-
-
-def knowledge_storage_path(conversation_directory, override=None):
-    """Resolve curation storage without constructing a database."""
-    return Path(override) if override else Path(conversation_directory).parent / "knowledge" / "curation.db"
 
 
 def build_knowledge(manifest, conversations, *, projects_root,

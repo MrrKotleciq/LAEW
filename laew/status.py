@@ -171,7 +171,8 @@ def _overall(checks):
     return "ok"
 
 
-def collect_status(manifest_path, *, probe=False, backup_profile=None, now=None, rag_max_age_seconds=None):
+def collect_status(manifest_path, *, probe=False, backup_profile=None, worker_status=None,
+                   now=None, rag_max_age_seconds=None):
     """Return a sanitized v1 snapshot; only explicit probe may open loopback sockets."""
     now = now or datetime.now(timezone.utc)
     if (rag_max_age_seconds is not None and
@@ -259,7 +260,11 @@ def collect_status(manifest_path, *, probe=False, backup_profile=None, now=None,
                 add(component, 'unavailable', 'inaccessible', 'filesystem')
         except (OSError, ValueError, UnboundLocalError):
             add(component, 'unknown', 'metadata_unavailable', 'filesystem')
-    if backup_profile is None:
+    if worker_status is not None:
+        from laew.backup.health import summarize_status
+        backup_state, reason, details = summarize_status(*worker_status, now)
+        add('backup', backup_state, reason, 'worker_status', **details)
+    elif backup_profile is None:
         add('backup', 'disabled', 'profile_not_supplied', 'config')
     else:
         try:
@@ -293,7 +298,7 @@ def collect_status(manifest_path, *, probe=False, backup_profile=None, now=None,
     required_components = {'manifest', 'workspace', 'sessions', 'disk'}
     if vector.get('enabled', False):
         required_components.update(('chroma', 'rag_project_freshness', 'rag_global_freshness'))
-    if backup_profile is not None:
+    if backup_profile is not None or worker_status is not None:
         required_components.add('backup')
     provider_index = 0
     for check in checks:

@@ -19,7 +19,7 @@ import yaml
 
 from laew.console.session_store import SessionStore, validate_payload, validate_session_name
 from laew.console.state import SessionState
-from laew.project_config import validate_language, validate_rag_source_allowlist
+from laew.project_config import PERMISSION_MODES, validate_language, validate_rag_source_allowlist
 from .archive import ArchiveLimits, seal_archive, validate_member_name
 from .fence import FENCE_FILENAME, host_fence
 from .inventory import DEFAULT_EXCLUSIONS, is_excluded, manifest_content_digest
@@ -205,9 +205,18 @@ def _provenance(inventory, mounts):
                  and _stamp(manifest.lstat()) == _stamp(info), "Authored manifest changed.")
     _require(manifest_content_digest(yaml.safe_load(raw)) == inventory.manifest_content_digest,
              "Authored manifest differs from inventoried configuration.")
+    return dict(manifest_sha256=hashlib.sha256(raw).hexdigest(),
+                package_python_sha256=package_python_sha256(Path(__file__).resolve().parents[1], mounts))
+
+
+def package_python_sha256(root, mounts=None):
+    """Fingerprint an installed package tree without importing it."""
+    root = Path(root)
+    mounts = _mounts() if mounts is None else mounts
+    info = _root(root, mounts)
+    _require(stat.S_ISDIR(info.st_mode), "Invalid package evidence root.")
     # Frame each relative UTF-8 module name and its SHA-256 digest, so a
     # dirty checkout and an installed Python package both have content identity.
-    root = Path(__file__).resolve().parents[1]
     package = hashlib.sha256()
     total = 0
     count = 0
@@ -216,22 +225,24 @@ def _provenance(inventory, mounts):
     for directory, children, files in os.walk(root, onerror=fail):
         children[:] = sorted(name for name in children if name != "__pycache__")
         for child in children:
-            _stat(Path(directory) / child, root.stat().st_dev, mounts)
+            _stat(Path(directory) / child, info.st_dev, mounts)
         for name in sorted(files):
             if not name.endswith(".py"):
                 continue
             module = Path(directory) / name
-            size = _stat(module, root.stat().st_dev, mounts).st_size
+            stamp = _stamp(_stat(module, info.st_dev, mounts))
+            size = stamp[3]
             count += 1
             total += size
             _require(count <= 4096 and size <= 8 << 20 and total <= 64 << 20, "Package evidence exceeds budget.")
             with module.open("rb") as stream:
+                _require(_stamp(os.fstat(stream.fileno()))[:5] == stamp[:5], "Package source replaced.")
                 data = stream.read(size + 1)
-            _require(len(data) == size, "Package source changed.")
+            _require(len(data) == size and _stamp(module.lstat()) == stamp, "Package source changed.")
             path = module.relative_to(root).as_posix().encode()
             package.update(len(path).to_bytes(4, "big") + path + hashlib.sha256(data).digest())
     _require(count > 0, "Missing package source evidence.")
-    return dict(manifest_sha256=hashlib.sha256(raw).hexdigest(), package_python_sha256=package.hexdigest())
+    return package.hexdigest()
 
 
 def _check_space(destination, tree, files, directories, limits):
@@ -275,12 +286,14 @@ def _validate_config(path):
     doc = _json(path.read_bytes())
     keys = {"documentation_language"}
     if path.name == ".laew-project.json":
-        keys.add("rag_source_allowlist")
+        keys.update(("rag_source_allowlist", "permission_mode"))
     _require(type(doc) is dict and not doc.keys() - keys, "Unapproved configuration field.")
     if "documentation_language" in doc:
         validate_language(doc["documentation_language"])
     if "rag_source_allowlist" in doc:
         validate_rag_source_allowlist(doc["rag_source_allowlist"])
+    if "permission_mode" in doc:
+        _require(doc["permission_mode"] in PERMISSION_MODES, "Invalid project permission mode.")
 
 
 def _copy(source, target, stamp):
@@ -389,7 +402,7 @@ def _curation(staged, vault, tree, timeout):
 
 
 def capture_backup(inventory, *, backup_id, cut_id, writers, limits=ArchiveLimits(), fence_timeout=0.0,
-                   sqlite_timeout=5.0):
+                   sqlite_timeout=5.0, provenance_check=None):
     """Capture an explicitly quiesced, single-host source inventory."""
     acknowledgement_deadline = _acknowledged(inventory, backup_id, cut_id, writers)
     _require(math.isfinite(sqlite_timeout) and 0 < sqlite_timeout <= 300, "Invalid SQLite deadline.")
@@ -403,6 +416,8 @@ def capture_backup(inventory, *, backup_id, cut_id, writers, limits=ArchiveLimit
         tree, files, directories = _snapshot(sources, limits)
         _check_space(inventory.destination, tree, files, directories, limits)
         provenance = _provenance(inventory, mounts)
+        if provenance_check is not None:
+            provenance_check(inventory, provenance)
         with tempfile.TemporaryDirectory(prefix=".m18-capture-", dir=inventory.destination) as temporary:
             staged = {}
             total = 0
@@ -432,11 +447,19 @@ def capture_backup(inventory, *, backup_id, cut_id, writers, limits=ArchiveLimit
                          and _provenance(inventory, mounts) == provenance, "Source inventory changed during capture.")
                 _require(time.monotonic() < acknowledgement_deadline and datetime.now(timezone.utc) < writers.valid_until,
                          "Writer acknowledgement expired.")
+                if provenance_check is not None:
+                    provenance_check(inventory, provenance)
 
             unchanged()
             metadata = dict(provenance, directories=directories, shared_session_root="sessions_named" not in sources)
             if inventory.memory_namespace_sha256 is not None:
                 metadata["memory_namespace_sha256"] = inventory.memory_namespace_sha256
+
+            def record_release(receipt):
+                provenance_check.record(receipt)
+                unchanged()
+
             return seal_archive(inventory.destination, staged, backup_id=backup_id, cut_id=cut_id,
                                 profile_id=inventory.profile_id, host_id=inventory.host_id, limits=limits,
-                                before_publish=unchanged, capture=metadata)
+                                before_publish=unchanged, before_receipt=record_release if provenance_check else None,
+                                capture=metadata)

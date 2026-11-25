@@ -353,7 +353,7 @@ def _publish(stage, target):
 
 
 def seal_archive(destination, members, *, backup_id, cut_id, profile_id, host_id, limits=ArchiveLimits(),
-                 before_publish=None, capture=None):
+                 before_publish=None, before_receipt=None, capture=None):
     """Seal staged sources under an externally held exclusive installation fence."""
     directory = Path(destination)
     _file(directory, directory=True)
@@ -376,8 +376,11 @@ def seal_archive(destination, members, *, backup_id, cut_id, profile_id, host_id
                 budget = min(limits.max_member_bytes, limits.max_total_bytes - total,
                              limits.max_archive_bytes - stream.tell() - 1100)
                 _check(before.st_size <= budget, "Staged source exceeds byte limits.")
+                # Older Python writes redundant ZIP64 extras for small forced
+                # entries without the sentinel sizes required by our verifier.
+                needs_zip64 = before.st_size > zipfile.ZIP64_LIMIT
                 with source.open("rb") as reader, archive.open(_zip_info("data/" + name), "w",
-                                                               force_zip64=True) as writer:
+                                                               force_zip64=needs_zip64) as writer:
                     _check(os.path.samestat(before, os.fstat(reader.fileno())), "Staged file was replaced.")
                     size, digest = _stream(reader, before.st_size, writer)
                 after = source.lstat()
@@ -401,6 +404,8 @@ def seal_archive(destination, members, *, backup_id, cut_id, profile_id, host_id
             before_publish()
         _publish(stage, target)
     receipt = dict(identity, **metrics, verified_at=datetime.now(timezone.utc).isoformat())
+    if before_receipt is not None:
+        before_receipt(receipt)
     with _stage(directory) as (stage, stream):
         stream.write(_json(receipt))
         stream.flush()
