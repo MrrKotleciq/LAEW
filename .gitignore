@@ -70,6 +70,15 @@ htmlcov/
 /docs/reports/*-resource-samples.json
 /docs/reports/real-world-corpus-*-manifest.json
 
+# Private M18 host diagnostics and runtime inventories.
+/docs/reports/M18_PRODUCTION_BACKUP_AUTOMATION_RECOMMENDATION_20261121.md
+/docs/reports/M18_PRODUCTION_BACKUP_READINESS_20261121.md
+/docs/reports/M18_WINDOWS_WORKER_DEPLOYMENT_QUALIFICATION_20261125.md
+/docs/reports/RUNTIME_DATA_CLEANUP_CANDIDATES_20261120.json
+/docs/reports/RUNTIME_DATA_FORENSICS_20261120.md
+/docs/reports/RUNTIME_DATA_INVENTORY_20261120.json
+/docs/reports/RUNTIME_DATA_QUARANTINE_MOVE_MANIFEST_20261121.jsonl
+
 # Public source material and real-world datasets must stay outside the checkout.
 # Root-only rules intentionally preserve tools/corpus and tests/rag fixtures.
 /corpus/
